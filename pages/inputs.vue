@@ -1,7 +1,6 @@
 <template>
   <div>
     <ClientOnly>
-      <!-- <Chart /> -->
       <Globe />
     </ClientOnly>
   </div>

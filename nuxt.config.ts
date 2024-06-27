@@ -9,5 +9,5 @@ export default defineNuxtConfig({
   },
   debug: false,
   features: { devLogs: true },
-  nitro: { preset: 'node-cluster' },
+  // nitro: { preset: 'node-cluster' },
 })
