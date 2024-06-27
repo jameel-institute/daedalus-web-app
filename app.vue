@@ -1,6 +1,15 @@
 <template>
   <div>
     <NuxtRouteAnnouncer />
-    <NuxtWelcome />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
   </div>
 </template>
+
+<script setup>
+import { iconsSet } from '@/assets/icons';
+
+const nuxtApp = useNuxtApp()
+nuxtApp.vueApp.provide('icons', iconsSet);
+</script>
