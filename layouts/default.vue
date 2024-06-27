@@ -5,7 +5,6 @@
 <template>
   <div>
     <AppHeader />
-    <WebsocketConnection />
     <slot />
   </div>
 </template>
