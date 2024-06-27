@@ -7,7 +7,9 @@ export default defineNuxtConfig({
       enabled: true,
     },
   },
-  debug: false,
+  debug: true,
   features: { devLogs: true },
-  nitro: { preset: 'node-cluster' },
+  nitro: {
+    // preset: 'node-cluster', // - I think this is known not to work with websockets
+  },
 })
