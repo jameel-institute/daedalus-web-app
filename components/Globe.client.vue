@@ -20,11 +20,6 @@ const globediv = shallowRef(null);
 // For such cases amCharts provides a wrapper function: am5.ready()
 // The above will ensure that the creation of the root element will be delayed until DOM is fully loaded.
 
-onMounted(() => {
-  console.log("Globe component mounted");
-  console.log(globediv.value + ' is the globediv value');
-});
-
 watchEffect(() => {
   if (globediv.value !== null) {
     root = am5.Root.new(globediv.value);

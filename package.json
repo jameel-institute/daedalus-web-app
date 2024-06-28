@@ -16,7 +16,14 @@
     "@coreui/icons": "^3.0.1",
     "@coreui/icons-vue": "^2.0.0",
     "@coreui/vue": "^5.1.0",
+    "@socket.io/admin-ui": "^0.5.1",
     "nuxt": "^3.12.2",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5",
     "vue": "latest"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.8",
+    "utf-8-validate": "^6.0.4"
   }
 }
