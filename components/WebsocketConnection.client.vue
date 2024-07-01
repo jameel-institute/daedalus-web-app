@@ -15,6 +15,14 @@ if (socket.connected) {
   onConnect();
 }
 
+function checkConnectionStatus() {
+  if (socket.connected) {
+    onConnect();
+  } else {
+    onDisconnect();
+  }
+}
+
 function onConnect() {
   isConnected.value = true;
   transport.value = socket.io.engine.transport.name;
@@ -32,9 +40,18 @@ function onDisconnect() {
 socket.on("connect", onConnect);
 socket.on("disconnect", onDisconnect);
 
+
+// Set interval to check connection status every 65 seconds (65 because nginx's default proxy_read_timeout is 60)
+// This test gave me some confidence that socket.IO (or somebody) is keeping the connection alive regardless of proxy_read_timeout - unless it's just from the hot-module-reloading.
+let statusCheckInterval: ReturnType<typeof setInterval>;
+statusCheckInterval = setInterval(checkConnectionStatus, 65000);
+
 onBeforeUnmount(() => {
   socket.off("connect", onConnect);
   socket.off("disconnect", onDisconnect);
+  if (statusCheckInterval !== undefined) {
+    clearInterval(statusCheckInterval);
+  }
 });
 </script>
 
