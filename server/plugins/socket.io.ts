@@ -12,6 +12,13 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     serveClient: false, // Since we're using the client library from node modules, we don't need to serve it. https://socket.io/docs/v4/client-installation/#installation
     cors: {
       origin: "http://localhost:3000" // According to https://socket.io/how-to/use-with-vue
+    },
+    // https://socket.io/docs/v4/connection-state-recovery
+    connectionStateRecovery: {
+      // the backup duration of the sessions and the packets
+      maxDisconnectionDuration: 2 * 60 * 1000,
+      // whether to skip middlewares upon successful recovery
+      skipMiddlewares: true,
     }
   });
 
