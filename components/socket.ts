@@ -5,7 +5,10 @@
 
 import { io } from "socket.io-client";
 
-export const socket = io();
+// https://dev.to/mellewynia/quick-guide-to-add-websocket-to-nuxt-3-4bi4
+const url = `${location.protocol === 'https:' ? 'wss://' : 'ws://' }${location.host}`
+
+export const socket = io(url)
 
 socket.on("connect_error", (err) => {
     // the reason of the error, for example "xhr poll error"

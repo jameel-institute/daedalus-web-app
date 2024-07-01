@@ -10,6 +10,9 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   const engine = new Engine();
   const io = new Server({
     serveClient: false, // Since we're using the client library from node modules, we don't need to serve it. https://socket.io/docs/v4/client-installation/#installation
+    cors: {
+      origin: "http://localhost:3000" // According to https://socket.io/how-to/use-with-vue
+    }
   });
 
   io.bind(engine);

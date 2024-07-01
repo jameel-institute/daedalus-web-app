@@ -25,5 +25,13 @@
   "optionalDependencies": {
     "bufferutil": "^4.0.8",
     "utf-8-validate": "^6.0.4"
+  },
+  "overrides": {
+    "nuxi": "3.11.1"
+  },
+  "_comment": {
+    "0": "JSON doesn't support comments so I'm adding mine here.",
+    "1": "Nuxi version is overridden because of the issue https://github.com/nuxt/nuxt/issues/27558",
+    "2": "The issue should be resolved in the next nuxi release after 3.12.2." 
   }
 }
