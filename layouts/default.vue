@@ -1,13 +1,23 @@
-<script setup lang="ts">
-  import '~/assets/scss/main.scss';
-  import '~/assets/scss/fonts.scss';
-</script>
-
 <template>
   <div>
+    <!-- <WebsocketConnection /> -->
+    <SideBar/>
     <AppHeader />
-    <SideBar />
-    <WebsocketConnection />
-    <slot />
+    <div class="wrapper d-flex flex-column">
+      <div class="body flex-grow-1">
+        <CContainer xxl class="px-4">
+          <slot />
+        </CContainer>
+      </div>
+    </div>
   </div>
 </template>
+
+<script setup lang="ts">
+</script>
+
+<style lang="scss">
+.wrapper {
+  min-height: $min-wrapper-height;
+}
+</style>

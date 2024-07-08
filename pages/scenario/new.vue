@@ -7,7 +7,9 @@
 </template>
 
 <script lang="ts" setup>
-
+definePageMeta({
+  hideBreadcrumbs: true
+})
 </script>
 
 <style>

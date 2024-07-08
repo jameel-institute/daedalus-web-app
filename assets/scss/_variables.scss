@@ -1,3 +1,6 @@
+$app-header-height: 70px;
+$app-header-margin-bottom: 1.5rem;
+$min-wrapper-height: calc(100dvh - $app-header-height - $app-header-margin-bottom);
 
 // Imperial Brand
 // ==============
@@ -27,3 +30,24 @@ $primary: $imperial-blue;
 $danger: $imperial-red;
 $warning: $imperial-tangerine;
 $info: $imperial-pool-blue;
+$breadcrumb-divider: '>';
+// $grid-breakpoints: ( // Not actually overriding, just making variables available to our own styles
+//   xs: 0,
+//   sm: 576px,
+//   md: 768px,
+//   lg: 992px,
+//   xl: 1200px,
+//   xxl: 1400px
+// );
+
+// Copy variables from CoreUI without changing them, for referring to them
+// =======================================================================
+// From node_modules/@coreui/coreui/scss/_variables.scss
+$grid-breakpoints: (
+    xs: 0,
+    sm: 576px,
+    md: 768px,
+    lg: 992px,
+    xl: 1200px,
+    xxl: 1400px
+)

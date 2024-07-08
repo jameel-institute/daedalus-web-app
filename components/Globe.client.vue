@@ -53,11 +53,11 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<style>
+<style lang="scss">
 .globe {
   width: 100%;
-  height: 100vh;
+  height: $min-wrapper-height;
   max-width: 100%;
-  max-height: 100vh;
+  max-height: $min-wrapper-height;
 }
 </style>

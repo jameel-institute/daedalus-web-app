@@ -5,7 +5,10 @@ import {
   cilHistory,
   cilShareAlt,
   cilNoteAdd,
-  cilBookmark
+  cilBookmark,
+  cilGlobeAlt,
+  cilArrowThickToLeft,
+  cilChevronLeft
 } from '@coreui/icons';
 
 export const iconsSet = {
@@ -15,5 +18,8 @@ export const iconsSet = {
   cilBookmark,
   cilHistory,
   cilShareAlt,
-  cilNoteAdd
+  cilNoteAdd,
+  cilGlobeAlt,
+  cilArrowThickToLeft,
+  cilChevronLeft
 };

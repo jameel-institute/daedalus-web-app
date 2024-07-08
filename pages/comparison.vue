@@ -4,9 +4,14 @@
   </div>
 </template>
 
-
 <script lang="ts" setup>
-
+definePageMeta({
+  breadcrumbs: [
+    { text: 'Base scenario', href: '#' },
+    { text: 'Explore more scenarios', href: '#' },
+    { text: `By policy response` }
+  ]
+})
 </script>
 
 <style>

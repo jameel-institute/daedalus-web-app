@@ -23,6 +23,15 @@ import { CSidebarFooter } from '@coreui/vue/src/components/sidebar/CSidebarFoote
 import { CSidebarToggler } from '@coreui/vue/src/components/sidebar/CSidebarToggler'
 import { CNavItem } from '@coreui/vue/src/components/nav/CNavItem'
 import { CNavLink } from '@coreui/vue/src/components/nav/CNavLink'
+import { CContainer } from '@coreui/vue/src/components/grid/CContainer'
+import { CHeader } from '@coreui/vue/src/components/header/CHeader'
+import { CHeaderBrand } from '@coreui/vue/src/components/header/CHeaderBrand'
+import { CHeaderToggler } from '@coreui/vue/src/components/header/CHeaderToggler'
+import { CHeaderNav } from '@coreui/vue/src/components/header/CHeaderNav'
+import { CBreadcrumb } from '@coreui/vue/src/components/breadcrumb/CBreadcrumb'
+import { CBreadcrumbItem } from '@coreui/vue/src/components/breadcrumb/CBreadcrumbItem'
+import { CProgress } from '@coreui/vue/src/components/progress/CProgress'
+import { CCloseButton } from '@coreui/vue/src/components/close-button/CCloseButton'
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component('CSidebar', CSidebar)
@@ -33,4 +42,13 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component('CSidebarToggler', CSidebarToggler)
   nuxtApp.vueApp.component('CNavItem', CNavItem)
   nuxtApp.vueApp.component('CNavLink', CNavLink)
+  nuxtApp.vueApp.component('CContainer', CContainer)
+  nuxtApp.vueApp.component('CHeader', CHeader)
+  nuxtApp.vueApp.component('CHeaderBrand', CHeaderBrand)
+  nuxtApp.vueApp.component('CHeaderToggler', CHeaderToggler)
+  nuxtApp.vueApp.component('CHeaderNav', CHeaderNav)
+  nuxtApp.vueApp.component('CBreadcrumb', CBreadcrumb)
+  nuxtApp.vueApp.component('CBreadcrumbItem', CBreadcrumbItem)
+  nuxtApp.vueApp.component('CProgress', CProgress)
+  nuxtApp.vueApp.component('CCloseButton', CCloseButton)
 })
