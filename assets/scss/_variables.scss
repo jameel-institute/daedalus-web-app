@@ -1,0 +1,29 @@
+
+// Imperial Brand
+// ==============
+// https://brand.imperial.ac.uk/document/25#/visual-identity/colour
+$imperial-blue: rgb(0, 0, 205);
+$imperial-black: rgb(22, 26, 29);
+$imperial-navy-blue: rgb(0, 0, 128);
+$imperial-indigo: rgb(75, 0, 130);
+
+// Jameel Institute Brand
+// ======================
+// https://imperiallondon.sharepoint.com/sites/365-j-ideaexecutivecommittee/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2F365%2Dj%2Dideaexecutivecommittee%2FShared%20Documents%2FComms%2F2024%20COMMS%2F2024%20Comms%20Planning%2FJameel%5FGuidelines%5FV1%5F211011%2Epdf&parent=%2Fsites%2F365%2Dj%2Dideaexecutivecommittee%2FShared%20Documents%2FComms%2F2024%20COMMS%2F2024%20Comms%20Planning&isSPOFile=1&OR=Teams-HL&CT=1719936693648&clickparams=eyJBcHBOYW1lIjoiVGVhbXMtRGVza3RvcCIsIkFwcFZlcnNpb24iOiIxNDE1LzI0MDUzMTAxNDIxIiwiSGFzRmVkZXJhdGVkVXNlciI6ZmFsc2V9
+// Helpfully, the Jameel Institute brand only has 1 primary color, 'Imperial Blue',
+// (which I think has been superseded by the Imperial brand update, referenced above)
+// and these 6 secondary colors.
+$imperial-pool-blue: rgb(12, 161, 205);
+$imperial-seaglass: rgb(55, 159, 159);
+$imperial-purple: rgb(101, 48, 152);
+$imperial-red: rgb(221, 37, 1);
+$imperial-tangerine: rgb(236, 115, 0);
+$imperial-lemon: rgb(255, 216, 1);
+
+// Variable overrides for (e.g.) CoreUI
+// ====================================
+$enable-deprecation-messages: false !default;
+$primary: $imperial-blue;
+$danger: $imperial-red;
+$warning: $imperial-tangerine;
+$info: $imperial-pool-blue;

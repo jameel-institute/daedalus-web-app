@@ -7,12 +7,17 @@ export default defineNuxtConfig({
       enabled: true,
     },
   },
-  debug: false,
+
+  debug: true,
   features: { devLogs: true },
 
   nitro: {
      experimental: {
        websocket: true
      },
-  }
+  },
+
+  modules: [
+    "@nuxtjs/fontaine", // https://nuxt.com/docs/getting-started/styling#font-advanced-optimization
+  ]
 })

@@ -7,7 +7,9 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "ssr-test": "vitest ./tests/ssr/*.spec.ts",
+    "e2e-test": "playwright test"
   },
   "dependencies": {
     "@amcharts/amcharts5": "^5.9.12",
@@ -16,8 +18,10 @@
     "@coreui/icons": "^3.0.1",
     "@coreui/icons-vue": "^2.0.0",
     "@coreui/vue": "^5.1.0",
+    "@nuxtjs/fontaine": "^0.4.3",
     "@socket.io/admin-ui": "^0.5.1",
     "nuxt": "^3.12.2",
+    "playwright": "^1.45.1",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
     "vue": "latest"
@@ -32,6 +36,15 @@
   "_comment": {
     "0": "JSON doesn't support comments so I'm adding mine here.",
     "1": "Nuxi version is overridden because of the issue https://github.com/nuxt/nuxt/issues/27558",
-    "2": "The issue should be resolved in the next nuxi release after 3.12.2." 
+    "2": "The issue should be resolved in the next nuxi release after 3.12.2."
+  },
+  "devDependencies": {
+    "@nuxt/test-utils": "^3.13.1",
+    "@playwright/test": "^1.45.1",
+    "@types/node": "^20.14.9",
+    "@vue/test-utils": "^2.4.6",
+    "jsdom": "^24.1.0",
+    "sass": "^1.77.6",
+    "vitest": "^1.6.0"
   }
 }

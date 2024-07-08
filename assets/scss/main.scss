@@ -1,0 +1,14 @@
+// This is a main.scss based on a CoreUI example project.
+// It's included in the default layout file; if we want scss specific to some page then we could
+// be clever about including it in the page rather than for all pages, i.e., not simply adding it 
+// here.
+
+// Variable overrides for CoreUI
+@import "variables";
+
+@import "@coreui/coreui/scss/coreui";
+
+// Custom styles for this theme
+@import "theme";
+
+@import "custom";

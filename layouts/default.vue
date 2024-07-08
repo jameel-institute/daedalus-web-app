@@ -1,5 +1,6 @@
 <script setup lang="ts">
-    import '@coreui/coreui/dist/css/coreui.min.css';
+  import '~/assets/scss/main.scss';
+  import '~/assets/scss/fonts.scss';
 </script>
 
 <template>
