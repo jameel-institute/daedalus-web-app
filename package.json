@@ -19,8 +19,10 @@
     "@coreui/icons-vue": "^2.0.0",
     "@coreui/vue": "^5.1.0",
     "@nuxtjs/fontaine": "^0.4.3",
+    "@pinia/nuxt": "^0.5.1",
     "@socket.io/admin-ui": "^0.5.1",
     "nuxt": "^3.12.2",
+    "pinia": "^2.1.7",
     "playwright": "^1.45.1",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
@@ -31,12 +33,15 @@
     "utf-8-validate": "^6.0.4"
   },
   "overrides": {
-    "nuxi": "3.11.1"
+    "nuxi": "3.11.1",
+    "vue": "latest"
   },
   "_comment": {
     "0": "JSON doesn't support comments so I'm adding mine here.",
     "1": "Nuxi version is overridden because of the issue https://github.com/nuxt/nuxt/issues/27558",
-    "2": "The issue should be resolved in the next nuxi release after 3.12.2."
+    "2": "The issue should be resolved in the next nuxi release after 3.12.2.",
+    "3": "Vue version is overridden because of the issue described in the 'tip' in",
+    "4": "the installation section of https://pinia.vuejs.org/ssr/nuxt.html"
   },
   "devDependencies": {
     "@nuxt/test-utils": "^3.13.1",

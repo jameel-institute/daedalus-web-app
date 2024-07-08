@@ -8,7 +8,7 @@ export default defineNuxtConfig({
     },
   },
 
-  debug: true,
+  debug: false,
   features: { devLogs: true },
 
   nitro: {
@@ -19,5 +19,17 @@ export default defineNuxtConfig({
 
   modules: [
     "@nuxtjs/fontaine", // https://nuxt.com/docs/getting-started/styling#font-advanced-optimization
-  ]
+    "@pinia/nuxt",
+  ],
+
+  vite: {
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: '@use "~/assets/scss/_variables.scss" as *;' // Enables variables to be accessible in SFC styles. https://nuxt.com/docs/getting-started/styling#using-preprocessors
+        }
+      }
+    }
+  }
+  
 })
