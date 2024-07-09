@@ -1,3 +1,5 @@
+<!-- A component for debugging the websockets connection -->
+
 <template>
   <div>
     <p>Status: {{ isConnected ? "connected" : "disconnected" }}</p>
