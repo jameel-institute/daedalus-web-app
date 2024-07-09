@@ -1,8 +1,8 @@
 <template>
   <div>
-    <WebsocketConnection />
-    <!-- <SideBar/>
-    <AppHeader /> -->
+    <!-- <WebsocketConnection /> -->
+    <SideBar/>
+    <AppHeader />
     <div class="wrapper d-flex flex-column">
       <div class="body flex-grow-1">
         <CContainer xxl class="px-4">
