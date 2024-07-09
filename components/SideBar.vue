@@ -1,5 +1,10 @@
 <template>
-  <CSidebar unfoldable :visible="sidebarStore.isVisible" @hide="sidebarStore.isVisible = false" class="sidebar-fixed border-end">
+  <CSidebar
+    unfoldable
+    :visible="visible"
+    @hide="handleHide"
+    class="sidebar-fixed border-end"
+  >
     <CSidebarNav role="navigation">
       <CNavItem>
         <CNavLink href="/scenario/new">
@@ -32,8 +37,8 @@
         </CNavLink>
       </CNavItem>
 
-      <CNavItem class="mt-auto" v-show="sidebarStore.isVisible">
-        <CNavLink href="#" @click="sidebarStore.toggleSidebar">
+      <CNavItem class="mt-auto" v-show="visible">
+        <CNavLink href="#" @click="handleToggle">
           <CIcon class="nav-icon" icon="cilArrowThickToLeft" size="lg"/> Hide sidebar
         </CNavLink>
       </CNavItem>
@@ -49,10 +54,19 @@
 </template>
 
 <script lang="ts" setup>
-  import { CIcon } from '@coreui/icons-vue';
-  import { useSidebarStore } from '@/stores/sidebar';
+import { CIcon } from '@coreui/icons-vue';
 
-  const sidebarStore = useSidebarStore();
+const props = defineProps({
+  visible: Boolean
+});
+const emit = defineEmits(['toggle', 'hidden']);
+const handleToggle = () => {
+  emit('toggle');
+};
+
+const handleHide = () => {
+  emit('hidden');
+};
 </script>
 
 <style lang="scss">

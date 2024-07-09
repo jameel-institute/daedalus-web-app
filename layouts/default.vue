@@ -1,8 +1,14 @@
 <template>
   <div>
     <!-- <WebsocketConnection /> -->
-    <SideBar/>
-    <AppHeader />
+    <SideBar
+      :visible="sidebarVisible"
+      @toggle="handleToggleSidebar"
+      @hidden="handleSidebarHidden"
+    />
+    <AppHeader
+      @toggle-sidebar="handleToggleSidebar"
+    />
     <div class="wrapper d-flex flex-column">
       <div class="body flex-grow-1">
         <CContainer xxl class="px-4">
@@ -14,6 +20,7 @@
 </template>
 
 <script setup lang="ts">
+const { sidebarVisible, handleToggleSidebar, handleSidebarHidden } = useSidebar();
 </script>
 
 <style lang="scss">

@@ -1,8 +1,6 @@
 <template>
   <div>
-    <ClientOnly>
-      <Globe />
-    </ClientOnly>
+    <Globe />
   </div>
 </template>
 
