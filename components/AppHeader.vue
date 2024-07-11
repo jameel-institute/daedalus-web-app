@@ -2,7 +2,7 @@
   <CHeader class="header-sticky p-0" :class="{'shadow-sm': isScrolled}">
     <CContainer fluid class="border-bottom px-4 mt-1 justify-content-start">
       <CHeaderToggler @click="toggleSidebar" type="button">
-        <CIcon icon="cilMenu" size="lg"/>
+        <CIcon icon="cilMenu" size="lg" data-testid="toggle-sidebar-button"/>
       </CHeaderToggler>
       <CHeaderBrand href="/">
         <CIcon icon="cilGlobeAlt" size="lg"/>

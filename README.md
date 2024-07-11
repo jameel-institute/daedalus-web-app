@@ -36,6 +36,12 @@ Start the development server on `http://localhost:3000`:
 npm run dev
 ```
 
+You can also expose it to your local network, so that you can try it out on a mobile device, using:
+
+```bash
+npm run dev -- --host
+```
+
 ## Production
 
 Build the application for production:

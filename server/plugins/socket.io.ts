@@ -25,7 +25,10 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   io.bind(engine);
 
   io.on("connection", (socket) => {
-    'I think a client has connected!'
+    // Every 1000ms, emit a message to the client containing the current time on the server
+    setInterval(() => {
+      socket.emit("time", new Date().toTimeString());
+    }, 1000);
   });
 
   io.engine.on("connection_error", (err) => {

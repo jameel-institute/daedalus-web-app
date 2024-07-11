@@ -20,7 +20,18 @@
 </template>
 
 <script setup lang="ts">
-const { sidebarVisible, handleToggleSidebar, handleSidebarHidden } = useSidebar();
+const sidebarVisible = ref(false);
+
+const handleToggleSidebar = () => {
+  sidebarVisible.value = !sidebarVisible.value;
+}
+
+const handleSidebarHidden = () => {
+  // The 'hide' event is emitted by the CoreUI Sidebar component as a callback whenever the sidebar
+  // is closed, whether by clicking a button or (on mobile) clicking outside the sidebar, and we
+  // bubble it up to this layout component so that our 'sidebarVisible' ref is updated correspondingly.
+  sidebarVisible.value = false;
+};
 </script>
 
 <style lang="scss">

@@ -10,7 +10,7 @@
     "postinstall": "nuxt prepare",
     "unit-test": "vitest ./tests/composables/*.spec.ts ./tests/components/*.spec.ts",
     "ssr-test": "vitest ./tests/ssr/*.spec.ts",
-    "e2e-test": "playwright test ./tests/e2e/*.spec.ts"
+    "e2e-test": "playwright test"
   },
   "dependencies": {
     "@amcharts/amcharts5": "^5.9.12",

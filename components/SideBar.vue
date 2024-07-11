@@ -37,8 +37,13 @@
         </CNavLink>
       </CNavItem>
 
-      <CNavItem class="mt-auto" v-show="visible">
-        <CNavLink href="#" @click="handleToggle">
+      <CNavItem class="mt-auto">
+        <CNavLink
+          href="#"
+          @click="handleToggle"
+          aria-label="Close sidebar"
+          data-testid="close-sidebar-button"
+        >
           <CIcon class="nav-icon" icon="cilArrowThickToLeft" size="lg"/> Hide sidebar
         </CNavLink>
       </CNavItem>

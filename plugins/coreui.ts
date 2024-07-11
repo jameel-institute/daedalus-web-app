@@ -31,7 +31,6 @@ import { CHeaderNav } from '@coreui/vue/src/components/header/CHeaderNav'
 import { CBreadcrumb } from '@coreui/vue/src/components/breadcrumb/CBreadcrumb'
 import { CBreadcrumbItem } from '@coreui/vue/src/components/breadcrumb/CBreadcrumbItem'
 import { CProgress } from '@coreui/vue/src/components/progress/CProgress'
-import { CCloseButton } from '@coreui/vue/src/components/close-button/CCloseButton'
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component('CSidebar', CSidebar)
@@ -50,5 +49,4 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component('CBreadcrumb', CBreadcrumb)
   nuxtApp.vueApp.component('CBreadcrumbItem', CBreadcrumbItem)
   nuxtApp.vueApp.component('CProgress', CProgress)
-  nuxtApp.vueApp.component('CCloseButton', CCloseButton)
 })

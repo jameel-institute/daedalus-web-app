@@ -4,6 +4,7 @@
   <div>
     <p>Status: {{ isConnected ? "connected" : "disconnected" }}</p>
     <p>Transport: {{ transport }}</p>
+    <p>Time on the server: {{ time }}</p>
   </div>
 </template>
 
@@ -12,6 +13,7 @@ import { socket } from "./socket";
 
 const isConnected = ref(false);
 const transport = ref("N/A");
+const time = ref("N/A");
 
 if (socket.connected) {
   onConnect();
@@ -41,6 +43,9 @@ function onDisconnect() {
 
 socket.on("connect", onConnect);
 socket.on("disconnect", onDisconnect);
+socket.on("time", (timeMessage) => {
+  time.value = timeMessage;
+});
 
 
 // Set interval to check connection status every 65 seconds (65 because nginx's default proxy_read_timeout is 60)
