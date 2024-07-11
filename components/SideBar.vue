@@ -2,8 +2,8 @@
   <CSidebar
     unfoldable
     :visible="visible"
-    @hide="handleHide"
     class="sidebar-fixed border-end"
+    @hide="handleHide"
   >
     <CSidebarNav role="navigation">
       <CNavItem>
@@ -40,9 +40,9 @@
       <CNavItem class="mt-auto">
         <CNavLink
           href="#"
-          @click="handleToggle"
           aria-label="Close sidebar"
           data-testid="close-sidebar-button"
+          @click="handleToggle"
         >
           <CIcon class="nav-icon" icon="cilArrowThickToLeft" size="lg"/> Hide sidebar
         </CNavLink>
@@ -61,7 +61,7 @@
 <script lang="ts" setup>
 import { CIcon } from '@coreui/icons-vue';
 
-const props = defineProps({
+defineProps({
   visible: Boolean
 });
 const emit = defineEmits(['toggle', 'hidden']);

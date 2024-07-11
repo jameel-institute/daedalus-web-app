@@ -10,8 +10,8 @@
         <CIcon icon="cilGlobeAlt" size="lg"/>
         <span class="ms-2 py">DAEDALUS Explore</span>
       </CHeaderBrand>
-      <div class="ms-5 d-none d-xxl-block" v-show="showBreadcrumbs">
-        <Breadcrumb/>
+      <div v-show="showBreadcrumbs" class="ms-5 d-none d-xxl-block">
+        <BreadCrumb/>
       </div>
       <CHeaderNav class="ms-auto d-xxl-none">
         <CNavItem class="py-1">
@@ -26,8 +26,8 @@
         <CNavItem href="#"> ?</CNavItem>
       </CHeaderNav>
     </CContainer>
-    <CContainer fluid class="d-xxl-none full-breadcrumb-container" v-show="showBreadcrumbs">
-      <Breadcrumb/>
+    <CContainer v-show="showBreadcrumbs" fluid class="d-xxl-none full-breadcrumb-container">
+      <BreadCrumb/>
     </CContainer>
   </CHeader>
 </template>

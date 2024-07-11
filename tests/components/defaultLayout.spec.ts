@@ -1,6 +1,6 @@
 // @vitest-environment nuxt
 
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 
 import DefaultLayout from '../../layouts/default.vue';

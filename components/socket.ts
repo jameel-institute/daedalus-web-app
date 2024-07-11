@@ -10,13 +10,18 @@ const url = `${location.protocol === 'https:' ? 'wss://' : 'ws://' }${location.h
 
 export const socket = io(url)
 
-socket.on("connect_error", (err) => {
+interface SocketIOError extends Error {
+    description?: string;
+    context?: unknown;
+}
+
+socket.on("connect_error", (err: SocketIOError) => {
     // the reason of the error, for example "xhr poll error"
     console.log(err.message);
 
     // some additional description, for example the status code of the initial HTTP response
-    console.log((err as any).description);
+    console.log(err.description);
 
     // some additional context, for example the XMLHttpRequest object
-    console.log((err as any).context);
+    console.log(err.context);
 });
