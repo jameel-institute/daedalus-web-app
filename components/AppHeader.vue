@@ -69,7 +69,7 @@ onBeforeUnmount(() => {
 const VerticalRule = h('div', { class: "vr h-100 mx-2 text-body text-opacity-75" })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @use "sass:map";
 
 .header-brand {

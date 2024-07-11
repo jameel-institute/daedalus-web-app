@@ -17,3 +17,6 @@ const route = useRoute()
 
 const items = route.meta.breadcrumbs || []
 </script>
+
+<style lang="scss" scoped>
+</style>

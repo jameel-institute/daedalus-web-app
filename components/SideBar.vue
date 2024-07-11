@@ -74,15 +74,7 @@ const handleHide = () => {
 };
 </script>
 
-<style lang="scss">
-@use "sass:map";
-
-.sidebar {
-  @media (min-width: map.get($grid-breakpoints, 'lg')) {
-    margin-top: $app-header-height;
-  }
-}
-
+<style lang="scss" scoped>
 .sidebar-brand-narrow {
   filter: opacity(50%) // Probably not allowed - placeholder style for Imperial 'I' logo to try and make the colour stand out less.
 }

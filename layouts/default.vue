@@ -35,7 +35,15 @@ const handleSidebarHidden = () => {
 </script>
 
 <style lang="scss">
+@use "sass:map";
+
 .wrapper {
   min-height: $min-wrapper-height;
+}
+
+.sidebar {
+  @media (min-width: map.get($grid-breakpoints, 'lg')) {
+    margin-top: $app-header-height;
+  }
 }
 </style>
