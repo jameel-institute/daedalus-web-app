@@ -42,6 +42,10 @@ You can also expose it to your local network, so that you can try it out on a mo
 npm run dev -- --host
 ```
 
+## CI
+
+Playwright tests produce HTML reports when they run, whether on CI or not, showing visual snapshots at each timestep in each test. If you need to open these, follow the instructions [here](https://playwright.dev/docs/ci-intro#html-report), particularly '[Viewing the HTML report](https://playwright.dev/docs/ci-intro#viewing-the-html-report)'.
+
 ## Production
 
 Build the application for production:
