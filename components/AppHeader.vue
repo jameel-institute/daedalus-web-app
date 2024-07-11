@@ -13,12 +13,6 @@
       <div class="ms-5 d-none d-xxl-block" v-show="showBreadcrumbs">
         <Breadcrumb/>
       </div>
-      <!-- <div class="d-none d-xxl-block ms-auto mt-2">
-        <AnalysesProgress/>
-      </div>
-      <div class="d-xxl-none ms-auto fixed-bottom bg-body p-3 pb-2 border-start border-top rounded-start-3 shadow-lg" style="max-width: 728px">
-        <AnalysesProgress/>
-      </div> -->
       <CHeaderNav class="ms-auto d-xxl-none">
         <CNavItem class="py-1">
           <VerticalRule/>
@@ -86,8 +80,8 @@ $sidebar-narrow-width: 4rem;
   font-size: 0.74rem;
 
   @media (min-width: map.get($grid-breakpoints, 'lg')) {
-  // For some reason, without !important, margin-left jumps on refresh.
-  margin-left: calc($sidebar-narrow-width + 0.5rem) !important;
+    // For some reason, without !important, margin-left jumps on refresh.
+    margin-left: calc($sidebar-narrow-width + 0.5rem) !important;
   }
 }
 </style>

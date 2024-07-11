@@ -1,3 +1,6 @@
+<!-- This code is not complete. It's an example of how breadcrumbs could work.
+I expect that to change based on how we end up making routes work. -->
+
 <template>
   <CBreadcrumb class="my-0">
     <CBreadcrumbItem

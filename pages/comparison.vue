@@ -5,6 +5,8 @@
 </template>
 
 <script lang="ts" setup>
+// A non-dynamic placeholder example of what the breadcrumb text would be.
+// The text should actually depend on the route (which determines which axis is the axis of comparison).
 definePageMeta({
   breadcrumbs: [
     { text: 'Base scenario', href: '#' },
