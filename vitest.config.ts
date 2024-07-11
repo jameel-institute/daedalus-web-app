@@ -1,4 +1,5 @@
 import { defineVitestConfig } from '@nuxt/test-utils/config'
+import { coverageConfigDefaults } from 'vitest/config'
 
 export default defineVitestConfig({
   test: {
@@ -10,6 +11,9 @@ export default defineVitestConfig({
           // other Nuxt config you want to pass
         }
       }
-    }
+    },
+    coverage: {
+      exclude: ['**/*.config.ts', ...coverageConfigDefaults.exclude]
+    },
   }
 });

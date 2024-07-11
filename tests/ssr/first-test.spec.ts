@@ -1,6 +1,8 @@
+// Note, as there are no real tests in the tests/ssr/ folder, these are not yet
+// run on CI.
+
 import { expect, describe, test } from 'vitest'
 import { setup, $fetch } from '@nuxt/test-utils/e2e'
-
 
 describe('My test', async () => {
   await setup({
