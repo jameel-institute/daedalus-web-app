@@ -8,9 +8,10 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "unit-test": "vitest ./tests/composables/*.spec.ts ./tests/components/*.spec.ts",
-    "ssr-test": "vitest ./tests/ssr/*.spec.ts",
-    "e2e-test": "playwright test"
+    "test:unit": "vitest ./tests/composables/*.spec.ts ./tests/components/*.spec.ts",
+    "test:unit:coverage": "vitest ./tests/composables/*.spec.ts ./tests/components/*.spec.ts --coverage",
+    "test:ssr": "vitest ./tests/ssr/*.spec.ts",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@amcharts/amcharts5": "^5.9.12",
@@ -50,6 +51,7 @@
     "@playwright/test": "^1.45.1",
     "@types/lodash.throttle": "^4.1.9",
     "@types/node": "^20.14.9",
+    "@vitest/coverage-v8": "^1.6.0",
     "@vue/test-utils": "^2.4.6",
     "jsdom": "^24.1.0",
     "sass": "^1.77.6",

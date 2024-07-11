@@ -8,14 +8,21 @@ CI=0 or CI=1
 
 # Tests
 
+Run unit tests and component tests:
+```bash
+npm run test:unit
+# Or with coverage:
+npm run test:unit:coverage
+```
+
 Run server-side rendering tests:
 ```bash
-npm run ssr-test
+npm run test:ssr
 ```
 
 Run full-stack tests:
 ```bash
-npm run e2e-test
+npm run test:e2e
 ```
 
 The tests under e2e, which are run by playwright, are for testing the full-stack (client app and server app) in a browser environment. Since the server-rendered page may be different from the client-rendered page, for example, when some elements are configured to only render on the client side, relevant tests should wait for the elements to be present.
