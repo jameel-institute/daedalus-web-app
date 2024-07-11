@@ -5,9 +5,7 @@ on:
       - main
   pull_request:
     branches:
-      - main
-      - "jidea-*"
-      - "j-idea-*"
+      - "*"
 jobs:
   test:
     timeout-minutes: 60
