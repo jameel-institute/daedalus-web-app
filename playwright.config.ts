@@ -1,11 +1,13 @@
-import { defineConfig, devices } from '@playwright/test';
+/* eslint-disable node/prefer-global/process */
+import { defineConfig, devices } from '@playwright/test'
 
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-import dotenv from 'dotenv';
-dotenv.config();
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -71,11 +73,11 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  // Multiple web servers (or background processes) can be launched: https://playwright.dev/docs/api/class-testconfig#test-config-web-server 
+  // Multiple web servers (or background processes) can be launched: https://playwright.dev/docs/api/class-testconfig#test-config-web-server
   webServer: {
     command: 'NUXT_HOST="127.0.0.1" NUXT_PORT="3000" npm run dev',
     url: 'http://127.0.0.1:3000',
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,
   },
-});
+})

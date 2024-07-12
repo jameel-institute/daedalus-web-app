@@ -13,8 +13,6 @@
 // on every page, but if you have components that are only used on certain pages, you should
 // import them in the page components themselves.
 
-import { defineNuxtPlugin } from '#app'
-
 import { CSidebar } from '@coreui/vue/src/components/sidebar/CSidebar'
 import { CSidebarHeader } from '@coreui/vue/src/components/sidebar/CSidebarHeader'
 import { CSidebarBrand } from '@coreui/vue/src/components/sidebar/CSidebarBrand'
@@ -31,6 +29,7 @@ import { CHeaderNav } from '@coreui/vue/src/components/header/CHeaderNav'
 import { CBreadcrumb } from '@coreui/vue/src/components/breadcrumb/CBreadcrumb'
 import { CBreadcrumbItem } from '@coreui/vue/src/components/breadcrumb/CBreadcrumbItem'
 import { CProgress } from '@coreui/vue/src/components/progress/CProgress'
+import { defineNuxtPlugin } from '#app'
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component('CSidebar', CSidebar)
