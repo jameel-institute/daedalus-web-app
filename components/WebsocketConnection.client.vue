@@ -1,4 +1,5 @@
-<!-- A component for debugging the websockets connection -->
+<!-- This component is for debugging websockets connections. Include it in a layout to see whether the
+ client is currently connected to the server, and whether websockets transport is available. -->
 
 <template>
   <div>

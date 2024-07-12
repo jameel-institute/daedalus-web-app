@@ -25,6 +25,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   io.bind(engine);
 
   io.on("connection", (socket) => {
+    // For debugging websockets connection only:
     // Every 1000ms, emit a message to the client containing the current time on the server
     setInterval(() => {
       socket.emit("time", new Date().toTimeString());

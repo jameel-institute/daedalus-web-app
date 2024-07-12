@@ -76,6 +76,6 @@ const handleHide = () => {
 
 <style lang="scss" scoped>
 .sidebar-brand-narrow {
-  filter: opacity(50%) // Probably not allowed - placeholder style for Imperial 'I' logo to try and make the colour stand out less.
+  filter: opacity(50%) // Style for Imperial 'I' logo to try and make the colour stand out less.
 }
 </style>
