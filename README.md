@@ -51,6 +51,12 @@ npm run dev -- --host
 
 The QR code shown will allow you to quickly access the app.
 
+## Linting and formatting
+
+Linting and formatting are handled jointly by [@nuxt/eslint](https://eslint.nuxt.com/packages/module) (an "all-in-one" ESLint "integration" for Nuxt) and by the more frequently-updated, conventionally- and widely-used [@antfu/eslint-config](https://github.com/antfu/eslint-config) (antfu works at NuxtLabs, and the package is given as an example in the `@nuxt/eslint` docs). The former handles linting only, while the latter also handles formatting, based on ESLint Stylistic.
+
+### Commit hook
+
 You should install the lint-fixing commit hook (which will apply to this repo only) using:
 
 ```bash
@@ -58,6 +64,17 @@ npx simple-git-hooks
 ```
 
 This will help us keep git history tidy, avoiding clogging up `git blame`s with linting-only commits.
+
+### Inspecting the linting rules
+
+This is a helpful tool for inspecting your config setup, so you can check which rules are applied, in which order:
+```bash
+npx @eslint/config-inspector
+```
+
+### For your IDE
+
+In VSCode, [make sure](https://eslint.nuxt.com/packages/module#vs-code) your ESlint VS Code extension (vscode-eslint) is at least v3.0.10 (released June 2024). Turn on the 'Format on Save' setting.
 
 ## CI
 
