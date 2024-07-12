@@ -1,7 +1,7 @@
 {
   "name": "nuxt-app",
-  "private": true,
   "type": "module",
+  "private": true,
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
@@ -37,18 +37,8 @@
     "bufferutil": "^4.0.8",
     "utf-8-validate": "^6.0.4"
   },
-  "overrides": {
-    "nuxi": "3.11.1",
-    "vue": "latest"
-  },
-  "_comment": {
-    "0": "JSON doesn't support comments so I'm adding mine here.",
-    "1": "Nuxi version is overridden because of the issue https://github.com/nuxt/nuxt/issues/27558",
-    "2": "The issue should be resolved in the next nuxi release after 3.12.2.",
-    "3": "Vue version is overridden because of the issue described in the 'tip' in",
-    "4": "the installation section of https://pinia.vuejs.org/ssr/nuxt.html"
-  },
   "devDependencies": {
+    "@antfu/eslint-config": "^2.21.0",
     "@nuxt/eslint": "^0.3.13",
     "@nuxt/test-utils": "^3.13.1",
     "@playwright/test": "^1.45.1",
@@ -57,7 +47,30 @@
     "@vitest/coverage-v8": "^1.6.0",
     "@vue/test-utils": "^2.4.6",
     "jsdom": "^24.1.0",
+    "lint-staged": "^15.2.7",
     "sass": "^1.77.6",
+    "simple-git-hooks": "^2.11.1",
     "vitest": "^1.6.0"
+  },
+  "overrides": {
+    "nuxi": "3.11.1",
+    "vue": "latest"
+  },
+  "_comment": {
+    "0": "JSON doesn't support comments so I'm adding mine here.",
+    "1": "Nuxi version is overridden because of the issue https://github.com/nuxt/nuxt/issues/27558",
+    "2": "The issue should be resolved in the next nuxi release after 3.12.2.",
+    "3": "==============================",
+    "4": "Vue version is overridden because of the issue described in the 'tip' in",
+    "5": "the installation section of https://pinia.vuejs.org/ssr/nuxt.html",
+    "6": "==============================",
+    "7": "NB, @antfu/eslint-config is one minor version behind the latest version due to",
+    "8": "the issue described in https://github.com/antfu/eslint-config/issues/529"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
   }
 }

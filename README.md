@@ -35,7 +35,7 @@ Make sure to install the dependencies:
 npm install
 ```
 
-## Development Server
+## Local development
 
 Start the development server on `http://localhost:3000`:
 
@@ -50,6 +50,14 @@ npm run dev -- --host
 ```
 
 The QR code shown will allow you to quickly access the app.
+
+You should install the lint-fixing commit hook (which will apply to this repo only) using:
+
+```bash
+npx simple-git-hooks
+```
+
+This will help us keep git history tidy, avoiding clogging up `git blame`s with linting-only commits.
 
 ## CI
 
