@@ -9,11 +9,11 @@ export default defineVitestConfig({
         domEnvironment: 'jsdom',
         overrides: {
           // other Nuxt config you want to pass
-        },
-      },
+        }
+      }
     },
     coverage: {
-      exclude: ['**/*.config.ts', ...coverageConfigDefaults.exclude],
+      exclude: ['**/*.config.ts', ...coverageConfigDefaults.exclude]
     },
-  },
-})
+  }
+});

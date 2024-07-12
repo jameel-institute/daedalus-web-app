@@ -1,14 +1,6 @@
 <!-- This code is not complete. It's an example of how breadcrumbs could work.
 I expect that to change based on how we end up making routes work. -->
 
-<script lang="ts" setup>
-import { useRoute } from 'vue-router'
-
-const route = useRoute()
-
-const items = route.meta.breadcrumbs || []
-</script>
-
 <template>
   <CBreadcrumb class="my-0">
     <CBreadcrumbItem
@@ -21,6 +13,13 @@ const items = route.meta.breadcrumbs || []
     </CBreadcrumbItem>
   </CBreadcrumb>
 </template>
+
+<script lang="ts" setup>
+import { useRoute } from 'vue-router'
+const route = useRoute()
+
+const items = route.meta.breadcrumbs || []
+</script>
 
 <style lang="scss" scoped>
 </style>

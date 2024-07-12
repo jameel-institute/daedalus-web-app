@@ -1,15 +1,15 @@
 import {
-  cilArrowThickToLeft,
-  cilBookmark,
-  cilChevronLeft,
-  cilCloudDownload,
-  cilGlobeAlt,
-  cilHistory,
   cilMenu,
-  cilNoteAdd,
+  cilCloudDownload,
   cilPlus,
+  cilHistory,
   cilShareAlt,
-} from '@coreui/icons'
+  cilNoteAdd,
+  cilBookmark,
+  cilGlobeAlt,
+  cilArrowThickToLeft,
+  cilChevronLeft
+} from '@coreui/icons';
 
 export const iconsSet = {
   cilMenu,
@@ -21,5 +21,5 @@ export const iconsSet = {
   cilNoteAdd,
   cilGlobeAlt,
   cilArrowThickToLeft,
-  cilChevronLeft,
-}
+  cilChevronLeft
+};

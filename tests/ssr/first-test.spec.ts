@@ -1,15 +1,15 @@
 // Note, as there are no real tests in the tests/ssr/ folder, these are not yet
 // run on CI.
 
-import { describe, expect } from 'vitest'
-import { $fetch, setup } from '@nuxt/test-utils/e2e'
+import { expect, describe, test } from 'vitest'
+import { setup, $fetch } from '@nuxt/test-utils/e2e'
 
-describe('my test', async () => {
+describe('My test', async () => {
   await setup({
-    runner: 'vitest', // this is the default value but I'm just making it explicit
+    runner: 'vitest' // this is the default value but I'm just making it explicit
   })
 
-  it('server-rendered content', async () => {
+  test('server-rendered content', async () => {
     const html = await $fetch('/')
 
     // screen.debug()

@@ -3,27 +3,25 @@
 
 // Make sure you never try to use this code during server-side rendering
 
-import { io } from 'socket.io-client'
+import { io } from "socket.io-client";
 
 // https://dev.to/mellewynia/quick-guide-to-add-websocket-to-nuxt-3-4bi4
-const url = `${location.protocol === 'https:' ? 'wss://' : 'ws://'}${location.host}`
+const url = `${location.protocol === 'https:' ? 'wss://' : 'ws://' }${location.host}`
 
 export const socket = io(url)
 
 interface SocketIOError extends Error {
-  description?: string
-  context?: unknown
+    description?: string;
+    context?: unknown;
 }
 
-socket.on('connect_error', (err: SocketIOError) => {
-  /* eslint-disable no-console */
+socket.on("connect_error", (err: SocketIOError) => {
+    // the reason of the error, for example "xhr poll error"
+    console.log(err.message);
 
-  // the reason of the error, for example "xhr poll error"
-  console.log(err.message)
+    // some additional description, for example the status code of the initial HTTP response
+    console.log(err.description);
 
-  // some additional description, for example the status code of the initial HTTP response
-  console.log(err.description)
-
-  // some additional context, for example the XMLHttpRequest object
-  console.log(err.context)
-})
+    // some additional context, for example the XMLHttpRequest object
+    console.log(err.context);
+});

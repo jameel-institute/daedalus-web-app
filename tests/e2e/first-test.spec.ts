@@ -1,7 +1,7 @@
-import { expect, test } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 
 test('testing foo', async ({ page, baseURL }) => {
-  await page.goto(`${baseURL}/`)
+  await page.goto(baseURL + '/')
 
   const html = await page.innerHTML('body')
   expect(html).toContain('Home page')
