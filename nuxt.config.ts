@@ -18,10 +18,13 @@ export default defineNuxtConfig({
   },
 
   modules: [
-    "@nuxtjs/fontaine", // https://nuxt.com/docs/getting-started/styling#font-advanced-optimization
+    // https://nuxt.com/docs/getting-started/styling#font-advanced-optimization
+    "@nuxtjs/fontaine",
     "@pinia/nuxt",
-    "@nuxt/test-utils/module", // https://nuxt.com/docs/getting-started/testing#setup
+    // https://nuxt.com/docs/getting-started/testing#setup
+    "@nuxt/test-utils/module",
     "@nuxt/eslint",
+    "@nuxtjs/i18n",
   ],
 
   vite: {
@@ -39,6 +42,12 @@ export default defineNuxtConfig({
     config: {
       standalone: false, // https://github.com/antfu/eslint-config/issues/506#issuecomment-2173283141
     },
+  },
+
+  i18n: {
+    strategy: "prefix_except_default",
+    locales: ["en"],
+    defaultLocale: "en",
   },
 
 });
