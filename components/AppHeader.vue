@@ -13,13 +13,7 @@
       <div v-show="showBreadcrumbs" class="ms-5 d-none d-xxl-block">
         <BreadCrumb/>
       </div>
-      <CHeaderNav class="ms-auto d-xxl-none">
-        <CNavItem class="py-1">
-          <VerticalRule/>
-        </CNavItem>
-        <CNavItem href="#">
-          <CIcon icon="cilCloudDownload" size="lg"/>
-        </CNavItem>
+      <CHeaderNav class="ms-auto">
         <CNavItem class="py-1">
           <VerticalRule/>
         </CNavItem>
