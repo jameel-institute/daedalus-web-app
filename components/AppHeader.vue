@@ -1,12 +1,12 @@
 <template>
   <CHeader class="header-sticky p-0" :class="{'shadow-sm': isScrolled}">
-    <CContainer fluid class="border-bottom px-3 mt-1 justify-content-start">
+    <CContainer fluid class="border-bottom mt-1 justify-content-start" id="headerContainer">
       <CHeaderToggler @click="toggleSidebar">
         <span data-testid="toggle-sidebar-button">
           <CIcon icon="cilMenu" size="lg"/>
         </span>
       </CHeaderToggler>
-      <CHeaderBrand href="/">
+      <CHeaderBrand href="/" class="px-2">
         <CIcon icon="cilGlobeAlt" size="lg"/>
         <span class="ms-2 py">DAEDALUS Explore</span>
       </CHeaderBrand>
@@ -77,5 +77,10 @@ $sidebar-narrow-width: 4rem;
     // For some reason, without !important, margin-left jumps on refresh.
     margin-left: calc($sidebar-narrow-width + 0.5rem) !important;
   }
+}
+
+// Align sidebar toggler with sidebar icons
+#headerContainer {
+  padding-left: 1.5rem;
 }
 </style>
