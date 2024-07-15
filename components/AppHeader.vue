@@ -8,7 +8,7 @@
       </CHeaderToggler>
       <CHeaderBrand href="/" class="px-2">
         <CIcon icon="cilGlobeAlt" size="lg" />
-        <span id="appTitle">DAEDALUS Explore</span>
+        <span id="appTitle">{{ t('app') }}</span>
       </CHeaderBrand>
       <div v-show="showBreadcrumbs" class="ms-2 d-none d-md-block">
         <BreadCrumb />
@@ -17,7 +17,7 @@
         <CNavItem class="py-1">
           <div class="vr h-100 mx-1 text-body text-opacity-75" />
         </CNavItem>
-        <CNavItem id="helpNavLink" href="#">
+        <CNavItem id="helpNavLink" href="#" :title="t('buttons.help')">
           <img id="help" src="~/assets/icons/circleQuestion.svg">
         </CNavItem>
       </CHeaderNav>
@@ -34,7 +34,7 @@ import throttle from "lodash.throttle";
 import { useRoute } from "vue-router";
 
 const emit = defineEmits(["toggleSidebarVisibility"]);
-
+const { t } = useI18n();
 const route = useRoute();
 
 const showBreadcrumbs = computed(() => !route.meta.hideBreadcrumbs);

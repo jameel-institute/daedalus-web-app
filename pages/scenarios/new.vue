@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Globe />
+    <!-- <Globe /> -->
   </div>
 </template>
 
