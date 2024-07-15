@@ -26,7 +26,6 @@
     "@pinia/nuxt": "^0.5.1",
     "@socket.io/admin-ui": "^0.5.1",
     "lodash.throttle": "^4.1.1",
-    "nuxt": "^3.12.2",
     "pinia": "^2.1.7",
     "playwright": "^1.45.1",
     "socket.io": "^4.7.5",
@@ -48,6 +47,7 @@
     "@vue/test-utils": "^2.4.6",
     "jsdom": "^24.1.0",
     "lint-staged": "^15.2.7",
+    "nuxt": "^3.12.3",
     "sass": "^1.77.6",
     "simple-git-hooks": "^2.11.1",
     "vitest": "^1.6.0"
