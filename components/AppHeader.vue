@@ -3,14 +3,17 @@ import { CIcon } from '@coreui/icons-vue'
 import throttle from 'lodash.throttle'
 import { useRoute } from 'vue-router'
 
-const emit = defineEmits(['toggleSidebar'])
+const emit = defineEmits(['toggleSidebarWidth', 'toggleSidebarVisibility'])
 
 const route = useRoute()
 
 const showBreadcrumbs = computed(() => route.meta.hideBreadcrumbs !== true)
 
-function toggleSidebar() {
-  emit('toggleSidebar')
+function toggleSidebarWidth() {
+  emit('toggleSidebarWidth')
+}
+function toggleSidebarVisibility() {
+  emit('toggleSidebarVisibility')
 }
 
 // We apply a shadow to the header when the position is scrolled down
@@ -31,8 +34,13 @@ onBeforeUnmount(() => {
 <template>
   <CHeader class="header-sticky p-0" :class="{ 'shadow-sm': isScrolled }">
     <CContainer id="headerContainer" fluid class="border-bottom mt-1 justify-content-start">
-      <CHeaderToggler @click="toggleSidebar">
-        <span data-testid="toggle-sidebar-button">
+      <CHeaderToggler class="d-none d-lg-block" @click="toggleSidebarWidth">
+        <span data-testid="toggle-sidebar-width-button">
+          <CIcon icon="cilMenu" size="lg" />
+        </span>
+      </CHeaderToggler>
+      <CHeaderToggler class="d-lg-none" @click="toggleSidebarVisibility">
+        <span data-testid="toggle-sidebar-visibility-button">
           <CIcon icon="cilMenu" size="lg" />
         </span>
       </CHeaderToggler>
