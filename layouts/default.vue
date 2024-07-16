@@ -1,21 +1,10 @@
 <script setup lang="ts">
 const sidebarVisible = ref(false)
-const sidebarUnfoldable = ref(false)
+const largeScreen = ref(false)
 const hideHasBeenEmitted = ref(false)
 
-// To be called on smaller screens
 function handleToggleSidebarVisibility() {
   sidebarVisible.value = !sidebarVisible.value
-}
-
-// To be called on larger screens
-function handleToggleSidebarWidth() {
-  if (sidebarUnfoldable.value) {
-    sidebarUnfoldable.value = false
-  }
-  else {
-    sidebarUnfoldable.value = true
-  }
 }
 
 function handleSidebarHidden() {
@@ -44,11 +33,11 @@ function resetSidebarPerScreenSize() {
   // Set the default values for the sidebar based on the screen size.
   if (window.innerWidth < breakpoint) {
     sidebarVisible.value = false
-    sidebarUnfoldable.value = false
+    largeScreen.value = false
   }
   else {
     sidebarVisible.value = true
-    sidebarUnfoldable.value = true
+    largeScreen.value = true
   }
 }
 </script>
@@ -58,12 +47,11 @@ function resetSidebarPerScreenSize() {
     <!-- <WebsocketConnection /> -->
     <SideBar
       :visible="sidebarVisible"
-      :unfoldable="sidebarUnfoldable"
+      :large-screen="largeScreen"
       @hidden="handleSidebarHidden"
     />
     <AppHeader
       @toggle-sidebar-visibility="handleToggleSidebarVisibility"
-      @toggle-sidebar-width="handleToggleSidebarWidth"
     />
     <div class="wrapper d-flex flex-column">
       <div class="body flex-grow-1">
@@ -78,6 +66,13 @@ function resetSidebarPerScreenSize() {
 <style lang="scss">
 @use "sass:map";
 
+$sidebar-narrow-width: 4rem;
+.body {
+  @media (min-width: map.get($grid-breakpoints, 'lg')) {
+    padding-left: $sidebar-narrow-width;
+  }
+}
+
 .wrapper {
   min-height: $min-wrapper-height;
 }
@@ -85,6 +80,10 @@ function resetSidebarPerScreenSize() {
 .sidebar {
   @media (min-width: map.get($grid-breakpoints, 'lg')) {
     margin-top: $app-header-height;
+  }
+
+ &.sidebar-overlaid.show {
+    box-shadow: none;
   }
 }
 </style>

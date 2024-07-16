@@ -3,15 +3,12 @@ import { CIcon } from '@coreui/icons-vue'
 import throttle from 'lodash.throttle'
 import { useRoute } from 'vue-router'
 
-const emit = defineEmits(['toggleSidebarWidth', 'toggleSidebarVisibility'])
+const emit = defineEmits(['toggleSidebarVisibility'])
 
 const route = useRoute()
 
 const showBreadcrumbs = computed(() => route.meta.hideBreadcrumbs !== true)
 
-function toggleSidebarWidth() {
-  emit('toggleSidebarWidth')
-}
 function toggleSidebarVisibility() {
   emit('toggleSidebarVisibility')
 }
@@ -34,11 +31,6 @@ onBeforeUnmount(() => {
 <template>
   <CHeader class="header-sticky p-0" :class="{ 'shadow-sm': isScrolled }">
     <CContainer id="headerContainer" fluid class="border-bottom mt-1 justify-content-start">
-      <CHeaderToggler class="d-none d-lg-block" @click="toggleSidebarWidth">
-        <span data-testid="toggle-sidebar-width-button">
-          <CIcon icon="cilMenu" size="lg" />
-        </span>
-      </CHeaderToggler>
       <CHeaderToggler class="d-lg-none" @click="toggleSidebarVisibility">
         <span data-testid="toggle-sidebar-visibility-button">
           <CIcon icon="cilMenu" size="lg" />
@@ -90,6 +82,10 @@ $sidebar-narrow-width: 4rem;
 
 // Align sidebar toggler with sidebar icons
 #headerContainer {
-  padding-left: 1.5rem;
+  @media (max-width: map.get($grid-breakpoints, 'lg')) {
+    padding-left: 1.5rem;
+  }
+
+  padding-left: 0.9rem;
 }
 </style>

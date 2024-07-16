@@ -3,7 +3,7 @@ import { CIcon } from '@coreui/icons-vue'
 
 defineProps({
   visible: Boolean,
-  unfoldable: Boolean,
+  largeScreen: Boolean,
 })
 const emit = defineEmits(['hidden'])
 
@@ -15,7 +15,8 @@ function handleHide() {
 <template>
   <CSidebar
     :visible="visible"
-    :unfoldable="unfoldable"
+    :unfoldable="largeScreen"
+    :overlaid="largeScreen"
     class="sidebar-fixed border-end"
     @hide="handleHide"
   >
