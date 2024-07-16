@@ -2,7 +2,7 @@
   <CHeader class="header-sticky p-0" :class="{ 'shadow-sm': isScrolled }">
     <CContainer id="headerContainer" fluid class="border-bottom mt-1 justify-content-start">
       <CHeaderToggler class="d-lg-none" @click="toggleSidebarVisibility">
-        <span data-testid="toggle-sidebar-visibility-button">
+        <span data-testid="toggle-sidebar-button">
           <CIcon icon="cilMenu" size="lg" />
         </span>
       </CHeaderToggler>
@@ -82,11 +82,10 @@ $sidebar-narrow-width: 4rem;
 
 // Align sidebar toggler with sidebar icons
 #headerContainer {
+  padding-left: 0.9rem;
   @media (max-width: map.get($grid-breakpoints, 'lg')) {
     padding-left: 1.5rem;
   }
-
-  padding-left: 0.9rem;
 }
 #help {
   width: 1.4rem;

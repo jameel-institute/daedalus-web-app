@@ -7,21 +7,12 @@ import type { VueWrapper } from '@vue/test-utils'
 import DefaultLayout from '@/layouts/default.vue'
 
 const stubs = {
-  SideBar: {
-    name: 'SideBar',
-    template: '<div class="sidebar-stub"/>',
-    props: ['visible', 'largeScreen'],
-  },
-  AppHeader: {
-    name: 'AppHeader',
-    template: '<div class="app-header-stub"/>',
-  },
-  CContainer: true,
+  CIcon: true,
 }
 
 async function mockCSidebarPageloadBehavior(sidebar: VueWrapper) {
-  // The CoreUI Sidebar component emits a "hidden" event when the page loads.
-  await sidebar.vm.$emit('hidden')
+  // The CoreUI Sidebar component will emit a "hidden" event when the page loads.
+  sidebar.vm.$emit('hidden')
 }
 
 describe('default layout', () => {
@@ -39,11 +30,11 @@ describe('default layout', () => {
       expect(sidebar.props('largeScreen')).toBe(false)
 
       const header = component.findComponent({ name: 'AppHeader' })
-      await header.vm.$emit('toggle-sidebar-visibility')
+      await header.vm.$emit('toggleSidebarVisibility')
       expect(sidebar.props('visible')).toBe(true)
       expect(sidebar.props('largeScreen')).toBe(false)
 
-      await header.vm.$emit('toggle-sidebar-visibility')
+      await header.vm.$emit('toggleSidebarVisibility')
       expect(sidebar.props('visible')).toBe(false)
       expect(sidebar.props('largeScreen')).toBe(false)
     })
@@ -56,7 +47,7 @@ describe('default layout', () => {
       expect(sidebar.props('visible')).toBe(false)
 
       const header = component.findComponent({ name: 'AppHeader' })
-      await header.vm.$emit('toggle-sidebar-visibility')
+      await header.vm.$emit('toggleSidebarVisibility')
       expect(sidebar.props('visible')).toBe(true)
 
       await sidebar.vm.$emit('hidden')
