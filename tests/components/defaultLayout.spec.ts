@@ -1,15 +1,16 @@
 // @vitest-environment nuxt
 
-import { describe, it, expect } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
+import type { VueWrapper } from '@vue/test-utils'
 
-import DefaultLayout from '../../layouts/default.vue';
+import DefaultLayout from '@/layouts/default.vue'
 
 const stubs = {
   SideBar: {
     name: 'SideBar',
     template: '<div class="sidebar-stub"/>',
-    props: [ 'visible' ],
+    props: ['visible', 'largeScreen'],
   },
   AppHeader: {
     name: 'AppHeader',
@@ -18,46 +19,84 @@ const stubs = {
   CContainer: true,
 }
 
-describe('DefaultLayout', () => {
-  it('initially hides the sidebar, and can open and close it from the app header', async () => {
-    const component = await mountSuspended(DefaultLayout, { global: { stubs } });
+async function mockCSidebarPageloadBehavior(sidebar: VueWrapper) {
+  // The CoreUI Sidebar component emits a "hidden" event when the page loads.
+  await sidebar.vm.$emit('hidden')
+}
 
-    const sidebar = component.findComponent({ name: 'SideBar' });
-    expect(sidebar.props('visible')).toBe(false);
+describe('default layout', () => {
+  describe('on smaller devices', () => {
+    beforeAll(() => {
+      vi.stubGlobal('innerWidth', 500)
+    })
 
-    const header = component.findComponent({ name: 'AppHeader' });
-    await header.vm.$emit('toggle-sidebar');
-    expect(sidebar.props('visible')).toBe(true);
+    it('initially hides the sidebar, and can open and close it from the app header', async () => {
+      const component = await mountSuspended(DefaultLayout, { global: { stubs } })
+      const sidebar = component.findComponent({ name: 'SideBar' })
+      await mockCSidebarPageloadBehavior(sidebar)
 
-    await header.vm.$emit('toggle-sidebar');
-    expect(sidebar.props('visible')).toBe(false);
-  });
+      expect(sidebar.props('visible')).toBe(false)
+      expect(sidebar.props('largeScreen')).toBe(false)
 
-  it('can close the sidebar from the sidebar itself, using "toggle" emit', async () => {
-    const component = await mountSuspended(DefaultLayout, { global: { stubs } });
+      const header = component.findComponent({ name: 'AppHeader' })
+      await header.vm.$emit('toggle-sidebar-visibility')
+      expect(sidebar.props('visible')).toBe(true)
+      expect(sidebar.props('largeScreen')).toBe(false)
 
-    const sidebar = component.findComponent({ name: 'SideBar' });
-    expect(sidebar.props('visible')).toBe(false);
+      await header.vm.$emit('toggle-sidebar-visibility')
+      expect(sidebar.props('visible')).toBe(false)
+      expect(sidebar.props('largeScreen')).toBe(false)
+    })
 
-    const header = component.findComponent({ name: 'AppHeader' });
-    await header.vm.$emit('toggle-sidebar');
-    expect(sidebar.props('visible')).toBe(true);
+    it('keeps the "visible" prop in sync with the state of the CSidebar component when "hidden" is emitted', async () => {
+      const component = await mountSuspended(DefaultLayout, { global: { stubs } })
+      const sidebar = component.findComponent({ name: 'SideBar' })
+      await mockCSidebarPageloadBehavior(sidebar)
 
-    await sidebar.vm.$emit('toggle');
-    expect(sidebar.props('visible')).toBe(false);
-  });
+      expect(sidebar.props('visible')).toBe(false)
 
-  it('keeps the "visible" prop in sync with the state of the CSidebar component when "hidden" is emitted', async () => {
-    const component = await mountSuspended(DefaultLayout, { global: { stubs } });
+      const header = component.findComponent({ name: 'AppHeader' })
+      await header.vm.$emit('toggle-sidebar-visibility')
+      expect(sidebar.props('visible')).toBe(true)
 
-    const sidebar = component.findComponent({ name: 'SideBar' });
-    expect(sidebar.props('visible')).toBe(false);
+      await sidebar.vm.$emit('hidden')
+      expect(sidebar.props('visible')).toBe(false)
+    })
 
-    const header = component.findComponent({ name: 'AppHeader' });
-    await header.vm.$emit('toggle-sidebar');
-    expect(sidebar.props('visible')).toBe(true);
+    afterAll(() => {
+      vi.unstubAllGlobals()
+    })
+  })
 
-    await sidebar.vm.$emit('hidden');
-    expect(sidebar.props('visible')).toBe(false);
-  });
-});
+  describe('on larger devices', () => {
+    beforeAll(() => {
+      vi.stubGlobal('innerWidth', 1500)
+    })
+
+    it('initially shows the sidebar', async () => {
+      const component = await mountSuspended(DefaultLayout, { global: { stubs } })
+      const sidebar = component.findComponent({ name: 'SideBar' })
+      await mockCSidebarPageloadBehavior(sidebar)
+
+      expect(sidebar.props('visible')).toBe(true)
+      expect(sidebar.props('largeScreen')).toBe(true)
+    })
+
+    it('keeps the "visible" prop in sync with the state of the CSidebar component when "hidden" is emitted', async () => {
+      const component = await mountSuspended(DefaultLayout, { global: { stubs } })
+      const sidebar = component.findComponent({ name: 'SideBar' })
+      await mockCSidebarPageloadBehavior(sidebar)
+
+      expect(sidebar.props('visible')).toBe(true)
+      expect(sidebar.props('largeScreen')).toBe(true)
+
+      await sidebar.vm.$emit('hidden')
+      expect(sidebar.props('visible')).toBe(false)
+      expect(sidebar.props('largeScreen')).toBe(true)
+    })
+
+    afterAll(() => {
+      vi.unstubAllGlobals()
+    })
+  })
+})
