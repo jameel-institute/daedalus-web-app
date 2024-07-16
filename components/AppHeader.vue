@@ -1,6 +1,6 @@
 <template>
   <CHeader class="header-sticky p-0" :class="{ 'shadow-sm': isScrolled }">
-    <CContainer id="headerContainer" fluid class="border-bottom mt-1 justify-content-start">
+    <CContainer id="headerNavContainer" fluid class="border-bottom mt-1 justify-content-start">
       <CHeaderToggler class="d-lg-none" @click="toggleSidebarVisibility">
         <span data-testid="toggle-sidebar-button">
           <CIcon icon="cilMenu" size="lg" />
@@ -10,10 +10,10 @@
         <CIcon icon="cilGlobeAlt" size="lg" />
         <span id="appTitle">DAEDALUS Explore</span>
       </CHeaderBrand>
-      <div v-show="showBreadcrumbs" class="ms-5 d-none d-xxl-block">
+      <div v-show="showBreadcrumbs" class="ms-auto d-none d-md-block">
         <BreadCrumb />
       </div>
-      <CHeaderNav class="ms-auto">
+      <CHeaderNav>
         <CNavItem class="py-1">
           <div class="vr h-100 mx-1 text-body text-opacity-75" />
         </CNavItem>
@@ -22,7 +22,7 @@
         </CNavItem>
       </CHeaderNav>
     </CContainer>
-    <CContainer v-show="showBreadcrumbs" fluid class="d-xxl-none full-breadcrumb-container">
+    <CContainer v-show="showBreadcrumbs" fluid class="d-md-none full-breadcrumb-container">
       <BreadCrumb />
     </CContainer>
   </CHeader>
@@ -72,19 +72,29 @@ onBeforeUnmount(() => {
 }
 $sidebar-narrow-width: 4rem;
 .full-breadcrumb-container {
-  font-size: 0.74rem;
+  min-height: 2.5rem !important;
 
   @media (min-width: map.get($grid-breakpoints, 'lg')) {
-    // For some reason, without !important, margin-left jumps on refresh.
-    margin-left: calc($sidebar-narrow-width + 0.5rem) !important;
+    margin-left: calc($sidebar-narrow-width + 0.5rem);
+  }
+
+  background-color: rgb(250, 250, 250);
+}
+.header-nav {
+  margin-left: auto;
+  @media (min-width: map.get($grid-breakpoints, 'lg')) {
+    margin-left: 1rem;
   }
 }
 
 // Align sidebar toggler with sidebar icons
-#headerContainer {
-  padding-left: 0.9rem;
+#headerNavContainer {
+  padding-left: 1.5rem;
+  @media (min-width: map.get($grid-breakpoints, 'lg')) {
+    padding-left: 0.9rem;
+  }
   @media (max-width: map.get($grid-breakpoints, 'lg')) {
-    padding-left: 1.5rem;
+    border-bottom-color: rgb(235, 238, 245) !important;
   }
 }
 #help {
