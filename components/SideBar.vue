@@ -1,17 +1,3 @@
-<script lang="ts" setup>
-import { CIcon } from '@coreui/icons-vue'
-
-defineProps({
-  visible: Boolean,
-  largeScreen: Boolean,
-})
-const emit = defineEmits(['hidden'])
-
-function handleHide() {
-  emit('hidden')
-}
-</script>
-
 <template>
   <CSidebar
     :visible="visible"
@@ -58,16 +44,24 @@ function handleHide() {
         <div class="sidebar-brand-full">
           <img class="img-fluid mb-1" src="~/assets/img/IMPERIAL_JAMEEL_INSTITUTE_LOCKUP-p-500.png" alt="Imperial College and Community Jameel logo">
         </div>
-        <div class="sidebar-brand-narrow">
-          <img class="img-fluid ms-2" src="~/assets/img/Imperial_avatar_500x500px_blue_I.png" alt="Imperial College avatar">
-        </div>
       </CSidebarBrand>
     </CSidebarHeader>
   </CSidebar>
 </template>
 
-<style lang="scss" scoped>
-.sidebar-brand-narrow {
-  filter: opacity(50%) // Style for Imperial 'I' logo to try and make the colour stand out less.
+<script lang="ts" setup>
+import { CIcon } from '@coreui/icons-vue'
+
+defineProps({
+  visible: Boolean,
+  largeScreen: Boolean,
+})
+const emit = defineEmits(['hidden'])
+
+function handleHide() {
+  emit('hidden')
 }
+</script>
+
+<style lang="scss" scoped>
 </style>

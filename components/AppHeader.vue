@@ -1,3 +1,33 @@
+<template>
+  <CHeader class="header-sticky p-0" :class="{ 'shadow-sm': isScrolled }">
+    <CContainer id="headerContainer" fluid class="border-bottom mt-1 justify-content-start">
+      <CHeaderToggler class="d-lg-none" @click="toggleSidebarVisibility">
+        <span data-testid="toggle-sidebar-visibility-button">
+          <CIcon icon="cilMenu" size="lg" />
+        </span>
+      </CHeaderToggler>
+      <CHeaderBrand href="/" class="px-2">
+        <CIcon icon="cilGlobeAlt" size="lg" />
+        <span id="appTitle">DAEDALUS Explore</span>
+      </CHeaderBrand>
+      <div v-show="showBreadcrumbs" class="ms-5 d-none d-xxl-block">
+        <BreadCrumb />
+      </div>
+      <CHeaderNav class="ms-auto">
+        <CNavItem class="py-1">
+          <div class="vr h-100 mx-1 text-body text-opacity-75" />
+        </CNavItem>
+        <CNavItem id="helpNavLink" href="#">
+          <img id="help" src="~/assets/icons/circleQuestion.svg">
+        </CNavItem>
+      </CHeaderNav>
+    </CContainer>
+    <CContainer v-show="showBreadcrumbs" fluid class="d-xxl-none full-breadcrumb-container">
+      <BreadCrumb />
+    </CContainer>
+  </CHeader>
+</template>
+
 <script setup lang="ts">
 import { CIcon } from '@coreui/icons-vue'
 import throttle from 'lodash.throttle'
@@ -28,36 +58,6 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<template>
-  <CHeader class="header-sticky p-0" :class="{ 'shadow-sm': isScrolled }">
-    <CContainer id="headerContainer" fluid class="border-bottom mt-1 justify-content-start">
-      <CHeaderToggler class="d-lg-none" @click="toggleSidebarVisibility">
-        <span data-testid="toggle-sidebar-visibility-button">
-          <CIcon icon="cilMenu" size="lg" />
-        </span>
-      </CHeaderToggler>
-      <CHeaderBrand href="/" class="px-2">
-        <CIcon icon="cilGlobeAlt" size="lg" />
-        <span class="ms-2 py">DAEDALUS Explore</span>
-      </CHeaderBrand>
-      <div v-show="showBreadcrumbs" class="ms-5 d-none d-xxl-block">
-        <BreadCrumb />
-      </div>
-      <CHeaderNav class="ms-auto">
-        <CNavItem class="py-1">
-          <div class="vr h-100 mx-2 text-body text-opacity-75" />
-        </CNavItem>
-        <CNavItem href="#">
-          ?
-        </CNavItem>
-      </CHeaderNav>
-    </CContainer>
-    <CContainer v-show="showBreadcrumbs" fluid class="d-xxl-none full-breadcrumb-container">
-      <BreadCrumb />
-    </CContainer>
-  </CHeader>
-</template>
-
 <style lang="scss" scoped>
 @use "sass:map";
 
@@ -87,5 +87,18 @@ $sidebar-narrow-width: 4rem;
   }
 
   padding-left: 0.9rem;
+}
+#help {
+  width: 1.4rem;
+}
+#helpNavLink {
+  &:not(:hover) {
+    filter: opacity(0.5);
+  }
+}
+#appTitle {
+  position: relative;
+  top: -0.1rem;
+  margin-left: 0.75rem;
 }
 </style>
