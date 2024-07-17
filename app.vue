@@ -8,11 +8,11 @@
 </template>
 
 <script setup>
-import '~/assets/scss/fonts.scss';
-import { iconsSet } from '@/assets/icons';
+import "~/assets/scss/fonts.scss";
+import { iconsSet } from "@/assets/icons";
 
-const nuxtApp = useNuxtApp()
-nuxtApp.vueApp.provide('icons', iconsSet);
+const nuxtApp = useNuxtApp();
+nuxtApp.vueApp.provide("icons", iconsSet);
 </script>
 
 <style lang="scss">

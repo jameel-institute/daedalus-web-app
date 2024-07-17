@@ -18,10 +18,10 @@
 </template>
 
 <script setup lang="ts">
-const sidebarVisible = ref(false)
+const sidebarVisible = ref(false);
 
 function handleToggleSidebarVisibility() {
-  sidebarVisible.value = !sidebarVisible.value
+  sidebarVisible.value = !sidebarVisible.value;
 }
 </script>
 
