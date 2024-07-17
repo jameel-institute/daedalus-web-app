@@ -1,0 +1,106 @@
+@font-face {
+    font-family: 'ImperialSansDisplay';
+    src: url('/fonts/ImperialSansDisplay-Bold.ttf') format('truetype'),
+         url('/fonts/ImperialSansDisplay-Bold.woff2') format('woff2');
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: 'ImperialSansDisplay';
+    src: url('/fonts/ImperialSansDisplay-Extrabold.ttf') format('truetype'),
+         url('/fonts/ImperialSansDisplay-Extrabold.woff2') format('woff2');
+    font-weight: 800;
+}
+
+@font-face {
+    font-family: 'ImperialSansDisplay';
+    src: url('/fonts/ImperialSansDisplay-Extralight.ttf') format('truetype'),
+         url('/fonts/ImperialSansDisplay-Extralight.woff2') format('woff2');
+    font-weight: 200;
+}
+
+@font-face {
+    font-family: 'ImperialSansDisplay';
+    src: url('/fonts/ImperialSansDisplay-Light.ttf') format('truetype'),
+         url('/fonts/ImperialSansDisplay-Light.woff2') format('woff2');
+    font-weight: 300;
+}
+
+@font-face {
+    font-family: 'ImperialSansDisplay';
+    src: url('/fonts/ImperialSansDisplay-Medium.ttf') format('truetype'),
+         url('/fonts/ImperialSansDisplay-Medium.woff2') format('woff2');
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: 'ImperialSansDisplay';
+    src: url('/fonts/ImperialSansDisplay-Regular.ttf') format('truetype'),
+         url('/fonts/ImperialSansDisplay-Regular.woff2') format('woff2');
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: 'ImperialSansDisplay';
+    src: url('/fonts/ImperialSansDisplay-Semibold.ttf') format('truetype'),
+         url('/fonts/ImperialSansDisplay-Semibold.woff2') format('woff2');
+    font-weight: 600;
+}
+
+@font-face {
+    font-family: 'ImperialSansText';
+    src: url('/fonts/ImperialSansText-Bold.ttf') format('truetype'),
+         url('/fonts/ImperialSansText-Bold.woff2') format('woff2');
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: 'ImperialSansText';
+    src: url('/fonts/ImperialSansText-Extrabold.ttf') format('truetype'),
+         url('/fonts/ImperialSansText-Extrabold.woff2') format('woff2');
+    font-weight: 800;
+}
+
+@font-face {
+    font-family: 'ImperialSansText';
+    src: url('/fonts/ImperialSansText-Extralight.ttf') format('truetype'),
+         url('/fonts/ImperialSansText-Extralight.woff2') format('woff2');
+    font-weight: 200;
+}
+
+@font-face {
+    font-family: 'ImperialSansText';
+    src: url('/fonts/ImperialSansText-Light.ttf') format('truetype'),
+         url('/fonts/ImperialSansText-Light.woff2') format('woff2');
+    font-weight: 300;
+}
+
+@font-face {
+    font-family: 'ImperialSansText';
+    src: url('/fonts/ImperialSansText-Medium.ttf') format('truetype'),
+         url('/fonts/ImperialSansText-Medium.woff2') format('woff2');
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: 'ImperialSansText';
+    src: url('/fonts/ImperialSansText-Regular.ttf') format('truetype'),
+         url('/fonts/ImperialSansText-Regular.woff2') format('woff2');
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: 'ImperialSansText';
+    src: url('/fonts/ImperialSansText-Semibold.ttf') format('truetype'),
+         url('/fonts/ImperialSansText-Semibold.woff2') format('woff2');
+    font-weight: 600;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'ImperialSansDisplay', sans-serif;
+}
+
+p, label, span, div, input, button, textarea {
+    font-family: 'ImperialSansText', sans-serif;
+}
+
