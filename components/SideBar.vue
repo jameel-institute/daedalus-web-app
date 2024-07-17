@@ -8,7 +8,7 @@
   >
     <CSidebarNav role="navigation">
       <CNavItem>
-        <CNavLink :href="localeRoute('scenarios-new').href">
+        <CNavLink :href="localeRoute('scenarios-new')?.href">
           <CIcon class="nav-icon" icon="cilPlus" size="lg" /> {{ t('scenarios.new.heading') }}
         </CNavLink>
       </CNavItem>
@@ -42,7 +42,7 @@
       <!-- Use CoreUI Sidebar Header component instead of footer so that stylings for CoreUI Sidebar Brand component work -->
       <CSidebarBrand>
         <div class="sidebar-brand-full">
-          <img class="img-fluid mb-1" src="~/assets/img/IMPERIAL_JAMEEL_INSTITUTE_LOCKUP-p-500.png" :alt="t('buttons.notes.add')">
+          <img class="img-fluid mb-1" src="~/assets/img/IMPERIAL_JAMEEL_INSTITUTE_LOCKUP-p-500.png" :alt="t('img.logo')">
         </div>
       </CSidebarBrand>
     </CSidebarHeader>
