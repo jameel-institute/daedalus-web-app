@@ -37,7 +37,6 @@ function handleSidebarHidden() {
     // If this is the 'hide' emitted on page load, we un-do it.
     // This is because the CoreUI Sidebar component emits a 'hide' event on page load, which we
     // don't want to obey for larger screen sizes.
-    sidebarVisible.value = true
     resetSidebarPerScreenSize()
     hideHasBeenEmitted.value = true
   }
