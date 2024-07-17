@@ -1,60 +1,96 @@
 // @vitest-environment nuxt
 
-import { describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
+import type { VueWrapper } from '@vue/test-utils'
+
 import SideBar from '@/components/SideBar.vue'
 
 const stubs = {
   CIcon: true,
 }
 
-// Reviewers - I wonder if these tests are too brittle
-// (tied closely to the component's implementation / would change too often)
+async function mockCSidebarPageloadBehavior(coreuiSidebar: VueWrapper) {
+  // The CoreUI Sidebar component will emit a "hide" event when the page loads.
+  coreuiSidebar.vm.$emit('hide')
+}
 
 describe('sidebar', () => {
-  it('toggles visibility based on the visible prop', async () => {
-    const component = await mountSuspended(SideBar, {
-      props: { visible: false, largeScreen: false },
-      global: { stubs },
-    })
-    const coreuiSidebar = component.findComponent({ name: 'CSidebar' })
-    expect(coreuiSidebar.props('visible')).toBe(false)
-    await component.setProps({ visible: true })
-    expect(coreuiSidebar.props('visible')).toBe(true)
+  it('adds a resize event listener on mount and removes it on unmount', async () => {
+    const addEventListenerSpy = vi.spyOn(window, 'addEventListener')
+    const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
+
+    const component = await mountSuspended(SideBar, { global: { stubs } })
+    expect(addEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function))
+
+    component.unmount()
+    expect(removeEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function))
+
+    addEventListenerSpy.mockRestore()
+    removeEventListenerSpy.mockRestore()
   })
 
-  it('applies unfoldable and overlaid properties when largeScreen is true', async () => {
-    const component = await mountSuspended(SideBar, {
-      props: { visible: true, largeScreen: true },
-      global: { stubs },
-    })
-    const coreuiSidebar = component.findComponent({ name: 'CSidebar' })
+  describe('when the "visible" prop is initialized as false', () => {
+    describe('on smaller devices', () => {
+      beforeAll(() => {
+        vi.stubGlobal('innerWidth', 500)
+      })
 
-    expect(coreuiSidebar.props('unfoldable')).toBe(true)
-    expect(coreuiSidebar.props('overlaid')).toBe(true)
-  })
+      it('starts as hidden, and can be opened by setting "visible" prop', async () => {
+        const component = await mountSuspended(SideBar, {
+          props: { visible: false },
+          global: { stubs },
+        })
+        const coreuiSidebar = component.findComponent({ name: 'CSidebar' })
+        await mockCSidebarPageloadBehavior(coreuiSidebar)
 
-  it('emits "hidden" event when CoreUI Sidebar emits "hide" event', async () => {
-    const component = await mountSuspended(SideBar, {
-      props: { visible: true, largeScreen: true },
-      global: { stubs },
-    })
-    await component.findComponent({ name: 'CSidebar' }).vm.$emit('hide')
-    await component.vm.$nextTick()
-    expect(component.emitted()).toHaveProperty('hidden')
-  })
+        expect(coreuiSidebar.props('visible')).toBe(false)
+        expect(coreuiSidebar.props('unfoldable')).toBe(false)
 
-  it('renders the text and href for nav items', async () => {
-    const component = await mountSuspended(SideBar, {
-      props: { visible: true, largeScreen: true },
-      global: {
-        stubs: {
-          ...stubs,
-        },
-      },
+        await component.setProps({ visible: true })
+
+        expect(coreuiSidebar.props('visible')).toBe(true)
+        expect(coreuiSidebar.props('unfoldable')).toBe(false)
+      })
+
+      afterAll(() => {
+        vi.unstubAllGlobals()
+      })
     })
-    expect(component.text()).toContain('New scenario')
-    const navLink = component.findComponent({ name: 'CNavLink' })
-    expect(navLink.props('href')).toBe('/scenario/new')
+
+    describe('on larger devices', () => {
+      beforeAll(() => {
+        vi.stubGlobal('innerWidth', 1500)
+      })
+
+      it('starts as shown', async () => {
+        const component = await mountSuspended(SideBar, {
+          props: { visible: false },
+          global: { stubs },
+        })
+        const coreuiSidebar = component.findComponent({ name: 'CSidebar' })
+        await mockCSidebarPageloadBehavior(coreuiSidebar)
+
+        expect(coreuiSidebar.props('visible')).toBe(true)
+        expect(coreuiSidebar.props('unfoldable')).toBe(true)
+      })
+
+      it('renders the text and href for nav items', async () => {
+        const component = await mountSuspended(SideBar, {
+          props: { visible: false },
+          global: { stubs },
+        })
+        const coreuiSidebar = component.findComponent({ name: 'CSidebar' })
+        await mockCSidebarPageloadBehavior(coreuiSidebar)
+
+        expect(component.text()).toContain('New scenario')
+        const navLink = component.findComponent({ name: 'CNavLink' })
+        expect(navLink.props('href')).toBe('/scenario/new')
+      })
+
+      afterAll(() => {
+        vi.unstubAllGlobals()
+      })
+    })
   })
 })
