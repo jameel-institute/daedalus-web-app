@@ -37,7 +37,7 @@
     "utf-8-validate": "^6.0.4"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "2.21.0",
+    "@antfu/eslint-config": "2.23.0",
     "@nuxt/eslint": "^0.3.13",
     "@nuxt/test-utils": "^3.13.1",
     "@playwright/test": "^1.45.1",
@@ -59,10 +59,7 @@
     "0": "JSON doesn't support comments so I'm adding mine here.",
     "1": "==============================",
     "2": "Vue version is overridden because of the issue described in the 'tip' in",
-    "3": "the installation section of https://pinia.vuejs.org/ssr/nuxt.html",
-    "4": "==============================",
-    "5": "NB, @antfu/eslint-config is one minor version behind the latest version due to",
-    "6": "the issue described in https://github.com/antfu/eslint-config/issues/529"
+    "3": "the installation section of https://pinia.vuejs.org/ssr/nuxt.html"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"
