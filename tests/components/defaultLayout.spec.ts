@@ -2,7 +2,6 @@
 
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import type { VueWrapper } from '@vue/test-utils'
 
 import DefaultLayout from '@/layouts/default.vue'
 
