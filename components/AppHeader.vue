@@ -10,10 +10,10 @@
         <CIcon icon="cilGlobeAlt" size="lg" />
         <span id="appTitle">DAEDALUS Explore</span>
       </CHeaderBrand>
-      <div v-show="showBreadcrumbs" class="ms-auto d-none d-md-block">
+      <div v-show="showBreadcrumbs" class="ms-2 d-none d-md-block">
         <BreadCrumb />
       </div>
-      <CHeaderNav>
+      <CHeaderNav class="ms-auto">
         <CNavItem class="py-1">
           <div class="vr h-100 mx-1 text-body text-opacity-75" />
         </CNavItem>
@@ -63,6 +63,11 @@ onBeforeUnmount(() => {
 
 .header-brand {
   color: $primary;
+
+  .icon {
+    position: relative;
+    top: 0.1rem;
+  }
 }
 .header {
   margin-bottom: $app-header-margin-bottom;
@@ -73,17 +78,10 @@ onBeforeUnmount(() => {
 $sidebar-narrow-width: 4rem;
 .full-breadcrumb-container {
   min-height: 2.5rem !important;
+  background-color: rgb(250, 250, 250);
 
   @media (min-width: map.get($grid-breakpoints, 'lg')) {
     margin-left: calc($sidebar-narrow-width + 0.5rem);
-  }
-
-  background-color: rgb(250, 250, 250);
-}
-.header-nav {
-  margin-left: auto;
-  @media (min-width: map.get($grid-breakpoints, 'lg')) {
-    margin-left: 1rem;
   }
 }
 
@@ -106,8 +104,6 @@ $sidebar-narrow-width: 4rem;
   }
 }
 #appTitle {
-  position: relative;
-  top: -0.1rem;
   margin-left: 0.75rem;
 }
 </style>
