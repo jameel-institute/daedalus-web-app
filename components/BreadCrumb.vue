@@ -15,11 +15,11 @@ I expect that to change based on how we end up making routes work. -->
 </template>
 
 <script lang="ts" setup>
-import { useRoute } from 'vue-router'
+import { useRoute } from "vue-router";
 
-const route = useRoute()
+const route = useRoute();
 
-const items = route.meta.breadcrumbs || []
+const items = route.meta.breadcrumbs || [];
 </script>
 
 <style lang="scss">

@@ -9,11 +9,11 @@
 // The text should actually depend on the route (which determines which axis is the axis of comparison).
 definePageMeta({
   breadcrumbs: [
-    { text: 'Base scenario', href: '#' },
-    { text: 'Explore more scenarios', href: '#' },
-    { text: `By policy response` }
-  ]
-})
+    { text: "Base scenario", href: "#" },
+    { text: "Explore more scenarios", href: "#" },
+    { text: `By policy response` },
+  ],
+});
 </script>
 
 <style lang="scss" scoped>
