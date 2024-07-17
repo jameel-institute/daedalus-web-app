@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 definePageMeta({
-  hideBreadcrumbs: true
+  hideBreadcrumbs: true,
 })
 </script>
 
