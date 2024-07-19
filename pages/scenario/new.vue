@@ -1,16 +1,15 @@
 <template>
   <div>
-    <h1 style="height: 5000px;">
-      Home page
-    </h1>
+    <Globe />
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 definePageMeta({
   hideBreadcrumbs: true,
 });
 </script>
 
 <style lang="scss" scoped>
+
 </style>

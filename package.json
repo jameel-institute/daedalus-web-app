@@ -1,15 +1,19 @@
 {
   "name": "nuxt-app",
-  "private": true,
   "type": "module",
+  "private": true,
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "ssr-test": "vitest ./tests/ssr/*.spec.ts",
-    "e2e-test": "playwright test"
+    "test:unit": "vitest ./tests/composables/*.spec.ts ./tests/components/*.spec.ts",
+    "test:unit:coverage": "vitest ./tests/composables/*.spec.ts ./tests/components/*.spec.ts --coverage",
+    "test:ssr": "vitest ./tests/ssr/*.spec.ts",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@amcharts/amcharts5": "^5.9.12",
@@ -22,7 +26,6 @@
     "@pinia/nuxt": "^0.5.1",
     "@socket.io/admin-ui": "^0.5.1",
     "lodash.throttle": "^4.1.1",
-    "nuxt": "^3.12.2",
     "pinia": "^2.1.7",
     "playwright": "^1.45.1",
     "socket.io": "^4.7.5",
@@ -33,25 +36,35 @@
     "bufferutil": "^4.0.8",
     "utf-8-validate": "^6.0.4"
   },
-  "overrides": {
-    "nuxi": "3.11.1",
-    "vue": "latest"
-  },
-  "_comment": {
-    "0": "JSON doesn't support comments so I'm adding mine here.",
-    "1": "Nuxi version is overridden because of the issue https://github.com/nuxt/nuxt/issues/27558",
-    "2": "The issue should be resolved in the next nuxi release after 3.12.2.",
-    "3": "Vue version is overridden because of the issue described in the 'tip' in",
-    "4": "the installation section of https://pinia.vuejs.org/ssr/nuxt.html"
-  },
   "devDependencies": {
+    "@antfu/eslint-config": "2.21.0",
+    "@nuxt/eslint": "^0.3.13",
     "@nuxt/test-utils": "^3.13.1",
     "@playwright/test": "^1.45.1",
     "@types/lodash.throttle": "^4.1.9",
     "@types/node": "^20.14.9",
+    "@vitest/coverage-v8": "^1.6.0",
     "@vue/test-utils": "^2.4.6",
     "jsdom": "^24.1.0",
+    "lint-staged": "^15.2.7",
+    "nuxt": "^3.12.3",
     "sass": "^1.77.6",
+    "simple-git-hooks": "^2.11.1",
     "vitest": "^1.6.0"
+  },
+  "overrides": {
+    "vue": "latest"
+  },
+  "_comment": {
+    "0": "JSON doesn't support comments so I'm adding mine here.",
+    "1": "==============================",
+    "2": "Vue version is overridden because of the issue described in the 'tip' in",
+    "3": "the installation section of https://pinia.vuejs.org/ssr/nuxt.html"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
   }
 }
