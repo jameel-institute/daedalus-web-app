@@ -50,46 +50,46 @@
 </template>
 
 <script lang="ts" setup>
-import { CIcon } from '@coreui/icons-vue'
+import { CIcon } from "@coreui/icons-vue";
 
-const visible = defineModel('visible', { type: Boolean, required: true })
-const largeScreen = ref(true)
+const visible = defineModel("visible", { type: Boolean, required: true });
+const largeScreen = ref(true);
 
-const hideHasNeverBeenEmitted = ref(true)
+const hideHasNeverBeenEmitted = ref(true);
 function handleHide() {
   if (hideHasNeverBeenEmitted.value) {
     // If this is the first 'hide', which is emitted on page load, we un-do it.
     // This is because the CoreUI Sidebar component emits a 'hide' event on page load, which we
     // don't want to obey for larger screen sizes.
-    resetSidebarPerScreenSize()
-    hideHasNeverBeenEmitted.value = false
+    resetSidebarPerScreenSize();
+    hideHasNeverBeenEmitted.value = false;
   }
   else {
     // If this is not the first 'hide', emitted on page load, we obey it and sync
     // the parent component's value.
-    visible.value = false
+    visible.value = false;
   }
 }
 
-const breakpoint = 992 // CoreUI's "lg" breakpoint
+const breakpoint = 992; // CoreUI's "lg" breakpoint
 function resetSidebarPerScreenSize() {
   // Set the default values for the sidebar based on the screen size.
   if (window.innerWidth < breakpoint) {
-    visible.value = false
-    largeScreen.value = false
+    visible.value = false;
+    largeScreen.value = false;
   }
   else {
-    visible.value = true
-    largeScreen.value = true
+    visible.value = true;
+    largeScreen.value = true;
   }
 }
 
 onMounted(() => {
-  window.addEventListener('resize', resetSidebarPerScreenSize)
-})
+  window.addEventListener("resize", resetSidebarPerScreenSize);
+});
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', resetSidebarPerScreenSize)
-})
+  window.removeEventListener("resize", resetSidebarPerScreenSize);
+});
 </script>
 
 <style lang="scss" scoped>

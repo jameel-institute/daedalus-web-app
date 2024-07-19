@@ -29,33 +29,33 @@
 </template>
 
 <script setup lang="ts">
-import { CIcon } from '@coreui/icons-vue'
-import throttle from 'lodash.throttle'
-import { useRoute } from 'vue-router'
+import { CIcon } from "@coreui/icons-vue";
+import throttle from "lodash.throttle";
+import { useRoute } from "vue-router";
 
-const emit = defineEmits(['toggleSidebarVisibility'])
+const emit = defineEmits(["toggleSidebarVisibility"]);
 
-const route = useRoute()
+const route = useRoute();
 
-const showBreadcrumbs = computed(() => !route.meta.hideBreadcrumbs)
+const showBreadcrumbs = computed(() => !route.meta.hideBreadcrumbs);
 
 function toggleSidebarVisibility() {
-  emit('toggleSidebarVisibility')
+  emit("toggleSidebarVisibility");
 }
 
 // We apply a shadow to the header when the position is scrolled down
-const isScrolled = ref(false)
+const isScrolled = ref(false);
 const handleScroll = throttle(() => {
-  isScrolled.value = document.documentElement.scrollTop > 0
-}, 100)
+  isScrolled.value = document.documentElement.scrollTop > 0;
+}, 100);
 
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll)
-})
+  window.addEventListener("scroll", handleScroll);
+});
 
 onBeforeUnmount(() => {
-  window.removeEventListener('scroll', handleScroll)
-})
+  window.removeEventListener("scroll", handleScroll);
+});
 </script>
 
 <style lang="scss" scoped>
