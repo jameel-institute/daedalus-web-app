@@ -8,33 +8,33 @@
   >
     <CSidebarNav role="navigation">
       <CNavItem>
-        <CNavLink href="/scenario/new">
-          <CIcon class="nav-icon" icon="cilPlus" size="lg" /> New scenario
+        <CNavLink :href="localeRoute('scenarios-new')?.href">
+          <CIcon class="nav-icon" icon="cilPlus" size="lg" /> {{ t('scenarios.new.heading') }}
         </CNavLink>
       </CNavItem>
       <CNavItem>
-        <CNavLink href="/bookmarks">
-          <CIcon class="nav-icon" icon="cilBookmark" size="lg" /> Bookmarks
+        <CNavLink href="/404.html">
+          <CIcon class="nav-icon" icon="cilBookmark" size="lg" /> {{ t('bookmarks.index.heading') }}
         </CNavLink>
       </CNavItem>
       <CNavItem>
-        <CNavLink href="404.html">
-          <CIcon class="nav-icon" icon="cilHistory" size="lg" /> My history
+        <CNavLink href="/404.html">
+          <CIcon class="nav-icon" icon="cilHistory" size="lg" /> {{ t('history.index.heading') }}
         </CNavLink>
       </CNavItem>
       <CNavItem>
-        <CNavLink href="404.html">
-          <CIcon class="nav-icon" icon="cilShareAlt" size="lg" /> Share
+        <CNavLink href="/404.html">
+          <CIcon class="nav-icon" icon="cilShareAlt" size="lg" /> {{ t('buttons.share') }}
         </CNavLink>
       </CNavItem>
       <CNavItem>
-        <CNavLink href="404.html">
-          <CIcon class="nav-icon" icon="cilCloudDownload" size="lg" /> Download
+        <CNavLink href="/404.html">
+          <CIcon class="nav-icon" icon="cilCloudDownload" size="lg" /> {{ t('buttons.download') }}
         </CNavLink>
       </CNavItem>
       <CNavItem>
-        <CNavLink href="404.html">
-          <CIcon class="nav-icon" icon="cilNoteAdd" size="lg" /> Add notes
+        <CNavLink href="/404.html">
+          <CIcon class="nav-icon" icon="cilNoteAdd" size="lg" /> {{ t('buttons.notes.add') }}
         </CNavLink>
       </CNavItem>
     </CSidebarNav>
@@ -42,7 +42,7 @@
       <!-- Use CoreUI Sidebar Header component instead of footer so that stylings for CoreUI Sidebar Brand component work -->
       <CSidebarBrand>
         <div class="sidebar-brand-full">
-          <img class="img-fluid mb-1" src="~/assets/img/IMPERIAL_JAMEEL_INSTITUTE_LOCKUP-p-500.png" alt="Imperial College and Community Jameel logo">
+          <img class="img-fluid mb-1" src="~/assets/img/IMPERIAL_JAMEEL_INSTITUTE_LOCKUP-p-500.png" :alt="t('img.logo')">
         </div>
       </CSidebarBrand>
     </CSidebarHeader>
@@ -51,6 +51,9 @@
 
 <script lang="ts" setup>
 import { CIcon } from "@coreui/icons-vue";
+
+const { t } = useI18n();
+const localeRoute = useLocaleRoute();
 
 const visible = defineModel("visible", { type: Boolean, required: true });
 const largeScreen = ref(true);
