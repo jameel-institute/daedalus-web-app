@@ -15,7 +15,13 @@ RUN cat /etc/daedalus-web-app/postgresql.conf /etc/daedalus-web-app/postgresql.t
 RUN cat /etc/daedalus-web-app/postgresql.conf /etc/daedalus-web-app/postgresql.production.conf.in > \
         /etc/daedalus-web-app/postgresql.production.conf
 RUN chown -R postgres:postgres /etc/daedalus-web-app
-RUN ./docker-entrypoint.sh --version
+
+# Ensure docker-entrypoint.sh is in the PATH
+ENV PATH="/usr/local/bin:$PATH"
+RUN docker-entrypoint.sh --version
+
+# Ensure the start script is executable
+RUN chmod +x /daedalus-web-app-bin/start-with-config.sh
 
 ENTRYPOINT ["/daedalus-web-app-bin/start-with-config.sh"]
 CMD ["/etc/daedalus-web-app/postgresql.conf"]

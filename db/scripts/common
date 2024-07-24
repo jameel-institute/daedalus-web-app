@@ -13,7 +13,7 @@ else
     GIT_BRANCH=$(git symbolic-ref --short HEAD)
 fi
 
-ORG=j-idea
+ORG=jameel-institute
 IMAGE_NAME=daedalus-web-app-db
 TAG_SHA="${ORG}/${IMAGE_NAME}:${GIT_ID}"
 TAG_BRANCH="${ORG}/${IMAGE_NAME}:${GIT_BRANCH}"

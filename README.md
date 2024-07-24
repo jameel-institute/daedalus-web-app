@@ -51,6 +51,14 @@ npm run dev -- --host
 
 The QR code shown will allow you to quickly access the app.
 
+### DB
+
+To apply migrations to the dev database:
+
+```bash
+npx prisma migrate dev
+```
+
 ## Linting and formatting
 
 Linting and formatting are handled jointly by [@nuxt/eslint](https://eslint.nuxt.com/packages/module) (an "all-in-one" ESLint "integration" for Nuxt) and by the more frequently-updated, conventionally- and widely-used [@antfu/eslint-config](https://github.com/antfu/eslint-config) (antfu works at NuxtLabs, and the package is given as an example in the `@nuxt/eslint` docs). The former handles linting only, while the latter also handles formatting, based on ESLint Stylistic.
