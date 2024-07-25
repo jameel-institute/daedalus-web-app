@@ -24,6 +24,7 @@
     "@coreui/vue": "^5.1.0",
     "@nuxtjs/fontaine": "^0.4.3",
     "@pinia/nuxt": "^0.5.1",
+    "@prisma/client": "^5.17.0",
     "@socket.io/admin-ui": "^0.5.1",
     "lodash.throttle": "^4.1.1",
     "pinia": "^2.1.7",
@@ -48,6 +49,7 @@
     "lint-staged": "^15.2.7",
     "nuxt": "^3.12.4",
     "playwright": "^1.45.2",
+    "prisma": "^5.17.0",
     "sass": "^1.77.6",
     "simple-git-hooks": "^2.11.1",
     "vitest": "^1.6.0"
