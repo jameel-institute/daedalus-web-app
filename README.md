@@ -34,17 +34,23 @@ The tests under e2e, which are run by playwright, are for testing the full-stack
 Use Node 20.
 Have Docker installed.
 Copy `.env.example` to `.env`.
-Build and run the database container:
+
+Build and run the database container and R API container using this script:
 
 ```bash
-./db/scripts/build
-./db/scripts/run
+run-dev-dependencies
 ```
 
 Install the JS dependencies:
 
 ```bash
 npm install
+```
+
+If you're using a fresh database, then you'll need to run the migrations:
+
+```bash
+npx prisma migrate dev
 ```
 
 Prisma ORM can only query the database once you 'generate' the Prisma Client, which generates into `node_modules/.prisma/client`. This should happen when you install the JS dependencies and whenever you run a migration, but if the Prisma client gets out of sync or doesn't generate, you can manually generate it:

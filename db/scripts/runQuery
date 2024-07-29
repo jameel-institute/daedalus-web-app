@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -eux
 
 # Check if the SQL query is passed as an argument
 if [ -z "$1" ]; then
