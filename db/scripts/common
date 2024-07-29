@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex
+set -euxo pipefail
 
 if [[ -v "GITHUB_SHA" ]]; then
     GIT_ID=${GITHUB_SHA:0:7}
@@ -13,7 +13,7 @@ else
     GIT_BRANCH=$(git symbolic-ref --short HEAD)
 fi
 
-ORG=jameel-institute
+ORG=mrc-ide
 IMAGE_NAME=daedalus-web-app-db
 TAG_SHA="${ORG}/${IMAGE_NAME}:${GIT_ID}"
 TAG_BRANCH="${ORG}/${IMAGE_NAME}:${GIT_BRANCH}"

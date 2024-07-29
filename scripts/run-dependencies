@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -exo pipefail
+
+HERE=$(realpath "$(dirname $0)")
+
+# Build and run the database
+# TODO: Make build step skippable
+"$HERE"/../db/scripts/build
+"$HERE"/../db/scripts/run 
+
+# TODO: Check if this wait, copied from packit, is necessary
+# docker exec daedalus-web-app-db wait-for-db
+
+# Build and run the R API
+R_API_ADDRESS='mrcide/daedalus.api:latest'
+docker pull $R_API_ADDRESS # There will be a 'latest' tag: https://github.com/jameel-institute/daedalus.api/pull/2#issuecomment-2252491603
+docker run -d --name daedalus-api --rm -p 8001:8001 $R_API_ADDRESS
+
