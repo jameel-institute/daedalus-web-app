@@ -38,7 +38,12 @@ Copy `.env.example` to `.env`.
 Build and run the database container and R API container using this script:
 
 ```bash
-run-dev-dependencies
+scripts/run-dev-dependencies
+```
+
+Or skip the 'build' step for the db, and try to run an existing image:
+```bash
+scripts/run-dev-dependencies --db-build-skip
 ```
 
 Install the JS dependencies:
@@ -64,6 +69,8 @@ Start the development server on `http://localhost:3000`:
 ```bash
 npm run dev
 ```
+
+(Or see the 'production' section of this README for how to run the app in production mode.)
 
 You can also expose it to your local network, so that you can try it out on a mobile device, using:
 
@@ -118,7 +125,7 @@ Playwright tests produce HTML reports when they run, whether on CI or not, showi
 
 ## Production
 
-Build the application for production:
+Build the Nuxt application for production:
 
 ```bash
 npm run build
