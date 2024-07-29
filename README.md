@@ -55,7 +55,7 @@ npm install
 If you're using a fresh database, then you'll need to run the migrations:
 
 ```bash
-npx prisma migrate dev
+npm run db:dev:migrate
 ```
 
 Prisma ORM can only query the database once you 'generate' the Prisma Client, which generates into `node_modules/.prisma/client`. This should happen when you install the JS dependencies and whenever you run a migration, but if the Prisma client gets out of sync or doesn't generate, you can manually generate it:
@@ -88,7 +88,7 @@ To create migrations to the database, first update the Prisma schema at ./prisma
 npx prisma migrate dev
 ```
 
-The same command is also used to apply migrations that already exist in ./prisma/migrations but which have not been applied to the database.
+The same command is also used to apply migrations that already exist in ./prisma/migrations but which have not been applied to the database. It has been aliased for this purpose in package.json as `npm run db:dev:migrate`.
 
 #### For your IDE
 
