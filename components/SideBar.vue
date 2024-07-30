@@ -51,8 +51,30 @@
 
 <script lang="ts" setup>
 import { CIcon } from "@coreui/icons-vue";
-import { getVersionData } from "./utils/rApi";
+import { useVersionData } from "../composables/useVersionData";
 import packageJson from "@/package.json";
+
+const {
+  versionFetchStatus,
+  versionFetchError,
+  versionData,
+} = useVersionData();
+
+const versionTooltipContent = computed(() => {
+  if (versionFetchStatus.value === "success" && versionData.value?.data) {
+    return `Model version: ${versionData.value?.data.daedalus} \nR API version: ${versionData.value?.data["daedalus.api"]} \nWeb app version: ${packageJson.version}`;
+  } else if (versionFetchStatus.value === "error" || versionFetchError.value || versionData.value?.errors) {
+    return [
+      "Error fetching version data:",
+      versionFetchError.value,
+      versionData.value?.errors,
+    ].join("\n");
+  } else if (versionFetchStatus.value === "pending") {
+    return "Loading version data...";
+  } else {
+    return undefined;
+  }
+});
 
 const visible = defineModel("visible", { type: Boolean, required: true });
 const largeScreen = ref(true);
@@ -65,8 +87,7 @@ function handleHide() {
     // don't want to obey for larger screen sizes.
     resetSidebarPerScreenSize();
     hideHasNeverBeenEmitted.value = false;
-  }
-  else {
+  } else {
     // If this is not the first 'hide', emitted on page load, we obey it and sync
     // the parent component's value.
     visible.value = false;
@@ -79,15 +100,11 @@ function resetSidebarPerScreenSize() {
   if (window.innerWidth < breakpoint) {
     visible.value = false;
     largeScreen.value = false;
-  }
-  else {
+  } else {
     visible.value = true;
     largeScreen.value = true;
   }
 }
-
-const versionData = await getVersionData();
-const versionTooltipContent = `Model version: ${versionData.data.daedalus} \nR API version: ${versionData.data["daedalus.api"]} \nWeb app version: ${packageJson.version}`;
 
 onMounted(() => {
   window.addEventListener("resize", resetSidebarPerScreenSize);
