@@ -29,11 +29,11 @@ The tests under e2e, which are run by playwright, are for testing the full-stack
 
 ## Local development
 
-### Setup
+### If it's the first time setting up
 
 Use Node 20.
-Have Docker installed.
-Copy `.env.example` to `.env`.
+
+Make sure Docker is installed.
 
 Build and run the database container and R API container using this script:
 
@@ -41,36 +41,28 @@ Build and run the database container and R API container using this script:
 scripts/run-dev-dependencies
 ```
 
-Or skip the 'build' step for the db, and try to run an existing image:
+If you have trouble with the R API image, there might be helpful information in [its own README](https://github.com/jameel-institute/daedalus.api).
+
+Copy `.env.example` to `.env` and then run the `dev:init` command, which installs the JS dependencies, runs any pending database migrations, and starts up the server in development mode on `http://localhost:3000`:
+
+```bash
+cp .env.example .env
+npm run dev:init
+```
+
+### Other ways of serving the app and dependencies
+
+You can skip the build step for the **database** container (not the R API), and try to run an existing image, using this option:
+
 ```bash
 scripts/run-dev-dependencies --db-build-skip
 ```
 
-Install the JS dependencies:
-
-```bash
-npm install
-```
-
-If you're using a fresh database, then you'll need to run the migrations:
-
-```bash
-npm run db:dev:migrate
-```
-
-Prisma ORM can only query the database once you 'generate' the Prisma Client, which generates into `node_modules/.prisma/client`. This should happen when you install the JS dependencies and whenever you run a migration, but if the Prisma client gets out of sync or doesn't generate, you can manually generate it:
-
-```bash
-npx prisma generate
-```
-
-Start the development server on `http://localhost:3000`:
+If there is no need to install any npm packages or to run database migrations, you can serve the app in development mode with:
 
 ```bash
 npm run dev
 ```
-
-(Or see the 'production' section of this README for how to run the app in production mode.)
 
 You can also expose it to your local network, so that you can try it out on a mobile device, using:
 
@@ -80,15 +72,25 @@ npm run dev -- --host
 
 The QR code shown will allow you to quickly access the app.
 
+See the 'production' section of this README for how to run the app in production mode.
+
 ### DB
 
-To create migrations to the database, first update the Prisma schema at ./prisma/schema.prisma as required, then run the below to generate the corresponding SQL migration and to apply it to the database:
+Our ORM is [Prisma](https://www.prisma.io/).
+
+To create migrations to the database, first update the Prisma schema at ./prisma/schema.prisma as required, then run the below command to generate the corresponding SQL migration and to apply it to the database. You should commit both the Prisma schema and the migration file to Git.
 
 ```bash
-npx prisma migrate dev
+npm run db:dev:migrate
 ```
 
-The same command is also used to apply migrations that already exist in ./prisma/migrations but which have not been applied to the database. It has been aliased for this purpose in package.json as `npm run db:dev:migrate`.
+The same command is also used to apply migrations that already exist in ./prisma/migrations but which have not been applied to the database.
+
+Prisma ORM can only query the database once you 'generate' the Prisma Client, which generates into `node_modules/.prisma/client` based on the file `prisma/schema.prisma`. This should happen when you install the JS dependencies and whenever you run a migration, but if the Prisma client gets out of sync or doesn't generate, you can manually generate it:
+
+```bash
+npx prisma generate
+```
 
 #### For your IDE
 

@@ -6,6 +6,7 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "dev:init": "npm install && npm run db:dev:migrate && npm run dev",
     "db:dev:migrate": "prisma migrate dev",
     "generate": "nuxt generate",
     "lint": "eslint .",
