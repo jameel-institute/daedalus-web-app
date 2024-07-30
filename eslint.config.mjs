@@ -17,6 +17,9 @@ export default withNuxt(
             "style",
           ],
         }],
+        "style/brace-style": ["error", "1tbs", {
+          allowSingleLine: true,
+        }],
       },
     },
   ).override(
@@ -28,6 +31,9 @@ export default withNuxt(
           avoidEscape: true,
         }],
         "style/semi": ["error", "always"],
+        "style/brace-style": ["error", "1tbs", {
+          allowSingleLine: true,
+        }],
       },
     },
   ),
