@@ -42,7 +42,7 @@
       <!-- Use CoreUI Sidebar Header component instead of footer so that stylings for CoreUI Sidebar Brand component work -->
       <CSidebarBrand>
         <div class="sidebar-brand-full">
-          <img class="img-fluid mb-1" src="~/assets/img/IMPERIAL_JAMEEL_INSTITUTE_LOCKUP-p-500.png" alt="Imperial College and Community Jameel logo">
+          <img class="img-fluid mb-1" :title="versionTooltipContent" src="~/assets/img/IMPERIAL_JAMEEL_INSTITUTE_LOCKUP-p-500.png" alt="Imperial College and Community Jameel logo">
         </div>
       </CSidebarBrand>
     </CSidebarHeader>
@@ -51,6 +51,8 @@
 
 <script lang="ts" setup>
 import { CIcon } from "@coreui/icons-vue";
+import { getVersionData } from "./utils/rApi";
+import packageJson from "@/package.json";
 
 const visible = defineModel("visible", { type: Boolean, required: true });
 const largeScreen = ref(true);
@@ -83,6 +85,9 @@ function resetSidebarPerScreenSize() {
     largeScreen.value = true;
   }
 }
+
+const versionData = await getVersionData();
+const versionTooltipContent = `Model version: ${versionData.data.daedalus} \nR API version: ${versionData.data["daedalus.api"]} \nWeb app version: ${packageJson.version}`;
 
 onMounted(() => {
   window.addEventListener("resize", resetSidebarPerScreenSize);
