@@ -1,5 +1,3 @@
-// @vitest-environment nuxt
-
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 

@@ -13,8 +13,8 @@
     "lint:fix": "eslint . --fix",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "test:unit": "vitest ./tests/composables/*.spec.ts ./tests/components/*.spec.ts",
-    "test:unit:coverage": "vitest ./tests/composables/*.spec.ts ./tests/components/*.spec.ts --coverage",
+    "test:unit": "vitest ./tests/unit/",
+    "test:unit:coverage": "vitest ./tests/unit --coverage",
     "test:ssr": "vitest ./tests/ssr/*.spec.ts",
     "test:e2e": "playwright test"
   },
@@ -44,6 +44,7 @@
     "@nuxt/eslint": "^0.3.13",
     "@nuxt/test-utils": "^3.14.0",
     "@playwright/test": "^1.45.2",
+    "@testing-library/vue": "^8.1.0",
     "@types/lodash.throttle": "^4.1.9",
     "@types/node": "^20.14.11",
     "@vitest/coverage-v8": "^2.0.4",

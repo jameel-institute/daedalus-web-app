@@ -42,7 +42,13 @@
       <!-- Use CoreUI Sidebar Header component instead of footer so that stylings for CoreUI Sidebar Brand component work -->
       <CSidebarBrand>
         <div class="sidebar-brand-full">
-          <img class="img-fluid mb-1" :title="versionTooltipContent" src="~/assets/img/IMPERIAL_JAMEEL_INSTITUTE_LOCKUP-p-500.png" alt="Imperial College and Community Jameel logo">
+          <img
+            data-testid="logo"
+            class="img-fluid mb-1"
+            :title="versionTooltipContent"
+            src="~/assets/img/IMPERIAL_JAMEEL_INSTITUTE_LOCKUP-p-500.png"
+            alt="Imperial College and Community Jameel logo"
+          >
         </div>
       </CSidebarBrand>
     </CSidebarHeader>
@@ -51,26 +57,12 @@
 
 <script lang="ts" setup>
 import { CIcon } from "@coreui/icons-vue";
-import { useVersionData } from "../composables/useVersionData";
-import packageJson from "@/package.json";
 
-const {
-  versionFetchStatus,
-  versionFetchError,
-  versionData,
-} = useVersionData();
+const { data: versionData } = useFetch("/api/versions");
 
 const versionTooltipContent = computed(() => {
-  if (versionFetchStatus.value === "success" && versionData.value?.data) {
-    return `Model version: ${versionData.value?.data.daedalus} \nR API version: ${versionData.value?.data["daedalus.api"]} \nWeb app version: ${packageJson.version}`;
-  } else if (versionFetchStatus.value === "error" || versionFetchError.value || versionData.value?.errors) {
-    return [
-      "Error fetching version data:",
-      versionFetchError.value,
-      versionData.value?.errors,
-    ].join("\n");
-  } else if (versionFetchStatus.value === "pending") {
-    return "Loading version data...";
+  if (versionData.value) {
+    return `Model version: ${versionData.value.daedalusModel} \nR API version: ${versionData.value.daedalusApi} \nWeb app version: ${versionData.value.daedalusWebApp}`;
   } else {
     return undefined;
   }
@@ -79,8 +71,20 @@ const versionTooltipContent = computed(() => {
 const visible = defineModel("visible", { type: Boolean, required: true });
 const largeScreen = ref(true);
 
+const breakpoint = 992; // CoreUI's "lg" breakpoint
+const resetSidebarPerScreenSize = () => {
+  // Set the default values for the sidebar based on the screen size.
+  if (window.innerWidth < breakpoint) {
+    visible.value = false;
+    largeScreen.value = false;
+  } else {
+    visible.value = true;
+    largeScreen.value = true;
+  }
+};
+
 const hideHasNeverBeenEmitted = ref(true);
-function handleHide() {
+const handleHide = () => {
   if (hideHasNeverBeenEmitted.value) {
     // If this is the first 'hide', which is emitted on page load, we un-do it.
     // This is because the CoreUI Sidebar component emits a 'hide' event on page load, which we
@@ -92,19 +96,7 @@ function handleHide() {
     // the parent component's value.
     visible.value = false;
   }
-}
-
-const breakpoint = 992; // CoreUI's "lg" breakpoint
-function resetSidebarPerScreenSize() {
-  // Set the default values for the sidebar based on the screen size.
-  if (window.innerWidth < breakpoint) {
-    visible.value = false;
-    largeScreen.value = false;
-  } else {
-    visible.value = true;
-    largeScreen.value = true;
-  }
-}
+};
 
 onMounted(() => {
   window.addEventListener("resize", resetSidebarPerScreenSize);

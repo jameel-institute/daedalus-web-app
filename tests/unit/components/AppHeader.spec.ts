@@ -1,5 +1,3 @@
-// @vitest-environment nuxt
-
 import { describe, expect, it, vi } from "vitest";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import AppHeader from "@/components/AppHeader.vue";
