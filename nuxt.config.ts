@@ -41,17 +41,4 @@ export default defineNuxtConfig({
     },
   },
 
-  runtimeConfig: {
-    public: { // TODO: CHeck comment below is true.
-      rApiBase: "http://localhost:8001", // Automatically overridden if NUXT_PUBLIC_R_API_BASE is set as an environment variable
-    },
-  },
-
-  $test: {
-    runtimeConfig: {
-      public: {
-        rApiBase: "", // https://nuxt.com/docs/getting-started/testing#registerendpoint
-      },
-    },
-  },
 });
