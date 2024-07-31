@@ -5,6 +5,7 @@ import withNuxt from "./.nuxt/eslint.config.mjs";
 export default withNuxt(
   // Your custom configs here
   antfu({
+    lessOpinionated: true,
     // ...@antfu/eslint-config options, see e.g. https://github.com/antfu/eslint-config?tab=readme-ov-file#rules-overrides
   }).override(
     "antfu/vue/rules",
