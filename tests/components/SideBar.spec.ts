@@ -1,7 +1,7 @@
 // @vitest-environment nuxt
 
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { mountSuspended } from "@nuxt/test-utils/runtime";
+import { mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
 import type { VueWrapper } from "@vue/test-utils";
 
 import SideBar from "@/components/SideBar.vue";
@@ -15,12 +15,22 @@ async function mockCSidebarPageloadBehavior(coreuiSidebar: VueWrapper) {
   coreuiSidebar.vm.$emit("hide");
 }
 
+registerEndpoint("/", () => {
+  return {
+    "daedalus": "99.99.99",
+    "daedalus.api": "99.99.99",
+  };
+});
+
 describe("sidebar", () => {
   it("adds a resize event listener on mount and removes it on unmount", async () => {
     const addEventListenerSpy = vi.spyOn(window, "addEventListener");
     const removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
 
-    const component = await mountSuspended(SideBar, { global: { stubs } });
+    const component = await mountSuspended(SideBar, {
+      props: { visible: false },
+      global: { stubs },
+    });
     expect(addEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));
 
     component.unmount();
@@ -51,6 +61,30 @@ describe("sidebar", () => {
 
         expect(coreuiSidebar.props("visible")).toBe(true);
         expect(coreuiSidebar.props("unfoldable")).toBe(false);
+      });
+
+      it("includes information about the version numbers", async () => {
+        const component = await mountSuspended(SideBar, {
+          props: { visible: false },
+          global: { stubs },
+        });
+
+        const coreuiSidebar = component.findComponent({ name: "CSidebar" });
+        await mockCSidebarPageloadBehavior(coreuiSidebar);
+
+        await component.setProps({ visible: true });
+
+        const versionElement = component.find(`[title="Loading version data..."]`);
+        expect(versionElement.exists()).toBe(true);
+
+        // Wait for the version data to load
+        await component.vm.$nextTick();
+
+        // Find element with a title attribute containing a version number.
+        const expectedVersionInfo = "Version 99.99.99";
+        const versionElementWithMoreData = component.find(`[title="${expectedVersionInfo}"]`);
+
+        expect(versionElementWithMoreData.exists()).toBe(true);
       });
 
       afterAll(() => {
