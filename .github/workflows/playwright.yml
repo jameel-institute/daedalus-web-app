@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Run deps
-        run: scripts/run-dependencies
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -22,7 +20,7 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Install Playwright browsers
+      - name: Install Playwright Browsers
         run: npx playwright install --with-deps && npx playwright install msedge
       - name: Run Playwright tests
         run: npm run test:e2e

@@ -20,7 +20,7 @@ Run server-side rendering tests:
 npm run test:ssr
 ```
 
-Run full-stack tests (having your dev dependencies already running):
+Run full-stack tests:
 ```bash
 npm run test:e2e
 ```
