@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-printenv | sort -f
-
 if [[ -v "GITHUB_SHA" ]]; then
     GIT_ID=${GITHUB_SHA:0:7}
 else
@@ -11,6 +9,8 @@ fi
 
 if [[ -v "BRANCH_NAME" ]]; then
     GIT_BRANCH=${BRANCH_NAME}
+elif [[ -v "GITHUB_HEAD_REF" ]]; then
+    GIT_BRANCH=${GITHUB_HEAD_REF}
 else
     GIT_BRANCH=$(git symbolic-ref --short HEAD)
 fi
