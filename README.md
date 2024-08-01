@@ -69,13 +69,23 @@ The QR code shown will allow you to quickly access the app.
 
 ### DB
 
-To create migrations to the database, first update the Prisma schema at ./prisma/schema.prisma as required, then run the below to generate the corresponding SQL migration and to apply it to the database:
+Our ORM is [Prisma](https://www.prisma.io/).
+
+To create migrations to the database, first update the Prisma schema at ./prisma/schema.prisma as required, then run the below command to generate the corresponding SQL migration and to apply it to the database. [You should commit both](https://www.prisma.io/docs/orm/prisma-migrate/workflows/team-development#source-control) the Prisma schema and the migration file to Git.
 
 ```bash
 npx prisma migrate dev
 ```
 
 The same command is also used to apply migrations that already exist in ./prisma/migrations but which have not been applied to the database.
+
+Prisma ORM can only query the database once you 'generate' the Prisma Client, which generates into `node_modules/.prisma/client` based on the file `prisma/schema.prisma`. This should happen when you install the JS dependencies and whenever you run a migration, but if the Prisma client gets out of sync or doesn't generate, you can manually generate it:
+
+```bash
+npx prisma generate
+```
+
+More helpful information about Prisma [development workflows](https://www.prisma.io/docs/orm/prisma-migrate/workflows/development-and-production#customizing-migrations) and resolving issues in [production environments](https://www.prisma.io/docs/orm/prisma-migrate/workflows/patching-and-hotfixing#fixing-failed-migrations-with-migrate-diff-and-db-execute).
 
 #### For your IDE
 
