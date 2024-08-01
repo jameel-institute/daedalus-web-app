@@ -19,7 +19,7 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: 0,
+  retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
@@ -76,6 +76,8 @@ export default defineConfig({
   // Multiple web servers (or background processes) can be launched: https://playwright.dev/docs/api/class-testconfig#test-config-web-server
   webServer: {
     command: "npm run build && npm run preview", // TODO: update to use production mode, namely, npm run build && npm run preview
+    // Using 'port' instead of 'url' actually results in the absence of errors "Error while checking if http://127.0.0.1:3000/ is available: connect ECONNREFUSED 127.0.0.1:3000"
+    // AND we eventually see 'pw:webserver WebServer available'
     port: 3000,
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,
