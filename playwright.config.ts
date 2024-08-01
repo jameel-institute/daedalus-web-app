@@ -76,7 +76,7 @@ export default defineConfig({
   // Multiple web servers (or background processes) can be launched: https://playwright.dev/docs/api/class-testconfig#test-config-web-server
   webServer: {
     command: "npm run build && npm run preview", // TODO: update to use production mode, namely, npm run build && npm run preview
-    url: "http://127.0.0.1:3000",
+    port: 3000,
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,
     stdout: process.env.CI ? "pipe" : undefined, // for debugging
