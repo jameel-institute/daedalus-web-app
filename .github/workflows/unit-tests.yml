@@ -25,6 +25,8 @@ jobs:
         with:
           data-file: ./mocks/mockoon.json
           port: 8001
+      - name: Check API server is running
+        run: curl -s http://localhost:8001/mock-smoke
       - name: Test
         run: npm run test:unit:coverage
       - name: Upload coverage to codecov
