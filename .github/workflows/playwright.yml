@@ -13,16 +13,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set environment variables for app (todo - make into a script)
-        run: echo "NUXT_PUBLIC_R_API_BASE=$NUXT_PUBLIC_R_API_BASE" > .env
+      - name: Set environment variables for app
+        run: scripts/ci/copy-env-vars-to-dot-env-file
         env:
           NUXT_PUBLIC_R_API_BASE: ${{ vars.NUXT_PUBLIC_R_API_BASE }}
-      - name: print env vars
-        run: printenv | sort
+          # Note - non-secret variables are stored under the 'vars' context, while secrets will be stored under the 'secrets' context
       - name: print dot env file
         run: cat .env
-      - name: Setup upterm session (for ssh-ing)
-        uses: lhotari/action-upterm@v1
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
