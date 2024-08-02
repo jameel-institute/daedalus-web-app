@@ -75,7 +75,7 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   // Multiple web servers (or background processes) can be launched: https://playwright.dev/docs/api/class-testconfig#test-config-web-server
   webServer: {
-    command: 'NUXT_HOST="127.0.0.1" NUXT_PORT="3000" npm run dev',
+    command: 'NUXT_HOST="127.0.0.1" NUXT_PORT="3000" npm run build && npm run preview',
     url: "http://127.0.0.1:3000",
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,
