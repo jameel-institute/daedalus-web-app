@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-set -euxo pipefail
+set -eux
 
 echo "NUXT_PUBLIC_R_API_BASE=$NUXT_PUBLIC_R_API_BASE" > .env
