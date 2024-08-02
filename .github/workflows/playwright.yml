@@ -25,7 +25,7 @@ jobs:
       - name: Build app
         run: npm run build
       - name: Start app in production mode
-        run: npm run preview
+        run: NITRO_HOST="127.0.0.1" NITRO_PORT="3000" npm run preview
       - name: Install Playwright browsers
         run: npx playwright install --with-deps && npx playwright install msedge
       - name: Run Playwright tests
