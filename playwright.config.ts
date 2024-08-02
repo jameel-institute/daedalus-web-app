@@ -74,11 +74,11 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   // Multiple web servers (or background processes) can be launched: https://playwright.dev/docs/api/class-testconfig#test-config-web-server
-  webServer: {
-    command: 'npm run build && NITRO_HOST="127.0.0.1" NITRO_PORT="3000" npm run preview',
-    port: 3000,
-    timeout: 120 * 1000,
-    reuseExistingServer: !process.env.CI,
-    stdout: "pipe", // Debugging
-  },
+  // webServer: {
+  //   command: 'npm run build && NITRO_HOST="127.0.0.1" NITRO_PORT="3000" npm run preview',
+  //   port: 3000,
+  //   timeout: 120 * 1000,
+  //   reuseExistingServer: !process.env.CI,
+  //   stdout: "pipe", // Debugging
+  // },
 });
