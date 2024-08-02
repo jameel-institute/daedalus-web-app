@@ -1,16 +1,23 @@
 import { expect, test } from "@playwright/test";
 
-// In this test, we're using toBeInViewport instead of toBeVisible, because when the sidebar is
-// off the screen, it's still 'visible' by Playwright's definition, but it's not in the viewport.
-// At least, that's the case on mobile devices.
-test("Can open sidebar by use of the toggle in the app header", async ({ page, baseURL, isMobile }) => {
+test("Can access data from the R API", async ({ page, baseURL }) => {
   await page.goto(`${baseURL}/`);
 
   const html = await page.innerHTML("body");
   await expect(html).toContain("Home page");
+  expect(html).toMatch(/Model version: (\d+\.)?(\d+\.)?(\*|\d+)/);
+});
 
-  // Sidebar toggle behaviour only exists on smaller screens
-  if (isMobile) {
+// In this test, we're using toBeInViewport instead of toBeVisible, because when the sidebar is
+// off the screen, it's still 'visible' by Playwright's definition, but it's not in the viewport.
+// At least, that's the case on mobile devices.
+test("Can open sidebar by use of the toggle in the app header", async ({ page, baseURL, isMobile }) => {
+  if (isMobile) { // Sidebar toggle behaviour only exists on smaller screens
+    await page.goto(`${baseURL}/`);
+
+    const html = await page.innerHTML("body");
+    await expect(html).toContain("Home page");
+
     const sidebarNav = await page.getByText("New scenario");
     // Verify that the sidebar is hidden
     await expect(sidebarNav).not.toBeInViewport();
