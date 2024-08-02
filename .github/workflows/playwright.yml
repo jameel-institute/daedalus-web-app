@@ -13,12 +13,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: print secrets
-        run: echo ${{ secrets.NUXT_PUBLIC_R_API_BASE }}
-      - name: print env
-        run: printenv
-      - name: print other env
-        run: echo ${{ env.NUXT_PUBLIC_R_API_BASE }}
+      - name: Set environment variables for app (todo - make into a script)
+        run: echo "NUXT_PUBLIC_R_API_BASE=$NUXT_PUBLIC_R_API_BASE" > .env
+        env:
+          NUXT_PUBLIC_R_API_BASE: ${{ vars.NUXT_PUBLIC_R_API_BASE }}
+      - name: print env vars
+        run: printenv | sort
+      - name: print dot env file
+        run: cat .env
       - name: Setup upterm session (for ssh-ing)
         uses: lhotari/action-upterm@v1
       - name: Set up Node
@@ -30,8 +32,6 @@ jobs:
         run: npm ci
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps && npx playwright install msedge
-      - name: Set environment variables for app (todo - make into a script)
-        run: echo "NUXT_PUBLIC_R_API_BASE=${{ env.NUXT_PUBLIC_R_API_BASE }}" > .env
       - name: Run Playwright tests
         run: npm run test:e2e
       - uses: actions/upload-artifact@v4
