@@ -13,6 +13,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: print secrets
+        run: echo ${{ secrets.NUXT_PUBLIC_R_API_BASE }}
+      - name: print env
+        run: printenv
+      - name: print other env
+        run: echo ${{ env.NUXT_PUBLIC_R_API_BASE }}
       - name: Setup upterm session (for ssh-ing)
         uses: lhotari/action-upterm@v1
       - name: Set up Node
