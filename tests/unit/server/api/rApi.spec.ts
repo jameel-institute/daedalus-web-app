@@ -13,6 +13,8 @@ import { fetchRApi } from "@/server/utils/rApi";
 //    the test server in a Nuxt environment where e.g. Nuxt plugins and imports are available.
 // 3. Use a separate service such as Mockoon to run a separate server for the R API, since Nuxt's $fetch function
 //    cannot be mocked.
+// Thus, although the set-up just described is not very unit-like and is more like an integration test, it is
+// the closest to unit-testing that the Nuxt eco-system seems to currently offer.
 
 describe("fetchRApi", () => {
   it("should make a request to the correct URL when given an endpoint", async () => {

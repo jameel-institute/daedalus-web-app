@@ -22,7 +22,7 @@ beforeAll(async () => {
   expect(response?.status).toBe(200);
 });
 
-describe("api/versions", async () => {
+describe("api/versions", { timeout: 30000 }, async () => {
   // Run the setup function to start the Nuxt server
   await setup({
     runner: "vitest", // this is the default value but I'm just making it explicit
