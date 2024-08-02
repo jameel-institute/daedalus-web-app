@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Setup upterm session (for ssh-ing)
+        uses: lhotari/action-upterm@v1
       - name: Run deps
         run: scripts/run-dependencies
       - name: Set up Node
