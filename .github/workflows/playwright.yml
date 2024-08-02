@@ -28,10 +28,10 @@ jobs:
         run: NITRO_HOST="127.0.0.1" NITRO_PORT="3000" nohup npm run preview &
       - name: Install Playwright browsers
         run: npx playwright install --with-deps && npx playwright install msedge
-      - name: Run Playwright tests
-        run: npm run test:e2e
       - name: Setup upterm session (for ssh-ing)
         uses: lhotari/action-upterm@v1
+      - name: Run Playwright tests
+        run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: always()
         with:
