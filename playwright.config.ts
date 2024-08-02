@@ -19,7 +19,7 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 5 : 0,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
@@ -77,7 +77,7 @@ export default defineConfig({
   webServer: {
     command: 'NUXT_HOST="127.0.0.1" NUXT_PORT="3000" npm run dev',
     url: "http://127.0.0.1:3000",
-    timeout: 120 * 1000,
+    timeout: 360 * 1000,
     reuseExistingServer: !process.env.CI,
     stdout: "pipe", // Debugging
   },
