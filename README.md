@@ -6,6 +6,7 @@ npx nuxi analyze
 
 Run unit tests and component tests:
 ```bash
+npx mockoon-cli start --data ./tests/unit/mocks/mockoon.json # See ./tests/unit/server/api/README.md
 npm run test:unit
 # Or with coverage:
 npm run test:unit:coverage
@@ -17,15 +18,18 @@ npm run test:ssr
 ```
 
 Run full-stack tests:
+
+1. Stop the Mockoon server
+1. Run:
 ```bash
 npm run test:e2e
 ```
 
 The tests under e2e, which are run by playwright, are for testing the full-stack (client app and server app) in a browser environment. Since the server-rendered page may be different from the client-rendered page, for example, when some elements are configured to only render on the client side, relevant tests should wait for the elements to be present.
 
-## Local development
+# Local development
 
-### If it's the first time setting up
+## <a id="first-time"></a> Your first time setting up
 
 Use Node 20.
 
@@ -46,21 +50,23 @@ cp .env.example .env
 npm run dev:init
 ```
 
-### Other ways of serving the app and dependencies
+## Everyday development workflow
 
-You can skip the build step for the **database** container (not the R API), and try to run an existing image, using this option:
+If you've already done ['Your first time setting up'](#first-time), you can quickly get back to work by:
 
 ```bash
-scripts/run-dev-dependencies --db-build-skip
+# In one terminal window
+scripts/run-dev-dependencies --db-build-skip # Skips the build step for the db container, and tries to run an existing image
 ```
 
-If there is no need to install any npm packages or to run database migrations, you can serve the app in development mode with:
-
 ```bash
+# In another terminal window
 npm run dev
 ```
 
-You can also expose it to your local network, so that you can try it out on a mobile device, using:
+## Other ways of serving the app and dependencies
+
+You can also expose the app to your local network, so that you can try it out on a mobile device, using:
 
 ```bash
 npm run dev -- --host
@@ -70,7 +76,7 @@ The QR code shown will allow you to quickly access the app.
 
 See the 'production' section of this README for how to run the app in production mode.
 
-### DB
+# DB
 
 Our ORM is [Prisma](https://www.prisma.io/).
 
@@ -90,15 +96,15 @@ npx prisma generate
 
 More helpful information about Prisma [development workflows](https://www.prisma.io/docs/orm/prisma-migrate/workflows/development-and-production#customizing-migrations) and resolving issues in [production environments](https://www.prisma.io/docs/orm/prisma-migrate/workflows/patching-and-hotfixing#fixing-failed-migrations-with-migrate-diff-and-db-execute).
 
-#### For your IDE
+## For your IDE
 
 In VSCode, you can use the extension with ID 'Prisma.prisma' to get syntax highlighting etc.
 
-## Linting and formatting
+# Linting and formatting
 
 Linting and formatting are handled jointly by [@nuxt/eslint](https://eslint.nuxt.com/packages/module) (an "all-in-one" ESLint "integration" for Nuxt) and by the more frequently-updated, conventionally- and widely-used [@antfu/eslint-config](https://github.com/antfu/eslint-config) (antfu works at NuxtLabs, and the package is given as an example in the `@nuxt/eslint` docs). The former handles linting only, while the latter also handles formatting, based on ESLint Stylistic.
 
-### Commit hook
+## Commit hook
 
 You should install the lint-fixing commit hook (which will apply to this repo only) using:
 
@@ -108,22 +114,22 @@ npx simple-git-hooks
 
 This will help us keep git history tidy, avoiding clogging up `git blame`s with linting-only commits.
 
-### Inspecting the linting rules
+## Inspecting the linting rules
 
 This is a helpful tool for inspecting your config setup, so you can check which rules are applied, in which order:
 ```bash
 npx @eslint/config-inspector
 ```
 
-### For your IDE
+## For your IDE
 
 In VSCode, [make sure](https://eslint.nuxt.com/packages/module#vs-code) your ESlint VS Code extension (vscode-eslint) is at least v3.0.10 (released June 2024). Turn on the 'Format on Save' setting.
 
-## CI
+# CI
 
 Playwright tests produce HTML reports when they run, whether on CI or not, showing visual snapshots at each timestep in each test. If you need to open these, follow the instructions [here](https://playwright.dev/docs/ci-intro#html-report), particularly '[Viewing the HTML report](https://playwright.dev/docs/ci-intro#viewing-the-html-report)'.
 
-## Production
+# Production
 
 Build the Nuxt application for production:
 
