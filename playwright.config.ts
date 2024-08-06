@@ -72,7 +72,7 @@ export default defineConfig({
     },
   ],
 
-  /* Run your local dev server before starting the tests */
+  /* Run your local server before starting the tests */
   // Multiple web servers (or background processes) can be launched: https://playwright.dev/docs/api/class-testconfig#test-config-web-server
   webServer: {
     command: "npm run build && cd .output && node ./server/index.mjs",

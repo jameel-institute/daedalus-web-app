@@ -30,7 +30,7 @@ export const fetchRApi = async <T extends RApiResponse>(
 
   return await $fetch<T>(endpoint, {
     ...options,
-    baseURL: config.public.rApiBase,
+    baseURL: config.rApiBase,
   }).catch((error) => {
     console.error("R API fetch error:", error);
     console.error(errorInformationString(error));
