@@ -1,4 +1,9 @@
-// Import the 'fetch' documented at the below URL as 'nuxtFetch' to avoid conflicts with Node's own 'fetch' function
+// @vitest-environment node
+
+// For background on how and why this test is set up the way it is, see
+// tests/unit/server/api/README.md.
+
+// Import the 'fetch' documented at the below URL as 'nuxtTestUtilsFetch' to avoid conflicts with Node's own 'fetch' function
 // https://nuxt.com/docs/getting-started/testing#fetchurl-1
 import { fetch as nuxtTestUtilsFetch, setup } from "@nuxt/test-utils/e2e";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -14,19 +19,17 @@ beforeAll(async () => {
     response = await nodeFetch("http://localhost:8001/mock-smoke"); // Use Node's fetch so that we can set a different base URL with port 8001.
   } catch (error) {
     if (response?.status !== 200) {
-      process.stdout.write("The mock server couldn't be found. Please run `npx mockoon-cli start --data ./mocks/mockoon.json` or use the Mockoon desktop app.");
+      process.stdout.write("The mock server couldn't be found. Please run `npx mockoon-cli start --data ./tests/unit/mocks/mockoon.json` or use the Mockoon desktop app.");
     }
   }
 
-  // A failure for CI to break on.
+  // A failure, in order to exit the test if no mock server.
   expect(response?.status).toBe(200);
 });
 
 describe("api/versions", async () => {
   // Run the setup function to start the Nuxt server
-  await setup({
-    runner: "vitest", // this is the default value but I'm just making it explicit
-  });
+  await setup();
 
   it("returns the expected version data", async () => {
     const response = await nuxtTestUtilsFetch("/api/versions");
