@@ -12,7 +12,7 @@ const nodeFetch = fetch; // Normal 'fetch' from Node
 
 beforeAll(async () => {
   // Verify that the user of the test suite has started the mock server
-  // by checking that the server is listening on localhost:8001
+  // by checking that the server is listening on localhost:8001/mock-smoke
 
   let response;
   try {
@@ -28,15 +28,14 @@ beforeAll(async () => {
 });
 
 describe("api/versions", async () => {
-  // Run the setup function to start the Nuxt server
-  await setup();
+  await setup(); // Start the Nuxt server
 
   it("returns the expected version data", async () => {
     const response = await nuxtTestUtilsFetch("/api/versions");
     const json = await response.json();
 
-    expect(json.daedalusModel).toBe("externally mocked daedalus model version");
-    expect(json.daedalusApi).toBe("externally mocked R API version");
+    expect(json.daedalusModel).toBe("1.2.3.4.5.6.7.8");
+    expect(json.daedalusApi).toBe("8.7.6.5.4.3.2.1");
     expect(json.daedalusWebApp).toMatch(/(\d+\.)?(\d+\.)?(\*|\d+)/);
   });
 });

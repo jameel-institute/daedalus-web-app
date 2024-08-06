@@ -17,7 +17,7 @@
       "responses": [
         {
           "uuid": "eb55d0af-aa59-4d0f-8cea-58ba9c68fa55",
-          "body": "{\"status\":\"success\",\"errors\":null,\"data\":{\"daedalus\":\"externally mocked daedalus model version\",\"daedalus.api\":\"externally mocked R API version\"}}",
+          "body": "{\"status\":\"success\",\"errors\":null,\"data\":{\"daedalus\":\"1.2.3.4.5.6.7.8\",\"daedalus.api\":\"8.7.6.5.4.3.2.1\"}}",
           "latency": 0,
           "statusCode": 200,
           "label": "",
