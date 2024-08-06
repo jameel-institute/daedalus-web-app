@@ -2,10 +2,6 @@
 
 npx nuxi analyze
 
-# Env vars
-
-CI=0 or CI=1
-
 # Tests
 
 Run unit tests and component tests:
@@ -43,7 +39,7 @@ scripts/run-dev-dependencies
 
 If you have trouble with the R API image, there might be helpful information in [its own README](https://github.com/jameel-institute/daedalus.api).
 
-Copy `.env.example` to `.env` and then run the `dev:init` command, which installs the JS dependencies, runs any pending database migrations, and starts up the server in development mode on `http://localhost:3000`:
+Run the below to copy `.env.example` to `.env` and then run the `dev:init` command, which installs the JS dependencies, runs any pending database migrations, and starts up the server in development mode on `http://localhost:3000`:
 
 ```bash
 cp .env.example .env

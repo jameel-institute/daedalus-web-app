@@ -9,6 +9,8 @@ fi
 
 if [[ -v "BRANCH_NAME" ]]; then
     GIT_BRANCH=${BRANCH_NAME}
+elif [[ -v "GITHUB_HEAD_REF" ]]; then
+    GIT_BRANCH=${GITHUB_HEAD_REF}
 else
     GIT_BRANCH=$(git symbolic-ref --short HEAD)
 fi
