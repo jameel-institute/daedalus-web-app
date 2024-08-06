@@ -23,7 +23,7 @@ jobs:
       - name: Start API server with Mockoon to mock R API
         uses: mockoon/cli-action@v2
         with:
-          data-file: ./mocks/mockoon.json
+          data-file: ./tests/unit/mocks/mockoon.json
           port: 8001
       - name: Check API server is running
         run: curl -s http://localhost:8001/mock-smoke
