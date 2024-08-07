@@ -4,12 +4,21 @@ npx nuxi analyze
 
 # Tests
 
-Run unit tests and component tests:
+To run unit tests, component tests and integration tests, first start the Mockoon server:
 ```bash
-npx mockoon-cli start --data ./tests/unit/mocks/mockoon.json # See ./tests/unit/server/api/README.md
+npx mockoon-cli start --data ./mocks/mockoon.json
+```
+
+Then, to run unit tests:
+```bash
 npm run test:unit
 # Or with coverage:
 npm run test:unit:coverage
+```
+
+To run integration tests:
+```bash
+npm run test:integration
 ```
 
 Run server-side rendering tests:

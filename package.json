@@ -16,9 +16,10 @@
     "lint:fix": "eslint . --fix",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "test:unit": "vitest ./tests/unit/ --disable-console-intercept",
+    "test:integration": "vitest ./tests/integration/",
+    "test:unit": "vitest ./tests/unit/",
     "test:unit:coverage": "vitest ./tests/unit --coverage",
-    "test:ssr": "vitest ./tests/ssr/*.spec.ts --disable-console-intercept",
+    "test:ssr": "vitest ./tests/ssr/*.spec.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {

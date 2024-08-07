@@ -15,6 +15,14 @@ const mockCSidebarPageloadBehavior = async (coreuiSidebar: VueWrapper) => {
 };
 
 describe("sidebar", () => {
+  registerEndpoint("/api/versions", () => {
+    return {
+      daedalusModel: "1.2.3",
+      daedalusApi: "4.5.6",
+      daedalusWebApp: "7.8.9",
+    };
+  });
+
   it("adds a resize event listener on mount and removes it on unmount", async () => {
     const addEventListenerSpy = vi.spyOn(window, "addEventListener");
     const removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
@@ -56,14 +64,6 @@ describe("sidebar", () => {
       });
 
       it("includes information about the version numbers", async () => {
-        registerEndpoint("/api/versions", () => {
-          return {
-            daedalusModel: "1.2.3",
-            daedalusApi: "4.5.6",
-            daedalusWebApp: "7.8.9",
-          };
-        });
-
         const component = await mountSuspended(SideBar, {
           props: { visible: false },
           global: { stubs },

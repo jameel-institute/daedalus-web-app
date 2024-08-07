@@ -33,14 +33,52 @@
           "default": true,
           "crudKey": "id",
           "callbacks": []
+        },
+        {
+          "uuid": "128811da-2c89-4b2c-bd7a-fd9a18811f9d",
+          "body": "{\"status\":\"failure\",\"errors\":[{\"error\":\"NOT_FOUND\",\"detail\":\"Resource not found\"}],\"data\":null}",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "2c4e88c2-0025-45ee-b298-9ed1fcd24f33",
+          "body": "{\"thisResponse\": \"shouldNeverBeReceivedSinceIConfiguredTheDelayToBeGreaterThanTheTimeoutWeWaitForTheResponseFor\"}",
+          "latency": 99999999,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "responseMode": null
+      "responseMode": "SEQUENTIAL"
     },
     {
       "uuid": "a62b8d87-1092-43cb-a728-b913728fbd20",
       "type": "http",
-      "documentation": "",
+      "documentation": "An endpoint to check whether the server is the real R API server or the mock server.",
       "method": "get",
       "endpoint": "mock-smoke",
       "responses": [

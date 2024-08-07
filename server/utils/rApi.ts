@@ -1,48 +1,65 @@
 import type { NitroFetchOptions, NitroFetchRequest } from "nitropack";
-import type { FetchError } from "ofetch";
 import type { H3Event } from "h3";
 
-interface RApiError {
+export interface RApiError {
   error: string
   detail: string
 }
-
-export interface RApiResponse {
-  status: string
+export interface RApiResponse<T extends object> {
+  statusText: string
+  statusCode: number
   errors: Array<RApiError> | null
-  data: object | null
+  data: T | null
 }
 
-// Make reading errors more convenient for developers
-const errorInformationString = (error: FetchError) => {
-  return error.data?.errors?.map((e: RApiError) => {
-    return [e.error, e.detail].join(": ");
-  }).join(", ");
-};
-
 // Wraps Nuxt's $fetch utility, configuring it for the R API.
-export const fetchRApi = async <T extends RApiResponse>(
+export const fetchRApi = async <T extends object>(
   endpoint: string,
   options: NitroFetchOptions<NitroFetchRequest> = {},
   event?: H3Event,
-) => {
+): Promise<RApiResponse<T>> => {
   const config = useRuntimeConfig(event); // Must be called from inside the composable function. https://nuxt.com/docs/guide/concepts/auto-imports#vue-and-nuxt-composables
 
-  return await $fetch<T>(endpoint, {
+  let errors: Array<RApiError> | null = null;
+  let statusCode: number | null = null;
+  let statusText = "";
+  let data = null;
+
+  const response = await $fetch<RApiResponse<T>>(`${endpoint}`, {
     ...options,
     baseURL: config.rApiBase,
-  }).catch((error) => {
-    console.error("R API fetch error:", error);
-    console.error(errorInformationString(error));
-
-    throw createError({
-      statusCode: 500,
-      message: "Internal Server Error",
-      data: {
-        rApiStatusCode: error.response?.status,
-        rApiResponseBody: error.data,
-        rApiResponseErrors: errorInformationString(error),
-      },
+    timeout: 1000, // Prevent hanging if no response
+    async onResponse({ response }) {
+      statusText = response.statusText;
+      statusCode = response.status;
+    },
+  })
+    .catch((error) => {
+      if (error?.data?.errors) {
+        errors = error.data.errors;
+      }
     });
-  });
+
+  if (response?.data) {
+    data = response.data;
+  }
+
+  return (statusCode
+    ? {
+        statusText,
+        statusCode,
+        errors,
+        data,
+      }
+    : {
+        statusText: "error",
+        statusCode: 500,
+        errors: [
+          {
+            error: "Unknown error",
+            detail: "No response from the API",
+          },
+        ],
+        data: null,
+      }) as RApiResponse<T>;
 };

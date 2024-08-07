@@ -57,8 +57,9 @@
 
 <script lang="ts" setup>
 import { CIcon } from "@coreui/icons-vue";
+import type { VersionData } from "@/types/apiResponseTypes";
 
-const { data: versionData } = useFetch("/api/versions");
+const { data: versionData } = useFetch("/api/versions") as { data: Ref<VersionData> };
 
 const versionTooltipContent = computed(() => {
   if (versionData.value) {
