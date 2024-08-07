@@ -27,15 +27,31 @@ npm run test:e2e
 
 The tests under e2e, which are run by playwright, are for testing the full-stack (client app and server app) in a browser environment. Since the server-rendered page may be different from the client-rendered page, for example, when some elements are configured to only render on the client side, relevant tests should wait for the elements to be present.
 
-## Setup
+## Local development
 
-Make sure to install the dependencies:
+### Setup
+
+Use Node 20.
+Have Docker installed.
+Copy `.env.example` to `.env`.
+Build and run the database container:
+
+```bash
+./db/scripts/build
+./db/scripts/run
+```
+
+Install the JS dependencies:
 
 ```bash
 npm install
 ```
 
-## Local development
+Prisma ORM can only query the database once you 'generate' the Prisma Client, which generates into `node_modules/.prisma/client`. This should happen when you install the JS dependencies and whenever you run a migration, but if the Prisma client gets out of sync or doesn't generate, you can manually generate it:
+
+```bash
+npx prisma generate
+```
 
 Start the development server on `http://localhost:3000`:
 
@@ -50,6 +66,30 @@ npm run dev -- --host
 ```
 
 The QR code shown will allow you to quickly access the app.
+
+### DB
+
+Our ORM is [Prisma](https://www.prisma.io/).
+
+To create migrations to the database, first update the Prisma schema at ./prisma/schema.prisma as required, then run the below command to generate the corresponding SQL migration and to apply it to the database. [You should commit both](https://www.prisma.io/docs/orm/prisma-migrate/workflows/team-development#source-control) the Prisma schema and the migration file to Git.
+
+```bash
+npx prisma migrate dev
+```
+
+The same command is also used to apply migrations that already exist in ./prisma/migrations but which have not been applied to the database.
+
+Prisma ORM can only query the database once you 'generate' the Prisma Client, which generates into `node_modules/.prisma/client` based on the file `prisma/schema.prisma`. This should happen when you install the JS dependencies and whenever you run a migration, but if the Prisma client gets out of sync or doesn't generate, you can manually generate it:
+
+```bash
+npx prisma generate
+```
+
+More helpful information about Prisma [development workflows](https://www.prisma.io/docs/orm/prisma-migrate/workflows/development-and-production#customizing-migrations) and resolving issues in [production environments](https://www.prisma.io/docs/orm/prisma-migrate/workflows/patching-and-hotfixing#fixing-failed-migrations-with-migrate-diff-and-db-execute).
+
+#### For your IDE
+
+In VSCode, you can use the extension with ID 'Prisma.prisma' to get syntax highlighting etc.
 
 ## Linting and formatting
 
