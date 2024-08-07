@@ -65,8 +65,9 @@ describe("api/versions", { sequential: true }, async () => {
     expect(response.ok).toBe(false);
     expect(response.status).toBe(404);
     expect(response.statusText).toBe("Not Found");
-
     const json = await response.json();
+    expect(json.data[0].error).toBe("NOT_FOUND");
+    expect(json.data[0].detail).toBe("Resource not found");
     expect(json.message).toBe("NOT_FOUND: Resource not found"); // A concatenation of the error details from the R API.
   });
 
