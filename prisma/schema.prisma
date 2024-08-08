@@ -42,8 +42,8 @@ model session_scenario {
   session_id  String
   created_at  DateTime @default(now())
 
-  session  session  @relation(fields: [session_id], references: [id])
-  scenario scenario @relation(fields: [scenario_id], references: [id])
+  session  session  @relation(fields: [session_id], references: [id], onDelete: Cascade)
+  scenario scenario @relation(fields: [scenario_id], references: [id], onDelete: Cascade)
 
   @@unique([scenario_id, session_id])
 }
