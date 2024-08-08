@@ -14,12 +14,36 @@ datasource db {
 }
 
 model scenario {
-  id                        String    @id @default(cuid())
-  model_version             String    @db.VarChar(30)
-  parameters                Json      @default("{}")
-  parameters_hash           String    @db.VarChar(255)
-  result_data               Json      @default("{}")
-  result_data_completed_at  DateTime?
-  created_at                DateTime  @default(now())
-  updated_at                DateTime  @updatedAt
+  id                       String    @id @default(cuid())
+  model_version            String    @db.VarChar(30)
+  dataset_release_version  String    @db.VarChar(30)
+  parameters               Json      @default("{}")
+  parameters_hash          String    @db.VarChar(255)
+  result_data              Json      @default("{}")
+  result_data_completed_at DateTime?
+  created_at               DateTime  @default(now())
+  updated_at               DateTime  @updatedAt
+
+  session_scenarios session_scenario[]
+
+  @@unique([model_version, parameters, dataset_release_version])
+}
+
+model session {
+  id         String   @id @default(cuid())
+  created_at DateTime @default(now())
+
+  session_scenarios session_scenario[]
+}
+
+model session_scenario {
+  id          String   @id @default(cuid())
+  scenario_id String
+  session_id  String
+  created_at  DateTime @default(now())
+
+  session  session  @relation(fields: [session_id], references: [id])
+  scenario scenario @relation(fields: [scenario_id], references: [id])
+
+  @@unique([scenario_id, session_id])
 }
