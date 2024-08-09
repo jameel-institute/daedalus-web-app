@@ -25,7 +25,7 @@ jobs:
         with:
           data-file: ./mocks/mockoon.json
           port: 8001
-      - name: Check API server is running
+      - name: Check mocked R API server is running
         run: curl -s http://localhost:8001/mock-smoke
       - name: Set environment variables for app
         run: scripts/ci/copy-env-vars-to-dot-env-file
