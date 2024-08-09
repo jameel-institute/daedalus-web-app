@@ -4,8 +4,7 @@ export interface ApiError {
   error: string
   detail: string
 }
-
-interface ServerApiResponse<T extends object> {
+export interface ApiResponse<T extends object = object> {
   statusText: string
   statusCode: number
   errors: Array<ApiError> | null
@@ -18,4 +17,4 @@ export interface VersionData {
   daedalusWebApp: string
 }
 
-export interface VersionDataResponse extends ServerApiResponse<VersionData> { }
+export interface VersionDataResponse extends ApiResponse<VersionData> { }

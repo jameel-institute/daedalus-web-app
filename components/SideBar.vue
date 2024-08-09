@@ -57,7 +57,7 @@
 
 <script lang="ts" setup>
 import { CIcon } from "@coreui/icons-vue";
-import type { VersionData } from "@/types/apiResponseTypes";
+import type { VersionData } from "@/types/daedalusApiResponseTypes";
 
 const { data: versionData } = useFetch("/api/versions") as { data: Ref<VersionData> };
 

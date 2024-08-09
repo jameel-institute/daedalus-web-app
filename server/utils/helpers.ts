@@ -1,4 +1,4 @@
-import type { ApiError } from "@/types/apiResponseTypes";
+import type { ApiError } from "@/types/daedalusApiResponseTypes";
 
 // Convert list of error objects to string
 export const errorMessage = (errors: Array<ApiError> | null) => {
