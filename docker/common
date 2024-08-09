@@ -1,26 +1,17 @@
 #!/usr/bin/env bash
 set -ex
 
-if [[ -v "GITHUB_SHA" ]]; then
-    GIT_ID=${GITHUB_SHA:0:7}
-else
-    GIT_ID=$(git rev-parse --short=7 HEAD)
-fi
-
-if [[ -v "BRANCH_NAME" ]]; then
-    GIT_BRANCH=${BRANCH_NAME}
-else
-    GIT_BRANCH=$(git symbolic-ref --short HEAD)
-fi
+GIT_SHA=$(git -C "$PACKAGE_ROOT" rev-parse --short=7 HEAD)
+GIT_BRANCH=$(git -C "$PACKAGE_ROOT" symbolic-ref --short HEAD)
 
 REGISTRY=ghcr.io
 ORG=jameel-institute
 DB_IMAGE_NAME=daedalus-web-app-db
 DB_TAG="${REGISTRY}/${ORG}/${DB_IMAGE_NAME}"
-DB_TAG_SHA="${DB_TAG}:${GIT_ID}"
+DB_TAG_SHA="${DB_TAG}:${GIT_SHA}"
 DB_TAG_BRANCH="${DB_TAG}:${GIT_BRANCH}"
 
 APP_IMAGE_NAME=daedalus-web-app
 APP_TAG="${REGISTRY}/${ORG}/${APP_IMAGE_NAME}"
-APP_TAG_SHA="${APP_TAG}:${GIT_ID}"
+APP_TAG_SHA="${APP_TAG}:${GIT_SHA}"
 APP_TAG_BRANCH="${APP_TAG}:${GIT_BRANCH}"
