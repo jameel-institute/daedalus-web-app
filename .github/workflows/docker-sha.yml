@@ -1,0 +1,33 @@
+# Always  push sha image, only push for branch if all other jobs successful
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '*'
+
+name: Docker build and push SHA
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login to GHCR (GitHub Packages)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ env.GITHUB_PAT }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build
+        run: ./docker/build
+
+      - name: Push
+        run: ./docker/push
