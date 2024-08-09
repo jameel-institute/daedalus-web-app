@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -e
 HERE=$(dirname $0)
-. $HERE/common
+. $HERE/../../docker/common
 
 PACKAGE_ROOT=$(realpath $HERE/..)
 
 docker build \
-       -t "$TAG_SHA" \
-       -t "$TAG_BRANCH" \
+       -t "$DB_TAG_SHA" \
+       -t "$DB_TAG_BRANCH" \
        $PACKAGE_ROOT

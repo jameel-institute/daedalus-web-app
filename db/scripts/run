@@ -2,10 +2,10 @@
 set -e
 
 HERE=$(dirname $0)
-. $HERE/common
+. $HERE/../../docker/common
 
 docker run --rm -d \
  --network=bridge \
  --name daedalus-web-app-db \
  -p 5432:5432 \
- "$TAG_BRANCH"
+ "$DB_TAG_BRANCH"

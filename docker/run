@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -e
+HERE=$(dirname $0)
+. $HERE/common
+# run web app image, assuming dependencies are already running
+docker run --rm -d \
+ --network bridge \
+ --name daedalus-web-app \
+ -p 3000:3000 \
+ "$APP_TAG_SHA"
+
+# env vars
