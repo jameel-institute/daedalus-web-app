@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 set -ex
 
-GIT_SHA=$(git -C "$PACKAGE_ROOT" rev-parse --short=7 HEAD)
-GIT_BRANCH=$(git -C "$PACKAGE_ROOT" symbolic-ref --short HEAD)
+GIT_SHA=$(git rev-parse --short=7 HEAD)
+if [[ -v "BRANCH_NAME" ]]; then
+    GIT_BRANCH=${BRANCH_NAME}
+else
+    GIT_BRANCH=$(git symbolic-ref --short HEAD)
+fi
 
 REGISTRY=ghcr.io
 ORG=jameel-institute
