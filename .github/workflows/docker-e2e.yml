@@ -6,6 +6,8 @@ on:
   pull_request:
     branches:
       - '*'
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 jobs:
   test-and-push:
     timeout-minutes: 60
@@ -42,5 +44,5 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
-
-    # TODO: push docker branch tag on e2e test success
+      - name: Push branch tag
+        run: ./docker/push-branch-tag
