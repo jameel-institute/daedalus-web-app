@@ -34,6 +34,8 @@ jobs:
           # Note - non-secret variables are stored under the 'vars' context, while secrets will be stored under the 'secrets' context
       - name: Run service dependencies
         run: scripts/run-dependencies
+      - name: Run app in docker
+        run: ./docker/run  
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
