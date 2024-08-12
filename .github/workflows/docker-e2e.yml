@@ -1,4 +1,4 @@
-name: Playwright tests
+name: Playwright tests and docker push
 on:
   push:
     branches:
@@ -15,7 +15,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-<<<<<<< HEAD:.github/workflows/docker-e2e.yml
       - name: Login to GHCR (GitHub Packages)
         uses: docker/login-action@v3
         with:
@@ -28,7 +27,6 @@ jobs:
         run: ./docker/build
       - name: Push SHA tag
         run: ./docker/push
-=======
       - name: Set environment variables for app
         run: scripts/ci/copy-env-vars-to-dot-env-file
         env:
@@ -36,7 +34,6 @@ jobs:
           # Note - non-secret variables are stored under the 'vars' context, while secrets will be stored under the 'secrets' context
       - name: Run service dependencies
         run: scripts/run-dependencies
->>>>>>> main:.github/workflows/playwright.yml
       - name: Set up Node
         uses: actions/setup-node@v4
         with:

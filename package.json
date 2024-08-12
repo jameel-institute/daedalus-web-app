@@ -55,7 +55,6 @@
     "@vitest/coverage-v8": "^2.0.4",
     "@vue/test-utils": "^2.4.6",
     "jsdom": "^24.1.0",
-    "lint-staged": "^15.2.7",
     "nuxt": "^3.12.4",
     "playwright": "^1.45.2",
     "prisma": "^5.17.0",
@@ -71,12 +70,5 @@
     "1": "==============================",
     "2": "Vue version is overridden because of the issue described in the 'tip' in",
     "3": "the installation section of https://pinia.vuejs.org/ssr/nuxt.html"
-  },
-  "simple-git-hooks": {
-    "pre-commit": "npx lint-staged"
-  },
-  "lint-staged": {
-    "*": "eslint --fix",
-    "*/schema.prisma": "prisma format"
   }
 }
