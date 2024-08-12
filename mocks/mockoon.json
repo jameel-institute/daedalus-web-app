@@ -1,0 +1,163 @@
+{
+  "uuid": "ba364acb-8922-4360-a9d3-ceab6a9dc755",
+  "lastMigration": 32,
+  "name": "Mockoon",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 8001,
+  "hostname": "",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "3880149a-91f7-4c7a-8b1b-b6a620b6c20f",
+      "type": "http",
+      "documentation": "Modelled after the R API versions endpoint, which is currently situated at '/'.",
+      "method": "get",
+      "endpoint": "",
+      "responses": [
+        {
+          "uuid": "eb55d0af-aa59-4d0f-8cea-58ba9c68fa55",
+          "body": "{\"status\":\"success\",\"errors\":null,\"data\":{\"daedalus\":\"1.2.3.4.5.6.7.8\",\"daedalus.api\":\"8.7.6.5.4.3.2.1\"}}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "128811da-2c89-4b2c-bd7a-fd9a18811f9d",
+          "body": "{\"status\":\"failure\",\"errors\":[{\"error\":\"NOT_FOUND\",\"detail\":\"Resource not found\"}],\"data\":null}",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "2c4e88c2-0025-45ee-b298-9ed1fcd24f33",
+          "body": "{\"thisResponse\": \"shouldNeverBeReceivedSinceIConfiguredTheDelayToBeGreaterThanTheTimeoutWeWaitForTheResponseFor\"}",
+          "latency": 99999999,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": "SEQUENTIAL"
+    },
+    {
+      "uuid": "a62b8d87-1092-43cb-a728-b913728fbd20",
+      "type": "http",
+      "documentation": "An endpoint to check whether the server is the real R API server or the mock server.",
+      "method": "get",
+      "endpoint": "mock-smoke",
+      "responses": [
+        {
+          "uuid": "8e504c9c-2c6a-4bdb-989a-428fb3b978d8",
+          "body": "{\"serverUp\": true}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "3880149a-91f7-4c7a-8b1b-b6a620b6c20f"
+    },
+    {
+      "type": "route",
+      "uuid": "a62b8d87-1092-43cb-a728-b913728fbd20"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "localhost:8001",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    },
+    {
+      "key": "Access-Control-Allow-Origin",
+      "value": "*"
+    },
+    {
+      "key": "Access-Control-Allow-Methods",
+      "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+    },
+    {
+      "key": "Access-Control-Allow-Headers",
+      "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "data": [],
+  "callbacks": []
+}

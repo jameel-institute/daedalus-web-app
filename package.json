@@ -1,17 +1,24 @@
 {
-  "name": "nuxt-app",
+  "name": "daedalus-web-app",
   "type": "module",
+  "version": "0.0.1",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "dev:init": "npm install && npm run db:dev:migrate && npm run dev",
+    "db:dev:migrate": "prisma migrate dev",
     "generate": "nuxt generate",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "test:unit": "vitest ./tests/composables/*.spec.ts ./tests/components/*.spec.ts",
-    "test:unit:coverage": "vitest ./tests/composables/*.spec.ts ./tests/components/*.spec.ts --coverage",
+    "test:integration": "vitest ./tests/integration/",
+    "test:unit": "vitest ./tests/unit/",
+    "test:unit:coverage": "vitest ./tests/unit --coverage",
     "test:ssr": "vitest ./tests/ssr/*.spec.ts",
     "test:e2e": "playwright test"
   },
@@ -38,9 +45,11 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "2.21.0",
+    "@mockoon/cli": "^8.3.0",
     "@nuxt/eslint": "^0.3.13",
     "@nuxt/test-utils": "^3.14.0",
     "@playwright/test": "^1.45.2",
+    "@testing-library/vue": "^8.1.0",
     "@types/lodash.throttle": "^4.1.9",
     "@types/node": "^20.14.11",
     "@vitest/coverage-v8": "^2.0.4",

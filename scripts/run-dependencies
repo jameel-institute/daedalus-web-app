@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+HERE=$(realpath "$(dirname $0)")
+
+usage() {
+    echo "Options:"
+    echo " -h, --help            Show list of flags"
+    echo " --db-build-skip       Skip building the db"
+}
+
+DB_BUILD_SKIP=0
+handle_options() {
+  while [ $# -gt 0 ]; do
+    case $1 in
+      -h | --help)
+        usage
+        exit 3
+      ;;
+      --db-build-skip)
+        DB_BUILD_SKIP=1
+        ;;
+      *)
+        echo "Invalid option: $1" >&2
+        usage
+        exit 1
+        ;;
+    esac
+    shift
+  done
+}
+
+handle_options "$@"
+
+# (Conditionally build and) run the database
+if [ $DB_BUILD_SKIP -eq 0 ]; then
+  "$HERE"/../db/scripts/build
+else
+  echo "Skipping db build"
+fi
+"$HERE"/../db/scripts/run
+
+docker exec daedalus-web-app-db wait-for-db
+
+# Pull and run the R API image
+R_API_IMAGE='mrcide/daedalus.api:latest'
+docker pull $R_API_IMAGE # There will be a 'latest' tag: https://github.com/jameel-institute/daedalus.api/pull/2#issuecomment-2252491603
+docker run -d --name daedalus-api --rm -p 8001:8001 $R_API_IMAGE

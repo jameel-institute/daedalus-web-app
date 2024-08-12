@@ -41,4 +41,13 @@ export default defineNuxtConfig({
     },
   },
 
+  runtimeConfig: {
+    rApiBase: "", // Overriden by environment variable NUXT_R_API_BASE
+  },
+
+  $test: {
+    runtimeConfig: {
+      rApiBase: "", // https://nuxt.com/docs/getting-started/testing#registerendpoint
+    },
+  },
 });

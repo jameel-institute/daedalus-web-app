@@ -1,4 +1,4 @@
-name: Unit tests
+name: Integration tests
 on:
   push:
     branches:
@@ -20,16 +20,17 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Start API server with Mockoon to mock R API
+        uses: mockoon/cli-action@v2
+        with:
+          data-file: ./mocks/mockoon.json
+          port: 8001
+      - name: Check mocked R API server is running
+        run: curl -s http://localhost:8001/mock-smoke
       - name: Set environment variables for app
         run: scripts/ci/copy-env-vars-to-dot-env-file
         env:
           NUXT_R_API_BASE: ${{ vars.NUXT_R_API_BASE }}
           # Note - non-secret variables are stored under the 'vars' context, while secrets will be stored under the 'secrets' context
       - name: Test
-        run: npm run test:unit:coverage
-      - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: jameel-institute/daedalus-web-app
-          fail_ci_if_error: true
+        run: npm run test:integration

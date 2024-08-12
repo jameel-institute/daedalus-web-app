@@ -20,8 +20,5 @@ RUN chown -R postgres:postgres /etc/daedalus-web-app
 ENV PATH="/usr/local/bin:$PATH"
 RUN docker-entrypoint.sh --version
 
-# Ensure the start script is executable
-RUN chmod +x /daedalus-web-app-bin/start-with-config.sh
-
 ENTRYPOINT ["/daedalus-web-app-bin/start-with-config.sh"]
 CMD ["/etc/daedalus-web-app/postgresql.conf"]
