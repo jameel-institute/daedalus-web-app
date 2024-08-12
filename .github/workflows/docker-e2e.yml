@@ -24,14 +24,9 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Build docker images
-        run: ./docker/build && ./docker/db-migrate/build
+        run: ./docker/build && ./docker/db-migrate/build && ./db/scripts/build
       - name: Push SHA tag
-        run: ./docker/push && ./docker/db-migrate/push
-      - name: Set environment variables for app
-        run: scripts/ci/copy-env-vars-to-dot-env-file
-        env:
-          NUXT_R_API_BASE: ${{ vars.NUXT_R_API_BASE }}
-          # Note - non-secret variables are stored under the 'vars' context, while secrets will be stored under the 'secrets' context
+        run: ./docker/push && ./docker/db-migrate/push && ./db/scripts/push
       - name: Run service dependencies
         run: scripts/run-dependencies
       - name: Run app in docker
@@ -56,5 +51,5 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
-      - name: Push branch tag
+      - name: Push branch tag on success
         run: ./docker/push-branch-tag

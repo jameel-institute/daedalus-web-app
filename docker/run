@@ -3,22 +3,18 @@ set -euxo pipefail
 HERE=$(dirname $0)
 . $HERE/common
 
+# NB SHA images for both web app and migrate images must be built before running this script
+
 # Migrate the db - db container and other dependencies should already be running
 docker run --rm -d \
  --name $DB_MIGRATE_IMAGE_NAME
- --env DATABASE_URL=postgresql://daedalus-web-app-user:changeme@localhost:5432/daedalus-web-app
+ --env-file env.docker
  "$DB_MIGRATE_TAG_SHA"
 
 docker run --rm -d \
  --name "$APP_IMAGE_NAME" \
  -p 3000:3000 \
- --env DATABASE_URL=postgresql://daedalus-web-app-user:changeme@localhost:5432/daedalus-web-app
- --env NUXT_R_API_BASE=http://daedalus-api:8001/
+ --env-file env.docker
  "$APP_TAG_SHA"
 
-# TODO: Need to have build both SHA images.. maybe roll build scripts together
 # TODO: docker env file
-# TODO: WAIT?
-
-
-# TODO: build and push db container in same pattern as app and migrate containers
