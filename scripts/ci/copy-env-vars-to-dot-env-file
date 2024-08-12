@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+set -eux
+
+echo "NUXT_R_API_BASE=$NUXT_R_API_BASE" > .env

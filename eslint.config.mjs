@@ -5,6 +5,7 @@ import withNuxt from "./.nuxt/eslint.config.mjs";
 export default withNuxt(
   // Your custom configs here
   antfu({
+    lessOpinionated: true,
     // ...@antfu/eslint-config options, see e.g. https://github.com/antfu/eslint-config?tab=readme-ov-file#rules-overrides
   }).override(
     "antfu/vue/rules",
@@ -17,6 +18,9 @@ export default withNuxt(
             "style",
           ],
         }],
+        "style/brace-style": ["error", "1tbs", {
+          allowSingleLine: true,
+        }],
       },
     },
   ).override(
@@ -28,6 +32,9 @@ export default withNuxt(
           avoidEscape: true,
         }],
         "style/semi": ["error", "always"],
+        "style/brace-style": ["error", "1tbs", {
+          allowSingleLine: true,
+        }],
       },
     },
   ),

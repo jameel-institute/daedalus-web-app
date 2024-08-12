@@ -23,8 +23,7 @@ if (socket.connected) {
 function checkConnectionStatus() {
   if (socket.connected) {
     onConnect();
-  }
-  else {
+  } else {
     onDisconnect();
   }
 }

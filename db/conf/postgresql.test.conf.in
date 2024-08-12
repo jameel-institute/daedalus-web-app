@@ -1,4 +1,4 @@
-# Copied from db/conf/postgresql.test.conf.in
+# Copied from https://github.com/mrc-ide/packit/blob/main/db/conf/postgresql.test.conf.in
 # ----------------------------------------------------------------------------
 # Test database config begins here.
 # Values here override those earlier in the file
