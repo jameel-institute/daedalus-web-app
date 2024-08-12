@@ -24,11 +24,9 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Build docker images
-        run: ./docker/build
-        run: ./docker/db-migrate/build
+        run: ./docker/build && ./docker/db-migrate/build
       - name: Push SHA tag
-        run: ./docker/push
-        run: ./docker/db-migrate/push
+        run: ./docker/push && ./docker/db-migrate/push
       - name: Set environment variables for app
         run: scripts/ci/copy-env-vars-to-dot-env-file
         env:
