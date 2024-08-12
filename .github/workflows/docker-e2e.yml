@@ -23,10 +23,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Build docker  image
+      - name: Build docker images
         run: ./docker/build
+        run: ./docker/db-migrate/build
       - name: Push SHA tag
         run: ./docker/push
+        run: ./docker/db-migrate/push
       - name: Set environment variables for app
         run: scripts/ci/copy-env-vars-to-dot-env-file
         env:
@@ -35,7 +37,10 @@ jobs:
       - name: Run service dependencies
         run: scripts/run-dependencies
       - name: Run app in docker
-        run: ./docker/run  
+        run: ./docker/run
+      - name: log check
+        # TODO: remove this!
+        run: docker logs daedalus-web-app
       - name: Set up Node
         uses: actions/setup-node@v4
         with:

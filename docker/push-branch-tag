@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-set -e
+set -euxo pipefail
 HERE=$(dirname $0)
 . $HERE/common
 
 docker tag  "$APP_TAG_SHA" "$APP_TAG_BRANCH"
 docker push  "$APP_TAG_BRANCH"
+
+docker tag "$DB_MIGRATE_TAG_SHA" "$DB_MIGRATE_TAG_BRANCH"
+docker push "$DB_MIGRATE_TAG_BRANCH"
