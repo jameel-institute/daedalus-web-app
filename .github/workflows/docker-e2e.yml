@@ -23,10 +23,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Build docker  image
-        run: ./docker/build
+      - name: Build docker images
+        run: ./docker/build && ./docker/db-migrate/build && ./db/scripts/build
       - name: Push SHA tag
-        run: ./docker/push
+        run: ./docker/push && ./docker/db-migrate/push && ./db/scripts/push
+      - name: Run app in docker
+        run: ./docker/run
       - name: Set environment variables for app
         run: scripts/ci/copy-env-vars-to-dot-env-file
         env:
@@ -51,5 +53,5 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
-      - name: Push branch tag
+      - name: Push branch tag on success
         run: ./docker/push-branch-tag

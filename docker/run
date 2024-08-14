@@ -2,14 +2,21 @@
 set -euxo pipefail
 HERE=$(dirname $0)
 . $HERE/common
-# run web app image, assuming dependencies are already running
+
+# NB SHA images for both web app and migrate images must be built before running this script
+
+# Migrate the db - db container and other dependencies should already be running
+docker run --rm -d \
+ --name $DB_MIGRATE_IMAGE_NAME
+ --env-file env.docker
+ "$DB_MIGRATE_TAG_SHA"
+
 docker run --rm -d \
  --network bridge \
  --name "$APP_IMAGE_NAME" \
  -p 3000:3000 \
+ --env-file env.docker
  "$APP_TAG_SHA"
-
-# env vars
 
 # TODO: WAIT?
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex
+set -euxo pipefail
 
 GIT_SHA=$(git rev-parse --short=7 HEAD)
 if [[ -v "BRANCH_NAME" ]]; then
@@ -10,12 +10,19 @@ fi
 
 REGISTRY=ghcr.io
 ORG=jameel-institute
+PREFIX="${REGISTRY}/${ORG}"
+
 DB_IMAGE_NAME=daedalus-web-app-db
-DB_TAG="${REGISTRY}/${ORG}/${DB_IMAGE_NAME}"
+DB_TAG="${PREFIX}/${DB_IMAGE_NAME}"
 DB_TAG_SHA="${DB_TAG}:${GIT_SHA}"
 DB_TAG_BRANCH="${DB_TAG}:${GIT_BRANCH}"
 
+DB_MIGRATE_IMAGE_NAME=daedalus-web-app-db-migrate
+DB_MIGRATE_TAG="${PREFIX}/${DB_MIGRATE_IMAGE_NAME}"
+DB_MIGRATE_TAG_SHA="${DB_MIGRATE_TAG}:${GIT_SHA}"
+DB_MIGRATE_TAG_BRANCH="${DB_MIGRATE_TAG}:${GIT_BRANCH}"
+
 APP_IMAGE_NAME=daedalus-web-app
-APP_TAG="${REGISTRY}/${ORG}/${APP_IMAGE_NAME}"
+APP_TAG="${PREFIX}/${APP_IMAGE_NAME}"
 APP_TAG_SHA="${APP_TAG}:${GIT_SHA}"
 APP_TAG_BRANCH="${APP_TAG}:${GIT_BRANCH}"

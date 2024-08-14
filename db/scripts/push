@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euxo pipefail
+HERE=$(dirname $0)
+. $HERE/../../common
+
+docker push  "$DB_TAG_SHA"
