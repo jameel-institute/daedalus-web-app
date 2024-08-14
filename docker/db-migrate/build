@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-set -euxo pipefail
-HERE=$(dirname $0)
-. $HERE/../common
-
-docker build \
-    --tag $DB_MIGRATE_TAG_SHA \
-    -f docker/db-migrate/Dockerfile \
-    .

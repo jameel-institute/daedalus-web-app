@@ -8,6 +8,3 @@ docker push "$APP_TAG_BRANCH"
 
 docker tag "$DB_TAG_SHA" "$DB_TAG_BRANCH"
 docker push "$DB_TAG_BRANCH"
-
-docker tag "$DB_MIGRATE_TAG_SHA" "$DB_MIGRATE_TAG_BRANCH"
-docker push "$DB_MIGRATE_TAG_BRANCH"

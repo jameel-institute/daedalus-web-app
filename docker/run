@@ -3,22 +3,10 @@ set -euxo pipefail
 HERE=$(dirname $0)
 . $HERE/common
 
-# NB SHA images for both web app and migrate images must be built before running this script
-
-# Migrate the db - db container and other dependencies should already be running
+# NB SHA image must be built before running this script
 docker run --rm -d \
- --name $DB_MIGRATE_IMAGE_NAME
- --env-file env.docker
- "$DB_MIGRATE_TAG_SHA"
-
-docker run --rm -d \
- --network bridge \
  --name "$APP_IMAGE_NAME" \
+ --network=daedalus \
  -p 3000:3000 \
- --env-file env.docker
+ --env-file env.docker \
  "$APP_TAG_SHA"
-
-# TODO: WAIT?
-
-# Migrate the db
-docker exec "$APP_IMAGE_NAME" prisma migrate deploy
