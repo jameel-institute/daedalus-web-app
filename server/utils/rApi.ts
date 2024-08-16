@@ -46,20 +46,20 @@ export const fetchRApi = async <T extends object>(
 
   return (statusCode
     ? {
-        statusText,
-        statusCode,
-        errors,
-        data,
-      }
+      statusText,
+      statusCode,
+      errors,
+      data,
+    }
     : {
-        statusText: "error",
-        statusCode: 500,
-        errors: [
-          {
-            error: "Unknown error",
-            detail: "No response from the API",
-          },
-        ],
-        data: null,
-      }) as RApiResponse<T>;
+      statusText: "error",
+      statusCode: 500,
+      errors: [
+        {
+          error: "Unknown error",
+          detail: "No response from the API",
+        },
+      ],
+      data: null,
+    }) as RApiResponse<T>;
 };
