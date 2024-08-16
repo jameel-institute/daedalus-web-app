@@ -51,7 +51,7 @@
           >
         </div>
       </CSidebarBrand>
-    </CSidebarHeader><p></p>
+    </CSidebarHeader>
   </CSidebar>
 </template>
 
@@ -59,18 +59,7 @@
 import { CIcon } from "@coreui/icons-vue";
 import type { VersionData } from "@/types/daedalusApiResponseTypes";
 
-const { data: versionData } = useFetch("/api/versions", {
-  onRequest({ request, options }) {
-    console.log("[a lovely request]", request, options);
-
-    // set request headers https://github.com/unjs/ofetch?tab=readme-ov-file#%EF%B8%8F-interceptors
-    // https://nuxt.com/docs/api/composables/use-fetch#usage
-    options.headers = options.headers || {};
-    console.log(options.headers);
-    options.headers = [["sausages today please", "and beans"]];
-    console.log(options.headers);
-  },
-}) as { data: Ref<VersionData> };
+const { data: versionData } = useFetch("/api/versions") as { data: Ref<VersionData> };
 
 const versionTooltipContent = computed(() => {
   if (versionData.value) {
