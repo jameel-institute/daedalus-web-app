@@ -163,4 +163,4 @@ To run the app in docker:
 - `./docker/run`
 
 This will build and run the app container, exposing port 3000, so you should be able to access the web app at
-http://localhost:3000 as you can when running locally outside docker. 
+http://localhost:3000 as you can when running locally outside docker.
