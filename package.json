@@ -70,5 +70,12 @@
     "1": "==============================",
     "2": "Vue version is overridden because of the issue described in the 'tip' in",
     "3": "the installation section of https://pinia.vuejs.org/ssr/nuxt.html"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --fix",
+    "*/schema.prisma": "prisma format"
   }
 }

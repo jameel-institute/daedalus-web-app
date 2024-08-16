@@ -4,7 +4,9 @@ HERE=$(dirname $0)
 . $HERE/common
 
 # NB SHA image must be built before running this script
-docker run --rm -d \
+# run-dependencies should also have been run, to create network and db container (the web app container will apply
+# migrations to the db, so the db container must be running first).
+docker run  -d \
  --name "$APP_IMAGE_NAME" \
  --network=daedalus \
  -p 3000:3000 \

@@ -43,11 +43,10 @@ fi
 
 docker exec daedalus-web-app-db wait-for-db
 
+docker network create daedalus
+docker network connect daedalus daedalus-web-app-db
+
 # Pull and run the R API image
 R_API_IMAGE='mrcide/daedalus.api:latest'
 docker pull $R_API_IMAGE # There will be a 'latest' tag: https://github.com/jameel-institute/daedalus.api/pull/2#issuecomment-2252491603
-docker run -d --name daedalus-api --rm -p 8001:8001 $R_API_IMAGE
-
-docker network create daedalus
-docker network connect daedalus daedalus-api
-docker network connect daedalus daedalus-web-app-db
+docker run -d --name daedalus-api --rm --network=daedalus -p 8001:8001 $R_API_IMAGE
