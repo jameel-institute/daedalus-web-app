@@ -7,9 +7,10 @@ ENV NODE_ENV=production
 WORKDIR /src
 
 COPY . .
-RUN npm install --production=false
+RUN npm ci --ignore-scripts
 
 # Generate the prisma client code
+RUN npm install prisma
 RUN npx prisma generate
 
 RUN npm run build
