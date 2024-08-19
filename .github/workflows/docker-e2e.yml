@@ -25,7 +25,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
       - name: Build docker images
         run: ./docker/build && ./db/scripts/build
-      - name: Push SHA tag
+      - name: Push SHA tags
         run: ./docker/push && ./db/scripts/push
       - name: Run service dependencies
         run: scripts/run-dependencies --db-build-skip
