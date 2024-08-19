@@ -19,7 +19,9 @@ export default defineNuxtConfig({
 
   modules: [
     "@nuxtjs/fontaine", // https://nuxt.com/docs/getting-started/styling#font-advanced-optimization
-    "@pinia/nuxt"
+    "@pinia/nuxt",
+    "@nuxt/test-utils/module", // https://nuxt.com/docs/getting-started/testing#setup
+    "@nuxt/eslint",
   ],
 
   vite: {
