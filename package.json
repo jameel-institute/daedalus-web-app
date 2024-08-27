@@ -37,7 +37,7 @@
     "pinia": "^2.2.2",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
-    "vue": "^3.4.38"
+    "vue": "latest"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8",
