@@ -114,7 +114,7 @@ describe("sidebar", () => {
 
         expect(component.text()).toContain("New scenario");
         const navLink = component.findComponent({ name: "NuxtLink" });
-        expect(navLink.props("to")).toBe("/scenario/new");
+        expect(navLink.props("to")).toBe("/scenarios/new");
       });
 
       afterAll(() => {

@@ -8,32 +8,32 @@
   >
     <CSidebarNav role="navigation">
       <CNavItem>
-        <NuxtLink to="/scenario/new" class="nav-link">
+        <NuxtLink prefetch-on="interaction" to="/scenarios/new" class="nav-link">
           <CIcon icon="cilPlus" size="lg" class="nav-icon" /> New scenario
         </NuxtLink>
       </CNavItem>
       <CNavItem>
-        <NuxtLink to="/" class="nav-link">
+        <NuxtLink prefetch-on="interaction" to="/" class="nav-link">
           <CIcon icon="cilBookmark" size="lg" class="nav-icon" /> Bookmarks
         </NuxtLink>
       </CNavItem>
       <CNavItem>
-        <NuxtLink to="/" class="nav-link">
+        <NuxtLink prefetch-on="interaction" to="/" class="nav-link">
           <CIcon icon="cilHistory" size="lg" class="nav-icon" /> My history
         </NuxtLink>
       </CNavItem>
       <CNavItem>
-        <NuxtLink to="/" class="nav-link">
+        <NuxtLink prefetch-on="interaction" to="/" class="nav-link">
           <CIcon icon="cilShareAlt" size="lg" class="nav-icon" /> Share
         </NuxtLink>
       </CNavItem>
       <CNavItem>
-        <NuxtLink to="/" class="nav-link">
+        <NuxtLink prefetch-on="interaction" to="/" class="nav-link">
           <CIcon icon="cilCloudDownload" size="lg" class="nav-icon" /> Download
         </NuxtLink>
       </CNavItem>
       <CNavItem>
-        <NuxtLink to="/" class="nav-link">
+        <NuxtLink prefetch-on="interaction" to="/" class="nav-link">
           <CIcon icon="cilNoteAdd" size="lg" class="nav-icon" /> Add notes
         </NuxtLink>
       </CNavItem>
