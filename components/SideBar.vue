@@ -8,34 +8,34 @@
   >
     <CSidebarNav role="navigation">
       <CNavItem>
-        <CNavLink href="/scenario/new">
-          <CIcon class="nav-icon" icon="cilPlus" size="lg" /> New scenario
-        </CNavLink>
+        <NuxtLink prefetch-on="interaction" to="/scenarios/new" class="nav-link">
+          <CIcon icon="cilPlus" size="lg" class="nav-icon" /> New scenario
+        </NuxtLink>
       </CNavItem>
       <CNavItem>
-        <CNavLink href="/bookmarks">
-          <CIcon class="nav-icon" icon="cilBookmark" size="lg" /> Bookmarks
-        </CNavLink>
+        <NuxtLink prefetch-on="interaction" to="/" class="nav-link">
+          <CIcon icon="cilBookmark" size="lg" class="nav-icon" /> Bookmarks
+        </NuxtLink>
       </CNavItem>
       <CNavItem>
-        <CNavLink href="404.html">
-          <CIcon class="nav-icon" icon="cilHistory" size="lg" /> My history
-        </CNavLink>
+        <NuxtLink prefetch-on="interaction" to="/" class="nav-link">
+          <CIcon icon="cilHistory" size="lg" class="nav-icon" /> My history
+        </NuxtLink>
       </CNavItem>
       <CNavItem>
-        <CNavLink href="404.html">
-          <CIcon class="nav-icon" icon="cilShareAlt" size="lg" /> Share
-        </CNavLink>
+        <NuxtLink prefetch-on="interaction" to="/" class="nav-link">
+          <CIcon icon="cilShareAlt" size="lg" class="nav-icon" /> Share
+        </NuxtLink>
       </CNavItem>
       <CNavItem>
-        <CNavLink href="404.html">
-          <CIcon class="nav-icon" icon="cilCloudDownload" size="lg" /> Download
-        </CNavLink>
+        <NuxtLink prefetch-on="interaction" to="/" class="nav-link">
+          <CIcon icon="cilCloudDownload" size="lg" class="nav-icon" /> Download
+        </NuxtLink>
       </CNavItem>
       <CNavItem>
-        <CNavLink href="404.html">
-          <CIcon class="nav-icon" icon="cilNoteAdd" size="lg" /> Add notes
-        </CNavLink>
+        <NuxtLink prefetch-on="interaction" to="/" class="nav-link">
+          <CIcon icon="cilNoteAdd" size="lg" class="nav-icon" /> Add notes
+        </NuxtLink>
       </CNavItem>
     </CSidebarNav>
     <CSidebarHeader class="border-top d-flex">
