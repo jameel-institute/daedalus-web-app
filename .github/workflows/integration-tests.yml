@@ -27,10 +27,7 @@ jobs:
           port: 8001
       - name: Check mocked R API server is running
         run: curl -s http://localhost:8001/mock-smoke
-      - name: Set environment variables for app
-        run: scripts/ci/copy-env-vars-to-dot-env-file
-        env:
-          NUXT_R_API_BASE: ${{ vars.NUXT_R_API_BASE }}
-          # Note - non-secret variables are stored under the 'vars' context, while secrets will be stored under the 'secrets' context
+      - name: Set non-secret environment variables for app
+        run: mv .env.example .env
       - name: Test
         run: npm run test:integration
