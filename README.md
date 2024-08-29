@@ -66,6 +66,7 @@ If you've already done ['Your first time setting up'](#first-time), you can quic
 # In one terminal window
 scripts/run-dev-dependencies --db-build-skip # Skips the build step for the db container, and tries to run an existing image
 ```
+Omit the `--db-build-skip` flag if you are branching off, so that you build a new image for your new branch.
 
 ```bash
 # In another terminal window

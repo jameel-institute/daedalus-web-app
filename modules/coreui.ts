@@ -57,11 +57,6 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/nav/CNavItem",
     });
     addComponent({
-      name: "CNavLink",
-      export: "CNavLink",
-      filePath: "@coreui/vue/src/components/nav/CNavLink",
-    });
-    addComponent({
       name: "CContainer",
       export: "CContainer",
       filePath: "@coreui/vue/src/components/grid/CContainer",
