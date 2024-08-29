@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 set -euxo pipefail
-
 HERE=$(dirname $0)
 . $HERE/../../docker/common
 
-docker run --rm -d \
- --name daedalus-web-app-db \
- -p 5432:5432 \
- "$DB_TAG_SHA"
+docker push "$DB_TAG_SHA"

@@ -85,6 +85,20 @@ The QR code shown will allow you to quickly access the app.
 
 See the 'production' section of this README for how to run the app in production mode.
 
+### Docker
+
+There are Dockerfiles for both the web app (in `/docker`) and the database (in `/db`).
+
+To run the app in docker:
+- `./scripts/run-dev-dependencies`
+- `./docker/build`
+- `./docker/run-dev`
+
+This will build and run the app container, exposing port 3000, so you should be able to access the web app at
+http://localhost:3000 as you can when running locally outside docker.
+
+To tear down, you'll need to Ctrl+C from the `/docker/run-dev` script before the `/scripts/run-dev-dependencies` script.
+
 # DB
 
 Our ORM is [Prisma](https://www.prisma.io/).
