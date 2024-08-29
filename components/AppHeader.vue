@@ -75,7 +75,6 @@ onBeforeUnmount(() => {
 .header-toggler {
   margin-inline-start: -14px;
 }
-$sidebar-narrow-width: 4rem;
 .full-breadcrumb-container {
   min-height: 2.5rem !important;
   background-color: rgb(250, 250, 250);

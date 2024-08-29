@@ -9,7 +9,7 @@
     />
     <div class="wrapper d-flex flex-column">
       <div class="body flex-grow-1">
-        <CContainer xxl class="px-4">
+        <CContainer xxl>
           <slot />
         </CContainer>
       </div>
@@ -27,8 +27,6 @@ function handleToggleSidebarVisibility() {
 
 <style lang="scss">
 @use "sass:map";
-
-$sidebar-narrow-width: 4rem;
 .body {
   @media (min-width: map.get($grid-breakpoints, 'lg')) {
     padding-left: $sidebar-narrow-width;
@@ -37,6 +35,11 @@ $sidebar-narrow-width: 4rem;
 
 .wrapper {
   min-height: $min-wrapper-height;
+
+  .container-xxl {
+    padding-left: $container-padding !important;
+    padding-right: $container-padding !important;
+  }
 }
 
 .sidebar { // .sidebar selector does not work if placed in the Sidebar component

@@ -15,11 +15,9 @@ const env = dotenv.config().parsed;
 let rApiBaseUrl = env!.NUXT_R_API_BASE;
 rApiBaseUrl = rApiBaseUrl.endsWith("/") ? rApiBaseUrl.slice(0, -1) : rApiBaseUrl;
 
-const sendGetRequest = async () => await nuxtTestUtilsFetch("/api/versions");
-
 // We configure mockoon to return different responses for the same request, sequentially:
 // https://mockoon.com/docs/latest/route-responses/multiple-responses/#sequential-route-response
-describe("api/versions", { sequential: true }, async () => {
+describe("endpoints which consume the R API", { sequential: true }, async () => {
   beforeAll(async () => {
     // Verify that the user of the test suite has started the mock server
     // by checking that the server is listening on localhost:8001/mock-smoke
@@ -46,41 +44,82 @@ describe("api/versions", { sequential: true }, async () => {
 
   await setup(); // Start the Nuxt server
 
-  it("returns a successful response when the mock server responds successfully", async () => {
-    const response = await sendGetRequest();
+  describe("api/versions", async () => {
+    it("returns a successful response when the mock server responds successfully", async () => {
+      const response = await nuxtTestUtilsFetch("/api/versions");
 
-    expect(response.ok).toBe(true);
-    expect(response.status).toBe(200);
-    expect(response.statusText).toBe("OK");
+      expect(response.ok).toBe(true);
+      expect(response.status).toBe(200);
+      expect(response.statusText).toBe("OK");
 
-    const json = await response.json();
-    expect(json.daedalusModel).toBe("1.2.3.4.5.6.7.8");
-    expect(json.daedalusApi).toBe("8.7.6.5.4.3.2.1");
-    expect(json.daedalusWebApp).toMatch(/(\d+\.)?(\d+\.)?(\*|\d+)/);
+      const json = await response.json();
+      expect(json.daedalusModel).toBe("1.2.3.4.5.6.7.8");
+      expect(json.daedalusApi).toBe("8.7.6.5.4.3.2.1");
+      expect(json.daedalusWebApp).toMatch(/(\d+\.)?(\d+\.)?(\*|\d+)/);
+    });
+
+    it("returns a response with informative errors when the mock server responds with an error", async () => {
+      const response = await nuxtTestUtilsFetch("/api/versions");
+
+      expect(response.ok).toBe(false);
+      expect(response.status).toBe(404);
+      expect(response.statusText).toBe("Not Found");
+      const json = await response.json();
+      expect(json.data[0].error).toBe("NOT_FOUND");
+      expect(json.data[0].detail).toBe("Resource not found");
+      expect(json.message).toBe("NOT_FOUND: Resource not found"); // A concatenation of the error details from the R API.
+    });
+
+    it("returns a response with informative errors when the mock server doesn't respond in time", async () => {
+      // https://mockoon.com/tutorials/getting-started/#step-5-add-a-delay-to-the-response
+
+      const response = await nuxtTestUtilsFetch("/api/versions");
+
+      expect(response.ok).toBe(false);
+      expect(response.status).toBe(500);
+      expect(response.statusText).toBe("error");
+
+      const json = await response.json();
+      expect(json.message).toBe("Unknown error: No response from the API");
+    });
   });
 
-  it("returns a response with informative errors when the mock server responds with an error", async () => {
-    const response = await sendGetRequest();
+  describe("api/metadata", async () => {
+    it("returns a successful response when the mock server responds successfully", async () => {
+      const response = await nuxtTestUtilsFetch("/api/metadata");
 
-    expect(response.ok).toBe(false);
-    expect(response.status).toBe(404);
-    expect(response.statusText).toBe("Not Found");
-    const json = await response.json();
-    expect(json.data[0].error).toBe("NOT_FOUND");
-    expect(json.data[0].detail).toBe("Resource not found");
-    expect(json.message).toBe("NOT_FOUND: Resource not found"); // A concatenation of the error details from the R API.
-  });
+      expect(response.ok).toBe(true);
+      expect(response.status).toBe(200);
+      expect(response.statusText).toBe("OK");
 
-  it("returns a response with informative errors when the mock server doesn't respond in time", async () => {
-    // https://mockoon.com/tutorials/getting-started/#step-5-add-a-delay-to-the-response
+      const json = await response.json();
+      expect(json.modelVersion).toBe("0.1.0");
+      expect(json.parameters[0].id).toBe("country");
+    });
 
-    const response = await sendGetRequest();
+    it("returns a response with informative errors when the mock server responds with an error", async () => {
+      const response = await nuxtTestUtilsFetch("/api/metadata");
 
-    expect(response.ok).toBe(false);
-    expect(response.status).toBe(500);
-    expect(response.statusText).toBe("error");
+      expect(response.ok).toBe(false);
+      expect(response.status).toBe(404);
+      expect(response.statusText).toBe("Not Found");
+      const json = await response.json();
+      expect(json.data[0].error).toBe("NOT_FOUND");
+      expect(json.data[0].detail).toBe("Resource not found");
+      expect(json.message).toBe("NOT_FOUND: Resource not found"); // A concatenation of the error details from the R API.
+    });
 
-    const json = await response.json();
-    expect(json.message).toBe("Unknown error: No response from the API");
+    it("returns a response with informative errors when the mock server doesn't respond in time", async () => {
+      // https://mockoon.com/tutorials/getting-started/#step-5-add-a-delay-to-the-response
+
+      const response = await nuxtTestUtilsFetch("/api/metadata");
+
+      expect(response.ok).toBe(false);
+      expect(response.status).toBe(500);
+      expect(response.statusText).toBe("error");
+
+      const json = await response.json();
+      expect(json.message).toBe("Unknown error: No response from the API");
+    });
   });
 });

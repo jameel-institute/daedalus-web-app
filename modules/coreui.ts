@@ -7,6 +7,46 @@ import { addComponent, defineNuxtModule } from "@nuxt/kit";
 export default defineNuxtModule({
   setup() {
     addComponent({
+      name: "CAlert",
+      export: "CAlert",
+      filePath: "@coreui/vue/src/components/alert/CAlert",
+    });
+    addComponent({
+      name: "CButtonGroup",
+      export: "CButtonGroup",
+      filePath: "@coreui/vue/src/components/button-group/CButtonGroup",
+    });
+    addComponent({
+      name: "CButton",
+      export: "CButton",
+      filePath: "@coreui/vue/src/components/button/CButton",
+    });
+    addComponent({
+      name: "CCol",
+      export: "CCol",
+      filePath: "@coreui/vue/src/components/grid/CCol",
+    });
+    addComponent({
+      name: "CForm",
+      export: "CForm",
+      filePath: "@coreui/vue/src/components/form/CForm",
+    });
+    addComponent({
+      name: "CFormCheck",
+      export: "CFormCheck",
+      filePath: "@coreui/vue/src/components/form/CFormCheck",
+    });
+    addComponent({
+      name: "CFormLabel",
+      export: "CFormLabel",
+      filePath: "@coreui/vue/src/components/form/CFormLabel",
+    });
+    addComponent({
+      name: "CFormSelect",
+      export: "CFormSelect",
+      filePath: "@coreui/vue/src/components/form/CFormSelect",
+    });
+    addComponent({
       name: "CHeader",
       export: "CHeader",
       filePath: "@coreui/vue/src/components/header/CHeader",
@@ -25,6 +65,11 @@ export default defineNuxtModule({
       name: "CHeaderNav",
       export: "CHeaderNav",
       filePath: "@coreui/vue/src/components/header/CHeaderNav",
+    });
+    addComponent({
+      name: "CRow",
+      export: "CRow",
+      filePath: "@coreui/vue/src/components/grid/CRow",
     });
     addComponent({
       name: "CSidebar",
@@ -50,6 +95,11 @@ export default defineNuxtModule({
       name: "CSidebarFooter",
       export: "CSidebarFooter",
       filePath: "@coreui/vue/src/components/sidebar/CSidebarFooter",
+    });
+    addComponent({
+      name: "CSpinner",
+      export: "CSpinner",
+      filePath: "@coreui/vue/src/components/spinner/CSpinner",
     });
     addComponent({
       name: "CNavItem",
