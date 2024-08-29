@@ -96,6 +96,8 @@ To run the app in docker:
 This will build and run the app container, exposing port 3000, so you should be able to access the web app at
 http://localhost:3000 as you can when running locally outside docker.
 
+To tear down, you'll need to Ctrl+C from the `/docker/run-dev` script before the `/scripts/run-dev-dependencies` script.
+
 # DB
 
 Our ORM is [Prisma](https://www.prisma.io/).

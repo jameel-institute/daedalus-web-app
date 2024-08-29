@@ -58,7 +58,7 @@
     "jsdom": "^24.1.0",
     "lint-staged": "^15.2.7",
     "playwright": "^1.45.2",
-    "prisma": "^5.17.0",
+    "prisma": "5.17.0",
     "sass": "^1.77.6",
     "simple-git-hooks": "^2.11.1",
     "vitest": "^2.0.4"

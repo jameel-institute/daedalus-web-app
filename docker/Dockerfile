@@ -10,7 +10,7 @@ COPY . .
 RUN npm ci
 
 # Generate the prisma client code
-RUN npm install prisma
+RUN npm install prisma@5.17.0
 RUN npx prisma generate
 
 RUN npm run build
