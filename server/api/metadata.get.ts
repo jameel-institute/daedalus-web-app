@@ -1,13 +1,13 @@
 import { getMetaData } from "@/server/handlers/metadata";
-import { defineEventHandlerWithErrors } from "@/server/utils/defineEventHandlerWithErrors";
+import { defineRApiEventHandler } from "~/server/utils/defineRApiEventHandler";
 import type { MetaDataResponse } from "@/types/daedalusApiResponseTypes";
 
-export default defineEventHandlerWithErrors(
-  // TODO: Consider cacheing this server-side https://nitro.unjs.io/guide/cache
-  defineEventHandler(async (event): Promise<MetaDataResponse> => {
+export default defineRApiEventHandler(
+  async (event): Promise<MetaDataResponse> => {
     // Delegate to getMetaData so that the logic can be unit-tested.
-    const versionDataResponse = await getMetaData(event);
+    const metaDataResponse = await getMetaData(event);
 
-    return versionDataResponse;
-  }),
+    return metaDataResponse;
+  },
+  { maxAge: 60 },
 );
