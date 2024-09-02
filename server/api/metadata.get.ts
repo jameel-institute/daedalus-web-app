@@ -9,5 +9,4 @@ export default defineRApiEventHandler(
 
     return metaDataResponse;
   },
-  { maxAge: 60 },
 );
