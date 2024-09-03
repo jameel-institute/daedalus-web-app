@@ -43,7 +43,7 @@ export interface Metadata {
   parameters: Array<Parameter>
 }
 
-export interface MetaDataResponse extends ApiResponse<MetaData> { }
+export interface MetadataResponse extends ApiResponse<Metadata> { }
 
 // Scenario
 export interface NewScenarioData {
