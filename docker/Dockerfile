@@ -7,6 +7,7 @@ ENV NODE_ENV=production
 WORKDIR /src
 
 COPY . .
+RUN npm install -g npm@latest
 RUN npm ci
 
 # Generate the prisma client code

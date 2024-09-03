@@ -43,6 +43,7 @@
     "vue": "latest"
   },
   "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.21.1",
     "bufferutil": "^4.0.8",
     "utf-8-validate": "^6.0.4"
   },
@@ -70,7 +71,13 @@
     "0": "JSON doesn't support comments so I'm adding mine here.",
     "1": "==============================",
     "2": "Vue version is overridden because of the issue described in the 'tip' in",
-    "3": "the installation section of https://pinia.vuejs.org/ssr/nuxt.html"
+    "3": "the installation section of https://pinia.vuejs.org/ssr/nuxt.html",
+    "4": "==============================",
+    "5": "@rollup/rollup-linux-x64-gnu is an optional dependency as a fix for the issue that Rollup",
+    "6": "describes here: https://github.com/rollup/rollup/blob/f83b3151e93253a45f5b8ccb9ccb2e04214bc490/native.js#L59",
+    "7": "and which occurred for us when doing an installation with npm on Docker on CI. Their suggested fix",
+    "8": "does not work for our use case, because removing package-lock.json prevents the use of `npm ci`, so instead",
+    "9": "we use the solution suggested here: https://github.com/vitejs/vite/discussions/15532#discussioncomment-10192839"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"
