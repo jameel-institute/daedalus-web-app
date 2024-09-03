@@ -26,7 +26,7 @@
             <CButtonGroup
               role="group"
               :aria-label="parameter.label"
-              :size="largeScreen ? 'lg' : ''"
+              :size="largeScreen ? 'lg' : undefined"
             >
               <CFormCheck
                 v-for="(option) in parameter.options"
@@ -57,7 +57,7 @@
             :options="parameter.options.map((option: ParameterOption) => {
               return { label: option.label, value: option.id };
             })"
-            :size="largeScreen ? 'lg' : ''"
+            :size="largeScreen ? 'lg' : undefined"
           />
         </div>
       </div>
@@ -77,13 +77,13 @@
           :label="globeParameter.label"
           :aria-label="globeParameter.label"
           :options="selectOptions(globeParameter)"
-          :size="largeScreen ? 'lg' : ''"
+          :size="largeScreen ? 'lg' : undefined"
         />
       </div>
       <CButton
         id="run-button"
         color="primary"
-        :size="largeScreen ? 'lg' : ''"
+        :size="largeScreen ? 'lg' : undefined"
         type="submit"
         :disabled="formSubmitting"
       >
