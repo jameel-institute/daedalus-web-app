@@ -67,10 +67,15 @@
         color="primary"
         :size="largeScreen ? 'lg' : undefined"
         type="submit"
+        :disabled="formSubmitting"
       >
         Run
         <CIcon
           icon="cilArrowRight"
+        />
+        <CSpinner
+          v-if="formSubmitting"
+          size="sm"
         />
       </CButton>
     </CForm>
@@ -84,8 +89,8 @@
 <script lang="ts" setup>
 import type { FetchError } from "ofetch";
 import { CIcon } from "@coreui/icons-vue";
-import type { Metadata, Parameter } from "@/types/daedalusApiResponseTypes";
 import { ParameterType } from "@/types/daedalusApiResponseTypes";
+import type { MetaData, NewScenarioData, Parameter, ParameterOption } from "@/types/daedalusApiResponseTypes";
 import type { AsyncDataRequestStatus } from "#app";
 
 const props = defineProps<{
@@ -118,8 +123,32 @@ const renderAsRadios = (parameter: Parameter) => {
   return parameter.parameterType === ParameterType.Select && optionsAreTerse(parameter);
 };
 
-const submitForm = () => {
-  // Not implemented yet
+const formSubmitting = ref(false);
+
+const submitForm = async () => {
+  formSubmitting.value = true;
+  // 1. Send the formData to the run scenario endpoint and receive the run id
+  // ({ data: newScenarioData, status: newScenarioFetchStatus, error: newScenarioFetchError } = $fetch("/api/scenario", method: "POST") as {
+  //   data: Ref<NewScenarioData>
+  //   status: Ref<AsyncDataRequestStatus>
+  //   error: Ref<FetchError | null>
+  // });
+  const { runId } = await $fetch("/api/scenario", {
+    method: "POST",
+    body: { parameters: formData.value },
+  }).catch((error: FetchError) => {
+    console.error(error);
+  });
+
+  // 2. Store the formData in the Pinia store against the run id
+  console.log(newScenarioData);
+  console.log(formData.value);
+  
+
+  // 3. Navigate to /scenarios/:runId
+  if (runId) {
+    await navigateTo(`/scenarios/${runId}`);
+  }
 };
 
 const largeScreen = ref(true);
