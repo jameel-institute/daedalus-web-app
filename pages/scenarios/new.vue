@@ -10,10 +10,7 @@
         :metadata-fetch-error="metadataFetchError"
       />
     </div>
-    <Globe
-      v-if="false && globeParameter"
-      :globe-parameter-metadata="globeParameter"
-    />
+    <!-- Globe component goes here in future PR -->
   </div>
 </template>
 
