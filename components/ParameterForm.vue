@@ -85,10 +85,15 @@
         color="primary"
         :size="largeScreen ? 'lg' : ''"
         type="submit"
+        :disabled="formSubmitting"
       >
         Run
         <CIcon
           icon="cilArrowRight"
+        />
+        <CSpinner
+          v-if="formSubmitting"
+          size="sm"
         />
       </CButton>
     </CForm>
@@ -102,7 +107,7 @@
 <script lang="ts" setup>
 import type { FetchError } from "ofetch";
 import { CIcon } from "@coreui/icons-vue";
-import type { MetaData, Parameter, ParameterOption } from "@/types/daedalusApiResponseTypes";
+import type { MetaData, NewScenarioData, Parameter, ParameterOption } from "@/types/daedalusApiResponseTypes";
 import type { AsyncDataRequestStatus } from "#app";
 
 const props = defineProps<{
@@ -183,8 +188,36 @@ const optionsAreTerse = (parameter: Parameter) => {
   return parameter.options.length <= 5 && eachOptionIsASingleWord;
 };
 
-const submitForm = () => {
-  // Not implemented yet
+// const newScenarioData = ref<NewScenarioData | null>(null);
+// const newScenarioFetchStatus = ref<AsyncDataRequestStatus>("idle");
+// const newScenarioFetchError = ref<FetchError | null>(null);
+
+const formSubmitting = ref(false);
+
+const submitForm = async () => {
+  formSubmitting.value = true;
+  // 1. Send the formData to the run scenario endpoint and receive the run id
+  // ({ data: newScenarioData, status: newScenarioFetchStatus, error: newScenarioFetchError } = $fetch("/api/scenario", method: "POST") as {
+  //   data: Ref<NewScenarioData>
+  //   status: Ref<AsyncDataRequestStatus>
+  //   error: Ref<FetchError | null>
+  // });
+  const { runId } = await $fetch("/api/scenario", {
+    method: "POST",
+    body: { parameters: formData.value },
+  }).catch((error: FetchError) => {
+    console.error(error);
+  });
+
+  // 2. Store the formData in the Pinia store against the run id
+  console.log(newScenarioData);
+  console.log(formData.value);
+  
+
+  // 3. Navigate to /scenarios/:runId
+  if (runId) {
+    await navigateTo(`/scenarios/${runId}`);
+  }
 };
 
 const largeScreen = ref(true);

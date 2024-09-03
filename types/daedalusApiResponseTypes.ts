@@ -40,3 +40,10 @@ export interface MetaData {
 }
 
 export interface MetaDataResponse extends ApiResponse<MetaData> { }
+
+// Scenario
+export interface NewScenarioData {
+  runId: string
+}
+
+export interface NewScenarioResponse extends ApiResponse<NewScenarioData> { }
