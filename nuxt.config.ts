@@ -15,6 +15,9 @@ export default defineNuxtConfig({
     experimental: {
       websocket: true,
     },
+    routeRules: {
+      "/": { redirect: "/scenarios/new" },
+    },
   },
 
   modules: [

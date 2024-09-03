@@ -1,7 +1,7 @@
 <template>
   <div>
     <CForm
-      v-if="props.metaData"
+      v-if="props.metaData && formData"
       class="inputs"
       :data-test="JSON.stringify(formData)"
       @submit.prevent="submitForm"
@@ -12,28 +12,26 @@
         class="field-container"
       >
         <CIcon
-          v-if="parameterIcons[parameter.id] && !optionsAreTerse(parameter)"
-          :icon="parameterIcons[parameter.id]"
+          v-if="icon(parameter) && !optionsAreTerse(parameter)"
+          :icon="icon(parameter)"
           class="parameter-icon"
         />
         <CFormSelect
           v-if="!optionsAreTerse(parameter)"
-          :ref="parameter.id"
+          :id="parameter.id"
           v-model="formData[parameter.id]"
           :label="parameter.label"
           :aria-label="parameter.label"
           :options="parameter.options.map((option: ParameterOption) => {
             return { label: option.label, value: option.id };
           })"
-          :feedback="true ? '' : 'Please select a parameter'"
-          :invalid="true ? false : true"
           :size="largeScreen ? 'lg' : ''"
         />
         <CCol v-else class="button-group-container">
           <CRow>
             <CIcon
-              v-if="parameterIcons[parameter.id]"
-              :icon="parameterIcons[parameter.id]"
+              v-if="icon(parameter)"
+              :icon="icon(parameter)"
               class="parameter-icon"
             />
             <CFormLabel :for="parameter.id">
@@ -45,7 +43,6 @@
               role="group"
               :aria-label="parameter.label"
               :size="largeScreen ? 'lg' : ''"
-              @click="disableRunButton = false"
             >
               <CFormCheck
                 v-for="(option) in parameter.options"
@@ -68,11 +65,12 @@
         class="field-container"
       >
         <CIcon
-          v-if="parameterIcons[globeParameter.id]"
-          :icon="parameterIcons[globeParameter.id]"
+          v-if="icon(globeParameter)"
+          :icon="icon(globeParameter)"
           class="parameter-icon"
         />
         <CFormSelect
+          :id="globeParameter.id"
           v-model="formData[globeParameter.id]"
           :data-test="`${globeParameter.id}-select`"
           :label="globeParameter.label"
@@ -137,13 +135,6 @@ const formData = ref(
   }, {} as { [key: string]: any }),
 );
 
-const parameterIcons = {
-  country: "cilGlobeAlt",
-  response: "cilShieldAlt",
-  vaccine: "cilIndustry",
-  pathogen: "cilBug",
-};
-
 const parametersOfTypeSelect = computed(() => {
   if (props.metaData) {
     return props.metaData.parameters.filter(parameter => parameter.parameterType === "select");
@@ -159,6 +150,21 @@ const globeParameter = computed(() => {
     return undefined;
   }
 });
+
+const icon = (parameter: Parameter) => {
+  switch (parameter.id) {
+    case "country":
+      return "cilGlobeAlt";
+    case "response":
+      return "cilShieldAlt";
+    case "vaccine":
+      return "cilIndustry";
+    case "pathogen":
+      return "cilBug";
+    default:
+      return undefined;
+  }
+};
 
 const selectOptions = (parameter: Parameter) => {
   return parameter.options.map((option: ParameterOption) => {
