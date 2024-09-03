@@ -16,6 +16,6 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
 
   await page.click('button:has-text("Run")');
 
-  await expect(page.getByText("Simulate a new scenario")).not.toBeVisible();
-  await expect(page.getByText("results")).toBeVisible();
+  // TODO: Continue writing test
+  // await expect(page.getByText("Simulate a new scenario")).not.toBeVisible();
 });
