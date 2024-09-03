@@ -11,23 +11,7 @@
         :key="parameter.id"
         class="field-container"
       >
-        <CIcon
-          v-if="icon(parameter) && !optionsAreTerse(parameter)"
-          :icon="icon(parameter)"
-          class="parameter-icon"
-        />
-        <CFormSelect
-          v-if="!optionsAreTerse(parameter)"
-          :id="parameter.id"
-          v-model="formData[parameter.id]"
-          :label="parameter.label"
-          :aria-label="parameter.label"
-          :options="parameter.options.map((option: ParameterOption) => {
-            return { label: option.label, value: option.id };
-          })"
-          :size="largeScreen ? 'lg' : ''"
-        />
-        <CCol v-else class="button-group-container">
+        <CCol v-if="optionsAreTerse(parameter)" class="button-group-container">
           <CRow>
             <CIcon
               v-if="icon(parameter)"
@@ -59,6 +43,23 @@
             </CButtonGroup>
           </CRow>
         </CCol>
+        <div v-else>
+          <CIcon
+            v-if="icon(parameter)"
+            :icon="icon(parameter)"
+            class="parameter-icon"
+          />
+          <CFormSelect
+            :id="parameter.id"
+            v-model="formData[parameter.id]"
+            :label="parameter.label"
+            :aria-label="parameter.label"
+            :options="parameter.options.map((option: ParameterOption) => {
+              return { label: option.label, value: option.id };
+            })"
+            :size="largeScreen ? 'lg' : ''"
+          />
+        </div>
       </div>
       <div
         v-if="globeParameter"
@@ -84,7 +85,6 @@
         color="primary"
         :size="largeScreen ? 'lg' : ''"
         type="submit"
-        @click="console.log('not implemetned yet')"
       >
         Run
         <CIcon
@@ -184,7 +184,7 @@ const optionsAreTerse = (parameter: Parameter) => {
 };
 
 const submitForm = () => {
-  // console.log(formData.value);
+  // Not implemented yet
 };
 
 const largeScreen = ref(true);
@@ -204,12 +204,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener("resize", setFieldSizes);
 });
-
-watchEffect(() => {
-  // if (formData.value) {
-  //   console.log(formData.value)
-  // }
-});
 </script>
 
 <style lang="scss">
@@ -218,10 +212,6 @@ watchEffect(() => {
   flex-wrap: wrap;
   row-gap: 1rem;
   column-gap: 1rem;
-  // background-color: rgba(100, 100, 100, 0.5);
-  // background-color: rgba(255, 255, 255, 0.5); /* Adjust opacity as needed */
-  // mix-blend-mode: overlay;
-  // backdrop-filter: blur(5px);
 }
 
 .field-container {
