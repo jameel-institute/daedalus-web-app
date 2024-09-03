@@ -6,10 +6,7 @@ test.beforeAll(async () => {
 });
 
 test("Can request a scenario analysis run", async ({ page, baseURL }) => {
-  await page.goto(`${baseURL}/`);
-
-  // const html = await page.innerHTML("body");
-  // await expect("body").toContain("new scenario");
+  await page.goto(`${baseURL}/`); // Should redirect to new scenario page
   await expect(page.getByText("Simulate a new scenario")).toBeVisible();
 
   await page.selectOption('select[id="pathogen"]', { label: "Influenza 1957" });
