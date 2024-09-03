@@ -17,7 +17,7 @@
 <script lang="ts" setup>
 import type { FetchError } from "ofetch";
 import type { AsyncDataRequestStatus } from "#app";
-import type { MetaData } from "@/types/daedalusApiResponseTypes";
+import type { MetaData } from "@/types/apiResponseTypes";
 
 const { data: metaData, status: metadataFetchStatus, error: metadataFetchError } = useFetch("/api/metadata") as {
   data: Ref<MetaData>

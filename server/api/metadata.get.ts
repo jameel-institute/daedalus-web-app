@@ -1,6 +1,6 @@
 import { getMetaData } from "@/server/handlers/metadata";
 import { defineRApiEventHandler } from "~/server/utils/defineRApiEventHandler";
-import type { MetaDataResponse } from "@/types/daedalusApiResponseTypes";
+import type { MetaDataResponse } from "@/types/apiResponseTypes";
 
 export default defineRApiEventHandler(
   async (event): Promise<MetaDataResponse> => {

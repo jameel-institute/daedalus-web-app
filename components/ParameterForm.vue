@@ -107,7 +107,7 @@
 <script lang="ts" setup>
 import type { FetchError } from "ofetch";
 import { CIcon } from "@coreui/icons-vue";
-import type { MetaData, NewScenarioData, Parameter, ParameterOption } from "@/types/daedalusApiResponseTypes";
+import type { MetaData, NewScenarioData, Parameter, ParameterOption } from "@/types/apiResponseTypes";
 import type { AsyncDataRequestStatus } from "#app";
 
 const props = defineProps<{
@@ -116,6 +116,8 @@ const props = defineProps<{
   metadataFetchStatus: AsyncDataRequestStatus
   metadataFetchError: FetchError | null
 }>();
+
+const store = useScenarioStore();
 
 const formData = ref(
   // Create a new object with keys set to the id values of the metaData.parameters array of objects, and all values set to refs with default values.
@@ -195,6 +197,10 @@ const optionsAreTerse = (parameter: Parameter) => {
 const formSubmitting = ref(false);
 
 const submitForm = async () => {
+  if (!formData.value) {
+    return;
+  };
+
   formSubmitting.value = true;
   // 1. Send the formData to the run scenario endpoint and receive the run id
   // ({ data: newScenarioData, status: newScenarioFetchStatus, error: newScenarioFetchError } = $fetch("/api/scenario", method: "POST") as {
@@ -202,22 +208,22 @@ const submitForm = async () => {
   //   status: Ref<AsyncDataRequestStatus>
   //   error: Ref<FetchError | null>
   // });
-  const { runId } = await $fetch("/api/scenario", {
+  const response = await $fetch<NewScenarioData>("/api/scenarios", {
     method: "POST",
     body: { parameters: formData.value },
   }).catch((error: FetchError) => {
     console.error(error);
   });
 
-  // 2. Store the formData in the Pinia store against the run id
-  console.log(newScenarioData);
-  console.log(formData.value);
-  
+  if (response) {
+    const { runId } = response;
 
-  // 3. Navigate to /scenarios/:runId
-  if (runId) {
+    // 2. Store the formData in the Pinia store against the run id
+    store.setScenario(runId, { parameters: formData.value });
+
+    // 3. Navigate to /scenarios/:runId
     await navigateTo(`/scenarios/${runId}`);
-  }
+  };
 };
 
 const largeScreen = ref(true);

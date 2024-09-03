@@ -1,7 +1,7 @@
 import type { EventHandlerRequest, H3Event } from "h3";
 import { fetchRApi } from "@/server/utils/rApi";
 import packageJson from "@/package.json";
-import type { VersionData, VersionDataResponse } from "@/types/daedalusApiResponseTypes";
+import type { VersionData, VersionDataResponse } from "@/types/apiResponseTypes";
 
 const rApiVersionEndpoint = "/";
 
