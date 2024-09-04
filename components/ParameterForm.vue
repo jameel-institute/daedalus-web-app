@@ -36,6 +36,7 @@
                 autocomplete="off"
                 :label="option.label"
                 :value="option.id"
+                @change.prevent="console.log('change')"
               />
             </CButtonGroup>
           </CRow>
