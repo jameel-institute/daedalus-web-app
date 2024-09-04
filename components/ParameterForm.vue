@@ -131,12 +131,6 @@ const submitForm = async () => {
   };
 
   formSubmitting.value = true;
-  // 1. Send the formData to the run scenario endpoint and receive the run id
-  // ({ data: newScenarioData, status: newScenarioFetchStatus, error: newScenarioFetchError } = $fetch("/api/scenario", method: "POST") as {
-  //   data: Ref<NewScenarioData>
-  //   status: Ref<AsyncDataRequestStatus>
-  //   error: Ref<FetchError | null>
-  // });
   const response = await $fetch<NewScenarioData>("/api/scenarios", {
     method: "POST",
     body: { parameters: formData.value },
@@ -146,11 +140,6 @@ const submitForm = async () => {
 
   if (response) {
     const { runId } = response;
-
-    // 2. Store the formData in the Pinia store against the run id
-    store.setScenario(runId, { parameters: formData.value });
-
-    // 3. Navigate to /scenarios/:runId
     await navigateTo(`/scenarios/${runId}`);
   };
 };
