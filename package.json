@@ -16,7 +16,7 @@
     "lint:fix": "eslint . --fix",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "test:integration": "vitest ./tests/integration/",
+    "test:integration": "vitest ./tests/integration/ --reporter=basic --disable-console-intercept",
     "test:unit": "vitest ./tests/unit/",
     "test:unit:coverage": "vitest ./tests/unit --coverage",
     "test:ssr": "vitest ./tests/ssr/*.spec.ts",

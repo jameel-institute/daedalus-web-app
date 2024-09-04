@@ -110,9 +110,48 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     });
 
     it("returns a response with informative errors when the mock server doesn't respond in time", async () => {
-      // https://mockoon.com/tutorials/getting-started/#step-5-add-a-delay-to-the-response
-
       const response = await nuxtTestUtilsFetch("/api/metadata");
+
+      expect(response.ok).toBe(false);
+      expect(response.status).toBe(500);
+      expect(response.statusText).toBe("error");
+
+      const json = await response.json();
+      expect(json.message).toBe("Unknown error: No response from the API");
+    });
+  });
+
+  describe("post api/scenarios", async () => {
+    const queryString = `parameters={"country":"Thailand","pathogen":"sars-cov-1","response":"no_closure","vaccine":"none"}`;
+
+    it("returns a successful response when the mock server responds successfully", async () => {
+      const response = await nuxtTestUtilsFetch(`/api/scenarios?${queryString}`, { method: "POST" });
+
+      console.error(response);
+      console.error("hekki?");
+
+      expect(response.ok).toBe(true);
+      expect(response.status).toBe(200);
+      expect(response.statusText).toBe("OK");
+
+      const json = await response.json();
+      expect(json.runId).toBe("007e5f5453d64850");
+    });
+
+    it("returns a response with informative errors when the mock server responds with an error", async () => {
+      const response = await nuxtTestUtilsFetch(`/api/scenarios?${queryString}`, { method: "POST" });
+
+      expect(response.ok).toBe(false);
+      expect(response.status).toBe(404);
+      expect(response.statusText).toBe("Not Found");
+      const json = await response.json();
+      expect(json.data[0].error).toBe("NOT_FOUND");
+      expect(json.data[0].detail).toBe("Resource not found");
+      expect(json.message).toBe("NOT_FOUND: Resource not found"); // A concatenation of the error details from the R API.
+    });
+
+    it("returns a response with informative errors when the mock server doesn't respond in time", async () => {
+      const response = await nuxtTestUtilsFetch(`/api/scenarios?${queryString}`, { method: "POST" });
 
       expect(response.ok).toBe(false);
       expect(response.status).toBe(500);

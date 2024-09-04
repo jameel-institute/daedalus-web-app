@@ -17,7 +17,7 @@
       "responses": [
         {
           "uuid": "eb55d0af-aa59-4d0f-8cea-58ba9c68fa55",
-          "body": "{\"status\":\"success\",\"errors\":null,\"data\":{\"daedalus\":\"1.2.3.4.5.6.7.8\",\"daedalus.api\":\"8.7.6.5.4.3.2.1\"}}",
+          "body": "{\n  \"status\": \"success\",\n  \"errors\": null,\n  \"data\": {\n    \"daedalus\": \"1.2.3.4.5.6.7.8\",\n    \"daedalus.api\": \"8.7.6.5.4.3.2.1\"\n  }\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "",
@@ -36,7 +36,7 @@
         },
         {
           "uuid": "128811da-2c89-4b2c-bd7a-fd9a18811f9d",
-          "body": "{\"status\":\"failure\",\"errors\":[{\"error\":\"NOT_FOUND\",\"detail\":\"Resource not found\"}],\"data\":null}",
+          "body": "{\n  \"status\": \"failure\",\n  \"errors\": [\n    {\n      \"error\": \"NOT_FOUND\",\n      \"detail\": \"Resource not found\"\n    }\n  ],\n  \"data\": null\n}",
           "latency": 0,
           "statusCode": 404,
           "label": "",
@@ -55,7 +55,7 @@
         },
         {
           "uuid": "2c4e88c2-0025-45ee-b298-9ed1fcd24f33",
-          "body": "{\"thisResponse\": \"shouldNeverBeReceivedSinceIConfiguredTheDelayToBeGreaterThanTheTimeoutWeWaitForTheResponseFor\"}",
+          "body": "{\n  \"thisResponse\": \"shouldNeverBeReceivedSinceIConfiguredTheDelayToBeGreaterThanTheTimeoutWeWaitForTheResponseFor\"\n}",
           "latency": 99999999,
           "statusCode": 200,
           "label": "",
@@ -84,7 +84,7 @@
       "responses": [
         {
           "uuid": "8e504c9c-2c6a-4bdb-989a-428fb3b978d8",
-          "body": "{\"serverUp\": true}",
+          "body": "{\n  \"serverUp\": true\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "",
@@ -132,7 +132,7 @@
         },
         {
           "uuid": "c9d2d8a5-6b48-4131-aa3d-1585260f06b7",
-          "body": "{\"status\":\"failure\",\"errors\":[{\"error\":\"NOT_FOUND\",\"detail\":\"Resource not found\"}],\"data\":null}",
+          "body": "{\n  \"status\": \"failure\",\n  \"errors\": [\n    {\n      \"error\": \"NOT_FOUND\",\n      \"detail\": \"Resource not found\"\n    }\n  ],\n  \"data\": null\n}",
           "latency": 0,
           "statusCode": 404,
           "label": "",
@@ -151,7 +151,74 @@
         },
         {
           "uuid": "05728268-63d9-42d9-bba1-c1fc244bdbef",
-          "body": "{\"thisResponse\": \"shouldNeverBeReceivedSinceIConfiguredTheDelayToBeGreaterThanTheTimeoutWeWaitForTheResponseFor\"}",
+          "body": "{\n  \"thisResponse\": \"shouldNeverBeReceivedSinceIConfiguredTheDelayToBeGreaterThanTheTimeoutWeWaitForTheResponseFor\"\n}",
+          "latency": 99999999,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": "SEQUENTIAL"
+    },
+    {
+      "uuid": "873f4dae-407e-4a88-b777-0888ff8b471a",
+      "type": "http",
+      "documentation": "",
+      "method": "post",
+      "endpoint": "scenario/run",
+      "responses": [
+        {
+          "uuid": "d2ac5ea7-a405-494b-9dac-363a1315dd85",
+          "body": "{\n  \"status\": \"success\",\n  \"errors\": null,\n  \"data\": {\n    \"runId\": \"007e5f5453d64850\"\n  }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "c8a3fc89-f2d5-4451-873d-734fdc5c35ac",
+          "body": "{\n  \"status\": \"failure\",\n  \"errors\": [\n    {\n      \"error\": \"NOT_FOUND\",\n      \"detail\": \"Resource not found\"\n    }\n  ],\n  \"data\": null\n}",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "2d2bfb3d-c3c4-4ef2-9f57-a912e9806a47",
+          "body": "{\n  \"thisResponse\": \"shouldNeverBeReceivedSinceIConfiguredTheDelayToBeGreaterThanTheTimeoutWeWaitForTheResponseFor\"\n}",
           "latency": 99999999,
           "statusCode": 200,
           "label": "",
@@ -184,6 +251,10 @@
     {
       "type": "route",
       "uuid": "367cdafb-4f59-402d-9643-d03ab0a3043d"
+    },
+    {
+      "type": "route",
+      "uuid": "873f4dae-407e-4a88-b777-0888ff8b471a"
     }
   ],
   "proxyMode": false,

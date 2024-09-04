@@ -1,7 +1,7 @@
 <template>
   <div>
     <p>
-      Query parameter: {{ route.params.id }}
+      Id from route: {{ route.params.id }}
     </p>
   </div>
 </template>

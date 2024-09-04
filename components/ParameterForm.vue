@@ -36,7 +36,6 @@
                 autocomplete="off"
                 :label="option.label"
                 :value="option.id"
-                @change.prevent="console.log('change')"
               />
             </CButtonGroup>
           </CRow>
@@ -134,7 +133,9 @@ const submitForm = async () => {
   formSubmitting.value = true;
   const response = await $fetch<NewScenarioData>("/api/scenarios", {
     method: "POST",
-    body: { parameters: formData.value },
+    query: { // Using query instead of body because I couldn't work out how to send a body in the integration test.
+      parameters: formData.value,
+    },
   }).catch((error: FetchError) => {
     console.error(error);
   });
