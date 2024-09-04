@@ -113,7 +113,7 @@ const props = defineProps<{
 }>();
 
 const formData = ref(
-  // Create a new object with keys set to the id values of the metaData.parameters array of objects, and all values set to empty refs.
+  // Create a new object with keys set to the id values of the metaData.parameters array of objects, and all values set to refs with default values.
   props.metaData?.parameters.reduce((accumulator, parameter) => {
     if (parameter.parameterType !== "select" && parameter.parameterType !== "globeSelect") {
       accumulator[parameter.id] = ref("");
