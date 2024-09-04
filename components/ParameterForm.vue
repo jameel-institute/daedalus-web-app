@@ -117,8 +117,6 @@ const props = defineProps<{
   metadataFetchError: FetchError | null
 }>();
 
-const store = useScenarioStore();
-
 const formData = ref(
   // Create a new object with keys set to the id values of the metaData.parameters array of objects, and all values set to refs with default values.
   props.metaData?.parameters.reduce((accumulator, parameter) => {
@@ -190,10 +188,6 @@ const optionsAreTerse = (parameter: Parameter) => {
   return parameter.options.length <= 5 && eachOptionIsASingleWord;
 };
 
-// const newScenarioData = ref<NewScenarioData | null>(null);
-// const newScenarioFetchStatus = ref<AsyncDataRequestStatus>("idle");
-// const newScenarioFetchError = ref<FetchError | null>(null);
-
 const formSubmitting = ref(false);
 
 const submitForm = async () => {
@@ -202,12 +196,6 @@ const submitForm = async () => {
   };
 
   formSubmitting.value = true;
-  // 1. Send the formData to the run scenario endpoint and receive the run id
-  // ({ data: newScenarioData, status: newScenarioFetchStatus, error: newScenarioFetchError } = $fetch("/api/scenario", method: "POST") as {
-  //   data: Ref<NewScenarioData>
-  //   status: Ref<AsyncDataRequestStatus>
-  //   error: Ref<FetchError | null>
-  // });
   const response = await $fetch<NewScenarioData>("/api/scenarios", {
     method: "POST",
     body: { parameters: formData.value },
@@ -217,11 +205,6 @@ const submitForm = async () => {
 
   if (response) {
     const { runId } = response;
-
-    // 2. Store the formData in the Pinia store against the run id
-    store.setScenario(runId, { parameters: formData.value });
-
-    // 3. Navigate to /scenarios/:runId
     await navigateTo(`/scenarios/${runId}`);
   };
 };

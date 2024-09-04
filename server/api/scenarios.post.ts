@@ -7,7 +7,7 @@ export default defineRApiEventHandler(
     const { parameters } = await readBody(event);
 
     // Delegate to runScenario so that the logic can be unit-tested.
-    const newScenarioResponse = await runScenario(event, parameters);
+    const newScenarioResponse = await runScenario(parameters, event);
 
     return newScenarioResponse;
   },
