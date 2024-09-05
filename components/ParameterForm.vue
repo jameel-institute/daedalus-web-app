@@ -3,7 +3,8 @@
     <CForm
       v-if="props.metadata && formData"
       class="inputs"
-      :data-test="JSON.stringify(formData)"
+      :data-test-form-data="JSON.stringify(formData)"
+      :data-test-navigate-to="navigateToData"
       @submit.prevent="submitForm"
     >
       <div
@@ -68,15 +69,11 @@
         :size="largeScreen ? 'lg' : undefined"
         type="submit"
         :disabled="formSubmitting"
+        @click="submitForm"
       >
         Run
-        <CIcon
-          icon="cilArrowRight"
-        />
-        <CSpinner
-          v-if="formSubmitting"
-          size="sm"
-        />
+        <CSpinner v-if="formSubmitting" size="sm" class="ms-1" />
+        <CIcon v-else icon="cilArrowRight" />
       </CButton>
     </CForm>
     <CAlert v-else-if="props.metadataFetchStatus === 'error'" color="warning">
@@ -106,6 +103,8 @@ const formData = ref(
     return acc;
   }, {} as { [key: string]: string | number }),
 );
+
+const navigateToData = ref("");
 
 const optionsAreTerse = (parameter: Parameter) => {
   const eachOptionIsASingleWord = parameter.options.every((option) => {
@@ -142,7 +141,8 @@ const submitForm = async () => {
 
   if (response) {
     const { runId } = response;
-    await navigateTo(`/scenarios/${runId}`);
+    navigateToData.value = `/scenarios/${runId}`;
+    await navigateTo(navigateToData.value);
   };
 };
 

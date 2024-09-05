@@ -121,14 +121,14 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     });
   });
 
+  // In these tests, Mockoon is configured to check the request body for all the expected parameters (and respond with the
+  // appropriate status code etc.), as a way to test that the parameters (and model version) are being passed through all the way
+  // to the R API.
   describe("post api/scenarios", async () => {
-    const queryString = `parameters={"country":"Thailand","pathogen":"sars-cov-1","response":"no_closure","vaccine":"none"}`;
-
     it("returns a successful response when the mock server responds successfully", async () => {
-      const response = await nuxtTestUtilsFetch(`/api/scenarios?${queryString}`, { method: "POST" });
+      const queryString = `parameters={"mockoonResponse":"successful","country":"Thailand","pathogen":"sars-cov-1","response":"no_closure","vaccine":"none"}`;
 
-      console.error(response);
-      console.error("hekki?");
+      const response = await nuxtTestUtilsFetch(`/api/scenarios?${queryString}`, { method: "POST" });
 
       expect(response.ok).toBe(true);
       expect(response.status).toBe(200);
@@ -139,6 +139,8 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     });
 
     it("returns a response with informative errors when the mock server responds with an error", async () => {
+      const queryString = `parameters={"mockoonResponse":"notFound","country":"Thailand","pathogen":"sars-cov-1","response":"no_closure","vaccine":"none"}`;
+
       const response = await nuxtTestUtilsFetch(`/api/scenarios?${queryString}`, { method: "POST" });
 
       expect(response.ok).toBe(false);
@@ -151,6 +153,8 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     });
 
     it("returns a response with informative errors when the mock server doesn't respond in time", async () => {
+      const queryString = `parameters={"mockoonResponse":"delayed","country":"Thailand","pathogen":"sars-cov-1","response":"no_closure","vaccine":"none"}`;
+
       const response = await nuxtTestUtilsFetch(`/api/scenarios?${queryString}`, { method: "POST" });
 
       expect(response.ok).toBe(false);

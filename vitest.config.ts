@@ -16,5 +16,6 @@ export default defineVitestConfig({
     coverage: {
       exclude: ["**/*.config.ts", ...coverageConfigDefaults.exclude],
     },
+    restoreMocks: true,
   },
 });

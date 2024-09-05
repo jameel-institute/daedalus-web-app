@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import { mountSuspended } from "@nuxt/test-utils/runtime";
+import { mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
+import { getQuery } from "h3";
 import { FetchError } from "ofetch";
-
+import { flushPromises } from "@vue/test-utils";
+import type { Metadata } from "@/types/apiResponseTypes";
 import ParameterForm from "@/components/ParameterForm.vue";
 
 const stubs = {
@@ -49,7 +51,7 @@ const selectParameters = [
   },
 ];
 
-const metadata = { modelVersion: "0.0.0", parameters: [...selectParameters, globeParameter] };
+const metadata = { modelVersion: "0.0.0", parameters: [...selectParameters, globeParameter] } as Metadata;
 
 describe("parameter form", () => {
   it("adds a resize event listener on mount and removes it on unmount", async () => {
@@ -127,7 +129,7 @@ describe("parameter form", () => {
     });
 
     const cForm = component.findComponent({ name: "CForm" });
-    let formData = JSON.parse(cForm.element.attributes.getNamedItem("data-test")!.value);
+    let formData = JSON.parse(cForm.element.attributes.getNamedItem("data-test-form-data")!.value);
     expect(formData.region).toBe("HVN");
     expect(formData.long_list).toBe("1");
     expect(formData.short_list).toBe("no");
@@ -147,10 +149,44 @@ describe("parameter form", () => {
     await countrySelect.findAll("option").at(0)!.setSelected();
     await component.findComponent({ name: "CButtonGroup" }).find("input[value='yes']").setChecked();
 
-    formData = JSON.parse(cForm.element.attributes.getNamedItem("data-test")!.value);
+    formData = JSON.parse(cForm.element.attributes.getNamedItem("data-test-form-data")!.value);
     expect(formData.region).toBe("CLD");
     expect(formData.long_list).toBe("3");
     expect(formData.short_list).toBe("yes");
+  });
+
+  it("sends a POST request to /api/scenarios with the form data when submitted", async () => {
+    registerEndpoint("/api/scenarios", {
+      method: "POST",
+      handler: (event) => {
+        const query = getQuery(event) as Record<string, string>;
+        const modelParams = JSON.parse(query.parameters);
+
+        if (modelParams.long_list === "1" && modelParams.region === "HVN" && modelParams.short_list === "no") {
+          return { runId: "randomId" };
+        } else {
+          return { error: "Test failed due to wrong parameters" };
+        }
+      },
+    });
+
+    const component = await mountSuspended(ParameterForm, {
+      props: { metadata, metadataFetchStatus: "success", metadataFetchError: null },
+      global: { stubs },
+    });
+
+    const buttonEl = component.find("button[type='submit']");
+    expect(buttonEl.attributes("disabled")).not.toBe("");
+    await buttonEl.trigger("click");
+    expect(buttonEl.attributes("disabled")).toBe("");
+
+    await flushPromises();
+    // I couldn't find a way to spy on the navigateTo function, so this is a second-best test that we
+    // at least construct the correct path to navigate to.
+    const cForm = component.findComponent({ name: "CForm" });
+    expect(
+      cForm.element.attributes.getNamedItem("data-test-navigate-to")!.value,
+    ).toBe("/scenarios/randomId");
   });
 
   it("displays CAlert with error message when metadataFetchStatus is 'error'", async () => {
