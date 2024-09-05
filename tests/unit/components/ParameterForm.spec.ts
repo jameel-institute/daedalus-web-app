@@ -79,12 +79,17 @@ describe("parameter form", () => {
     expect(component.text()).toContain("Drop Down");
     expect(component.text()).toContain("Radio Buttons");
 
-    const selectComponents = component.findAllComponents({ name: "CFormSelect" });
-    expect(selectComponents.length).toBe(2);
+    const selectElements = component.findAll("select");
+    expect(selectElements.length).toBe(2);
 
-    expect(selectComponents[0].find("label").text()).toBe("Drop Down");
-    expect(selectComponents[0].find("select").element.attributes.getNamedItem("aria-label")!.value).toBe("Drop Down");
-    expect(selectComponents[0].findAll("option").map((option) => {
+    selectElements.forEach((selectElement, index) => {
+      const correctLabel = ["Drop Down", "Region"][index];
+      const paramId = selectElement.element.attributes.getNamedItem("id")!.value;
+      expect(component.find(`label[for=${paramId}]`).element.textContent).toBe(correctLabel);
+      expect(selectElement.element.attributes.getNamedItem("aria-label")!.value).toBe(correctLabel);
+    });
+
+    expect(selectElements[0].findAll("option").map((option) => {
       return { value: option.element.value, label: option.text(), selected: option.element.selected };
     })).toEqual([
       { value: "1", label: "Option 1", selected: true },
@@ -95,9 +100,7 @@ describe("parameter form", () => {
       { value: "6", label: "Option 6", selected: false },
     ]);
 
-    expect(selectComponents[1].find("label").text()).toBe("Region");
-    expect(selectComponents[1].find("select").element.attributes.getNamedItem("aria-label")!.value).toBe("Region");
-    expect(selectComponents[1].findAll("option").map((option) => {
+    expect(selectElements[1].findAll("option").map((option) => {
       return { value: option.element.value, label: option.text(), selected: option.element.selected };
     })).toEqual([
       { value: "CLD", label: "Cloud Nine", selected: false },
@@ -129,14 +132,19 @@ describe("parameter form", () => {
     expect(formData.long_list).toBe("1");
     expect(formData.short_list).toBe("no");
 
-    const selectComponents = component.findAllComponents({ name: "CFormSelect" });
-    const longListDropDown = selectComponents[0];
-    expect(longListDropDown.find("label").text()).toBe("Drop Down");
-    const countrySelect = selectComponents[1];
-    expect(countrySelect.find("label").text()).toBe("Region");
+    const selectElements = component.findAll("select");
+    const longListDropDown = selectElements[0];
+    const countrySelect = selectElements[1];
 
-    await longListDropDown.find("select").findAll("option").at(2)!.setSelected();
-    await countrySelect.find("select").findAll("option").at(0)!.setSelected();
+    // Verify that the select elements are the ones we think they are
+    selectElements.forEach((selectElement, index) => {
+      const correctLabel = ["Drop Down", "Region"][index];
+      const paramId = selectElement.element.attributes.getNamedItem("id")!.value;
+      expect(component.find(`label[for=${paramId}]`).element.textContent).toBe(correctLabel);
+    });
+
+    await longListDropDown.findAll("option").at(2)!.setSelected();
+    await countrySelect.findAll("option").at(0)!.setSelected();
     await component.findComponent({ name: "CButtonGroup" }).find("input[value='yes']").setChecked();
 
     formData = JSON.parse(cForm.element.attributes.getNamedItem("data-test")!.value);

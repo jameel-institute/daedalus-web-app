@@ -41,16 +41,24 @@
         </CCol>
         <div v-else-if="renderAsSelect(parameter)">
           <ParameterIcon :parameter="parameter" />
-          <CFormSelect
+          <CFormLabel :for="parameter.id">
+            {{ parameter.label }}
+          </CFormLabel>
+          <select
             :id="parameter.id"
             v-model="formData[parameter.id]"
-            :label="parameter.label"
             :aria-label="parameter.label"
-            :options="parameter.options.map((option: ParameterOption) => {
-              return { label: option.label, value: option.id };
-            })"
-            :size="largeScreen ? 'lg' : undefined"
-          />
+            class="form-select" :class="[largeScreen ? 'form-select-lg' : '']"
+          >
+            <option
+              v-for="(option) in parameter.options"
+              :key="option.id"
+              :value="option.id"
+              :selected="option.id === formData[parameter.id]"
+            >
+              {{ option.label }}
+            </option>
+          </select>
         </div>
       </div>
       <CButton
@@ -75,7 +83,7 @@
 <script lang="ts" setup>
 import type { FetchError } from "ofetch";
 import { CIcon } from "@coreui/icons-vue";
-import type { MetaData, Parameter, ParameterOption } from "@/types/daedalusApiResponseTypes";
+import type { MetaData, Parameter } from "@/types/daedalusApiResponseTypes";
 import type { AsyncDataRequestStatus } from "#app";
 
 const props = defineProps<{

@@ -42,11 +42,6 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/form/CFormLabel",
     });
     addComponent({
-      name: "CFormSelect",
-      export: "CFormSelect",
-      filePath: "@coreui/vue/src/components/form/CFormSelect",
-    });
-    addComponent({
       name: "CHeader",
       export: "CHeader",
       filePath: "@coreui/vue/src/components/header/CHeader",
