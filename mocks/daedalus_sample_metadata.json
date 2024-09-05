@@ -888,6 +888,109 @@
           }
         ]
       }
-    ]
+    ],
+    "results": {
+      "costs": [
+        {
+          "id": "total",
+          "label": "Total",
+          "description": "Total cost to national economy"
+        },
+        {
+          "id": "gdp",
+          "label": "GDP",
+          "description": null
+        },
+        {
+          "id": "gdp_closures",
+          "label": "Closures",
+          "description": null
+        },
+        {
+          "id": "gdp_absences",
+          "label": "Absences",
+          "description": null
+        },
+        {
+          "id": "education",
+          "label": "Education",
+          "description": null
+        },
+        {
+          "id": "education_closures",
+          "label": "Closures",
+          "description": null
+        },
+        {
+          "id": "education_absences",
+          "label": "Absences",
+          "description": null
+        },
+        {
+          "id": "life_years",
+          "label": "Life Years",
+          "description": null
+        },
+        {
+          "id": "life_years_infants",
+          "label": "Infants",
+          "description": null
+        },
+        {
+          "id": "life_years_adolescents",
+          "label": "Adolescents",
+          "description": null
+        },
+        {
+          "id": "life_years_working_age",
+          "label": "Working-age Adults",
+          "description": null
+        },
+        {
+          "id": "life_years_retirement_age",
+          "label": "Retirement-age Adults",
+          "description": null
+        }
+      ],
+      "capacities": [
+        {
+          "id": "hospital_capacity",
+          "label": "Hospital Capacity",
+          "description": "Total hospital beds"
+        },
+        {
+          "id": "icu_capacity",
+          "label": "ICU Capacity",
+          "description": "ICU hospital beds"
+        }
+      ],
+      "interventions": [
+        {
+          "id": "school_closures",
+          "label": "School closures"
+        },
+        {
+          "id": "business_closures",
+          "label": "Business closures"
+        }
+      ],
+      "time_series": [
+        {
+          "id": "cases",
+          "label": "Cases",
+          "description": "Number of confirmed cases"
+        },
+        {
+          "id": "vacc",
+          "label": "Vaccinated",
+          "description": "Cumulative vaccinations"
+        },
+        {
+          "id": "hosp_occ",
+          "label": "Hospital Occupancy",
+          "description": "Number of hospitalised cases"
+        }
+      ]
+    }
   }
 }
