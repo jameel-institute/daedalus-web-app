@@ -7,11 +7,11 @@
       @submit.prevent="submitForm"
     >
       <div
-        v-for="(parameter) in parametersOfTypeSelect"
+        v-for="(parameter) in props.metaData.parameters"
         :key="parameter.id"
         class="field-container"
       >
-        <CCol v-if="optionsAreTerse(parameter)" class="button-group-container">
+        <CCol v-if="renderAsRadios(parameter)" class="button-group-container">
           <CRow>
             <ParameterIcon :parameter="parameter" />
             <CFormLabel :for="parameter.id">
@@ -22,7 +22,7 @@
             <CButtonGroup
               role="group"
               :aria-label="parameter.label"
-              :size="largeScreen ? 'lg' : ''"
+              :size="largeScreen ? 'lg' : undefined"
             >
               <CFormCheck
                 v-for="(option) in parameter.options"
@@ -39,7 +39,7 @@
             </CButtonGroup>
           </CRow>
         </CCol>
-        <div v-else>
+        <div v-else-if="renderAsSelect(parameter)">
           <ParameterIcon :parameter="parameter" />
           <CFormSelect
             :id="parameter.id"
@@ -49,29 +49,14 @@
             :options="parameter.options.map((option: ParameterOption) => {
               return { label: option.label, value: option.id };
             })"
-            :size="largeScreen ? 'lg' : ''"
+            :size="largeScreen ? 'lg' : undefined"
           />
         </div>
-      </div>
-      <div
-        v-if="globeParameter"
-        class="field-container"
-      >
-        <ParameterIcon :parameter="globeParameter" />
-        <CFormSelect
-          :id="globeParameter.id"
-          v-model="formData[globeParameter.id]"
-          :data-test="`${globeParameter.id}-select`"
-          :label="globeParameter.label"
-          :aria-label="globeParameter.label"
-          :options="selectOptions(globeParameter)"
-          :size="largeScreen ? 'lg' : ''"
-        />
       </div>
       <CButton
         id="run-button"
         color="primary"
-        :size="largeScreen ? 'lg' : ''"
+        :size="largeScreen ? 'lg' : undefined"
         type="submit"
       >
         Run
@@ -94,7 +79,6 @@ import type { MetaData, Parameter, ParameterOption } from "@/types/daedalusApiRe
 import type { AsyncDataRequestStatus } from "#app";
 
 const props = defineProps<{
-  globeParameter: Parameter | undefined
   metaData: MetaData | undefined
   metadataFetchStatus: AsyncDataRequestStatus
   metadataFetchError: FetchError | null
@@ -123,37 +107,20 @@ const formData = ref(
   }, {} as { [key: string]: any }),
 );
 
-const parametersOfTypeSelect = computed(() => {
-  if (props.metaData) {
-    return props.metaData.parameters.filter(parameter => parameter.parameterType === "select");
-  } else {
-    return [];
-  }
-});
-
-const globeParameter = computed(() => {
-  if (props.metaData) {
-    return props.metaData.parameters.filter(parameter => parameter.parameterType === "globeSelect")[0];
-  } else {
-    return undefined;
-  }
-});
-
-const selectOptions = (parameter: Parameter) => {
-  return parameter.options.map((option: ParameterOption) => {
-    // Because the select component does not seem to honour the initial v-model value, we had to manually
-    // set the 'selected' attribute below.
-    // As a result, this list of options is recalculated each time an option is selected.
-    return { label: option.label, value: option.id, selected: option.id === formData.value![parameter.id] };
-  });
-};
-
 const optionsAreTerse = (parameter: Parameter) => {
   const eachOptionIsASingleWord = parameter.options.filter((option) => {
     return option.label.includes(" ");
   }).length === 0;
 
   return parameter.options.length <= 5 && eachOptionIsASingleWord;
+};
+
+const renderAsSelect = (parameter: Parameter) => {
+  return parameter.parameterType === "select" || parameter.parameterType === "globeSelect";
+};
+
+const renderAsRadios = (parameter: Parameter) => {
+  return parameter.parameterType === "select" && optionsAreTerse(parameter);
 };
 
 const submitForm = () => {

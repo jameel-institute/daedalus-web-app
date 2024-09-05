@@ -84,6 +84,10 @@ body {
   border-radius: 1rem;
 }
 
+.btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active, .btn.show {
+  background-color: var(--cui-btn-color);
+}
+
 .btn-group-lg > label.btn {
   border-radius: 0.75rem;
 }
@@ -96,7 +100,7 @@ body {
   }
 }
 
-// Undoes styling for '.btn-check + .btn:hover' to match that of '.btn:hover'
+// Undoes styling for '.btn-check + .btn:hover' to (nearly) match that of '.btn:hover'
 .btn-group {
   .btn-check + .btn:hover {
     color: var(--cui-btn-hover-color);
@@ -105,7 +109,7 @@ body {
   }
 
   .btn-check:not(:checked) + .btn:hover {
-    filter: opacity(70%);
+    background-color: var(--cui-btn-hover-bg);
   }
 }
 

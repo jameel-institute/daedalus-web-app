@@ -4,13 +4,12 @@
       <h3>Simulate a new scenario</h3>
       <p>Select the parameters for your next scenario.</p>
       <ParameterForm
-        :globe-parameter="globeParameter"
         :meta-data="metaData"
         :metadata-fetch-status="metadataFetchStatus"
         :metadata-fetch-error="metadataFetchError"
       />
     </div>
-    <!-- Globe component goes here in future PR -->
+    <p>{{ globeParameter?.id }} globe select to go here in future PR</p>
   </div>
 </template>
 
