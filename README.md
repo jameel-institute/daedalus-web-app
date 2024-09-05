@@ -148,6 +148,13 @@ npx @eslint/config-inspector
 
 In VSCode, [make sure](https://eslint.nuxt.com/packages/module#vs-code) your ESlint VS Code extension (vscode-eslint) is at least v3.0.10 (released June 2024). Turn on the 'Format on Save' setting.
 
+# NPM dependency notes
+
+To document why some of package.json is the way it is (since JSON doesn't support comments):
+
+1. The Vue version is overridden because of the issue described in the 'tip' in the installation section of https://pinia.vuejs.org/ssr/nuxt.html
+1. `@rollup/rollup-linux-x64-gnu` is an optional dependency as a fix for the issue that Rollup describes [here](https://github.com/rollup/rollup/blob/f83b3151e93253a45f5b8ccb9ccb2e04214bc490/native.js#L59) and which occurred for us when doing an installation with npm on Docker on CI. Their suggested fix does not work for our use case, because removing package-lock.json prevents the use of `npm ci`, so instead we use the solution suggested [here](https://github.com/vitejs/vite/discussions/15532#discussioncomment-10192839).
+
 # CI
 
 Playwright tests produce HTML reports when they run, whether on CI or not, showing visual snapshots at each timestep in each test. If you need to open these, follow the instructions [here](https://playwright.dev/docs/ci-intro#html-report), particularly '[Viewing the HTML report](https://playwright.dev/docs/ci-intro#viewing-the-html-report)'.
