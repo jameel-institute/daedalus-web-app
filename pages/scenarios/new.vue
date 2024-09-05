@@ -4,7 +4,7 @@
       <h3>Simulate a new scenario</h3>
       <p>Select the parameters for your next scenario.</p>
       <ParameterForm
-        :meta-data="metaData"
+        :metadata="metadata"
         :metadata-fetch-status="metadataFetchStatus"
         :metadata-fetch-error="metadataFetchError"
       />
@@ -16,17 +16,17 @@
 <script lang="ts" setup>
 import type { FetchError } from "ofetch";
 import type { AsyncDataRequestStatus } from "#app";
-import type { MetaData } from "@/types/daedalusApiResponseTypes";
+import type { Metadata } from "@/types/daedalusApiResponseTypes";
 
-const { data: metaData, status: metadataFetchStatus, error: metadataFetchError } = useFetch("/api/metadata") as {
-  data: Ref<MetaData>
+const { data: metadata, status: metadataFetchStatus, error: metadataFetchError } = useFetch("/api/metadata") as {
+  data: Ref<Metadata>
   status: Ref<AsyncDataRequestStatus>
   error: Ref<FetchError | null>
 };
 
 const globeParameter = computed(() => {
-  if (metaData.value) {
-    return metaData.value.parameters.filter(parameter => parameter.parameterType === "globeSelect")[0];
+  if (metadata.value) {
+    return metadata.value.parameters.filter(parameter => parameter.parameterType === "globeSelect")[0];
   } else {
     return undefined;
   }

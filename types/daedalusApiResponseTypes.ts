@@ -34,9 +34,9 @@ export interface Parameter {
   ordered: boolean
   options: Array<ParameterOption>
 }
-export interface MetaData {
+export interface Metadata {
   modelVersion: string
   parameters: Array<Parameter>
 }
 
-export interface MetaDataResponse extends ApiResponse<MetaData> { }
+export interface MetadataResponse extends ApiResponse<Metadata> { }

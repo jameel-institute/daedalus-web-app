@@ -49,7 +49,7 @@ const selectParameters = [
   },
 ];
 
-const metaData = { modelVersion: "0.0.0", parameters: [...selectParameters, globeParameter] };
+const metadata = { modelVersion: "0.0.0", parameters: [...selectParameters, globeParameter] };
 
 describe("parameter form", () => {
   it("adds a resize event listener on mount and removes it on unmount", async () => {
@@ -57,7 +57,7 @@ describe("parameter form", () => {
     const removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
 
     const component = await mountSuspended(ParameterForm, {
-      props: { metaData: undefined, metadataFetchStatus: "pending", metadataFetchError: null },
+      props: { metadata: undefined, metadataFetchStatus: "pending", metadataFetchError: null },
       global: { stubs },
     });
     expect(addEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));
@@ -71,7 +71,7 @@ describe("parameter form", () => {
 
   it("renders the correct parameter labels, inputs, options, and default values", async () => {
     const component = await mountSuspended(ParameterForm, {
-      props: { metaData, metadataFetchStatus: "success", metadataFetchError: null },
+      props: { metadata, metadataFetchStatus: "success", metadataFetchError: null },
       global: { stubs },
     });
 
@@ -122,7 +122,7 @@ describe("parameter form", () => {
 
   it("initialises formData with defaults and updates formData when a parameter is changed", async () => {
     const component = await mountSuspended(ParameterForm, {
-      props: { metaData, metadataFetchStatus: "success", metadataFetchError: null },
+      props: { metadata, metadataFetchStatus: "success", metadataFetchError: null },
       global: { stubs },
     });
 
@@ -157,7 +157,7 @@ describe("parameter form", () => {
     const error = new FetchError("There was a bee-related issue.");
 
     const component = await mountSuspended(ParameterForm, {
-      props: { metaData: undefined, metadataFetchStatus: "error", metadataFetchError: error },
+      props: { metadata: undefined, metadataFetchStatus: "error", metadataFetchError: error },
       global: { stubs },
     });
 
@@ -168,7 +168,7 @@ describe("parameter form", () => {
 
   it("displays CSpinner when metadataFetchStatus is 'pending'", async () => {
     const component = await mountSuspended(ParameterForm, {
-      props: { metaData: undefined, metadataFetchStatus: "pending", metadataFetchError: null },
+      props: { metadata: undefined, metadataFetchStatus: "pending", metadataFetchError: null },
       global: { stubs },
     });
 

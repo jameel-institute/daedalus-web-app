@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import { registerEndpoint } from "@nuxt/test-utils/runtime";
-import { getMetaData } from "@/server/handlers/metadata";
+import { getMetadata } from "@/server/handlers/metadata";
 
 const mockedVersionResponse = vi.fn();
-const exampleMetaData = {
+const exampleMetadata = {
   modelVersion: "0.1.0",
   parameters: [
     {
@@ -40,13 +40,13 @@ describe("get metadata", () => {
         return {
           status: "success",
           errors: null,
-          data: exampleMetaData,
+          data: exampleMetadata,
         };
       });
 
-      const response = await getMetaData();
+      const response = await getMetadata();
 
-      expect(response.data).toEqual(exampleMetaData);
+      expect(response.data).toEqual(exampleMetadata);
       expect(response.errors).toBeNull();
       expect(response.statusCode).toBe(200);
       expect(response.statusText).toBe("");
@@ -62,7 +62,7 @@ describe("get metadata", () => {
         });
       });
 
-      const response = await getMetaData();
+      const response = await getMetadata();
 
       // NB Couldn't find a way to expose error details in the response using registerEndpoint,
       // but the error details are passed on in the real implementation and this is tested in

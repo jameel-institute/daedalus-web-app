@@ -1,13 +1,13 @@
 <template>
   <div>
     <CForm
-      v-if="props.metaData && formData"
+      v-if="props.metadata && formData"
       class="inputs"
       :data-test="JSON.stringify(formData)"
       @submit.prevent="submitForm"
     >
       <div
-        v-for="(parameter) in props.metaData.parameters"
+        v-for="(parameter) in props.metadata.parameters"
         :key="parameter.id"
         class="field-container"
       >
@@ -83,18 +83,18 @@
 <script lang="ts" setup>
 import type { FetchError } from "ofetch";
 import { CIcon } from "@coreui/icons-vue";
-import type { MetaData, Parameter } from "@/types/daedalusApiResponseTypes";
+import type { Metadata, Parameter } from "@/types/daedalusApiResponseTypes";
 import type { AsyncDataRequestStatus } from "#app";
 
 const props = defineProps<{
-  metaData: MetaData | undefined
+  metadata: Metadata | undefined
   metadataFetchStatus: AsyncDataRequestStatus
   metadataFetchError: FetchError | null
 }>();
 
 const formData = ref(
-  // Create a new object with keys set to the id values of the metaData.parameters array of objects, and all values set to refs with default values.
-  props.metaData?.parameters.reduce((accumulator, parameter) => {
+  // Create a new object with keys set to the id values of the metadata.parameters array of objects, and all values set to refs with default values.
+  props.metadata?.parameters.reduce((accumulator, parameter) => {
     if (parameter.parameterType !== "select" && parameter.parameterType !== "globeSelect") {
       accumulator[parameter.id] = ref("");
       return accumulator;
