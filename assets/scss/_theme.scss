@@ -81,7 +81,7 @@ body {
 }
 
 .btn-group > label.btn {
-  border-radius: 1rem;
+  border-radius: 0.75rem;
 }
 
 .btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active, .btn.show {
@@ -89,7 +89,7 @@ body {
 }
 
 .btn-group-lg > label.btn {
-  border-radius: 0.75rem;
+  border-radius: 1rem;
 }
 
 .form-select, .btn {

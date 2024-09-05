@@ -116,9 +116,9 @@ const formData = ref(
 );
 
 const optionsAreTerse = (parameter: Parameter) => {
-  const eachOptionIsASingleWord = parameter.options.filter((option) => {
-    return option.label.includes(" ");
-  }).length === 0;
+  const eachOptionIsASingleWord = parameter.options.every((option) => {
+    return !option.label.includes(" ");
+  });
 
   return parameter.options.length <= 5 && eachOptionIsASingleWord;
 };
@@ -169,6 +169,7 @@ onBeforeUnmount(() => {
 
 #run-button {
   align-self: flex-end;
-  min-width: 7rem;
+  min-width: 6rem;
+  margin-left: auto;
 }
 </style>
