@@ -1,8 +1,8 @@
 <template>
   <CSidebar
     :visible="visible"
-    :unfoldable="largeScreen"
-    :overlaid="largeScreen"
+    :unfoldable="screenIsLarge"
+    :overlaid="screenIsLarge"
     class="sidebar-fixed border-end"
     @hide="handleHide"
   >
@@ -70,18 +70,12 @@ const versionTooltipContent = computed(() => {
 });
 
 const visible = defineModel("visible", { type: Boolean, required: true });
-const largeScreen = ref(true);
 
-const breakpoint = 992; // CoreUI's "lg" breakpoint
+const appStore = useAppStore();
+const { screenIsLarge } = storeToRefs(appStore);
+
 const resetSidebarPerScreenSize = () => {
-  // Set the default values for the sidebar based on the screen size.
-  if (window.innerWidth < breakpoint) {
-    visible.value = false;
-    largeScreen.value = false;
-  } else {
-    visible.value = true;
-    largeScreen.value = true;
-  }
+  visible.value = screenIsLarge.value;
 };
 
 const hideHasNeverBeenEmitted = ref(true);

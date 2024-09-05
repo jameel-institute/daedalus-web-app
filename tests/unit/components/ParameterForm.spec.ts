@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
 import { getQuery } from "h3";
 import { FetchError } from "ofetch";
@@ -54,23 +54,6 @@ const selectParameters = [
 const metadata = { modelVersion: "0.0.0", parameters: [...selectParameters, globeParameter] } as Metadata;
 
 describe("parameter form", () => {
-  it("adds a resize event listener on mount and removes it on unmount", async () => {
-    const addEventListenerSpy = vi.spyOn(window, "addEventListener");
-    const removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
-
-    const component = await mountSuspended(ParameterForm, {
-      props: { metadata: undefined, metadataFetchStatus: "pending", metadataFetchError: null },
-      global: { stubs },
-    });
-    expect(addEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));
-
-    component.unmount();
-    expect(removeEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));
-
-    addEventListenerSpy.mockRestore();
-    removeEventListenerSpy.mockRestore();
-  });
-
   it("renders the correct parameter labels, inputs, options, and default values", async () => {
     const component = await mountSuspended(ParameterForm, {
       props: { metadata, metadataFetchStatus: "success", metadataFetchError: null },

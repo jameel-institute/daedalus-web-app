@@ -24,6 +24,20 @@ describe("default layout", () => {
       expect(sidebar.props("visible")).toBe(true);
     });
 
+    it("adds a resize event listener on mount and removes it on unmount", async () => {
+      const addEventListenerSpy = vi.spyOn(window, "addEventListener");
+      const removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
+
+      const component = await mountSuspended(DefaultLayout, { global: { stubs } });
+      expect(addEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));
+
+      component.unmount();
+      expect(removeEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));
+
+      addEventListenerSpy.mockRestore();
+      removeEventListenerSpy.mockRestore();
+    });
+
     afterAll(() => {
       vi.unstubAllGlobals();
     });

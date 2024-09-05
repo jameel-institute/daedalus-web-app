@@ -23,7 +23,7 @@
             <CButtonGroup
               role="group"
               :aria-label="parameter.label"
-              :size="largeScreen ? 'lg' : undefined"
+              :size="screenIsLarge ? 'lg' : undefined"
             >
               <!-- This component's "v-model" prop type signature dictates we can't pass it a number. -->
               <CFormCheck
@@ -50,7 +50,7 @@
             :id="parameter.id"
             v-model="formData[parameter.id]"
             :aria-label="parameter.label"
-            class="form-select" :class="[largeScreen ? 'form-select-lg' : '']"
+            class="form-select" :class="[screenIsLarge ? 'form-select-lg' : '']"
           >
             <option
               v-for="(option) in parameter.options"
@@ -66,7 +66,7 @@
       <CButton
         id="run-button"
         color="primary"
-        :size="largeScreen ? 'lg' : undefined"
+        :size="screenIsLarge ? 'lg' : undefined"
         type="submit"
         :disabled="formSubmitting"
         @click="submitForm"
@@ -146,23 +146,8 @@ const submitForm = async () => {
   };
 };
 
-const largeScreen = ref(true);
-const breakpoint = 992; // CoreUI's "lg" breakpoint
-const setFieldSizes = () => {
-  if (window.innerWidth < breakpoint) {
-    largeScreen.value = false;
-  } else {
-    largeScreen.value = true;
-  }
-};
-
-onMounted(() => {
-  setFieldSizes();
-  window.addEventListener("resize", setFieldSizes);
-});
-onBeforeUnmount(() => {
-  window.removeEventListener("resize", setFieldSizes);
-});
+const appStore = useAppStore();
+const { screenIsLarge } = storeToRefs(appStore);
 </script>
 
 <style lang="scss">

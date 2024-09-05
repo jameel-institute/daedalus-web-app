@@ -1,8 +1,8 @@
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 import { mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 import type { VueWrapper } from "@vue/test-utils";
-
+import { mockPinia } from "@/tests/unit/mocks/mockPinia";
 import SideBar from "@/components/SideBar.vue";
 
 const stubs = {
@@ -23,33 +23,14 @@ describe("sidebar", () => {
     };
   });
 
-  it("adds a resize event listener on mount and removes it on unmount", async () => {
-    const addEventListenerSpy = vi.spyOn(window, "addEventListener");
-    const removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
-
-    const component = await mountSuspended(SideBar, {
-      props: { visible: false },
-      global: { stubs },
-    });
-    expect(addEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));
-
-    component.unmount();
-    expect(removeEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));
-
-    addEventListenerSpy.mockRestore();
-    removeEventListenerSpy.mockRestore();
-  });
-
   describe('when the "visible" prop is initialized as false', () => {
     describe("on smaller devices", () => {
-      beforeAll(() => {
-        vi.stubGlobal("innerWidth", 500);
-      });
+      const plugins = [mockPinia({ largeScreen: false })];
 
       it('starts as hidden, and can be opened by setting "visible" prop', async () => {
         const component = await mountSuspended(SideBar, {
           props: { visible: false },
-          global: { stubs },
+          global: { stubs, plugins },
         });
         const coreuiSidebar = component.findComponent({ name: "CSidebar" });
         await mockCSidebarPageloadBehavior(coreuiSidebar);
@@ -66,7 +47,7 @@ describe("sidebar", () => {
       it("includes information about the version numbers", async () => {
         const component = await mountSuspended(SideBar, {
           props: { visible: false },
-          global: { stubs },
+          global: { stubs, plugins },
         });
 
         const coreuiSidebar = component.findComponent({ name: "CSidebar" });
@@ -88,14 +69,12 @@ describe("sidebar", () => {
     });
 
     describe("on larger devices", () => {
-      beforeAll(() => {
-        vi.stubGlobal("innerWidth", 1500);
-      });
+      const plugins = [mockPinia({ largeScreen: true })];
 
       it("starts as shown", async () => {
         const component = await mountSuspended(SideBar, {
           props: { visible: false },
-          global: { stubs },
+          global: { stubs, plugins },
         });
         const coreuiSidebar = component.findComponent({ name: "CSidebar" });
         await mockCSidebarPageloadBehavior(coreuiSidebar);
@@ -107,7 +86,7 @@ describe("sidebar", () => {
       it("renders the text and href for nav items", async () => {
         const component = await mountSuspended(SideBar, {
           props: { visible: false },
-          global: { stubs },
+          global: { stubs, plugins },
         });
         const coreuiSidebar = component.findComponent({ name: "CSidebar" });
         await mockCSidebarPageloadBehavior(coreuiSidebar);

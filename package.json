@@ -50,6 +50,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "2.21.0",
     "@mockoon/cli": "^8.4.0",
+    "@pinia/testing": "^0.1.5",
     "@playwright/test": "^1.46.1",
     "@testing-library/vue": "^8.1.0",
     "@types/lodash.throttle": "^4.1.9",
