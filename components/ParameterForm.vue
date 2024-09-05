@@ -94,15 +94,13 @@ const props = defineProps<{
   metadataFetchError: FetchError | null
 }>();
 
-const formData = props.metadata
-  ? ref(
-    // Create a new object with keys set to the id values of the metadata.parameters array of objects, and all values set to refs with default values.
-    props.metadata.parameters.reduce((accumulator, parameter) => {
-      accumulator[parameter.id] = parameter.defaultOption || parameter.options[0].id;
-      return accumulator;
-    }, {} as { [key: string]: string | number }),
-  )
-  : ref(undefined);
+const formData = ref(
+  // Create a new object with keys set to the id values of the metadata.parameters array of objects, and all values set to default values.
+  props.metadata?.parameters.reduce((acc, { id, defaultOption, options }) => {
+    acc[id] = defaultOption || options[0].id;
+    return acc;
+  }, {} as { [key: string]: string | number }),
+);
 
 const optionsAreTerse = (parameter: Parameter) => {
   const eachOptionIsASingleWord = parameter.options.every((option) => {
