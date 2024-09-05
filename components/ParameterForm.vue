@@ -24,11 +24,12 @@
               :aria-label="parameter.label"
               :size="largeScreen ? 'lg' : undefined"
             >
+              <!-- This component's "v-model" prop type signature dictates we can't pass it a number. -->
               <CFormCheck
                 v-for="(option) in parameter.options"
                 :id="option.id"
                 :key="option.id"
-                v-model="formData[parameter.id]"
+                v-model="formData[parameter.id] as string"
                 type="radio"
                 :button="{ color: 'primary', variant: 'outline' }"
                 :name="parameter.id"
@@ -84,6 +85,7 @@
 import type { FetchError } from "ofetch";
 import { CIcon } from "@coreui/icons-vue";
 import type { Metadata, Parameter } from "@/types/daedalusApiResponseTypes";
+import { ParameterType } from "@/types/daedalusApiResponseTypes";
 import type { AsyncDataRequestStatus } from "#app";
 
 const props = defineProps<{
@@ -92,28 +94,15 @@ const props = defineProps<{
   metadataFetchError: FetchError | null
 }>();
 
-const formData = ref(
-  // Create a new object with keys set to the id values of the metadata.parameters array of objects, and all values set to refs with default values.
-  props.metadata?.parameters.reduce((accumulator, parameter) => {
-    if (parameter.parameterType !== "select" && parameter.parameterType !== "globeSelect") {
-      accumulator[parameter.id] = ref("");
+const formData = props.metadata
+  ? ref(
+    // Create a new object with keys set to the id values of the metadata.parameters array of objects, and all values set to refs with default values.
+    props.metadata.parameters.reduce((accumulator, parameter) => {
+      accumulator[parameter.id] = parameter.defaultOption || parameter.options[0].id;
       return accumulator;
-    }
-
-    // TODO: Make default country UK after November 2024 workshop
-    if (parameter.id === "country") {
-      accumulator[parameter.id] = ref("Thailand");
-    } else {
-      // Don't set an empty value or there will be a disjoint between the select component and the formData object,
-      // since the select component will visually appear to have an option selected (the first), but the formData object will have
-      // an empty string.
-      const defaultOption = parameter.defaultOption || parameter.options[0].id;
-      accumulator[parameter.id] = ref(defaultOption);
-    }
-
-    return accumulator;
-  }, {} as { [key: string]: any }),
-);
+    }, {} as { [key: string]: string | number }),
+  )
+  : ref(undefined);
 
 const optionsAreTerse = (parameter: Parameter) => {
   const eachOptionIsASingleWord = parameter.options.every((option) => {
@@ -124,11 +113,11 @@ const optionsAreTerse = (parameter: Parameter) => {
 };
 
 const renderAsSelect = (parameter: Parameter) => {
-  return parameter.parameterType === "select" || parameter.parameterType === "globeSelect";
+  return parameter.parameterType === ParameterType.Select || parameter.parameterType === ParameterType.GlobeSelect;
 };
 
 const renderAsRadios = (parameter: Parameter) => {
-  return parameter.parameterType === "select" && optionsAreTerse(parameter);
+  return parameter.parameterType === ParameterType.Select && optionsAreTerse(parameter);
 };
 
 const submitForm = () => {

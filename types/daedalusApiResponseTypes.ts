@@ -26,10 +26,14 @@ export interface ParameterOption {
   label: string
 }
 
+export enum ParameterType {
+  Select = "select",
+  GlobeSelect = "globeSelect",
+}
 export interface Parameter {
   id: string
   label: string
-  parameterType: string
+  parameterType: ParameterType
   defaultOption: string | null
   ordered: boolean
   options: Array<ParameterOption>

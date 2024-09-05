@@ -16,7 +16,7 @@
 <script lang="ts" setup>
 import type { FetchError } from "ofetch";
 import type { AsyncDataRequestStatus } from "#app";
-import type { Metadata } from "@/types/daedalusApiResponseTypes";
+import { type Metadata, ParameterType } from "@/types/daedalusApiResponseTypes";
 
 const { data: metadata, status: metadataFetchStatus, error: metadataFetchError } = useFetch("/api/metadata") as {
   data: Ref<Metadata>
@@ -26,7 +26,7 @@ const { data: metadata, status: metadataFetchStatus, error: metadataFetchError }
 
 const globeParameter = computed(() => {
   if (metadata.value) {
-    return metadata.value.parameters.filter(parameter => parameter.parameterType === "globeSelect")[0];
+    return metadata.value.parameters.filter(parameter => parameter.parameterType === ParameterType.GlobeSelect)[0];
   } else {
     return undefined;
   }
