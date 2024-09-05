@@ -13,11 +13,7 @@
       >
         <CCol v-if="optionsAreTerse(parameter)" class="button-group-container">
           <CRow>
-            <CIcon
-              v-if="icon(parameter)"
-              :icon="icon(parameter)"
-              class="parameter-icon"
-            />
+            <ParameterIcon :parameter="parameter" />
             <CFormLabel :for="parameter.id">
               {{ parameter.label }}
             </CFormLabel>
@@ -44,11 +40,7 @@
           </CRow>
         </CCol>
         <div v-else>
-          <CIcon
-            v-if="icon(parameter)"
-            :icon="icon(parameter)"
-            class="parameter-icon"
-          />
+          <ParameterIcon :parameter="parameter" />
           <CFormSelect
             :id="parameter.id"
             v-model="formData[parameter.id]"
@@ -65,11 +57,7 @@
         v-if="globeParameter"
         class="field-container"
       >
-        <CIcon
-          v-if="icon(globeParameter)"
-          :icon="icon(globeParameter)"
-          class="parameter-icon"
-        />
+        <ParameterIcon :parameter="globeParameter" />
         <CFormSelect
           :id="globeParameter.id"
           v-model="formData[globeParameter.id]"
@@ -151,21 +139,6 @@ const globeParameter = computed(() => {
   }
 });
 
-const icon = (parameter: Parameter) => {
-  switch (parameter.id) {
-    case "country":
-      return "cilGlobeAlt";
-    case "response":
-      return "cilShieldAlt";
-    case "vaccine":
-      return "cilIndustry";
-    case "pathogen":
-      return "cilBug";
-    default:
-      return undefined;
-  }
-};
-
 const selectOptions = (parameter: Parameter) => {
   return parameter.options.map((option: ParameterOption) => {
     // Because the select component does not seem to honour the initial v-model value, we had to manually
@@ -217,16 +190,6 @@ onBeforeUnmount(() => {
 .field-container {
   min-width: 15rem;
   flex-grow: 1;
-
-  .parameter-icon {
-    margin-left: 0.75rem;
-    margin-right: 0.5rem;
-    padding: 0;
-  }
-
-  .button-group-container .parameter-icon {
-    margin-left: 1.5rem;
-  }
 }
 
 #run-button {

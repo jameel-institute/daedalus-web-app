@@ -69,7 +69,7 @@ body {
   color: rgba(37, 43, 54, 0.65);
 }
 
-.row > .form-label {
+.row > span.form-icon, .row > .form-label {
   width: auto; // Avoids width: 100% being applied when inside a .row
   padding: 0;
 }
