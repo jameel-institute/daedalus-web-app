@@ -1,8 +1,9 @@
 <template>
-  <div>
+  <div v-show="pageMounted">
     <CForm
       v-if="props.metadata && formData"
       class="inputs"
+      role="form"
       :data-test-form-data="JSON.stringify(formData)"
       :data-test-navigate-to="navigateToData"
       @submit.prevent="submitForm"
@@ -37,6 +38,7 @@
                 autocomplete="off"
                 :label="option.label"
                 :value="option.id"
+                :disabled="!pageMounted"
               />
             </CButtonGroup>
           </CRow>
@@ -51,6 +53,7 @@
             v-model="formData[parameter.id]"
             :aria-label="parameter.label"
             class="form-select" :class="[screenIsLarge ? 'form-select-lg' : '']"
+            :disabled="!pageMounted"
           >
             <option
               v-for="(option) in parameter.options"
@@ -68,7 +71,7 @@
         color="primary"
         :size="screenIsLarge ? 'lg' : undefined"
         type="submit"
-        :disabled="formSubmitting"
+        :disabled="formSubmitting || !pageMounted"
         @click="submitForm"
       >
         Run
@@ -105,6 +108,7 @@ const formData = ref(
 );
 
 const navigateToData = ref("");
+const pageMounted = ref(false);
 
 const optionsAreTerse = (parameter: Parameter) => {
   const eachOptionIsASingleWord = parameter.options.every((option) => {
@@ -145,6 +149,10 @@ const submitForm = async () => {
     await navigateTo(navigateToData.value);
   };
 };
+
+onMounted(() => {
+  pageMounted.value = true;
+});
 
 const appStore = useAppStore();
 const { screenIsLarge } = storeToRefs(appStore);
