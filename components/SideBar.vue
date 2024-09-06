@@ -57,22 +57,20 @@
 
 <script lang="ts" setup>
 import { CIcon } from "@coreui/icons-vue";
-import type { VersionData } from "@/types/apiResponseTypes";
 
-const { data: versionData } = useFetch("/api/versions") as { data: Ref<VersionData> };
+const appStore = useAppStore();
+const { screenIsLarge, getVersions } = storeToRefs(appStore);
 
 const versionTooltipContent = computed(() => {
-  if (versionData.value) {
-    return `Model version: ${versionData.value.daedalusModel} \nR API version: ${versionData.value.daedalusApi} \nWeb app version: ${versionData.value.daedalusWebApp}`;
+  const vers = getVersions.value;
+  if (vers) {
+    return `Model version: ${vers.daedalusModel} \nR API version: ${vers.daedalusApi} \nWeb app version: ${vers.daedalusWebApp}`;
   } else {
     return undefined;
   }
 });
 
 const visible = defineModel("visible", { type: Boolean, required: true });
-
-const appStore = useAppStore();
-const { screenIsLarge } = storeToRefs(appStore);
 
 const resetSidebarPerScreenSize = () => {
   visible.value = screenIsLarge.value;
