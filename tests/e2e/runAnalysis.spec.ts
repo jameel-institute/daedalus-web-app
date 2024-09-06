@@ -8,6 +8,8 @@ test.beforeAll(async () => {
 test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await page.goto(`${baseURL}/`);
   await page.waitForURL(`${baseURL}/scenarios/new`);
+
+  await expect(page.getByTestId("sidebar")).toBeInViewport(); // Litmus test for the page having fully loaded
   await expect(page.getByText("Simulate a new scenario")).toBeVisible();
 
   await page.selectOption('select[id="pathogen"]', { label: "Influenza 1957" });
@@ -15,18 +17,15 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await page.selectOption('select[id="country"]', { label: "United States" });
   await page.click('div[aria-label="Advance vaccine investment"] label[for="low"]');
 
-  // Get the form element
-  // const form = await page.waitForSelector("form");
-  // const formData = await form.getAttribute("data-test");
-  // const parsedFormData = JSON.parse(formData!);
-  // await waitFor(() => expect(parsedFormData).toEqual({
-  //   pathogen: "influenza-1957",
-  //   response: "elimination",
-  //   country: "United States",
-  //   vaccine: "low",
-  // }));
-
-  await page.waitForTimeout(2000); // waits for 2 seconds
+  const form = await page.waitForSelector("form");
+  const formData = await form.getAttribute("data-test-form-data");
+  const parsedFormData = JSON.parse(formData!);
+  await expect(parsedFormData).toEqual({
+    pathogen: "influenza-1957",
+    response: "elimination",
+    country: "United States",
+    vaccine: "low",
+  });
 
   await page.click('button:has-text("Run")');
 

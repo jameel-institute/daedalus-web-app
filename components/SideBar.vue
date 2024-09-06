@@ -6,7 +6,7 @@
     class="sidebar-fixed border-end"
     @hide="handleHide"
   >
-    <CSidebarNav role="navigation">
+    <CSidebarNav role="navigation" data-testid="sidebar">
       <CNavItem>
         <NuxtLink prefetch-on="interaction" to="/scenarios/new" class="nav-link">
           <CIcon icon="cilPlus" size="lg" class="nav-icon" /> New scenario
