@@ -8,7 +8,7 @@
 
 <script lang="ts" setup>
 // https://nuxt.com/docs/getting-started/data-fetching
-const { data: scenarios } = await useFetch("/api/scenarios");
+const { data: scenarios } = useFetch("/api/scenarios");
 </script>
 
 <style lang="scss" scoped>

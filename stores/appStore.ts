@@ -8,9 +8,20 @@ export const useAppStore = defineStore("app", {
     versions: undefined,
   }),
   actions: {
-    async initializeAppState() {
-      const { data: versionData } = await useFetch("/api/versions", { timeout: 100 }) as { data: Ref<VersionData> };
-      this.versions = versionData.value;
+    initializeAppState(): void {
+      this.largeScreen = true;
+
+      // Avoid using 'await', which would block the rest of the code including the component setup function,
+      // in case this mission-non-critical fetch takes a long time.
+      useFetch("/api/versions", {
+        onResponse: ({ response }) => {
+          const data = response._data;
+          if (data.daedalusModel) {
+            this.versions = data as VersionData;
+          }
+        },
+        lazy: true, // Allows the user to navigate to the current page while this fetch is still pending.
+      }) as { data: Ref<VersionData> };
     },
   },
 });

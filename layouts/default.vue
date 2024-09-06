@@ -25,7 +25,7 @@ function handleToggleSidebarVisibility() {
 }
 
 const appStore = useAppStore();
-await appStore.initializeAppState();
+appStore.initializeAppState();
 
 const setScreenSize = () => {
   const breakpoint = 992; // CoreUI's "lg" breakpoint
