@@ -1,11 +1,12 @@
-import type { EventHandler, EventHandlerRequest } from "h3";
+import type { EventHandler, H3Event } from "h3";
 import type { ApiResponse } from "@/types/daedalusApiResponseTypes";
 
-export const defineEventHandlerWithErrors = <T extends EventHandlerRequest, D>(
-  handler: EventHandler<T, D>,
-): EventHandler<T, D> =>
-  defineEventHandler<T>(async (event) => {
-    const response = await handler(event) as ApiResponse;
+// A wrapper for Nuxt's defineEventHandler that handles errors from the R API.
+export const defineRApiEventHandler = (
+  callback: (event: H3Event) => Promise<ApiResponse>,
+): EventHandler =>
+  defineEventHandler(async (event) => {
+    const response = await callback(event) as ApiResponse;
 
     if (response.errors || !response.data) {
       throw createError({

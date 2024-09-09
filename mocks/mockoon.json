@@ -103,6 +103,73 @@
         }
       ],
       "responseMode": null
+    },
+    {
+      "uuid": "367cdafb-4f59-402d-9643-d03ab0a3043d",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "metadata",
+      "responses": [
+        {
+          "uuid": "13f980ac-f1f6-4f18-ba00-2ccf628062a2",
+          "body": "",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "FILE",
+          "filePath": "daedalus_sample_metadata.json",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "c9d2d8a5-6b48-4131-aa3d-1585260f06b7",
+          "body": "{\"status\":\"failure\",\"errors\":[{\"error\":\"NOT_FOUND\",\"detail\":\"Resource not found\"}],\"data\":null}",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "05728268-63d9-42d9-bba1-c1fc244bdbef",
+          "body": "{\"thisResponse\": \"shouldNeverBeReceivedSinceIConfiguredTheDelayToBeGreaterThanTheTimeoutWeWaitForTheResponseFor\"}",
+          "latency": 99999999,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": "SEQUENTIAL"
     }
   ],
   "rootChildren": [
@@ -113,6 +180,10 @@
     {
       "type": "route",
       "uuid": "a62b8d87-1092-43cb-a728-b913728fbd20"
+    },
+    {
+      "type": "route",
+      "uuid": "367cdafb-4f59-402d-9643-d03ab0a3043d"
     }
   ],
   "proxyMode": false,

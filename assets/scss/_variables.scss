@@ -1,6 +1,8 @@
 $app-header-height: 70px;
 $app-header-margin-bottom: 1.5rem;
 $min-wrapper-height: calc(100dvh - $app-header-height - $app-header-margin-bottom);
+$container-padding: 1.5rem;
+$sidebar-narrow-width: 4rem;
 
 // Imperial Brand
 // ==============
@@ -43,3 +45,4 @@ $grid-breakpoints: (
     xl: 1200px,
     xxl: 1400px
 );
+$cui-tertiary-bg: rgb(243, 244, 247)

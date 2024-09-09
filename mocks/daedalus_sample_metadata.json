@@ -1,0 +1,996 @@
+{
+  "status": "success",
+  "errors": null,
+  "data": {
+    "modelVersion": "0.1.0",
+    "parameters": [
+      {
+        "id": "country",
+        "label": "Country",
+        "parameterType": "globeSelect",
+        "defaultOption": null,
+        "ordered": false,
+        "options": [
+          {
+            "id": "AAA",
+            "label": "Afghanistan"
+          },
+          {
+            "id": "AAB",
+            "label": "Albania"
+          },
+          {
+            "id": "AAC",
+            "label": "Algeria"
+          },
+          {
+            "id": "AAD",
+            "label": "Andorra"
+          },
+          {
+            "id": "AAE",
+            "label": "Angola"
+          },
+          {
+            "id": "AAF",
+            "label": "Antigua and Barbuda"
+          },
+          {
+            "id": "AAG",
+            "label": "Argentina"
+          },
+          {
+            "id": "AAH",
+            "label": "Armenia"
+          },
+          {
+            "id": "AAI",
+            "label": "Aruba"
+          },
+          {
+            "id": "AAJ",
+            "label": "Australia"
+          },
+          {
+            "id": "AAK",
+            "label": "Austria"
+          },
+          {
+            "id": "AAL",
+            "label": "Azerbaijan"
+          },
+          {
+            "id": "AAM",
+            "label": "Bahamas"
+          },
+          {
+            "id": "AAN",
+            "label": "Bahrain"
+          },
+          {
+            "id": "AAO",
+            "label": "Bangladesh"
+          },
+          {
+            "id": "AAP",
+            "label": "Barbados"
+          },
+          {
+            "id": "AAQ",
+            "label": "Belarus"
+          },
+          {
+            "id": "AAR",
+            "label": "Belgium"
+          },
+          {
+            "id": "AAS",
+            "label": "Belize"
+          },
+          {
+            "id": "AAT",
+            "label": "Benin"
+          },
+          {
+            "id": "AAU",
+            "label": "Bhutan"
+          },
+          {
+            "id": "AAV",
+            "label": "Bolivia"
+          },
+          {
+            "id": "AAW",
+            "label": "Bosnia and Herzegovina"
+          },
+          {
+            "id": "AAX",
+            "label": "Botswana"
+          },
+          {
+            "id": "AAY",
+            "label": "Brazil"
+          },
+          {
+            "id": "AAZ",
+            "label": "Brunei"
+          },
+          {
+            "id": "ABA",
+            "label": "Bulgaria"
+          },
+          {
+            "id": "ABB",
+            "label": "Burkina Faso"
+          },
+          {
+            "id": "ABC",
+            "label": "Burundi"
+          },
+          {
+            "id": "ABD",
+            "label": "Cabo Verde"
+          },
+          {
+            "id": "ABE",
+            "label": "Cambodia"
+          },
+          {
+            "id": "ABF",
+            "label": "Cameroon"
+          },
+          {
+            "id": "ABG",
+            "label": "Canada"
+          },
+          {
+            "id": "ABH",
+            "label": "Central African Republic"
+          },
+          {
+            "id": "ABI",
+            "label": "Chad"
+          },
+          {
+            "id": "ABJ",
+            "label": "Channel Islands"
+          },
+          {
+            "id": "ABK",
+            "label": "Chile"
+          },
+          {
+            "id": "ABL",
+            "label": "China"
+          },
+          {
+            "id": "ABM",
+            "label": "Colombia"
+          },
+          {
+            "id": "ABN",
+            "label": "Comoros"
+          },
+          {
+            "id": "ABO",
+            "label": "Congo"
+          },
+          {
+            "id": "ABP",
+            "label": "Costa Rica"
+          },
+          {
+            "id": "ABQ",
+            "label": "Cote d'Ivoire"
+          },
+          {
+            "id": "ABR",
+            "label": "Croatia"
+          },
+          {
+            "id": "ABS",
+            "label": "Cuba"
+          },
+          {
+            "id": "ABT",
+            "label": "Curacao"
+          },
+          {
+            "id": "ABU",
+            "label": "Cyprus"
+          },
+          {
+            "id": "ABV",
+            "label": "Czechia"
+          },
+          {
+            "id": "ABW",
+            "label": "Democratic Republic of Congo"
+          },
+          {
+            "id": "ABX",
+            "label": "Denmark"
+          },
+          {
+            "id": "ABY",
+            "label": "Djibouti"
+          },
+          {
+            "id": "ABZ",
+            "label": "Dominican Republic"
+          },
+          {
+            "id": "ACA",
+            "label": "Ecuador"
+          },
+          {
+            "id": "ACB",
+            "label": "Egypt"
+          },
+          {
+            "id": "ACC",
+            "label": "El Salvador"
+          },
+          {
+            "id": "ACD",
+            "label": "Equatorial Guinea"
+          },
+          {
+            "id": "ACE",
+            "label": "Eritrea"
+          },
+          {
+            "id": "ACF",
+            "label": "Estonia"
+          },
+          {
+            "id": "ACG",
+            "label": "Eswatini"
+          },
+          {
+            "id": "ACH",
+            "label": "Ethiopia"
+          },
+          {
+            "id": "ACI",
+            "label": "Fiji"
+          },
+          {
+            "id": "ACJ",
+            "label": "Finland"
+          },
+          {
+            "id": "ACK",
+            "label": "France"
+          },
+          {
+            "id": "ACL",
+            "label": "French Polynesia"
+          },
+          {
+            "id": "ACM",
+            "label": "Gabon"
+          },
+          {
+            "id": "ACN",
+            "label": "Gambia"
+          },
+          {
+            "id": "ACO",
+            "label": "Georgia"
+          },
+          {
+            "id": "ACP",
+            "label": "Germany"
+          },
+          {
+            "id": "ACQ",
+            "label": "Ghana"
+          },
+          {
+            "id": "ACR",
+            "label": "Greece"
+          },
+          {
+            "id": "ACS",
+            "label": "Grenada"
+          },
+          {
+            "id": "ACT",
+            "label": "Guam"
+          },
+          {
+            "id": "ACU",
+            "label": "Guatemala"
+          },
+          {
+            "id": "ACV",
+            "label": "Guinea"
+          },
+          {
+            "id": "ACW",
+            "label": "Guinea-Bissau"
+          },
+          {
+            "id": "ACX",
+            "label": "Guyana"
+          },
+          {
+            "id": "ACY",
+            "label": "Haiti"
+          },
+          {
+            "id": "ACZ",
+            "label": "Honduras"
+          },
+          {
+            "id": "ADA",
+            "label": "Hong Kong"
+          },
+          {
+            "id": "ADB",
+            "label": "Hungary"
+          },
+          {
+            "id": "ADC",
+            "label": "Iceland"
+          },
+          {
+            "id": "ADD",
+            "label": "India"
+          },
+          {
+            "id": "ADE",
+            "label": "Indonesia"
+          },
+          {
+            "id": "ADF",
+            "label": "Iran"
+          },
+          {
+            "id": "ADG",
+            "label": "Iraq"
+          },
+          {
+            "id": "ADH",
+            "label": "Ireland"
+          },
+          {
+            "id": "ADI",
+            "label": "Israel"
+          },
+          {
+            "id": "ADJ",
+            "label": "Italy"
+          },
+          {
+            "id": "ADK",
+            "label": "Jamaica"
+          },
+          {
+            "id": "ADL",
+            "label": "Japan"
+          },
+          {
+            "id": "ADM",
+            "label": "Jordan"
+          },
+          {
+            "id": "ADN",
+            "label": "Kazakhstan"
+          },
+          {
+            "id": "ADO",
+            "label": "Kenya"
+          },
+          {
+            "id": "ADP",
+            "label": "Kiribati"
+          },
+          {
+            "id": "ADQ",
+            "label": "Kuwait"
+          },
+          {
+            "id": "ADR",
+            "label": "Kyrgyzstan"
+          },
+          {
+            "id": "ADS",
+            "label": "Laos"
+          },
+          {
+            "id": "ADT",
+            "label": "Latvia"
+          },
+          {
+            "id": "ADU",
+            "label": "Lebanon"
+          },
+          {
+            "id": "ADV",
+            "label": "Lesotho"
+          },
+          {
+            "id": "ADW",
+            "label": "Liberia"
+          },
+          {
+            "id": "ADX",
+            "label": "Libya"
+          },
+          {
+            "id": "ADY",
+            "label": "Lithuania"
+          },
+          {
+            "id": "ADZ",
+            "label": "Luxembourg"
+          },
+          {
+            "id": "AEA",
+            "label": "Macao"
+          },
+          {
+            "id": "AEB",
+            "label": "Madagascar"
+          },
+          {
+            "id": "AEC",
+            "label": "Malawi"
+          },
+          {
+            "id": "AED",
+            "label": "Malaysia"
+          },
+          {
+            "id": "AEE",
+            "label": "Maldives"
+          },
+          {
+            "id": "AEF",
+            "label": "Mali"
+          },
+          {
+            "id": "AEG",
+            "label": "Malta"
+          },
+          {
+            "id": "AEH",
+            "label": "Mauritania"
+          },
+          {
+            "id": "AEI",
+            "label": "Mauritius"
+          },
+          {
+            "id": "AEJ",
+            "label": "Mexico"
+          },
+          {
+            "id": "AEK",
+            "label": "Micronesia"
+          },
+          {
+            "id": "AEL",
+            "label": "Moldova"
+          },
+          {
+            "id": "AEM",
+            "label": "Monaco"
+          },
+          {
+            "id": "AEN",
+            "label": "Mongolia"
+          },
+          {
+            "id": "AEO",
+            "label": "Montenegro"
+          },
+          {
+            "id": "AEP",
+            "label": "Morocco"
+          },
+          {
+            "id": "AEQ",
+            "label": "Mozambique"
+          },
+          {
+            "id": "AER",
+            "label": "Myanmar"
+          },
+          {
+            "id": "AES",
+            "label": "Namibia"
+          },
+          {
+            "id": "AET",
+            "label": "Nepal"
+          },
+          {
+            "id": "AEU",
+            "label": "Netherlands"
+          },
+          {
+            "id": "AEV",
+            "label": "New Caledonia"
+          },
+          {
+            "id": "AEW",
+            "label": "New Zealand"
+          },
+          {
+            "id": "AEX",
+            "label": "Nicaragua"
+          },
+          {
+            "id": "AEY",
+            "label": "Niger"
+          },
+          {
+            "id": "AEZ",
+            "label": "Nigeria"
+          },
+          {
+            "id": "AFA",
+            "label": "North Korea"
+          },
+          {
+            "id": "AFB",
+            "label": "North Macedonia"
+          },
+          {
+            "id": "AFC",
+            "label": "Norway"
+          },
+          {
+            "id": "AFD",
+            "label": "Oman"
+          },
+          {
+            "id": "AFE",
+            "label": "Pakistan"
+          },
+          {
+            "id": "AFF",
+            "label": "Palestine"
+          },
+          {
+            "id": "AFG",
+            "label": "Panama"
+          },
+          {
+            "id": "AFH",
+            "label": "Papua New Guinea"
+          },
+          {
+            "id": "AFI",
+            "label": "Paraguay"
+          },
+          {
+            "id": "AFJ",
+            "label": "Peru"
+          },
+          {
+            "id": "AFK",
+            "label": "Philippines"
+          },
+          {
+            "id": "AFL",
+            "label": "Poland"
+          },
+          {
+            "id": "AFM",
+            "label": "Portugal"
+          },
+          {
+            "id": "AFN",
+            "label": "Puerto Rico"
+          },
+          {
+            "id": "AFO",
+            "label": "Qatar"
+          },
+          {
+            "id": "AFP",
+            "label": "Romania"
+          },
+          {
+            "id": "AFQ",
+            "label": "Russia"
+          },
+          {
+            "id": "AFR",
+            "label": "Rwanda"
+          },
+          {
+            "id": "AFS",
+            "label": "Samoa"
+          },
+          {
+            "id": "AFT",
+            "label": "Sao Tome and Principe"
+          },
+          {
+            "id": "AFU",
+            "label": "Saudi Arabia"
+          },
+          {
+            "id": "AFV",
+            "label": "Senegal"
+          },
+          {
+            "id": "AFW",
+            "label": "Serbia"
+          },
+          {
+            "id": "AFX",
+            "label": "Seychelles"
+          },
+          {
+            "id": "AFY",
+            "label": "Sierra Leone"
+          },
+          {
+            "id": "AFZ",
+            "label": "Singapore"
+          },
+          {
+            "id": "AGA",
+            "label": "Slovakia"
+          },
+          {
+            "id": "AGB",
+            "label": "Slovenia"
+          },
+          {
+            "id": "AGC",
+            "label": "Solomon Islands"
+          },
+          {
+            "id": "AGD",
+            "label": "Somalia"
+          },
+          {
+            "id": "AGE",
+            "label": "South Africa"
+          },
+          {
+            "id": "AGF",
+            "label": "South Korea"
+          },
+          {
+            "id": "AGG",
+            "label": "South Sudan"
+          },
+          {
+            "id": "AGH",
+            "label": "Spain"
+          },
+          {
+            "id": "AGI",
+            "label": "Sri Lanka"
+          },
+          {
+            "id": "AGJ",
+            "label": "St Lucia"
+          },
+          {
+            "id": "AGK",
+            "label": "St Vincent and the Grenadines"
+          },
+          {
+            "id": "AGL",
+            "label": "Sudan"
+          },
+          {
+            "id": "AGM",
+            "label": "Suriname"
+          },
+          {
+            "id": "AGN",
+            "label": "Sweden"
+          },
+          {
+            "id": "AGO",
+            "label": "Switzerland"
+          },
+          {
+            "id": "AGP",
+            "label": "Syria"
+          },
+          {
+            "id": "AGQ",
+            "label": "Taiwan"
+          },
+          {
+            "id": "AGR",
+            "label": "Tajikistan"
+          },
+          {
+            "id": "AGS",
+            "label": "Tanzania"
+          },
+          {
+            "id": "AGT",
+            "label": "Thailand"
+          },
+          {
+            "id": "AGU",
+            "label": "Timor-Leste"
+          },
+          {
+            "id": "AGV",
+            "label": "Togo"
+          },
+          {
+            "id": "AGW",
+            "label": "Tonga"
+          },
+          {
+            "id": "AGX",
+            "label": "Trinidad and Tobago"
+          },
+          {
+            "id": "AGY",
+            "label": "Tunisia"
+          },
+          {
+            "id": "AGZ",
+            "label": "Turkey"
+          },
+          {
+            "id": "AHA",
+            "label": "Turkmenistan"
+          },
+          {
+            "id": "AHB",
+            "label": "Uganda"
+          },
+          {
+            "id": "AHC",
+            "label": "Ukraine"
+          },
+          {
+            "id": "AHD",
+            "label": "United Arab Emirates"
+          },
+          {
+            "id": "AHE",
+            "label": "United Kingdom"
+          },
+          {
+            "id": "AHF",
+            "label": "United States"
+          },
+          {
+            "id": "AHG",
+            "label": "Uruguay"
+          },
+          {
+            "id": "AHH",
+            "label": "Uzbekistan"
+          },
+          {
+            "id": "AHI",
+            "label": "Vanuatu"
+          },
+          {
+            "id": "AHJ",
+            "label": "Venezuela"
+          },
+          {
+            "id": "AHK",
+            "label": "Vietnam"
+          },
+          {
+            "id": "AHL",
+            "label": "Virgin Islands US"
+          },
+          {
+            "id": "AHM",
+            "label": "Yemen"
+          },
+          {
+            "id": "AHN",
+            "label": "Zambia"
+          },
+          {
+            "id": "AHO",
+            "label": "Zimbabwe"
+          }
+        ]
+      },
+      {
+        "id": "pathogen",
+        "label": "Disease",
+        "parameterType": "select",
+        "defaultOption": null,
+        "ordered": false,
+        "options": [
+          {
+            "id": "sars-cov-1",
+            "label": "SARS-CoV-1"
+          },
+          {
+            "id": "sars-cov-2-pre-alpha",
+            "label": "SARS-CoV-2 pre-alpha (wildtype)"
+          },
+          {
+            "id": "sars-cov-2-omicron",
+            "label": "SARS-CoV-2 omicron"
+          },
+          {
+            "id": "sars-cov-2-delta",
+            "label": "SARS-CoV-2 delta"
+          },
+          {
+            "id": "influenza-2009",
+            "label": "Influenza 2009 (Swine flu)"
+          },
+          {
+            "id": "influenza-1957",
+            "label": "Influenza 1957"
+          },
+          {
+            "id": "influenza-1918",
+            "label": "Influenza 1918 (Spanish flu)"
+          }
+        ]
+      },
+      {
+        "id": "response",
+        "label": "Response",
+        "parameterType": "select",
+        "defaultOption": "no_closure",
+        "ordered": true,
+        "options": [
+          {
+            "id": "no_closure",
+            "label": "No closures"
+          },
+          {
+            "id": "school_closure",
+            "label": "School closures"
+          },
+          {
+            "id": "business_closure",
+            "label": "Business closures"
+          },
+          {
+            "id": "elimination",
+            "label": "Elimination"
+          }
+        ]
+      },
+      {
+        "id": "vaccine",
+        "label": "Advance vaccine investment",
+        "parameterType": "select",
+        "defaultOption": "none",
+        "ordered": true,
+        "options": [
+          {
+            "id": "none",
+            "label": "None"
+          },
+          {
+            "id": "low",
+            "label": "Low"
+          },
+          {
+            "id": "medium",
+            "label": "Medium"
+          },
+          {
+            "id": "high",
+            "label": "High"
+          }
+        ]
+      }
+    ],
+    "results": {
+      "costs": [
+        {
+          "id": "total",
+          "label": "Total",
+          "description": "Total cost to national economy"
+        },
+        {
+          "id": "gdp",
+          "label": "GDP",
+          "description": null
+        },
+        {
+          "id": "gdp_closures",
+          "label": "Closures",
+          "description": null
+        },
+        {
+          "id": "gdp_absences",
+          "label": "Absences",
+          "description": null
+        },
+        {
+          "id": "education",
+          "label": "Education",
+          "description": null
+        },
+        {
+          "id": "education_closures",
+          "label": "Closures",
+          "description": null
+        },
+        {
+          "id": "education_absences",
+          "label": "Absences",
+          "description": null
+        },
+        {
+          "id": "life_years",
+          "label": "Life Years",
+          "description": null
+        },
+        {
+          "id": "life_years_infants",
+          "label": "Infants",
+          "description": null
+        },
+        {
+          "id": "life_years_adolescents",
+          "label": "Adolescents",
+          "description": null
+        },
+        {
+          "id": "life_years_working_age",
+          "label": "Working-age Adults",
+          "description": null
+        },
+        {
+          "id": "life_years_retirement_age",
+          "label": "Retirement-age Adults",
+          "description": null
+        }
+      ],
+      "capacities": [
+        {
+          "id": "hospital_capacity",
+          "label": "Hospital Capacity",
+          "description": "Total hospital beds"
+        },
+        {
+          "id": "icu_capacity",
+          "label": "ICU Capacity",
+          "description": "ICU hospital beds"
+        }
+      ],
+      "interventions": [
+        {
+          "id": "school_closures",
+          "label": "School closures"
+        },
+        {
+          "id": "business_closures",
+          "label": "Business closures"
+        }
+      ],
+      "time_series": [
+        {
+          "id": "cases",
+          "label": "Cases",
+          "description": "Number of confirmed cases"
+        },
+        {
+          "id": "vacc",
+          "label": "Vaccinated",
+          "description": "Cumulative vaccinations"
+        },
+        {
+          "id": "hosp_occ",
+          "label": "Hospital Occupancy",
+          "description": "Number of hospitalised cases"
+        }
+      ]
+    }
+  }
+}

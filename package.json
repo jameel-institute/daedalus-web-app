@@ -43,6 +43,7 @@
     "vue": "latest"
   },
   "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.21.1",
     "bufferutil": "^4.0.8",
     "utf-8-validate": "^6.0.4"
   },
@@ -65,12 +66,6 @@
   },
   "overrides": {
     "vue": "latest"
-  },
-  "_comment": {
-    "0": "JSON doesn't support comments so I'm adding mine here.",
-    "1": "==============================",
-    "2": "Vue version is overridden because of the issue described in the 'tip' in",
-    "3": "the installation section of https://pinia.vuejs.org/ssr/nuxt.html"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"

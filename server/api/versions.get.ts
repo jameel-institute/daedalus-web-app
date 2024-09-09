@@ -1,13 +1,12 @@
 import { getVersionData } from "@/server/handlers/versions";
-import { defineEventHandlerWithErrors } from "@/server/utils/defineEventHandlerWithErrors";
+import { defineRApiEventHandler } from "@/server/utils/defineRApiEventHandler";
 import type { VersionDataResponse } from "@/types/daedalusApiResponseTypes";
 
-export default defineEventHandlerWithErrors(
-  // TODO: Consider cacheing this server-side https://nitro.unjs.io/guide/cache
-  defineEventHandler(async (event): Promise<VersionDataResponse> => {
+export default defineRApiEventHandler(
+  async (event): Promise<VersionDataResponse> => {
     // Delegate to getVersionData so that the logic can be unit-tested.
     const versionDataResponse = await getVersionData(event);
 
     return versionDataResponse;
-  }),
+  },
 );

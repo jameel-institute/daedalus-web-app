@@ -11,6 +11,7 @@ export interface ApiResponse<T extends object = object> {
   data: T | null
 }
 
+// Version
 export interface VersionData {
   daedalusModel: string
   daedalusApi: string
@@ -18,3 +19,28 @@ export interface VersionData {
 }
 
 export interface VersionDataResponse extends ApiResponse<VersionData> { }
+
+// Metadata
+export interface ParameterOption {
+  id: string
+  label: string
+}
+
+export enum ParameterType {
+  Select = "select",
+  GlobeSelect = "globeSelect",
+}
+export interface Parameter {
+  id: string
+  label: string
+  parameterType: ParameterType
+  defaultOption: string | null
+  ordered: boolean
+  options: Array<ParameterOption>
+}
+export interface Metadata {
+  modelVersion: string
+  parameters: Array<Parameter>
+}
+
+export interface MetadataResponse extends ApiResponse<Metadata> { }
