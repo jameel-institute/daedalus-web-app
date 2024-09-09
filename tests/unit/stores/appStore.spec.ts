@@ -20,11 +20,15 @@ describe("app store", () => {
   describe("actions", () => {
     it("initialises correctly", async () => {
       const store = useAppStore();
-      expect(store.largeScreen).toBe(true);
       expect(store.versions).toBeUndefined();
-      store.initializeAppState();
-
       expect(store.largeScreen).toBe(true);
+    });
+
+    it("can retrieve the version numbers", async () => {
+      const store = useAppStore();
+      store.loadVersionData();
+
+      // The fetch should eventually complete, and the version numbers should be updated.
       await waitFor(() => {
         expect(store.versions).toEqual({
           daedalusModel: "1.2.3",

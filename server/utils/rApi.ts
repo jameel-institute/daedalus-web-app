@@ -28,7 +28,7 @@ export const fetchRApi = async <T extends object>(
   const response = await $fetch<RApiResponse<T>>(`${endpoint}`, {
     ...options,
     baseURL: config.rApiBase,
-    timeout: 1000, // Prevent hanging if no response
+    timeout: 200, // Prevent hanging if no response
     async onResponse({ response }) {
       statusText = response.statusText;
       statusCode = response.status;

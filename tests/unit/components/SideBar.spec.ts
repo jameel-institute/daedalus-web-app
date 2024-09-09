@@ -44,11 +44,6 @@ describe("sidebar", () => {
           global: { stubs, plugins },
         });
 
-        const coreuiSidebar = component.findComponent({ name: "CSidebar" });
-        await mockCSidebarPageloadBehavior(coreuiSidebar);
-
-        await component.setProps({ visible: true });
-
         await waitFor(() => {
           const logoTitleAttribute = component.find(`[data-testid="logo"]`).attributes().title;
           expect(logoTitleAttribute).toContain("Model version: 1.2.3");

@@ -10,7 +10,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await page.waitForURL(`${baseURL}/scenarios/new`);
 
   await expect(page.getByText("Simulate a new scenario")).toBeVisible();
-  await expect(page.getByRole("form")).toBeVisible();
+
+  // Reduce flakeyness of tests by waiting for evidence that the page has mounted.
+  await expect(page.getByTitle(/Web app version: 0.0.1/)).toHaveCount(1);
 
   await page.selectOption('select[id="pathogen"]', { label: "Influenza 1957" });
   await page.selectOption('select[id="response"]', { label: "Elimination" });
