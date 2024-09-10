@@ -1,12 +1,12 @@
 <template>
   <CSidebar
     :visible="visible"
-    :unfoldable="screenIsLarge"
-    :overlaid="screenIsLarge"
+    :unfoldable="appStore.largeScreen"
+    :overlaid="appStore.largeScreen"
     class="sidebar-fixed border-end"
     @hide="handleHide"
   >
-    <CSidebarNav role="navigation" data-testid="sidebar">
+    <CSidebarNav role="navigation">
       <CNavItem>
         <NuxtLink prefetch-on="interaction" to="/scenarios/new" class="nav-link">
           <CIcon icon="cilPlus" size="lg" class="nav-icon" /> New scenario
@@ -72,10 +72,9 @@ const versionTooltipContent = computed(() => {
 const visible = defineModel("visible", { type: Boolean, required: true });
 
 const appStore = useAppStore();
-const { screenIsLarge } = storeToRefs(appStore);
 
 const resetSidebarPerScreenSize = () => {
-  visible.value = screenIsLarge.value;
+  visible.value = appStore.largeScreen;
 };
 
 const hideHasNeverBeenEmitted = ref(true);

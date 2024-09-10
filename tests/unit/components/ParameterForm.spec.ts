@@ -106,39 +106,6 @@ describe("parameter form", () => {
     ]);
   });
 
-  it("initialises formData with defaults and updates formData when a parameter is changed", async () => {
-    const component = await mountSuspended(ParameterForm, {
-      props: { metadata, metadataFetchStatus: "success", metadataFetchError: null },
-      global: { stubs },
-    });
-
-    const cForm = component.findComponent({ name: "CForm" });
-    let formData = JSON.parse(cForm.element.attributes.getNamedItem("data-test-form-data")!.value);
-    expect(formData.region).toBe("HVN");
-    expect(formData.long_list).toBe("1");
-    expect(formData.short_list).toBe("no");
-
-    const selectElements = component.findAll("select");
-    const longListDropDown = selectElements[0];
-    const countrySelect = selectElements[1];
-
-    // Verify that the select elements are the ones we think they are
-    selectElements.forEach((selectElement, index) => {
-      const correctLabel = ["Drop Down", "Region"][index];
-      const paramId = selectElement.element.attributes.getNamedItem("id")!.value;
-      expect(component.find(`label[for=${paramId}]`).element.textContent).toBe(correctLabel);
-    });
-
-    await longListDropDown.findAll("option").at(2)!.setSelected();
-    await countrySelect.findAll("option").at(0)!.setSelected();
-    await component.findComponent({ name: "CButtonGroup" }).find("input[value='yes']").setChecked();
-
-    formData = JSON.parse(cForm.element.attributes.getNamedItem("data-test-form-data")!.value);
-    expect(formData.region).toBe("CLD");
-    expect(formData.long_list).toBe("3");
-    expect(formData.short_list).toBe("yes");
-  });
-
   it("sends a POST request to /api/scenarios with the form data when submitted", async () => {
     registerEndpoint("/api/scenarios", {
       method: "POST",

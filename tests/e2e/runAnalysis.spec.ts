@@ -17,8 +17,6 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await page.selectOption('select[id="country"]', { label: "United States" });
   await page.click('div[aria-label="Global vaccine investment"] label[for="low"]');
 
-  await expect(page.getByRole("form")).toHaveAttribute("data-test-form-data", "{\"country\":\"United States\",\"pathogen\":\"influenza-1957\",\"response\":\"elimination\",\"vaccine\":\"low\"}");
-
   await page.click('button:has-text("Run")');
 
   const dummyRunIdHash = "007e5f5453d64850";

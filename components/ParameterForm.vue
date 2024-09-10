@@ -4,7 +4,6 @@
       v-if="props.metadata && formData"
       class="inputs"
       role="form"
-      :data-test-form-data="JSON.stringify(formData)"
       :data-test-navigate-to="navigateToData"
       @submit.prevent="submitForm"
     >
@@ -24,7 +23,7 @@
             <CButtonGroup
               role="group"
               :aria-label="parameter.label"
-              :size="screenIsLarge ? 'lg' : undefined"
+              :size="appStore.largeScreen ? 'lg' : undefined"
             >
               <!-- This component's "v-model" prop type signature dictates we can't pass it a number. -->
               <CFormCheck
@@ -51,7 +50,7 @@
             :id="parameter.id"
             v-model="formData[parameter.id]"
             :aria-label="parameter.label"
-            class="form-select" :class="[screenIsLarge ? 'form-select-lg' : '']"
+            class="form-select" :class="[appStore.largeScreen ? 'form-select-lg' : '']"
           >
             <option
               v-for="(option) in parameter.options"
@@ -67,7 +66,7 @@
       <CButton
         id="run-button"
         color="primary"
-        :size="screenIsLarge ? 'lg' : undefined"
+        :size="appStore.largeScreen ? 'lg' : undefined"
         type="submit"
         :disabled="formSubmitting"
         @click="submitForm"
@@ -109,7 +108,6 @@ const formData = ref(
 );
 
 const appStore = useAppStore();
-const { screenIsLarge } = storeToRefs(appStore);
 const navigateToData = ref("");
 const pageMounted = ref(false);
 

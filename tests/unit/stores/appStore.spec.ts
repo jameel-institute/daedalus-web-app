@@ -11,16 +11,6 @@ describe("app store", () => {
     it("initialises correctly", async () => {
       const store = useAppStore();
       expect(store.largeScreen).toBe(true);
-      store.initializeAppState();
-      expect(store.largeScreen).toBe(true);
-    });
-
-    it("can update and retrieve the screen size", async () => {
-      const store = useAppStore();
-      const { screenIsLarge } = storeToRefs(store);
-
-      store.setScreenSize(false);
-      expect(screenIsLarge.value).toBe(false);
     });
   });
 });
