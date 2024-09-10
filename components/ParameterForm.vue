@@ -1,14 +1,14 @@
 <template>
   <div>
     <CForm
-      v-if="props.metadata && formData"
+      v-if="appStore.metadata && formData"
       class="inputs"
       role="form"
       :data-test-navigate-to="navigateToData"
       @submit.prevent="submitForm"
     >
       <div
-        v-for="(parameter) in props.metadata.parameters"
+        v-for="(parameter) in appStore.metadata.parameters"
         :key="parameter.id"
         class="field-container"
       >
@@ -76,28 +76,25 @@
         <CIcon v-else icon="cilArrowRight" />
       </CButton>
     </CForm>
-    <CAlert v-else-if="props.metadataFetchStatus === 'error'" color="warning">
-      Failed to retrieve metadata from R API. {{ metadataFetchError }}
+    <CAlert v-else-if="appStore.metadataFetchStatus === 'error'" color="warning">
+      Failed to retrieve metadata from R API. {{ appStore.metadataFetchError }}
     </CAlert>
-    <CSpinner v-else-if="props.metadataFetchStatus === 'pending'" />
+    <CSpinner v-else-if="appStore.metadataFetchStatus === 'pending'" />
   </div>
 </template>
 
 <script lang="ts" setup>
 import type { FetchError } from "ofetch";
 import { CIcon } from "@coreui/icons-vue";
-import { ParameterType } from "@/types/apiResponseTypes";
-import type { Metadata, NewScenarioData, Parameter } from "@/types/apiResponseTypes";
-import type { AsyncDataRequestStatus } from "#app";
+import type { Parameter } from "@/types/parameterTypes";
+import { TypeOfParameter } from "@/types/parameterTypes";
+import type { NewScenarioData } from "@/types/apiResponseTypes";
 
-const props = defineProps<{
-  metadata: Metadata | undefined
-  metadataFetchStatus: AsyncDataRequestStatus
-  metadataFetchError: FetchError | null
-}>();
+const appStore = useAppStore();
+const navigateToData = ref("");
 
 // This is only a temporary piece of code, used until we implement numeric inputs.
-const allParametersOfImplementedTypes = computed(() => props.metadata?.parameters.filter(({ parameterType }) => parameterType !== ParameterType.Numeric));
+const allParametersOfImplementedTypes = computed(() => appStore.metadata?.parameters.filter(({ parameterType }) => parameterType !== TypeOfParameter.Numeric));
 
 const formData = ref(
   // Create a new object with keys set to the id values of the metadata.parameters array of objects, and all values set to default values.
@@ -107,23 +104,20 @@ const formData = ref(
   }, {} as { [key: string]: string | number }),
 );
 
-const appStore = useAppStore();
-const navigateToData = ref("");
-
-const optionsAreTerse = (parameter: Parameter) => {
-  const eachOptionIsASingleWord = parameter.options.every((option) => {
+const optionsAreTerse = (param: Parameter) => {
+  const eachOptionIsASingleWord = param.options.every((option) => {
     return !option.label.includes(" ");
   });
 
-  return parameter.options.length <= 5 && eachOptionIsASingleWord;
+  return param.options.length <= 5 && eachOptionIsASingleWord;
 };
 
-const renderAsSelect = (parameter: Parameter) => {
-  return parameter.parameterType === ParameterType.Select || parameter.parameterType === ParameterType.GlobeSelect;
+const renderAsRadios = (param: Parameter) => {
+  return param.parameterType === TypeOfParameter.Select && optionsAreTerse(param);
 };
 
-const renderAsRadios = (parameter: Parameter) => {
-  return parameter.parameterType === ParameterType.Select && optionsAreTerse(parameter);
+const renderAsSelect = (param: Parameter) => {
+  return !renderAsRadios(param) && [TypeOfParameter.Select, TypeOfParameter.GlobeSelect].includes(param.parameterType);
 };
 
 const formSubmitting = ref(false);

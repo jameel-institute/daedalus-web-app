@@ -35,6 +35,8 @@ const setScreenSize = () => {
   }
 };
 
+appStore.loadMetadata();
+
 onMounted(() => {
   setScreenSize();
   appStore.loadVersionData();

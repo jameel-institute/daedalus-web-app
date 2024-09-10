@@ -3,35 +3,12 @@
     <div class="overlay">
       <h3>Simulate a new scenario</h3>
       <p>Select the parameters for your next scenario.</p>
-      <ParameterForm
-        :metadata="metadata"
-        :metadata-fetch-status="metadataFetchStatus"
-        :metadata-fetch-error="metadataFetchError"
-      />
+      <ParameterForm />
     </div>
-    <p>{{ globeParameter?.id }} globe select to go here in future PR</p>
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { FetchError } from "ofetch";
-import type { AsyncDataRequestStatus } from "#app";
-import { type Metadata, ParameterType } from "@/types/apiResponseTypes";
-
-const { data: metadata, status: metadataFetchStatus, error: metadataFetchError } = useFetch("/api/metadata") as {
-  data: Ref<Metadata>
-  status: Ref<AsyncDataRequestStatus>
-  error: Ref<FetchError | null>
-};
-
-const globeParameter = computed(() => {
-  if (metadata.value) {
-    return metadata.value.parameters.filter(parameter => parameter.parameterType === ParameterType.GlobeSelect)[0];
-  } else {
-    return undefined;
-  }
-});
-
 definePageMeta({
   hideBreadcrumbs: true,
 });

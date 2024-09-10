@@ -5,6 +5,7 @@ import { readBody } from "h3";
 import { flushPromises } from "@vue/test-utils";
 import { waitFor } from "@testing-library/vue";
 
+import { mockPinia } from "@/tests/unit/mocks/mockPinia";
 import type { Metadata } from "@/types/apiResponseTypes";
 import ParameterForm from "@/components/ParameterForm.vue";
 
@@ -58,8 +59,13 @@ const metadata = { modelVersion: "0.0.0", parameters: [...selectParameters, glob
 describe("parameter form", () => {
   it("renders the correct parameter labels, inputs, options, and default values", async () => {
     const component = await mountSuspended(ParameterForm, {
-      props: { metadata, metadataFetchStatus: "success", metadataFetchError: null },
-      global: { stubs },
+      global: {
+        stubs,
+        plugins: [mockPinia({
+          metadata,
+          metadataFetchStatus: "success",
+        })],
+      },
     });
 
     expect(component.text()).toContain("Region");
@@ -122,8 +128,13 @@ describe("parameter form", () => {
     });
 
     const component = await mountSuspended(ParameterForm, {
-      props: { metadata, metadataFetchStatus: "success", metadataFetchError: null },
-      global: { stubs },
+      global: {
+        stubs,
+        plugins: [mockPinia({
+          metadata,
+          metadataFetchStatus: "success",
+        })],
+      },
     });
 
     const buttonEl = component.find("button[type='submit']");
@@ -146,8 +157,14 @@ describe("parameter form", () => {
     const error = new FetchError("There was a bee-related issue.");
 
     const component = await mountSuspended(ParameterForm, {
-      props: { metadata: undefined, metadataFetchStatus: "error", metadataFetchError: error },
-      global: { stubs },
+      global: {
+        stubs,
+        plugins: [mockPinia({
+          metadata: undefined,
+          metadataFetchStatus: "error",
+          metadataFetchError: error,
+        })],
+      },
     });
 
     expect(component.findComponent({ name: "CAlert" }).exists()).toBe(true);
@@ -157,8 +174,13 @@ describe("parameter form", () => {
 
   it("displays CSpinner when metadataFetchStatus is 'pending'", async () => {
     const component = await mountSuspended(ParameterForm, {
-      props: { metadata: undefined, metadataFetchStatus: "pending", metadataFetchError: null },
-      global: { stubs },
+      global: {
+        stubs,
+        plugins: [mockPinia({
+          metadata: undefined,
+          metadataFetchStatus: "pending",
+        })],
+      },
     });
 
     expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(true);

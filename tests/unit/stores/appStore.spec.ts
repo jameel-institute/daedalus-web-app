@@ -17,10 +17,26 @@ describe("app store", () => {
     };
   });
 
+  registerEndpoint("/api/metadata", () => {
+    return {
+      parameters: [
+        { id: "country", parameterType: "globeSelect" },
+        { id: "settings", parameterType: "select" },
+      ],
+      results: {
+        costs: [
+          { id: "total", label: "Total" },
+        ],
+      },
+      modelVersion: "1.2.3",
+    };
+  });
+
   describe("actions", () => {
     it("initialises correctly", async () => {
       const store = useAppStore();
       expect(store.versions).toBeUndefined();
+      expect(store.metadata).toBeUndefined();
       expect(store.largeScreen).toBe(true);
     });
 
@@ -28,13 +44,41 @@ describe("app store", () => {
       const store = useAppStore();
       store.loadVersionData();
 
-      // The fetch should eventually complete, and the version numbers should be updated.
       await waitFor(() => {
         expect(store.versions).toEqual({
           daedalusModel: "1.2.3",
           daedalusApi: "4.5.6",
           daedalusWebApp: "7.8.9",
         });
+      });
+    });
+
+    it("can retrieve the metadata", async () => {
+      const store = useAppStore();
+      await store.loadMetadata();
+
+      await waitFor(() => {
+        expect(store.metadata).toEqual({
+          parameters: [
+            { id: "country", parameterType: "globeSelect" },
+            { id: "settings", parameterType: "select" },
+          ],
+          results: {
+            costs: [
+              { id: "total", label: "Total" },
+            ],
+          },
+          modelVersion: "1.2.3",
+        });
+      });
+    });
+
+    it("can get the globe parameter", async () => {
+      const store = useAppStore();
+      await store.loadMetadata();
+
+      await waitFor(() => {
+        expect(store.globeParameter).toEqual({ id: "country", parameterType: "globeSelect" });
       });
     });
   });
