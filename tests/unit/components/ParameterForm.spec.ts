@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
-import { getQuery } from "h3";
 import { FetchError } from "ofetch";
 import { flushPromises } from "@vue/test-utils";
+
+import { formDataToObject } from "@/server/utils/helpers";
 import type { Metadata } from "@/types/apiResponseTypes";
 import ParameterForm from "@/components/ParameterForm.vue";
 
@@ -141,11 +142,10 @@ describe("parameter form", () => {
   it("sends a POST request to /api/scenarios with the form data when submitted", async () => {
     registerEndpoint("/api/scenarios", {
       method: "POST",
-      handler: (event) => {
-        const query = getQuery(event) as Record<string, string>;
-        const modelParams = JSON.parse(query.parameters);
+      async handler(event) {
+        const parameters = formDataToObject(event.node.req.body) as Record<string, string>;
 
-        if (modelParams.long_list === "1" && modelParams.region === "HVN" && modelParams.short_list === "no") {
+        if (parameters.long_list === "1" && parameters.region === "HVN" && parameters.short_list === "no") {
           return { runId: "randomId" };
         } else {
           return { error: "Test failed due to wrong parameters" };

@@ -1,16 +1,12 @@
 import { runScenario } from "@/server/handlers/scenarios";
-import { defineRApiEventHandler } from "~/server/utils/defineRApiEventHandler";
+import { defineRApiEventHandler } from "@/server/utils/defineRApiEventHandler";
+import { formDataToObject } from "@/server/utils/helpers";
 import type { NewScenarioResponse } from "@/types/apiResponseTypes";
-import type { ParameterDict } from "@/types/apiRequestTypes";
 
 export default defineRApiEventHandler(
   async (event): Promise<NewScenarioResponse> => {
-    const query = getQuery(event);
-
-    const modelParameters = JSON.parse(query.parameters as string) as ParameterDict;
-
-    const newScenarioResponse = await runScenario(modelParameters, event);
-
+    const formDataBody = await readFormData(event);
+    const newScenarioResponse = await runScenario(formDataToObject(formDataBody), event);
     return newScenarioResponse;
   },
 );

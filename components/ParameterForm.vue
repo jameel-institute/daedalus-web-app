@@ -135,12 +135,15 @@ const submitForm = async () => {
     return;
   };
 
+  const formDataObject = new FormData();
+  Object.entries(formData.value).forEach(([key, value]) => {
+    formDataObject.append(key, value.toString());
+  });
+
   formSubmitting.value = true;
   const response = await $fetch<NewScenarioData>("/api/scenarios", {
     method: "POST",
-    query: { // Using query instead of body because I couldn't work out how to send a body in the integration test.
-      parameters: formData.value,
-    },
+    body: formDataObject,
   }).catch((error: FetchError) => {
     console.error(error);
   });
