@@ -29,6 +29,7 @@ export interface ParameterOption {
 export enum ParameterType {
   Select = "select",
   GlobeSelect = "globeSelect",
+  Numeric = "numeric",
 }
 export interface Parameter {
   id: string

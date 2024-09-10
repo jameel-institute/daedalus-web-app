@@ -38,7 +38,6 @@
                 autocomplete="off"
                 :label="option.label"
                 :value="option.id"
-                :disabled="!pageMounted"
               />
             </CButtonGroup>
           </CRow>
@@ -53,7 +52,6 @@
             v-model="formData[parameter.id]"
             :aria-label="parameter.label"
             class="form-select" :class="[screenIsLarge ? 'form-select-lg' : '']"
-            :disabled="!pageMounted"
           >
             <option
               v-for="(option) in parameter.options"
@@ -71,7 +69,7 @@
         color="primary"
         :size="screenIsLarge ? 'lg' : undefined"
         type="submit"
-        :disabled="formSubmitting || !pageMounted"
+        :disabled="formSubmitting"
         @click="submitForm"
       >
         Run
@@ -99,9 +97,12 @@ const props = defineProps<{
   metadataFetchError: FetchError | null
 }>();
 
+// This is only a temporary piece of code, used until we implement numeric inputs.
+const allParametersOfImplementedTypes = computed(() => props.metadata?.parameters.filter(({ parameterType }) => parameterType !== ParameterType.Numeric));
+
 const formData = ref(
   // Create a new object with keys set to the id values of the metadata.parameters array of objects, and all values set to default values.
-  props.metadata?.parameters.reduce((acc, { id, defaultOption, options }) => {
+  allParametersOfImplementedTypes.value?.reduce((acc, { id, defaultOption, options }) => {
     acc[id] = defaultOption || options[0].id;
     return acc;
   }, {} as { [key: string]: string | number }),
