@@ -14,8 +14,8 @@ export const useAppStore = defineStore("app", {
     initializeAppState(): void {
       this.largeScreen = true;
     },
-    setScreenSize(bool: boolean): void {
-      this.largeScreen = bool;
+    setScreenSize(large: boolean): void {
+      this.largeScreen = large;
     },
   },
 });

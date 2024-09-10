@@ -107,6 +107,8 @@ const formData = ref(
   }, {} as { [key: string]: string | number }),
 );
 
+const appStore = useAppStore();
+const { screenIsLarge } = storeToRefs(appStore);
 const navigateToData = ref("");
 const pageMounted = ref(false);
 
@@ -153,9 +155,6 @@ const submitForm = async () => {
 onMounted(() => {
   pageMounted.value = true;
 });
-
-const appStore = useAppStore();
-const { screenIsLarge } = storeToRefs(appStore);
 </script>
 
 <style lang="scss">

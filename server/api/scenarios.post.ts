@@ -9,7 +9,6 @@ export default defineRApiEventHandler(
 
     const modelParameters = JSON.parse(query.parameters as string) as ParameterDict;
 
-    // Delegate to runScenario so that the logic can be unit-tested.
     const newScenarioResponse = await runScenario(modelParameters, event);
 
     return newScenarioResponse;

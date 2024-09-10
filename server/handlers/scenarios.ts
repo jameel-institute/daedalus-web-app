@@ -5,7 +5,6 @@ import type { ParameterDict } from "@/types/apiRequestTypes";
 
 const rApiNewScenarioEndpoint = "/scenario/run";
 
-// Send a request to the R API for a job run.
 export const runScenario = async (parameters: ParameterDict, event?: H3Event<EventHandlerRequest>): Promise<NewScenarioResponse> => {
   const response = await fetchRApi<NewScenarioData>( // Since we aren't transforming the R API's response, we can re-use the type interface for the web app's response (NewScenarioData) as the interface for the R API's response.
     rApiNewScenarioEndpoint,

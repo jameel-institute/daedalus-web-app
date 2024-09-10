@@ -4,7 +4,6 @@ import type { VersionDataResponse } from "@/types/apiResponseTypes";
 
 export default defineRApiEventHandler(
   async (event): Promise<VersionDataResponse> => {
-    // Delegate to getVersionData so that the logic can be unit-tested.
     const versionDataResponse = await getVersionData(event);
 
     return versionDataResponse;
