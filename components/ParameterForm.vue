@@ -1,5 +1,5 @@
 <template>
-  <div v-show="pageMounted">
+  <div>
     <CForm
       v-if="props.metadata && formData"
       class="inputs"
@@ -109,7 +109,6 @@ const formData = ref(
 
 const appStore = useAppStore();
 const navigateToData = ref("");
-const pageMounted = ref(false);
 
 const optionsAreTerse = (parameter: Parameter) => {
   const eachOptionIsASingleWord = parameter.options.every((option) => {
@@ -148,10 +147,6 @@ const submitForm = async () => {
     await navigateTo(navigateToData.value);
   };
 };
-
-onMounted(() => {
-  pageMounted.value = true;
-});
 </script>
 
 <style lang="scss">
