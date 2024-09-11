@@ -17,7 +17,7 @@ interface ValueData {
 
 interface UpdateNumericFrom {
   parameterId: string
-  values: Array<Record<string, ValueData>>
+  values: Record<string, ValueData>
 }
 
 export interface Parameter {
