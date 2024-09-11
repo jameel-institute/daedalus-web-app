@@ -52,7 +52,30 @@ const selectParameters = [
   },
 ];
 
-const metadata = { modelVersion: "0.0.0", parameters: [...selectParameters, globeParameter] } as Metadata;
+const numericUpdatedFromParameter = {
+  id: "population",
+  label: "Population",
+  parameterType: "numeric",
+  ordered: false,
+  step: 1000,
+  updateNumericFrom: {
+    parameterId: "short_list",
+    values: {
+      yes: {
+        min: 11000,
+        default: 17000,
+        max: 50000,
+      },
+      no: {
+        min: 1000,
+        default: 2000,
+        max: 4000,
+      },
+    },
+  },
+};
+
+const metadata = { modelVersion: "0.0.0", parameters: [...selectParameters, globeParameter, numericUpdatedFromParameter] } as Metadata;
 
 // Need to do this in hoisted - see https://developer.mamezou-tech.com/en/blogs/2024/02/12/nuxt3-unit-testing-mock/
 const { mockNavigateTo } = vi.hoisted(() => ({
@@ -79,6 +102,7 @@ describe("parameter form", () => {
     expect(component.text()).toContain("Region");
     expect(component.text()).toContain("Drop Down");
     expect(component.text()).toContain("Radio Buttons");
+    expect(component.text()).toContain("Population");
 
     const selectElements = component.findAll("select");
     expect(selectElements.length).toBe(2);
@@ -108,6 +132,9 @@ describe("parameter form", () => {
       { value: "HVN", label: "Heaven", selected: true },
     ]);
 
+    const numericInput = component.find("input[type='number']");
+    expect(numericInput.element.value).toBe("2000");
+
     // As this parameter's options are all single words and there aren't more than 4, it should render as radio buttons.
     const buttonGroupLabel = component.find(".button-group-container").find("label");
     expect(buttonGroupLabel.element.attributes.getNamedItem("for")!.value).toBe("short_list");
@@ -119,6 +146,56 @@ describe("parameter form", () => {
       { value: "yes", label: "Yes", checked: false },
       { value: "no", label: "No", checked: true },
     ]);
+  });
+
+  it("updates the numeric input's min, max, and default values based on the selected option", async () => {
+    const component = await mountSuspended(ParameterForm, {
+      global: {
+        stubs,
+        plugins: [mockPinia({
+          metadata,
+          metadataFetchStatus: "success",
+        })],
+      },
+    });
+
+    const shortList = component.findComponent({ name: "CButtonGroup" });
+
+    const numericInput = component.find("input[type='number']");
+    expect(numericInput.element.value).toBe("2000");
+
+    await shortList.find("input[value='yes']").setChecked();
+    expect(numericInput.element.value).toBe("17000");
+
+    await shortList.find("input[value='no']").setChecked();
+    expect(numericInput.element.value).toBe("2000");
+  });
+
+  it("displays feedback when the form is submitted with invalid values", async () => {
+    const component = await mountSuspended(ParameterForm, {
+      global: {
+        stubs,
+        plugins: [mockPinia({
+          metadata,
+          metadataFetchStatus: "success",
+        })],
+      },
+    });
+
+    const numericInput = component.find("input[type='number']");
+    const feedbackElement = component.find(".invalid-tooltip");
+    // Expect the classes of the input not to contain is-invalid - this is our test of whether the feedback is visible.
+    expect(numericInput.classes()).not.toContain("is-invalid");
+
+    await numericInput.setValue(0);
+    expect(numericInput.classes()).not.toContain("is-invalid");
+
+    await component.find("button[type='submit']").trigger("click");
+    expect(numericInput.classes()).toContain("is-invalid");
+    expect(feedbackElement.text()).toContain(`1000 to 4000 is the allowed population range for No.`);
+
+    await numericInput.setValue(2000);
+    expect(numericInput.classes()).not.toContain("is-invalid");
   });
 
   it("sends a POST request to /api/scenarios with the form data when submitted", async () => {

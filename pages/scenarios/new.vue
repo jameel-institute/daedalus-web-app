@@ -2,9 +2,12 @@
   <div>
     <div class="overlay">
       <h3>Simulate a new scenario</h3>
-      <p>Select the parameters for your next scenario.</p>
+      <p>
+        Select the parameters for your next scenario.
+      </p>
       <ParameterForm />
     </div>
+    <!-- <Globe /> -->
   </div>
 </template>
 

@@ -9,7 +9,7 @@ export enum TypeOfParameter {
   Numeric = "numeric",
 }
 
-interface ValueData {
+export interface ValueData {
   min: number
   default: number
   max: number
