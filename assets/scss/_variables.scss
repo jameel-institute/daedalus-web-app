@@ -29,7 +29,6 @@ $imperial-lemon: rgb(255, 216, 1);
 // ====================================
 $enable-deprecation-messages: false !default;
 $primary: $imperial-blue;
-$danger: $imperial-red;
 $warning: $imperial-tangerine;
 $info: $imperial-pool-blue;
 $breadcrumb-divider: '>';
@@ -45,4 +44,6 @@ $grid-breakpoints: (
     xl: 1200px,
     xxl: 1400px
 );
-$cui-tertiary-bg: rgb(243, 244, 247)
+$cui-tertiary-bg: rgb(243, 244, 247);
+$input-border-width: 1px;
+$input-border-color: #dbdfe6;

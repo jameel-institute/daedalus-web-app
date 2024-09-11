@@ -37,9 +37,24 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/form/CFormCheck",
     });
     addComponent({
+      name: "CFormFeedback",
+      export: "CFormFeedback",
+      filePath: "@coreui/vue/src/components/form/CFormFeedback",
+    });
+    addComponent({
+      name: "CFormInput",
+      export: "CFormInput",
+      filePath: "@coreui/vue/src/components/form/CFormInput",
+    });
+    addComponent({
       name: "CFormLabel",
       export: "CFormLabel",
       filePath: "@coreui/vue/src/components/form/CFormLabel",
+    });
+    addComponent({
+      name: "CFormRange",
+      export: "CFormRange",
+      filePath: "@coreui/vue/src/components/form/CFormRange",
     });
     addComponent({
       name: "CHeader",
