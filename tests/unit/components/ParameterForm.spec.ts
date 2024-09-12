@@ -129,7 +129,7 @@ describe("parameter form", () => {
       },
     });
 
-    const component = mount(ParameterForm, {
+    const component = await mountSuspended(ParameterForm, {
       props: { metadata, metadataFetchStatus: "success", metadataFetchError: null },
       global: { stubs },
     });
