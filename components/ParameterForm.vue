@@ -68,11 +68,11 @@
         color="primary"
         :size="appStore.largeScreen ? 'lg' : undefined"
         type="submit"
-        :disabled="formSubmitting"
+        :disabled="formSubmitting || props.metadataFetchStatus === 'error'"
         @click="submitForm"
       >
         Run
-        <CSpinner v-if="formSubmitting" size="sm" class="ms-1" />
+        <CSpinner v-if="formSubmitting && props.metadataFetchStatus !== 'error'" size="sm" class="ms-1" />
         <CIcon v-else icon="cilArrowRight" />
       </CButton>
     </CForm>
@@ -134,15 +134,10 @@ const submitForm = async () => {
     return;
   };
 
-  const formDataObject = new FormData();
-  Object.entries(formData.value).forEach(([key, value]) => {
-    formDataObject.append(key, value.toString());
-  });
-
   formSubmitting.value = true;
   const response = await $fetch<NewScenarioData>("/api/scenarios", {
     method: "POST",
-    body: formDataObject,
+    body: { parameters: formData.value },
   }).catch((error: FetchError) => {
     console.error(error);
   });

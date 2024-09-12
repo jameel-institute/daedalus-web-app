@@ -127,13 +127,11 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
   // instead use the mockoonResponse parameter to tell Mockoon which type of response to send.
   describe("post api/scenarios", async () => {
     it("returns a successful response when the mock server responds successfully", async () => {
-      const formData = new FormData();
-      formData.append("mockoonResponse", "successful");
-      formData.append("country", "Thailand");
-      formData.append("pathogen", "sars-cov-1");
-      formData.append("response", "no_closure");
-      formData.append("vaccine", "none");
-      const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body: formData });
+      const body = JSON.stringify(
+        { parameters: { mockoonResponse: "successful", country: "Thailand", pathogen: "sars-cov-1", response: "no_closure", vaccine: "none" } },
+      );
+
+      const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body });
 
       expect(response.ok).toBe(true);
       expect(response.status).toBe(200);
@@ -144,14 +142,11 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     });
 
     it("returns a response with informative errors when the mock server responds with an error", async () => {
-      const formData = new FormData();
-      formData.append("mockoonResponse", "notFound");
-      formData.append("country", "Thailand");
-      formData.append("pathogen", "sars-cov-1");
-      formData.append("response", "no_closure");
-      formData.append("vaccine", "none");
+      const body = JSON.stringify(
+        { parameters: { mockoonResponse: "notFound", country: "Thailand", pathogen: "sars-cov-1", response: "no_closure", vaccine: "none" } },
+      );
 
-      const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body: formData });
+      const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body });
 
       expect(response.ok).toBe(false);
       expect(response.status).toBe(404);
@@ -163,14 +158,11 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     });
 
     it("returns a response with informative errors when the mock server doesn't respond in time", async () => {
-      const formData = new FormData();
-      formData.append("mockoonResponse", "delayed");
-      formData.append("country", "Thailand");
-      formData.append("pathogen", "sars-cov-1");
-      formData.append("response", "no_closure");
-      formData.append("vaccine", "none");
+      const body = JSON.stringify(
+        { parameters: { mockoonResponse: "delayed", country: "Thailand", pathogen: "sars-cov-1", response: "no_closure", vaccine: "none" } },
+      );
 
-      const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body: formData });
+      const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body });
 
       expect(response.ok).toBe(false);
       expect(response.status).toBe(500);

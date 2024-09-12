@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
 import { FetchError } from "ofetch";
+import { readBody } from "h3";
 import { flushPromises } from "@vue/test-utils";
+import { waitFor } from "@testing-library/vue";
 
-import { formDataToObject } from "@/server/utils/helpers";
 import type { Metadata } from "@/types/apiResponseTypes";
 import ParameterForm from "@/components/ParameterForm.vue";
 
@@ -110,7 +111,7 @@ describe("parameter form", () => {
     registerEndpoint("/api/scenarios", {
       method: "POST",
       async handler(event) {
-        const parameters = formDataToObject(event.node.req.body) as Record<string, string>;
+        const { parameters } = await readBody(event);
 
         if (parameters.long_list === "1" && parameters.region === "HVN" && parameters.short_list === "no") {
           return { runId: "randomId" };
@@ -134,9 +135,11 @@ describe("parameter form", () => {
     // I couldn't find a way to spy on the navigateTo function, so this is a second-best test that we
     // at least construct the correct path to navigate to.
     const cForm = component.findComponent({ name: "CForm" });
-    expect(
-      cForm.element.attributes.getNamedItem("data-test-navigate-to")!.value,
-    ).toBe("/scenarios/randomId");
+    await waitFor(() => {
+      expect(
+        cForm.element.attributes.getNamedItem("data-test-navigate-to")!.value,
+      ).toBe("/scenarios/randomId");
+    });
   });
 
   it("displays CAlert with error message when metadataFetchStatus is 'error'", async () => {

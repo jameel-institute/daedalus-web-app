@@ -1,12 +1,12 @@
 import { runScenario } from "@/server/handlers/scenarios";
 import { defineRApiEventHandler } from "@/server/utils/defineRApiEventHandler";
-import { formDataToObject } from "@/server/utils/helpers";
 import type { NewScenarioResponse } from "@/types/apiResponseTypes";
 
 export default defineRApiEventHandler(
   async (event): Promise<NewScenarioResponse> => {
-    const formDataBody = await readFormData(event);
-    const newScenarioResponse = await runScenario(formDataToObject(formDataBody), event);
+    const body = await readBody(event);
+    const parameters = typeof body === "object" ? body.parameters : JSON.parse(body).parameters; // Comes through as a string in the integration tests.
+    const newScenarioResponse = await runScenario(parameters, event);
     return newScenarioResponse;
   },
 );
