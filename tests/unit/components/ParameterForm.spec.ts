@@ -168,7 +168,7 @@ describe("parameter form", () => {
     });
 
     expect(component.findComponent({ name: "CAlert" }).exists()).toBe(true);
-    expect(component.text()).toContain("Failed to retrieve metadata from R API.");
+    expect(component.text()).toContain("Failed to initialise.");
     expect(component.text()).toContain("There was a bee-related issue.");
   });
 

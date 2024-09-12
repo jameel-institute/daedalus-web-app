@@ -77,7 +77,7 @@
       </CButton>
     </CForm>
     <CAlert v-else-if="appStore.metadataFetchStatus === 'error'" color="warning">
-      Failed to retrieve metadata from R API. {{ appStore.metadataFetchError }}
+      Failed to initialise. {{ appStore.metadataFetchError }}
     </CAlert>
     <CSpinner v-else-if="appStore.metadataFetchStatus === 'pending'" />
   </div>
