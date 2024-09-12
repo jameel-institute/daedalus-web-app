@@ -4,12 +4,12 @@ set -ex
 # From now on, if the user presses Ctrl+C we should teardown gracefully
 function cleanup() {
   set +ex # allow teardown errors
-  docker rm -f daedalus-web-app-db || true
-  docker rm -f daedalus-api || true
-  docker rm -f daedalus-api-worker || true
-  docker rm -f daedalus-redis || true
-  docker volume remove daedalus-results || true
-  docker network remove daedalus || true
+  docker kill daedalus-web-app-db
+  docker kill daedalus-api
+  docker kill daedalus-api-worker
+  docker kill daedalus-redis
+  docker volume remove daedalus-results
+  docker network remove daedalus
   set -e
 }
 
