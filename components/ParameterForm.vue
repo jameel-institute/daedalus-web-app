@@ -68,11 +68,11 @@
         color="primary"
         :size="appStore.largeScreen ? 'lg' : undefined"
         type="submit"
-        :disabled="formSubmitting || props.metadataFetchStatus === 'error'"
+        :disabled="formSubmitting || appStore.metadataFetchStatus === 'error'"
         @click="submitForm"
       >
         Run
-        <CSpinner v-if="formSubmitting && props.metadataFetchStatus !== 'error'" size="sm" class="ms-1" />
+        <CSpinner v-if="formSubmitting && appStore.metadataFetchStatus !== 'error'" size="sm" class="ms-1" />
         <CIcon v-else icon="cilArrowRight" />
       </CButton>
     </CForm>
