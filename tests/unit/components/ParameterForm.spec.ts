@@ -249,13 +249,12 @@ describe("parameter form", () => {
     expect(component.text()).toContain("There was a bee-related issue.");
   });
 
-  it("displays CSpinner when metadataFetchStatus is 'pending'", async () => {
+  it("displays CSpinner when metadata is not defined and there is no error", async () => {
     const component = await mountSuspended(ParameterForm, {
       global: {
         stubs,
         plugins: [mockPinia({
           metadata: undefined,
-          metadataFetchStatus: "pending",
         })],
       },
     });
