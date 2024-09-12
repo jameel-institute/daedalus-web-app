@@ -70,31 +70,47 @@
           <CFormLabel :for="parameter.id">
             {{ parameter.label }}
           </CFormLabel>
-          <CFormInput
-            :id="parameter.id"
-            v-model="formData[parameter.id]"
-            :aria-label="parameter.label"
-            type="number"
-            :min="min(parameter)"
-            :max="max(parameter)"
-            :step="parameter.step"
-            :size="appStore.largeScreen ? 'lg' : undefined"
-            :feedback-invalid="numericParameterFeedback(parameter)"
-            :data-valid="!invalidFields?.includes(parameter.id)"
-            :invalid="invalidFields?.includes(parameter.id) && showValidations"
-            :valid="!invalidFields?.includes(parameter.id) && showValidations"
-            :tooltip-feedback="true"
-            @change="pulseDependents(parameter)"
-          />
-          <div class="range-container">
-            <CFormRange
-              :id="parameter.id"
-              v-model="formData[parameter.id] as string"
-              :aria-label="parameter.label"
-              :step="parameter.step"
-              :min="min(parameter)"
-              :max="max(parameter)"
-            />
+          <div class="d-flex flex-wrap">
+            <div class="flex-grow-1">
+              <CFormInput
+                :id="parameter.id"
+                v-model="formData[parameter.id]"
+                :aria-label="parameter.label"
+                type="number"
+                :min="min(parameter)"
+                :max="max(parameter)"
+                :step="parameter.step"
+                :size="appStore.largeScreen ? 'lg' : undefined"
+                :feedback-invalid="numericParameterFeedback(parameter)"
+                :data-valid="!invalidFields?.includes(parameter.id)"
+                :invalid="invalidFields?.includes(parameter.id) && showValidations"
+                :valid="!invalidFields?.includes(parameter.id) && showValidations"
+                :tooltip-feedback="true"
+                @change="pulseDependents(parameter)"
+              />
+              <CFormRange
+                :id="parameter.id"
+                v-model="formData[parameter.id] as string"
+                :aria-label="parameter.label"
+                :step="parameter.step"
+                :min="min(parameter)"
+                :max="max(parameter)"
+                @change="pulseDependents(parameter)"
+              />
+            </div>
+            <CButton
+              style="border: none;"
+              type="button"
+              color="secondary"
+              variant="ghost"
+              shape="rounded-pill"
+              :class="`${valueIsAtDefault(parameter) ? 'invisible' : ''} btn-sm ms-2 align-self-start`"
+              :aria-label="`Reset ${parameter.label} to default`"
+              title="Reset to default"
+              @click="resetParam(parameter)"
+            >
+              <CIcon icon="cilActionUndo" size="sm" />
+            </CButton>
           </div>
         </div>
       </div>
@@ -202,6 +218,24 @@ const invalidFields = computed(() => {
   return invalids;
 });
 
+const defaultValue = (param: Parameter) => {
+  if (param.updateNumericFrom) {
+    const foreignParamId = param.updateNumericFrom.parameterId;
+    return param.updateNumericFrom.values[formData.value![foreignParamId]].default.toString();
+  } else if (param.parameterType === TypeOfParameter.Select || param.parameterType === TypeOfParameter.GlobeSelect) {
+    return param.defaultOption || param.options[0].id;
+  }
+  // Currently, due to the metadata schema, non-updatable numerics don't have default values available.
+};
+
+const valueIsAtDefault = (param: Parameter) => {
+  return formData.value![param.id] === defaultValue(param);
+};
+
+const resetParam = (param: Parameter) => {
+  formData.value![param.id] = defaultValue(param) as string;
+};
+
 const numericParameterFeedback = (param: Parameter) => {
   if (param.updateNumericFrom) {
     const foreignParamId = param.updateNumericFrom.parameterId;
@@ -276,6 +310,11 @@ const submitForm = async () => {
 
 .field-container {
   flex-grow: 1;
+
+  input[type=range]::-webkit-slider-runnable-track {
+    background: #fff;
+    border: $input-border-width solid $input-border-color;
+  }
 }
 
 #run-button {
@@ -283,18 +322,6 @@ const submitForm = async () => {
   margin-left: auto;
   align-self: flex-start;
   margin-top: 2rem; // Align button with height of labels when it shares a row with an input.
-}
-
-.range-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  input[type=range]::-webkit-slider-runnable-track {
-    background: #fff;
-    // border: 1px solid #ccc;
-    border: $input-border-width solid $input-border-color;
-  }
 }
 
 .pulse {

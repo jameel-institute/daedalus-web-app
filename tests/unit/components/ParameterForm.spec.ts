@@ -54,7 +54,7 @@ const selectParameters = [
   },
 ];
 
-const numericUpdatedFromParameter = {
+const updatableNumericParameter = {
   id: "population",
   label: "Population",
   parameterType: "numeric",
@@ -77,18 +77,12 @@ const numericUpdatedFromParameter = {
   },
 };
 
-const metadata = { modelVersion: "0.0.0", parameters: [...selectParameters, globeParameter, numericUpdatedFromParameter] } as Metadata;
+const metadata = { modelVersion: "0.0.0", parameters: [...selectParameters, globeParameter, updatableNumericParameter], results: {} } as Metadata;
 
 describe("parameter form", () => {
   it("renders the correct parameter labels, inputs, options, and default values", async () => {
     const component = await mountSuspended(ParameterForm, {
-      global: {
-        stubs,
-        plugins: [mockPinia({
-          metadata,
-          metadataFetchStatus: "success",
-        })],
-      },
+      global: { stubs, plugins: [mockPinia({ metadata, metadataFetchStatus: "success" })] },
     });
 
     expect(component.text()).toContain("Region");
@@ -142,13 +136,7 @@ describe("parameter form", () => {
 
   it("updates the numeric input's min, max, and default values based on the selected option", async () => {
     const component = await mountSuspended(ParameterForm, {
-      global: {
-        stubs,
-        plugins: [mockPinia({
-          metadata,
-          metadataFetchStatus: "success",
-        })],
-      },
+      global: { stubs, plugins: [mockPinia({ metadata, metadataFetchStatus: "success" })] },
     });
 
     const shortList = component.findComponent({ name: "CButtonGroup" });
@@ -163,15 +151,24 @@ describe("parameter form", () => {
     expect(numericInput.element.value).toBe("2000");
   });
 
+  it("resets a numeric input that can be updated from another input to its default value when the reset button is clicked", async () => {
+    const component = await mountSuspended(ParameterForm, {
+      global: { stubs, plugins: [mockPinia({ metadata, metadataFetchStatus: "success" })] },
+    });
+
+    const numericInput = component.find("input[type='number']");
+    expect(numericInput.element.value).toBe("2000");
+
+    await numericInput.setValue(2100);
+    const resetButton = component.find("button[aria-label='Reset Population to default']");
+    await resetButton.trigger("click");
+
+    expect(numericInput.element.value).toBe("2000");
+  });
+
   it("displays feedback when the form is submitted with invalid values", async () => {
     const component = await mountSuspended(ParameterForm, {
-      global: {
-        stubs,
-        plugins: [mockPinia({
-          metadata,
-          metadataFetchStatus: "success",
-        })],
-      },
+      global: { stubs, plugins: [mockPinia({ metadata, metadataFetchStatus: "success" })] },
     });
 
     const numericInput = component.find("input[type='number']");
@@ -205,13 +202,7 @@ describe("parameter form", () => {
     });
 
     const component = await mountSuspended(ParameterForm, {
-      global: {
-        stubs,
-        plugins: [mockPinia({
-          metadata,
-          metadataFetchStatus: "success",
-        })],
-      },
+      global: { stubs, plugins: [mockPinia({ metadata, metadataFetchStatus: "success" })] },
     });
 
     const buttonEl = component.find("button[type='submit']");
@@ -251,12 +242,7 @@ describe("parameter form", () => {
 
   it("displays CSpinner when metadata is not defined and there is no error", async () => {
     const component = await mountSuspended(ParameterForm, {
-      global: {
-        stubs,
-        plugins: [mockPinia({
-          metadata: undefined,
-        })],
-      },
+      global: { stubs, plugins: [mockPinia({ metadata: undefined })] },
     });
 
     expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(true);
