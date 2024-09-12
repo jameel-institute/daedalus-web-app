@@ -1,7 +1,7 @@
 <template>
   <div>
     <CForm
-      v-if="appStore.metadata && formData"
+      v-if="appStore.metadata && formData && appStore.metadataFetchStatus !== 'error'"
       class="inputs"
       role="form"
       novalidate
@@ -110,10 +110,10 @@
         <CIcon v-else icon="cilArrowRight" />
       </CButton>
     </CForm>
-    <CAlert v-else-if="appStore.metadataFetchStatus === 'error'" color="warning">
+    <CSpinner v-else-if="!appStore.metadata && appStore.metadataFetchStatus !== 'error'" />
+    <CAlert v-else-if="!appStore.metadata && appStore.metadataFetchStatus === 'error'" color="warning">
       Failed to initialise. {{ appStore.metadataFetchError }}
     </CAlert>
-    <CSpinner v-else-if="appStore.metadataFetchStatus === 'pending'" />
   </div>
 </template>
 

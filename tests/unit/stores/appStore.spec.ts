@@ -71,6 +71,7 @@ describe("app store", () => {
           modelVersion: "1.2.3",
         });
       });
+      expect(store.metadataFetchStatus).toBe("success");
     });
 
     it("can get the globe parameter", async () => {
