@@ -97,7 +97,7 @@ const props = defineProps<{
 const formData = ref(
   // Create a new object with keys set to the id values of the metadata.parameters array of objects, and all values set to default values.
   props.metadata?.parameters.reduce((acc, { id, defaultOption, options }) => {
-    acc[id] = defaultOption || options[0].id;
+    acc[id] = defaultOption || (options && options[0].id) || "";
     return acc;
   }, {} as { [key: string]: string | number }),
 );
