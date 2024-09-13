@@ -1,11 +1,11 @@
-name: Test
+name: Unit tests
 on:
   push:
     branches:
       - main
   pull_request:
     branches:
-      - "*"
+      - '*'
 jobs:
   test:
     timeout-minutes: 60
@@ -17,14 +17,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Set non-secret environment variables for app
+        run: mv .env.example .env
       - name: Test
         run: npm run test:unit:coverage
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: j-idea/daedalus-web-app
+          slug: jameel-institute/daedalus-web-app
           fail_ci_if_error: true

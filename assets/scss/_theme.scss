@@ -65,3 +65,58 @@ body {
     }
   }
   
+.form-label {
+  color: rgba(37, 43, 54, 0.65);
+}
+
+.row > span.form-icon, .row > .form-label {
+  width: auto; // Avoids width: 100% being applied when inside a .row
+  padding: 0;
+}
+
+// Overriding '0' to add the !important flag
+.btn-group > .btn:not(:last-child):not(.dropdown-toggle) {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.btn-group > label.btn {
+  border-radius: 0.75rem;
+}
+
+.btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active, .btn.show {
+  background-color: var(--cui-btn-color);
+}
+
+.btn-group-lg > label.btn {
+  border-radius: 1rem;
+}
+
+.form-select, .btn {
+  border-radius: 0.75rem;
+
+  &.form-select-lg, &.btn-lg {
+    border-radius: 1rem;
+  }
+}
+
+// Undoes styling for '.btn-check + .btn:hover' to (nearly) match that of '.btn:hover'
+.btn-group {
+  .btn-check + .btn:hover {
+    color: var(--cui-btn-hover-color);
+    background-color: var(--cui-btn-hover-bg);
+    border-color: var(--cui-btn-hover-border-color);
+  }
+
+  .btn-check:not(:checked) + .btn:hover {
+    background-color: var(--cui-btn-hover-bg);
+  }
+}
+
+.button-group-container .btn-outline-primary {
+  background-color: var(--cui-tertiary-bg);
+}
+
+.btn:disabled, .btn.disabled, fieldset:disabled .btn {
+  opacity: 0.5;
+}

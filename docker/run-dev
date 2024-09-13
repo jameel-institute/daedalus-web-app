@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -ex
+
+# From now on, if the user presses Ctrl+C we should teardown gracefully
+function cleanup() {
+  set +e # allow teardown errors
+  docker container stop daedalus-web-app
+  docker container rm daedalus-web-app
+  set -e
+}
+cleanup
+trap cleanup EXIT
+
+HERE=$(realpath "$(dirname $0)")
+"$HERE"/run
+
+
+# Wait for Ctrl+C
+echo "Ready to use. Press Ctrl+C to teardown."
+sleep infinity

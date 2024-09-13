@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euxo pipefail
+
+HERE=$(dirname $0)
+. $HERE/../../docker/common
+
+PACKAGE_ROOT=$(realpath $HERE/..)
+
+docker build \
+       -t "$DB_TAG_SHA" \
+       -t "$DB_TAG_BRANCH" \
+       $PACKAGE_ROOT

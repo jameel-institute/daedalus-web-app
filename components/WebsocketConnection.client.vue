@@ -48,7 +48,6 @@ socket.on("time", (timeMessage) => {
   time.value = timeMessage;
 });
 
-
 // Set interval to check connection status every 65 seconds (65 because nginx's default proxy_read_timeout is 60)
 // This test gave me some confidence that socket.IO (or somebody) is keeping the connection alive regardless of proxy_read_timeout - unless it's just from the hot-module-reloading.
 const statusCheckInterval = setInterval(checkConnectionStatus, 65000);

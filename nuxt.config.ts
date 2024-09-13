@@ -15,13 +15,16 @@ export default defineNuxtConfig({
     experimental: {
       websocket: true,
     },
+    routeRules: {
+      "/": { redirect: "/scenarios/new" },
+    },
   },
 
   modules: [
-    '@nuxtjs/fontaine', // https://nuxt.com/docs/getting-started/styling#font-advanced-optimization
-    '@pinia/nuxt',
-    '@nuxt/test-utils/module', // https://nuxt.com/docs/getting-started/testing#setup
-    '@nuxt/eslint',
+    "@nuxtjs/fontaine", // https://nuxt.com/docs/getting-started/styling#font-advanced-optimization
+    "@pinia/nuxt",
+    "@nuxt/test-utils/module", // https://nuxt.com/docs/getting-started/testing#setup
+    "@nuxt/eslint",
   ],
 
   vite: {
@@ -41,4 +44,13 @@ export default defineNuxtConfig({
     },
   },
 
-})
+  runtimeConfig: {
+    rApiBase: "", // Overriden by environment variable NUXT_R_API_BASE
+  },
+
+  $test: {
+    runtimeConfig: {
+      rApiBase: "", // https://nuxt.com/docs/getting-started/testing#registerendpoint
+    },
+  },
+});

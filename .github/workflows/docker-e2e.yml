@@ -1,0 +1,52 @@
+name: Playwright tests and docker push
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '*'
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+jobs:
+  test-and-push:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Login to GHCR (GitHub Packages)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build docker images
+        run: ./docker/build && ./db/scripts/build
+      - name: Push SHA tags
+        run: ./docker/push && ./db/scripts/push
+      - name: Run service dependencies
+        run: scripts/run-dependencies --db-build-skip
+      - name: Run app in docker
+        run: ./docker/run
+      - name: Set up Node for Playwright
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install npm dependencies
+        run: npm ci
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps && npx playwright install msedge
+      - name: Run Playwright tests
+        run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+      - name: Push branch tag on success
+        run: ./docker/push-branch-tag

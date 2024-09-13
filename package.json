@@ -1,73 +1,77 @@
 {
-  "name": "nuxt-app",
+  "name": "daedalus-web-app",
   "type": "module",
+  "version": "0.0.1",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "dev:init": "npm install && npm run db:dev:migrate && npm run dev",
+    "db:dev:migrate": "prisma migrate dev",
     "generate": "nuxt generate",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "test:unit": "vitest ./tests/composables/*.spec.ts ./tests/components/*.spec.ts",
-    "test:unit:coverage": "vitest ./tests/composables/*.spec.ts ./tests/components/*.spec.ts --coverage",
+    "test:integration": "vitest ./tests/integration/",
+    "test:unit": "vitest ./tests/unit/",
+    "test:unit:coverage": "vitest ./tests/unit --coverage",
     "test:ssr": "vitest ./tests/ssr/*.spec.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@amcharts/amcharts5": "^5.9.12",
-    "@amcharts/amcharts5-geodata": "^5.1.3",
-    "@coreui/coreui": "^5.0.2",
+    "@amcharts/amcharts5": "^5.10.3",
+    "@amcharts/amcharts5-geodata": "^5.1.4",
+    "@coreui/coreui": "^5.1.2",
     "@coreui/icons": "^3.0.1",
-    "@coreui/icons-vue": "^2.0.0",
-    "@coreui/vue": "^5.1.0",
+    "@coreui/icons-vue": "^2.1.0",
+    "@coreui/vue": "^5.2.0",
+    "@nuxt/eslint": "^0.5.3",
+    "@nuxt/test-utils": "^3.14.0",
     "@nuxtjs/fontaine": "^0.4.3",
-    "@pinia/nuxt": "^0.5.1",
+    "@pinia/nuxt": "^0.5.4",
+    "@prisma/client": "^5.19.0",
     "@socket.io/admin-ui": "^0.5.1",
     "lodash.throttle": "^4.1.1",
-    "pinia": "^2.1.7",
-    "playwright": "^1.45.1",
+    "nuxt": "^3.13.0",
+    "pinia": "^2.2.2",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
     "vue": "latest"
   },
   "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.21.1",
     "bufferutil": "^4.0.8",
     "utf-8-validate": "^6.0.4"
   },
   "devDependencies": {
     "@antfu/eslint-config": "2.21.0",
-    "@nuxt/eslint": "^0.3.13",
-    "@nuxt/test-utils": "^3.13.1",
-    "@playwright/test": "^1.45.1",
+    "@mockoon/cli": "^8.4.0",
+    "@playwright/test": "^1.46.1",
+    "@testing-library/vue": "^8.1.0",
     "@types/lodash.throttle": "^4.1.9",
-    "@types/node": "^20.14.9",
-    "@vitest/coverage-v8": "^1.6.0",
+    "@types/node": "^20.16.1",
+    "@vitest/coverage-v8": "^2.0.4",
     "@vue/test-utils": "^2.4.6",
-    "jsdom": "^24.1.0",
-    "lint-staged": "^15.2.7",
-    "nuxt": "^3.12.3",
-    "sass": "^1.77.6",
+    "jsdom": "^24.1.3",
+    "lint-staged": "^15.2.9",
+    "playwright": "^1.45.2",
+    "prisma": "5.19.0",
+    "sass": "^1.77.8",
     "simple-git-hooks": "^2.11.1",
-    "vitest": "^1.6.0"
+    "vitest": "^2.0.4"
   },
   "overrides": {
     "vue": "latest"
-  },
-  "_comment": {
-    "0": "JSON doesn't support comments so I'm adding mine here.",
-    "1": "==============================",
-    "2": "Vue version is overridden because of the issue described in the 'tip' in",
-    "3": "the installation section of https://pinia.vuejs.org/ssr/nuxt.html",
-    "4": "==============================",
-    "5": "NB, @antfu/eslint-config is one minor version behind the latest version due to",
-    "6": "the issue described in https://github.com/antfu/eslint-config/issues/529"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"
   },
   "lint-staged": {
-    "*": "eslint --fix"
+    "*": "eslint --fix",
+    "*/schema.prisma": "prisma format"
   }
 }
