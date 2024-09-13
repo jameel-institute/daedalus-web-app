@@ -4,7 +4,6 @@
       v-if="appStore.metadata && formData"
       class="inputs"
       role="form"
-      :data-test-navigate-to="navigateToData"
       @submit.prevent="submitForm"
     >
       <div
@@ -91,7 +90,6 @@ import { TypeOfParameter } from "@/types/parameterTypes";
 import type { NewScenarioData } from "@/types/apiResponseTypes";
 
 const appStore = useAppStore();
-const navigateToData = ref("");
 
 // This is only a temporary piece of code, used until we implement numeric inputs.
 const allParametersOfImplementedTypes = computed(() => appStore.metadata?.parameters.filter(({ parameterType }) => parameterType !== TypeOfParameter.Numeric));
@@ -137,9 +135,8 @@ const submitForm = async () => {
 
   if (response) {
     const { runId } = response;
-    navigateToData.value = `/scenarios/${runId}`;
-    await navigateTo(navigateToData.value);
-  };
+    await navigateTo(`/scenarios/${runId}`);
+  }
 };
 </script>
 

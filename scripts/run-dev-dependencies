@@ -6,6 +6,9 @@ function cleanup() {
   set +ex # allow teardown errors
   docker kill daedalus-web-app-db
   docker kill daedalus-api
+  docker kill daedalus-api-worker
+  docker kill daedalus-redis
+  docker volume remove daedalus-results
   docker network remove daedalus
   set -e
 }

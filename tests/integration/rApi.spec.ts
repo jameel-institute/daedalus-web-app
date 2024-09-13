@@ -127,11 +127,13 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
   // instead use the mockoonResponse parameter to tell Mockoon which type of response to send.
   describe("post api/scenarios", async () => {
     it("returns a successful response when the mock server responds successfully", async () => {
+      const headers = new Headers();
+      headers.append("content-type", "application/json");
       const body = JSON.stringify(
         { parameters: { mockoonResponse: "successful", country: "Thailand", pathogen: "sars-cov-1", response: "no_closure", vaccine: "none" } },
       );
 
-      const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body });
+      const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body, headers });
 
       expect(response.ok).toBe(true);
       expect(response.status).toBe(200);
@@ -142,11 +144,12 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     });
 
     it("returns a response with informative errors when the mock server responds with an error", async () => {
+      const headers = new Headers();
+      headers.append("content-type", "application/json");
       const body = JSON.stringify(
         { parameters: { mockoonResponse: "notFound", country: "Thailand", pathogen: "sars-cov-1", response: "no_closure", vaccine: "none" } },
       );
-
-      const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body });
+      const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body, headers });
 
       expect(response.ok).toBe(false);
       expect(response.status).toBe(404);
@@ -158,11 +161,13 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     });
 
     it("returns a response with informative errors when the mock server doesn't respond in time", async () => {
+      const headers = new Headers();
+      headers.append("content-type", "application/json");
       const body = JSON.stringify(
         { parameters: { mockoonResponse: "delayed", country: "Thailand", pathogen: "sars-cov-1", response: "no_closure", vaccine: "none" } },
       );
 
-      const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body });
+      const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body, headers });
 
       expect(response.ok).toBe(false);
       expect(response.status).toBe(500);
