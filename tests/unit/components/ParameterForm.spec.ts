@@ -1,8 +1,7 @@
 import { mockNuxtImport, mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FetchError } from "ofetch";
-import { readBody } from "h3";
-import { flushPromises, mount } from "@vue/test-utils";
+import { flushPromises } from "@vue/test-utils";
 
 import type { Metadata } from "@/types/apiResponseTypes";
 import ParameterForm from "@/components/ParameterForm.vue";
@@ -62,7 +61,7 @@ mockNuxtImport("navigateTo", () => mockNavigateTo);
 
 describe("parameter form", () => {
   beforeEach(() => {
-    // mockNavigateTo.mockReset();
+    mockNavigateTo.mockReset();
   });
 
   it("renders the correct parameter labels, inputs, options, and default values", async () => {
@@ -120,7 +119,8 @@ describe("parameter form", () => {
     registerEndpoint("/api/scenarios", {
       method: "POST",
       async handler(event) {
-        const { parameters } = await readBody(event);
+        const body = JSON.parse(event.node.req.body);
+        const parameters = body.parameters;
 
         if (parameters.long_list === "1" && parameters.region === "HVN" && parameters.short_list === "no") {
           return { runId: "randomId" };
@@ -130,7 +130,7 @@ describe("parameter form", () => {
       },
     });
 
-    const component = mount(ParameterForm, {
+    const component = await mountSuspended(ParameterForm, {
       props: { metadata, metadataFetchStatus: "success", metadataFetchError: null },
       global: { stubs },
     });
@@ -141,8 +141,7 @@ describe("parameter form", () => {
     expect(buttonEl.attributes("disabled")).toBe("");
 
     await flushPromises();
-    expect(mockNavigateTo).toHaveBeenCalledTimes(1);
-    // expect(mockNavigateTo).toBeCalledWith("/scenarios/randomId");
+    expect(mockNavigateTo).toBeCalledWith("/scenarios/randomId");
   });
 
   it("displays CAlert with error message when metadataFetchStatus is 'error'", async () => {
