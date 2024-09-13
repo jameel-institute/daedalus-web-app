@@ -1,7 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
-import { mountSuspended } from "@nuxt/test-utils/runtime";
+import { mockNuxtImport, mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FetchError } from "ofetch";
+import { flushPromises } from "@vue/test-utils";
 
+import type { Metadata } from "@/types/apiResponseTypes";
 import ParameterForm from "@/components/ParameterForm.vue";
 
 const stubs = {
@@ -49,24 +51,17 @@ const selectParameters = [
   },
 ];
 
-const metadata = { modelVersion: "0.0.0", parameters: [...selectParameters, globeParameter] };
+const metadata = { modelVersion: "0.0.0", parameters: [...selectParameters, globeParameter] } as Metadata;
+
+// Need to do this in hoisted - see https://developer.mamezou-tech.com/en/blogs/2024/02/12/nuxt3-unit-testing-mock/
+const { mockNavigateTo } = vi.hoisted(() => ({
+  mockNavigateTo: vi.fn(),
+}));
+mockNuxtImport("navigateTo", () => mockNavigateTo);
 
 describe("parameter form", () => {
-  it("adds a resize event listener on mount and removes it on unmount", async () => {
-    const addEventListenerSpy = vi.spyOn(window, "addEventListener");
-    const removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
-
-    const component = await mountSuspended(ParameterForm, {
-      props: { metadata: undefined, metadataFetchStatus: "pending", metadataFetchError: null },
-      global: { stubs },
-    });
-    expect(addEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));
-
-    component.unmount();
-    expect(removeEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));
-
-    addEventListenerSpy.mockRestore();
-    removeEventListenerSpy.mockRestore();
+  beforeEach(() => {
+    mockNavigateTo.mockReset();
   });
 
   it("renders the correct parameter labels, inputs, options, and default values", async () => {
@@ -120,37 +115,33 @@ describe("parameter form", () => {
     ]);
   });
 
-  it("initialises formData with defaults and updates formData when a parameter is changed", async () => {
+  it("sends a POST request to /api/scenarios with the form data when submitted", async () => {
+    registerEndpoint("/api/scenarios", {
+      method: "POST",
+      async handler(event) {
+        const body = JSON.parse(event.node.req.body);
+        const parameters = body.parameters;
+
+        if (parameters.long_list === "1" && parameters.region === "HVN" && parameters.short_list === "no") {
+          return { runId: "randomId" };
+        } else {
+          return { error: "Test failed due to wrong parameters" };
+        }
+      },
+    });
+
     const component = await mountSuspended(ParameterForm, {
       props: { metadata, metadataFetchStatus: "success", metadataFetchError: null },
       global: { stubs },
     });
 
-    const cForm = component.findComponent({ name: "CForm" });
-    let formData = JSON.parse(cForm.element.attributes.getNamedItem("data-test")!.value);
-    expect(formData.region).toBe("HVN");
-    expect(formData.long_list).toBe("1");
-    expect(formData.short_list).toBe("no");
+    const buttonEl = component.find("button[type='submit']");
+    expect(buttonEl.attributes("disabled")).not.toBe("");
+    await buttonEl.trigger("click");
+    expect(buttonEl.attributes("disabled")).toBe("");
 
-    const selectElements = component.findAll("select");
-    const longListDropDown = selectElements[0];
-    const countrySelect = selectElements[1];
-
-    // Verify that the select elements are the ones we think they are
-    selectElements.forEach((selectElement, index) => {
-      const correctLabel = ["Drop Down", "Region"][index];
-      const paramId = selectElement.element.attributes.getNamedItem("id")!.value;
-      expect(component.find(`label[for=${paramId}]`).element.textContent).toBe(correctLabel);
-    });
-
-    await longListDropDown.findAll("option").at(2)!.setSelected();
-    await countrySelect.findAll("option").at(0)!.setSelected();
-    await component.findComponent({ name: "CButtonGroup" }).find("input[value='yes']").setChecked();
-
-    formData = JSON.parse(cForm.element.attributes.getNamedItem("data-test")!.value);
-    expect(formData.region).toBe("CLD");
-    expect(formData.long_list).toBe("3");
-    expect(formData.short_list).toBe("yes");
+    await flushPromises();
+    expect(mockNavigateTo).toBeCalledWith("/scenarios/randomId");
   });
 
   it("displays CAlert with error message when metadataFetchStatus is 'error'", async () => {

@@ -110,9 +110,64 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     });
 
     it("returns a response with informative errors when the mock server doesn't respond in time", async () => {
-      // https://mockoon.com/tutorials/getting-started/#step-5-add-a-delay-to-the-response
-
       const response = await nuxtTestUtilsFetch("/api/metadata");
+
+      expect(response.ok).toBe(false);
+      expect(response.status).toBe(500);
+      expect(response.statusText).toBe("error");
+
+      const json = await response.json();
+      expect(json.message).toBe("Unknown error: No response from the API");
+    });
+  });
+
+  // In these tests, Mockoon is configured to check the request body for all the expected parameters (and respond with the
+  // appropriate status code etc.), as a way to test that the parameters (and model version) are being passed through all the way
+  // to the R API. This is called a 'rule' in Mockoon, and rules can't be used simultaneously with the 'sequential' setting, so we
+  // instead use the mockoonResponse parameter to tell Mockoon which type of response to send.
+  describe("post api/scenarios", async () => {
+    it("returns a successful response when the mock server responds successfully", async () => {
+      const headers = new Headers();
+      headers.append("content-type", "application/json");
+      const body = JSON.stringify(
+        { parameters: { mockoonResponse: "successful", country: "Thailand", pathogen: "sars-cov-1", response: "no_closure", vaccine: "none" } },
+      );
+
+      const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body, headers });
+
+      expect(response.ok).toBe(true);
+      expect(response.status).toBe(200);
+      expect(response.statusText).toBe("OK");
+
+      const json = await response.json();
+      expect(json.runId).toBe("007e5f5453d64850");
+    });
+
+    it("returns a response with informative errors when the mock server responds with an error", async () => {
+      const headers = new Headers();
+      headers.append("content-type", "application/json");
+      const body = JSON.stringify(
+        { parameters: { mockoonResponse: "notFound", country: "Thailand", pathogen: "sars-cov-1", response: "no_closure", vaccine: "none" } },
+      );
+      const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body, headers });
+
+      expect(response.ok).toBe(false);
+      expect(response.status).toBe(404);
+      expect(response.statusText).toBe("Not Found");
+      const json = await response.json();
+      expect(json.data[0].error).toBe("NOT_FOUND");
+      expect(json.data[0].detail).toBe("Resource not found");
+      expect(json.message).toBe("NOT_FOUND: Resource not found"); // A concatenation of the error details from the R API.
+    });
+
+    it("returns a response with informative errors when the mock server doesn't respond in time", async () => {
+      const headers = new Headers();
+      headers.append("content-type", "application/json");
+      const body = JSON.stringify(
+        { parameters: { mockoonResponse: "delayed", country: "Thailand", pathogen: "sars-cov-1", response: "no_closure", vaccine: "none" } },
+      );
+
+      const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body, headers });
 
       expect(response.ok).toBe(false);
       expect(response.status).toBe(500);

@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div v-show="pageMounted">
     <CForm
       v-if="props.metadata && formData"
       class="inputs"
-      :data-test="JSON.stringify(formData)"
+      role="form"
       @submit.prevent="submitForm"
     >
       <div
@@ -22,7 +22,7 @@
             <CButtonGroup
               role="group"
               :aria-label="parameter.label"
-              :size="largeScreen ? 'lg' : undefined"
+              :size="appStore.largeScreen ? 'lg' : undefined"
             >
               <!-- This component's "v-model" prop type signature dictates we can't pass it a number. -->
               <CFormCheck
@@ -49,7 +49,7 @@
             :id="parameter.id"
             v-model="formData[parameter.id]"
             :aria-label="parameter.label"
-            class="form-select" :class="[largeScreen ? 'form-select-lg' : '']"
+            class="form-select" :class="[appStore.largeScreen ? 'form-select-lg' : '']"
           >
             <option
               v-for="(option) in parameter.options"
@@ -65,13 +65,14 @@
       <CButton
         id="run-button"
         color="primary"
-        :size="largeScreen ? 'lg' : undefined"
+        :size="appStore.largeScreen ? 'lg' : undefined"
         type="submit"
+        :disabled="formSubmitting || props.metadataFetchStatus === 'error'"
+        @click="submitForm"
       >
         Run
-        <CIcon
-          icon="cilArrowRight"
-        />
+        <CSpinner v-if="formSubmitting && props.metadataFetchStatus !== 'error'" size="sm" class="ms-1" />
+        <CIcon v-else icon="cilArrowRight" />
       </CButton>
     </CForm>
     <CAlert v-else-if="props.metadataFetchStatus === 'error'" color="warning">
@@ -84,8 +85,8 @@
 <script lang="ts" setup>
 import type { FetchError } from "ofetch";
 import { CIcon } from "@coreui/icons-vue";
-import type { Metadata, Parameter } from "@/types/daedalusApiResponseTypes";
-import { ParameterType } from "@/types/daedalusApiResponseTypes";
+import { ParameterType } from "@/types/apiResponseTypes";
+import type { Metadata, NewScenarioData, Parameter } from "@/types/apiResponseTypes";
 import type { AsyncDataRequestStatus } from "#app";
 
 const props = defineProps<{
@@ -94,13 +95,19 @@ const props = defineProps<{
   metadataFetchError: FetchError | null
 }>();
 
+// This is only a temporary piece of code, used until we implement numeric inputs.
+const allParametersOfImplementedTypes = computed(() => props.metadata?.parameters.filter(({ parameterType }) => parameterType !== ParameterType.Numeric));
+
 const formData = ref(
   // Create a new object with keys set to the id values of the metadata.parameters array of objects, and all values set to default values.
-  props.metadata?.parameters.reduce((acc, { id, defaultOption, options }) => {
-    acc[id] = defaultOption || (options && options[0].id) || "";
+  allParametersOfImplementedTypes.value?.reduce((acc, { id, defaultOption, options }) => {
+    acc[id] = defaultOption || options[0].id;
     return acc;
   }, {} as { [key: string]: string | number }),
 );
+
+const appStore = useAppStore();
+const pageMounted = ref(false);
 
 const optionsAreTerse = (parameter: Parameter) => {
   const eachOptionIsASingleWord = parameter.options.every((option) => {
@@ -118,26 +125,29 @@ const renderAsRadios = (parameter: Parameter) => {
   return parameter.parameterType === ParameterType.Select && optionsAreTerse(parameter);
 };
 
-const submitForm = () => {
-  // Not implemented yet
-};
+const formSubmitting = ref(false);
 
-const largeScreen = ref(true);
-const breakpoint = 992; // CoreUI's "lg" breakpoint
-const setFieldSizes = () => {
-  if (window.innerWidth < breakpoint) {
-    largeScreen.value = false;
-  } else {
-    largeScreen.value = true;
+const submitForm = async () => {
+  if (!formData.value) {
+    return;
+  };
+
+  formSubmitting.value = true;
+  const response = await $fetch<NewScenarioData>("/api/scenarios", {
+    method: "POST",
+    body: { parameters: formData.value },
+  }).catch((error: FetchError) => {
+    console.error(error);
+  });
+
+  if (response) {
+    const { runId } = response;
+    await navigateTo(`/scenarios/${runId}`);
   }
 };
 
 onMounted(() => {
-  setFieldSizes();
-  window.addEventListener("resize", setFieldSizes);
-});
-onBeforeUnmount(() => {
-  window.removeEventListener("resize", setFieldSizes);
+  pageMounted.value = true;
 });
 </script>
 

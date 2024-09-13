@@ -1,8 +1,8 @@
 <template>
   <CSidebar
     :visible="visible"
-    :unfoldable="largeScreen"
-    :overlaid="largeScreen"
+    :unfoldable="appStore.largeScreen"
+    :overlaid="appStore.largeScreen"
     class="sidebar-fixed border-end"
     @hide="handleHide"
   >
@@ -57,7 +57,7 @@
 
 <script lang="ts" setup>
 import { CIcon } from "@coreui/icons-vue";
-import type { VersionData } from "@/types/daedalusApiResponseTypes";
+import type { VersionData } from "@/types/apiResponseTypes";
 
 const { data: versionData } = useFetch("/api/versions") as { data: Ref<VersionData> };
 
@@ -70,18 +70,11 @@ const versionTooltipContent = computed(() => {
 });
 
 const visible = defineModel("visible", { type: Boolean, required: true });
-const largeScreen = ref(true);
 
-const breakpoint = 992; // CoreUI's "lg" breakpoint
+const appStore = useAppStore();
+
 const resetSidebarPerScreenSize = () => {
-  // Set the default values for the sidebar based on the screen size.
-  if (window.innerWidth < breakpoint) {
-    visible.value = false;
-    largeScreen.value = false;
-  } else {
-    visible.value = true;
-    largeScreen.value = true;
-  }
+  visible.value = appStore.largeScreen;
 };
 
 const hideHasNeverBeenEmitted = ref(true);

@@ -29,6 +29,7 @@ export interface ParameterOption {
 export enum ParameterType {
   Select = "select",
   GlobeSelect = "globeSelect",
+  Numeric = "numeric",
 }
 export interface Parameter {
   id: string
@@ -44,3 +45,10 @@ export interface Metadata {
 }
 
 export interface MetadataResponse extends ApiResponse<Metadata> { }
+
+// Scenario
+export interface NewScenarioData {
+  runId: string
+}
+
+export interface NewScenarioResponse extends ApiResponse<NewScenarioData> { }

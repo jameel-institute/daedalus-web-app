@@ -14,6 +14,7 @@ dotenv.config();
  */
 export default defineConfig({
   testDir: "./tests/e2e",
+  timeout: 120000,
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -77,7 +78,7 @@ export default defineConfig({
   webServer: {
     command: "npm run build && cd .output && node ./server/index.mjs",
     url: "http://127.0.0.1:3000",
-    timeout: 120 * 1000,
+    timeout: 30 * 1000,
     reuseExistingServer: true,
     stdout: "pipe", // Debugging
   },

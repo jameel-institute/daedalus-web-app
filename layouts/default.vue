@@ -23,6 +23,27 @@ const sidebarVisible = ref(false);
 function handleToggleSidebarVisibility() {
   sidebarVisible.value = !sidebarVisible.value;
 }
+
+const appStore = useAppStore(useNuxtApp().$pinia);
+
+const setScreenSize = () => {
+  // As this function uses window, it can only be run client-side, so we have to pass the $pinia instance
+  // to the useAppStore function: https://pinia.vuejs.org/ssr/nuxt.html#Awaiting-for-actions-in-pages
+  const breakpoint = 992; // CoreUI's "lg" breakpoint
+  if (window.innerWidth < breakpoint) {
+    appStore.largeScreen = false;
+  } else {
+    appStore.largeScreen = true;
+  }
+};
+
+onMounted(() => {
+  setScreenSize();
+  window.addEventListener("resize", setScreenSize);
+});
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", setScreenSize);
+});
 </script>
 
 <style lang="scss">

@@ -16,8 +16,8 @@
     "lint:fix": "eslint . --fix",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "test:integration": "vitest ./tests/integration/",
-    "test:unit": "vitest ./tests/unit/",
+    "test:integration": "vitest ./tests/integration/ --reporter=basic --disable-console-intercept",
+    "test:unit": "vitest ./tests/unit/ --reporter=basic --disable-console-intercept",
     "test:unit:coverage": "vitest ./tests/unit --coverage",
     "test:ssr": "vitest ./tests/ssr/*.spec.ts",
     "test:e2e": "playwright test"
@@ -50,6 +50,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "2.21.0",
     "@mockoon/cli": "^8.4.0",
+    "@pinia/testing": "^0.1.5",
     "@playwright/test": "^1.46.1",
     "@testing-library/vue": "^8.1.0",
     "@types/lodash.throttle": "^4.1.9",
