@@ -49,7 +49,7 @@ VOLUME=daedalus-results
 docker network create $NETWORK
 docker network connect daedalus daedalus-web-app-db
 
-docker volume create VOLUME
+docker volume create $VOLUME
 
 # Pull and run the R API image
 # TODO: reset this to latest when the rrq branch of the api is merged
