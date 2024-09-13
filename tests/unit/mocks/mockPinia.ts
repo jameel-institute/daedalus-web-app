@@ -6,6 +6,10 @@ export const mockPinia = (appState: Partial<AppState> = {}) => {
   const initialState = {
     app: {
       largeScreen: true,
+      versions: undefined,
+      metadata: undefined,
+      metadataFetchError: undefined,
+      metadataFetchStatus: undefined,
       ...appState,
     },
   };

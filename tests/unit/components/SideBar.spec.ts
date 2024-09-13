@@ -1,5 +1,5 @@
 import { afterAll, describe, expect, it, vi } from "vitest";
-import { mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
+import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 import type { VueWrapper } from "@vue/test-utils";
 import { mockPinia } from "@/tests/unit/mocks/mockPinia";
@@ -14,18 +14,12 @@ const mockCSidebarPageloadBehavior = async (coreuiSidebar: VueWrapper) => {
   coreuiSidebar.vm.$emit("hide");
 };
 
-describe("sidebar", () => {
-  registerEndpoint("/api/versions", () => {
-    return {
-      daedalusModel: "1.2.3",
-      daedalusApi: "4.5.6",
-      daedalusWebApp: "7.8.9",
-    };
-  });
+const mockedVersions = { daedalusModel: "1.2.3", daedalusApi: "4.5.6", daedalusWebApp: "7.8.9" };
 
+describe("sidebar", () => {
   describe('when the "visible" prop is initialized as false', () => {
     describe("on smaller devices", () => {
-      const plugins = [mockPinia({ largeScreen: false })];
+      const plugins = [mockPinia({ largeScreen: false, versions: mockedVersions })];
 
       it('starts as hidden, and can be opened by setting "visible" prop', async () => {
         const component = await mountSuspended(SideBar, {
@@ -50,11 +44,6 @@ describe("sidebar", () => {
           global: { stubs, plugins },
         });
 
-        const coreuiSidebar = component.findComponent({ name: "CSidebar" });
-        await mockCSidebarPageloadBehavior(coreuiSidebar);
-
-        await component.setProps({ visible: true });
-
         await waitFor(() => {
           const logoTitleAttribute = component.find(`[data-testid="logo"]`).attributes().title;
           expect(logoTitleAttribute).toContain("Model version: 1.2.3");
@@ -69,7 +58,7 @@ describe("sidebar", () => {
     });
 
     describe("on larger devices", () => {
-      const plugins = [mockPinia({ largeScreen: true })];
+      const plugins = [mockPinia({ largeScreen: true, versions: mockedVersions })];
 
       it("starts as shown", async () => {
         const component = await mountSuspended(SideBar, {

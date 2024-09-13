@@ -1,4 +1,5 @@
 // Types for responses from our API endpoints.
+import type { Parameter } from "./parameterTypes";
 
 export interface ApiError {
   error: string
@@ -21,27 +22,15 @@ export interface VersionData {
 export interface VersionDataResponse extends ApiResponse<VersionData> { }
 
 // Metadata
-export interface ParameterOption {
-  id: string
+interface DisplayInfo {
   label: string
-}
-
-export enum ParameterType {
-  Select = "select",
-  GlobeSelect = "globeSelect",
-  Numeric = "numeric",
-}
-export interface Parameter {
-  id: string
-  label: string
-  parameterType: ParameterType
-  defaultOption: string | null
-  ordered: boolean
-  options: Array<ParameterOption>
+  value: number
+  description: string | null
 }
 export interface Metadata {
   modelVersion: string
   parameters: Array<Parameter>
+  results: Record<string, Array<DisplayInfo>>
 }
 
 export interface MetadataResponse extends ApiResponse<Metadata> { }
