@@ -4,7 +4,6 @@
       v-if="props.metadata && formData"
       class="inputs"
       role="form"
-      :data-test-navigate-to="navigateToData"
       @submit.prevent="submitForm"
     >
       <div
@@ -108,7 +107,6 @@ const formData = ref(
 );
 
 const appStore = useAppStore();
-const navigateToData = ref("");
 const pageMounted = ref(false);
 
 const optionsAreTerse = (parameter: Parameter) => {
@@ -144,9 +142,8 @@ const submitForm = async () => {
 
   if (response) {
     const { runId } = response;
-    navigateToData.value = `/scenarios/${runId}`;
-    await navigateTo(navigateToData.value);
-  };
+    await navigateTo(`/scenarios/${runId}`);
+  }
 };
 
 onMounted(() => {

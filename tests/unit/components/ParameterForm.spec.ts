@@ -1,9 +1,7 @@
-import { describe, expect, it } from "vitest";
-import { mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
+import { mockNuxtImport, mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FetchError } from "ofetch";
-import { readBody } from "h3";
 import { flushPromises } from "@vue/test-utils";
-import { waitFor } from "@testing-library/vue";
 
 import type { Metadata } from "@/types/apiResponseTypes";
 import ParameterForm from "@/components/ParameterForm.vue";
@@ -55,7 +53,17 @@ const selectParameters = [
 
 const metadata = { modelVersion: "0.0.0", parameters: [...selectParameters, globeParameter] } as Metadata;
 
+// Need to do this in hoisted - see https://developer.mamezou-tech.com/en/blogs/2024/02/12/nuxt3-unit-testing-mock/
+const { mockNavigateTo } = vi.hoisted(() => ({
+  mockNavigateTo: vi.fn(),
+}));
+mockNuxtImport("navigateTo", () => mockNavigateTo);
+
 describe("parameter form", () => {
+  beforeEach(() => {
+    mockNavigateTo.mockReset();
+  });
+
   it("renders the correct parameter labels, inputs, options, and default values", async () => {
     const component = await mountSuspended(ParameterForm, {
       props: { metadata, metadataFetchStatus: "success", metadataFetchError: null },
@@ -111,7 +119,8 @@ describe("parameter form", () => {
     registerEndpoint("/api/scenarios", {
       method: "POST",
       async handler(event) {
-        const { parameters } = await readBody(event);
+        const body = JSON.parse(event.node.req.body);
+        const parameters = body.parameters;
 
         if (parameters.long_list === "1" && parameters.region === "HVN" && parameters.short_list === "no") {
           return { runId: "randomId" };
@@ -132,14 +141,7 @@ describe("parameter form", () => {
     expect(buttonEl.attributes("disabled")).toBe("");
 
     await flushPromises();
-    // I couldn't find a way to spy on the navigateTo function, so this is a second-best test that we
-    // at least construct the correct path to navigate to.
-    const cForm = component.findComponent({ name: "CForm" });
-    await waitFor(() => {
-      expect(
-        cForm.element.attributes.getNamedItem("data-test-navigate-to")!.value,
-      ).toBe("/scenarios/randomId");
-    });
+    expect(mockNavigateTo).toBeCalledWith("/scenarios/randomId");
   });
 
   it("displays CAlert with error message when metadataFetchStatus is 'error'", async () => {
