@@ -1,14 +1,15 @@
 <template>
   <div>
     <CForm
-      v-if="appStore.metadata && formData && appStore.metadataFetchStatus !== 'error'"
+      v-if="paramMetadata && formData && appStore.metadataFetchStatus !== 'error'"
+      v-show="mounted"
       class="inputs"
       role="form"
       novalidate
       @submit.prevent="submitForm"
     >
       <div
-        v-for="(parameter) in appStore.metadata.parameters"
+        v-for="(parameter) in paramMetadata"
         :key="parameter.id"
         class="field-container"
       >
@@ -24,7 +25,8 @@
               role="group"
               :aria-label="parameter.label"
               :size="appStore.largeScreen ? 'lg' : undefined"
-              @change="pulseDependents(parameter)"
+              :class="`${pulsingParameters.includes(parameter.id) ? 'pulse' : ''}`"
+              @change="handleChange(parameter)"
             >
               <!-- This component's "v-model" prop type signature dictates we can't pass it a number. -->
               <CFormCheck
@@ -51,8 +53,8 @@
             :id="parameter.id"
             v-model="formData[parameter.id]"
             :aria-label="parameter.label"
-            class="form-select" :class="[appStore.largeScreen ? 'form-select-lg' : '']"
-            @change="pulseDependents(parameter)"
+            class="form-select" :class="[appStore.largeScreen ? 'form-select-lg' : '', pulsingParameters.includes(parameter.id) ? 'pulse' : '']"
+            @change="handleChange(parameter)"
           >
             <option
               v-for="(option) in parameter.options"
@@ -73,9 +75,10 @@
             <div class="flex-grow-1">
               <CFormInput
                 :id="parameter.id"
-                v-model="formData[parameter.id]"
+                v-model="formData[parameter.id] as string"
                 :aria-label="parameter.label"
                 type="number"
+                :class="`${pulsingParameters.includes(parameter.id) ? 'pulse' : ''}`"
                 :min="min(parameter)"
                 :max="max(parameter)"
                 :step="parameter.step"
@@ -85,7 +88,7 @@
                 :invalid="invalidFields?.includes(parameter.id) && showValidations"
                 :valid="!invalidFields?.includes(parameter.id) && showValidations"
                 :tooltip-feedback="true"
-                @change="pulseDependents(parameter)"
+                @change="handleChange(parameter)"
               />
               <CFormRange
                 :id="parameter.id"
@@ -94,7 +97,7 @@
                 :step="parameter.step"
                 :min="min(parameter)"
                 :max="max(parameter)"
-                @change="pulseDependents(parameter)"
+                @change="handleChange(parameter)"
               />
             </div>
             <CButton
@@ -126,10 +129,10 @@
         <CIcon v-else icon="cilArrowRight" />
       </CButton>
     </CForm>
-    <CSpinner v-else-if="!appStore.metadata && appStore.metadataFetchStatus !== 'error'" />
     <CAlert v-else-if="!appStore.metadata && appStore.metadataFetchStatus === 'error'" color="warning">
       Failed to initialise. {{ appStore.metadataFetchError }}
     </CAlert>
+    <CSpinner v-show="(!appStore.metadata && appStore.metadataFetchStatus !== 'error') || !mounted" />
   </div>
 </template>
 
@@ -146,14 +149,30 @@ const paramMetadata = computed(() => appStore.metadata?.parameters);
 
 const formData = ref(
   // Create a new object with keys set to the id values of the metadata.parameters array of objects, and all values set to default values.
-  paramMetadata.value?.reduce((acc, { id, defaultOption, options }) => {
-    if (options) {
+  paramMetadata.value?.reduce((acc, { id, defaultOption, options, updateNumericFrom }) => {
+    if (options && !updateNumericFrom) { // Excludes fields whose values depend on others'; we'll set these once all the defaults are set.
       acc[id] = (defaultOption || options[0].id).toString();
     }
     return acc;
   }, {} as { [key: string]: string | number }),
 );
-const numericUpdateDict = ref({} as Record<string, ValueData>);
+const pulsingParameters = ref([] as string[]);
+const dependentParameters = computed((): Record<string, Array<string>> => {
+  const dependentParameters = {} as { [key: string]: Array<string> };
+  paramMetadata.value?.forEach((param) => {
+    if (param.updateNumericFrom) {
+      const dependedOn = param.updateNumericFrom.parameterId;
+      if (!dependentParameters[dependedOn]) {
+        dependentParameters[dependedOn] = [];
+      }
+      dependentParameters[dependedOn].push(param.id);
+    }
+  });
+  return dependentParameters;
+});
+const formSubmitting = ref(false);
+const showValidations = ref(false);
+const mounted = ref(false);
 
 const optionsAreTerse = (param: Parameter) => {
   const eachOptionIsASingleWord = param.options.every((option) => {
@@ -172,24 +191,25 @@ const renderAsSelect = (param: Parameter) => {
 };
 
 // Retrieve the ValueData for a (numeric) parameter that is dependent on the value of another parameter.
-const numericUpdateData = (param: Parameter): ValueData | undefined => {
-  if (!param.updateNumericFrom || !formData.value) {
+const getValueDataForDependentParam = (dependentParamId: string): ValueData | undefined => {
+  const dependentParam = paramMetadata.value!.find(param => param.id === dependentParamId);
+  if (!dependentParam?.updateNumericFrom || !formData.value) {
     return;
   }
 
-  const foreignParamId = param.updateNumericFrom.parameterId;
-  const foreignParamVal = formData.value[foreignParamId];
-  if (param.updateNumericFrom && typeof foreignParamVal !== "undefined") {
-    return param.updateNumericFrom?.values[foreignParamVal.toString()];
+  const foreignParamId = dependentParam.updateNumericFrom.parameterId;
+  const foreignParamInputVal = formData.value[foreignParamId];
+  if (dependentParam.updateNumericFrom && typeof foreignParamInputVal !== "undefined") {
+    return dependentParam.updateNumericFrom?.values[foreignParamInputVal.toString()];
   }
 };
 
 const min = (param: Parameter) => {
-  return numericUpdateDict.value[param.id]?.min;
+  return getValueDataForDependentParam(param.id)?.min;
 };
 
 const max = (param: Parameter) => {
-  return numericUpdateDict.value[param.id]?.max;
+  return getValueDataForDependentParam(param.id)?.max;
 };
 
 const invalidFields = computed(() => {
@@ -204,10 +224,9 @@ const invalidFields = computed(() => {
     };
 
     if (param.parameterType === TypeOfParameter.Numeric && param.updateNumericFrom) {
-      const val = Number.parseInt(formData.value![param.id] as string);
-      const { min, max } = numericUpdateData(param) as ValueData;
+      const inputVal = Number.parseInt(formData.value![param.id] as string);
 
-      if (val < min || val > max) {
+      if (inputVal < min(param)! || inputVal > max(param)!) {
         invalids.push(param.id);
       }
     };
@@ -237,43 +256,30 @@ const resetParam = (param: Parameter) => {
 const numericParameterFeedback = (param: Parameter) => {
   if (param.updateNumericFrom) {
     const foreignParamId = param.updateNumericFrom.parameterId;
-    const foreignParamOptionLabel = appStore.metadata!.parameters.find(param => param.id === foreignParamId)!
+    const foreignParamOptionLabel = paramMetadata.value!.find(param => param.id === foreignParamId)!
       .options.find(option => option.id === formData.value![foreignParamId])?.label;
     return `${min(param)} to ${max(param)} is the allowed ${param.label.toLowerCase()} range for ${foreignParamOptionLabel}.`;
   }
 };
 
-const pulse = (parameterId: string) => {
-  const input = document.getElementById(parameterId);
-  if (input) {
-    input.classList.add("pulse");
+const handleChange = (param: Parameter) => {
+  if (dependentParameters.value[param.id] === undefined || dependentParameters.value[param.id]?.length === 0) {
+    return;
+  }
+
+  dependentParameters.value[param.id].forEach((dependentParamId: string) => {
+    pulsingParameters.value.push(dependentParamId);
     setTimeout(() => {
-      input.classList.remove("pulse"); // Allow the pulse animation to be triggered again in the future.
+      pulsingParameters.value = pulsingParameters.value.filter(item => item !== dependentParamId); // Remove the pulse animation to allow it to be triggered again in the future.
     }, 500);
-  }
+
+    const dependentParameter = paramMetadata.value!.find(param => param.id === dependentParamId)!;
+    const newValueForDependentParam = defaultValue(dependentParameter);
+    if (newValueForDependentParam) {
+      formData.value![dependentParamId] = newValueForDependentParam;
+    }
+  });
 };
-
-const pulseDependents = (param: Parameter) => {
-  paramMetadata.value
-    ?.filter(({ updateNumericFrom: u }) => u?.parameterId === param.id)
-    .forEach(({ id }) => pulse(id));
-};
-
-watchEffect(() => {
-  if (formData.value && paramMetadata.value) {
-    paramMetadata.value.forEach((param) => {
-      const valueData = numericUpdateData(param) as ValueData;
-      if (valueData) {
-        numericUpdateDict.value[param.id] = valueData;
-        formData.value![param.id] = valueData?.default.toString();
-      }
-    });
-  }
-});
-
-const formSubmitting = ref(false);
-const showValidations = ref(false);
-
 const submitForm = async () => {
   if (invalidFields.value?.length) {
     showValidations.value = true;
@@ -294,6 +300,18 @@ const submitForm = async () => {
     await navigateTo(`/scenarios/${runId}`);
   }
 };
+
+// Set fields whose default values are dependent on other fields' values to their defaults.
+const resetAllDependents = () => {
+  paramMetadata.value?.filter((param) => {
+    return param.updateNumericFrom !== undefined;
+  }).forEach(resetParam);
+};
+
+onMounted(() => {
+  mounted.value = true; // Use in v-show, otherwise there are up to several seconds during which the form shows with out of date values.
+  resetAllDependents(); // To do this, we need metadata to have been fetched, so do this in the onMounted hook.
+});
 </script>
 
 <style lang="scss">

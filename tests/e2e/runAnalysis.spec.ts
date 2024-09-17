@@ -16,9 +16,13 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
 
   await page.selectOption('select[aria-label="Disease"]', { label: "Influenza 1957" });
   await page.selectOption('select[aria-label="Response"]', { label: "Elimination" });
+
+  const initialCountryValue = await page.inputValue('input[aria-label="Hospital capacity"][type="number"]');
   await page.selectOption('select[aria-label="Country"]', { label: "United States" });
+  await expect(page.locator('input[aria-label="Hospital capacity"][type="number"]')).not.toHaveValue(initialCountryValue);
+
   await page.click('div[aria-label="Global vaccine investment"] label[for="medium"]');
-  await page.fill('input[aria-label="Hospital capacity"]', "200000");
+  await page.fill('input[aria-label="Hospital capacity"][type="number"]', "200000");
 
   await page.click('button:has-text("Run")');
 

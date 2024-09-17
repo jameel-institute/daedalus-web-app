@@ -150,13 +150,17 @@ describe("parameter form", () => {
     const shortList = component.findComponent({ name: "CButtonGroup" });
 
     const numericInput = component.find("input[type='number']");
+    const rangeInput = component.find("input[type='range']");
     expect(numericInput.element.value).toBe("2000");
+    expect(rangeInput.element.value).toBe("2000");
 
     await shortList.find("input[value='yes']").setChecked();
     expect(numericInput.element.value).toBe("17000");
+    expect(rangeInput.element.value).toBe("17000");
 
     await shortList.find("input[value='no']").setChecked();
     expect(numericInput.element.value).toBe("2000");
+    expect(rangeInput.element.value).toBe("2000");
   });
 
   it("resets a numeric input that can be updated from another input to its default value when the reset button is clicked", async () => {
@@ -165,13 +169,18 @@ describe("parameter form", () => {
     });
 
     const numericInput = component.find("input[type='number']");
+    const rangeInput = component.find("input[type='range']");
     expect(numericInput.element.value).toBe("2000");
+    expect(rangeInput.element.value).toBe("2000");
 
     await numericInput.setValue(2100);
+    expect(rangeInput.element.value).toBe("2100");
+
     const resetButton = component.find("button[aria-label='Reset Population to default']");
     await resetButton.trigger("click");
 
     expect(numericInput.element.value).toBe("2000");
+    expect(rangeInput.element.value).toBe("2000");
   });
 
   it("displays feedback when the form is submitted with invalid values", async () => {
