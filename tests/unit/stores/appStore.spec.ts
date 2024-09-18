@@ -82,12 +82,5 @@ describe("app store", () => {
         expect(store.globeParameter).toEqual({ id: "country", parameterType: "globeSelect" });
       });
     });
-
-    it("can set the current scenario", async () => {
-      const store = useAppStore();
-      store.setCurrentScenario({ population: "123123", healthcareInvestment: "high" });
-
-      expect(store.currentScenario).toEqual({ parameters: { population: "123123", healthcareInvestment: "high" } });
-    });
   });
 });

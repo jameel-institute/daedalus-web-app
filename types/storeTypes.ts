@@ -4,6 +4,7 @@ import type { Metadata, VersionData } from "@/types/apiResponseTypes";
 import type { ParameterSet } from "@/types/parameterTypes";
 
 interface Scenario {
+  runId: string | undefined
   parameters: ParameterSet
 }
 export interface AppState {

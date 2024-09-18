@@ -41,3 +41,20 @@ export interface NewScenarioData {
 }
 
 export interface NewScenarioResponse extends ApiResponse<NewScenarioData> { }
+
+enum runStatus {
+  Queued = "queued",
+  Running = "running",
+  Complete = "complete",
+  Failed = "failed",
+}
+
+export interface ScenarioStatusData {
+  done: boolean // whether the job is finished or not
+  runId: string
+  runErrors: Array<string> | null
+  runStatus: runStatus
+  runSuccess: boolean | null // null if "done" is false, otherwise indicates whether the job finished successfully
+}
+
+export interface ScenarioStatusResponse extends ApiResponse<ScenarioStatusData> { }

@@ -311,7 +311,12 @@ const submitForm = async () => {
 
   if (response) {
     const { runId } = response;
-    appStore.setCurrentScenario(formData.value as ParameterSet);
+    if (runId) {
+      appStore.currentScenario = {
+        runId,
+        parameters: formData.value as ParameterSet,
+      };
+    }
     await navigateTo(`/scenarios/${runId}`);
   };
 };

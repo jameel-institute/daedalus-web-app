@@ -3,7 +3,7 @@ import type { FetchError } from "ofetch";
 import type { AsyncDataRequestStatus } from "#app";
 import type { AppState } from "@/types/storeTypes";
 import type { Metadata, VersionData } from "@/types/apiResponseTypes";
-import { type ParameterSet, TypeOfParameter } from "@/types/parameterTypes";
+import { TypeOfParameter } from "@/types/parameterTypes";
 
 export const useAppStore = defineStore("app", {
   state: (): AppState => ({
@@ -45,9 +45,6 @@ export const useAppStore = defineStore("app", {
           }
         },
       });
-    },
-    setCurrentScenario(parameters: ParameterSet) {
-      this.currentScenario = { parameters };
     },
   },
 });
