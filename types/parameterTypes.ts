@@ -1,3 +1,7 @@
+export interface ParameterSet { [key: string]: string | number };
+
+// For metadata
+// ============
 export interface ParameterOption {
   id: string
   label: string

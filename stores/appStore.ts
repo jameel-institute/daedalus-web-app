@@ -3,15 +3,19 @@ import type { FetchError } from "ofetch";
 import type { AsyncDataRequestStatus } from "#app";
 import type { AppState } from "@/types/storeTypes";
 import type { Metadata, VersionData } from "@/types/apiResponseTypes";
-import { TypeOfParameter } from "@/types/parameterTypes";
+import { type ParameterSet, TypeOfParameter } from "@/types/parameterTypes";
 
 export const useAppStore = defineStore("app", {
   state: (): AppState => ({
+    globe: {
+      interactive: false,
+    },
     largeScreen: true,
     versions: undefined,
     metadata: undefined,
     metadataFetchError: undefined,
     metadataFetchStatus: undefined,
+    currentScenario: undefined, // Represents the scenario currently being viewed
   }),
   getters: {
     globeParameter: state => state.metadata?.parameters.find(param => param.parameterType === TypeOfParameter.GlobeSelect),
@@ -41,6 +45,9 @@ export const useAppStore = defineStore("app", {
           }
         },
       });
+    },
+    setCurrentScenario(parameters: ParameterSet) {
+      this.currentScenario = { parameters };
     },
   },
 });

@@ -1,5 +1,5 @@
 <template>
-  <span v-if="iconDetails" class="form-icon">
+  <span v-if="iconDetails" class="form-icon" :title="props.parameter.label">
     <CIconSvg v-if="iconDetails.custom" class="icon parameter-icon">
       <img :src="customIconPath()">
     </CIconSvg>

@@ -7,6 +7,26 @@ import { addComponent, defineNuxtModule } from "@nuxt/kit";
 export default defineNuxtModule({
   setup() {
     addComponent({
+      name: "CAccordion",
+      export: "CAccordion",
+      filePath: "@coreui/vue/src/components/accordion/CAccordion",
+    });
+    addComponent({
+      name: "CAccordionBody",
+      export: "CAccordionBody",
+      filePath: "@coreui/vue/src/components/accordion/CAccordionBody",
+    });
+    addComponent({
+      name: "CAccordionHeader",
+      export: "CAccordionHeader",
+      filePath: "@coreui/vue/src/components/accordion/CAccordionHeader",
+    });
+    addComponent({
+      name: "CAccordionItem",
+      export: "CAccordionItem",
+      filePath: "@coreui/vue/src/components/accordion/CAccordionItem",
+    });
+    addComponent({
       name: "CAlert",
       export: "CAlert",
       filePath: "@coreui/vue/src/components/alert/CAlert",

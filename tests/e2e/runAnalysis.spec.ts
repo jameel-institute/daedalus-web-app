@@ -5,7 +5,7 @@ test.beforeAll(async () => {
   checkRApiServer();
 });
 
-test("Can request a scenario analysis run", async ({ page, baseURL }) => {
+test("Can request a scenario analysis run", async ({ page, baseURL, isMobile }) => {
   await page.goto(`${baseURL}/`);
   await page.waitForURL(`${baseURL}/scenarios/new`);
 
@@ -28,7 +28,14 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
 
   await page.waitForURL(new RegExp(`${baseURL}/scenarios/[a-f0-9]{32}`));
   expect(page.url()).toMatch(new RegExp(`${baseURL}/scenarios/[a-f0-9]{32}`));
+  await expect(page.getByText("Simulate a new scenario")).not.toBeVisible();
 
-  // TODO: Continue writing test
-  // await expect(page.getByText("Simulate a new scenario")).not.toBeVisible();
+  if (isMobile) {
+    await page.click('*:has-text("Parameters")');
+  }
+  await expect(page.getByText("Influenza 1957").first()).toBeVisible();
+  await expect(page.getByText("Elimination").first()).toBeVisible();
+  await expect(page.getByText("United States").first()).toBeVisible();
+  await expect(page.getByText("Medium").first()).toBeVisible();
+  await expect(page.getByText("200000").first()).toBeVisible();
 });
