@@ -13,13 +13,13 @@
           Rotate your mobile device to landscape for the best experience.
         </p>
       </CAlert>
-      <div v-show="appStore.largeScreen && appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="card horizontal-card ms-auto">
+      <div v-show="appStore.largeScreen && appStore.currentScenario.parameters && appStore.metadata?.parameters" class="card horizontal-card ms-auto">
         <CRow>
           <CCol class="col-sm">
             <div class="card-body py-2">
               <p class="card-text d-flex gap-3 flex-wrap">
                 <CTooltip
-                  v-for="(parameter) in appStore.metadata!.parameters"
+                  v-for="(parameter) in appStore.metadata?.parameters"
                   :key="parameter.id"
                   :content="parameter.label"
                   placement="top"
@@ -34,7 +34,11 @@
                         {{ paramDisplayText(parameter) }}
                       </span>
                       <!-- Todo: once metadata uses real country ISOs, get a mapping from 3-letter ISOs to 2-letter ISOs, and look up the correct country flag. -->
-                      <CIcon v-if="parameter.id === appStore.globeParameter?.id" icon="cifGb" class="parameter-icon text-secondary ms-1" />
+                      <CIcon
+                        v-if="parameter.id === appStore.globeParameter?.id"
+                        icon="cifGb"
+                        class="parameter-icon text-secondary ms-1"
+                      />
                     </span>
                   </template>
                 </CTooltip>
@@ -65,7 +69,7 @@
           </CCol>
         </CRow>
       </div>
-      <CAccordion v-show="!appStore.largeScreen && appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="ms-auto">
+      <CAccordion v-show="!appStore.largeScreen && appStore.currentScenario.parameters && appStore.metadata?.parameters" class="ms-auto">
         <CAccordionItem :item-key="1">
           <CAccordionHeader>
             Parameters
@@ -94,15 +98,32 @@
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import type { Parameter } from "~/types/parameterTypes";
 
+// TODO: Use the runId from the route rather than getting it out of the store. Use a single source of truth for the runId.
 const appStore = useAppStore();
 
+let statusInterval: NodeJS.Timeout;
+const loadScenarioStatus = () => {
+  appStore.loadScenarioStatus().then(() => {
+    if (appStore.currentScenario.status?.statusData?.done) {
+      clearInterval(statusInterval);
+    }
+  });
+};
+
 const paramDisplayText = (param: Parameter) => {
-  const rawVal = appStore.currentScenario!.parameters[param.id].toString();
-  return param.options ? param.options.find(({ id }) => id === rawVal)!.label : rawVal;
+  if (appStore.currentScenario.parameters && appStore.currentScenario.parameters[param.id]) {
+    const rawVal = appStore.currentScenario.parameters[param.id].toString();
+    return param.options ? param.options.find(({ id }) => id === rawVal)!.label : rawVal;
+  }
 };
 
 onMounted(() => {
   appStore.globe.interactive = false;
+  statusInterval = setInterval(loadScenarioStatus, 200);
+});
+
+onUnmounted(() => {
+  clearInterval(statusInterval);
 });
 </script>
 
