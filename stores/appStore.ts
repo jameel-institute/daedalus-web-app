@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import type { FetchError } from "ofetch";
 import type { AsyncDataRequestStatus } from "#app";
 import type { AppState } from "@/types/storeTypes";
-import type { Metadata, VersionData } from "@/types/apiResponseTypes";
+import type { Metadata, ScenarioStatusData, VersionData } from "@/types/apiResponseTypes";
 import { TypeOfParameter } from "@/types/parameterTypes";
 
 export const useAppStore = defineStore("app", {
@@ -15,12 +15,40 @@ export const useAppStore = defineStore("app", {
     metadata: undefined,
     metadataFetchError: undefined,
     metadataFetchStatus: undefined,
-    currentScenario: undefined, // Represents the scenario currently being viewed
+    currentScenario: { // Represents the scenario currently being viewed
+      runId: undefined,
+      parameters: undefined,
+      status: {
+        statusData: undefined,
+        scenarioStatusFetchError: undefined,
+        scenarioStatusFetchStatus: undefined,
+      },
+    },
   }),
   getters: {
     globeParameter: state => state.metadata?.parameters.find(param => param.parameterType === TypeOfParameter.GlobeSelect),
   },
   actions: {
+    async loadScenarioStatus() {
+      if (!this.currentScenario.runId) {
+        return;
+      }
+
+      const {
+        data: scenarioStatusData,
+        status: scenarioStatusFetchStatus,
+        error: scenarioStatusFetchError,
+      } = await useFetch(`/api/scenarios/status/${this.currentScenario.runId}`) as {
+        data: Ref<ScenarioStatusData>
+        status: Ref<AsyncDataRequestStatus>
+        error: Ref<FetchError | undefined>
+      };
+      this.currentScenario.status = {
+        statusData: scenarioStatusData.value,
+        scenarioStatusFetchStatus: scenarioStatusFetchStatus.value,
+        scenarioStatusFetchError: scenarioStatusFetchError.value,
+      };
+    },
     async loadMetadata() {
       const { data: metadata, status: metadataFetchStatus, error: metadataFetchError } = await useFetch("/api/metadata") as {
         data: Ref<Metadata>
