@@ -6,7 +6,8 @@
       </h1>
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
         <CIconSvg size="xxl" class="icon icon-xxl">
-          <img src="/icons/rotate-device-svgrepo-com.svg">
+          <img src="/icons/rotate-device.svg">
+          <!-- License: MIT License https://www.svgrepo.com/svg/451262/rotate-device -->
         </CIconSvg>
         <p class="mb-0">
           Rotate your mobile device to landscape for the best experience.

@@ -31,7 +31,10 @@ test("Can request a scenario analysis run", async ({ page, baseURL, isMobile }) 
   await expect(page.getByText("Simulate a new scenario")).not.toBeVisible();
 
   if (isMobile) {
+    await expect(page.getByText("Rotate your mobile device").first()).toBeVisible();
     await page.click('*:has-text("Parameters")');
+  } else {
+    await expect(page.getByText("Rotate your mobile device").first()).not.toBeVisible();
   }
   await expect(page.getByText("Influenza 1957").first()).toBeVisible();
   await expect(page.getByText("Elimination").first()).toBeVisible();

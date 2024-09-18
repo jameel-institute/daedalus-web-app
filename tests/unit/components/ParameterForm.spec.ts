@@ -153,7 +153,7 @@ describe("parameter form", () => {
             parameters: {
               long_list: "3",
               region: "CLD",
-              population: 25000,
+              population: "25000",
               short_list: "yes",
             },
           },
