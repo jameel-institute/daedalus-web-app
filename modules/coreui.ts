@@ -142,16 +142,6 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/grid/CContainer",
     });
     addComponent({
-      name: "CBreadcrumb",
-      export: "CBreadcrumb",
-      filePath: "@coreui/vue/src/components/breadcrumb/CBreadcrumb",
-    });
-    addComponent({
-      name: "CBreadcrumbItem",
-      export: "CBreadcrumbItem",
-      filePath: "@coreui/vue/src/components/breadcrumb/CBreadcrumbItem",
-    });
-    addComponent({
       name: "CProgress",
       export: "CProgress",
       filePath: "@coreui/vue/src/components/progress/CProgress",
