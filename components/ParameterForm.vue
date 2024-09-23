@@ -154,7 +154,7 @@ const formData = ref(
       acc[id] = (defaultOption || options[0].id).toString();
     }
     return acc;
-  }, {} as { [key: string]: string | number }),
+  }, {} as { [key: string]: string }),
 );
 const pulsingParameters = ref([] as string[]);
 const dependentParameters = computed((): Record<string, Array<string>> => {
@@ -197,10 +197,10 @@ const getValueDataForDependentParam = (dependentParamId: string): ValueData | un
     return;
   }
 
-  const foreignParamId = dependentParam.updateNumericFrom.parameterId;
-  const foreignParamInputVal = formData.value[foreignParamId];
-  if (dependentParam.updateNumericFrom && typeof foreignParamInputVal !== "undefined") {
-    return dependentParam.updateNumericFrom?.values[foreignParamInputVal.toString()];
+  const dependedOnParamId = dependentParam.updateNumericFrom.parameterId;
+  const dependedOnParamInputVal = formData.value[dependedOnParamId];
+  if (dependentParam.updateNumericFrom && typeof dependedOnParamInputVal !== "undefined") {
+    return dependentParam.updateNumericFrom?.values[dependedOnParamInputVal.toString()];
   }
 };
 
@@ -224,7 +224,7 @@ const invalidFields = computed(() => {
     };
 
     if (param.parameterType === TypeOfParameter.Numeric && param.updateNumericFrom) {
-      const inputVal = Number.parseInt(formData.value![param.id] as string);
+      const inputVal = Number.parseInt(formData.value![param.id]);
 
       if (inputVal < min(param)! || inputVal > max(param)!) {
         invalids.push(param.id);
@@ -237,8 +237,8 @@ const invalidFields = computed(() => {
 
 const defaultValue = (param: Parameter) => {
   if (param.updateNumericFrom) {
-    const foreignParamId = param.updateNumericFrom.parameterId;
-    return param.updateNumericFrom.values[formData.value![foreignParamId]].default.toString();
+    const dependedOnParamId = param.updateNumericFrom.parameterId;
+    return param.updateNumericFrom.values[formData.value![dependedOnParamId]].default.toString();
   } else if (param.parameterType === TypeOfParameter.Select || param.parameterType === TypeOfParameter.GlobeSelect) {
     return param.defaultOption || param.options[0].id;
   }
@@ -255,10 +255,10 @@ const resetParam = (param: Parameter) => {
 
 const numericParameterFeedback = (param: Parameter) => {
   if (param.updateNumericFrom) {
-    const foreignParamId = param.updateNumericFrom.parameterId;
-    const foreignParamOptionLabel = paramMetadata.value!.find(param => param.id === foreignParamId)!
-      .options.find(option => option.id === formData.value![foreignParamId])?.label;
-    return `${min(param)} to ${max(param)} is the allowed ${param.label.toLowerCase()} range for ${foreignParamOptionLabel}.`;
+    const dependedOnParamId = param.updateNumericFrom.parameterId;
+    const dependedOnParamOptionLabel = paramMetadata.value!.find(param => param.id === dependedOnParamId)!
+      .options.find(option => option.id === formData.value![dependedOnParamId])?.label;
+    return `${min(param)} to ${max(param)} is the allowed ${param.label.toLowerCase()} range for ${dependedOnParamOptionLabel}.`;
   }
 };
 
