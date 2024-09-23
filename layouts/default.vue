@@ -7,6 +7,7 @@
     <AppHeader
       @toggle-sidebar-visibility="handleToggleSidebarVisibility"
     />
+    <!-- If for some reason the Globe component would be more conveniently located elsewhere in the DOM, look into the Nuxt 'Teleport' component. -->
     <div class="wrapper d-flex flex-column">
       <div class="body flex-grow-1">
         <CContainer xxl>

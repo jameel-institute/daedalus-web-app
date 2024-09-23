@@ -6,6 +6,7 @@
           <CIcon icon="cilMenu" size="lg" />
         </span>
       </CHeaderToggler>
+      <!-- TOdo - use NuxtLink instead of href below -->
       <CHeaderBrand href="/" class="px-2">
         <CIcon icon="cilGlobeAlt" size="lg" />
         <span id="appTitle">DAEDALUS Explore</span>

@@ -9,16 +9,16 @@
         :content="seriesMetadata?.description || undefined"
         placement="top"
       >
-        <template #toggler="{ id, on }">
+        <template #toggler="{ togglerId, on }">
           <CIcon
             icon="cilInfo"
             class="icon help ms-2 mt-1 me-3"
-            :aria-describedby="id"
+            :aria-describedby="togglerId"
             v-on="on"
           />
         </template>
       </CTooltip>
-      <CTooltip
+      <!-- <CTooltip
         content="When switched on, the total values will be displayed. When switched off, the daily rates will be displayed."
         placement="top"
       >
@@ -33,7 +33,7 @@
             />
           </span>
         </template>
-      </CTooltip>
+      </CTooltip> -->
       <!-- <CButtonGroup
         role="group"
         aria-label="Show data by prevalence or by incidence"
@@ -66,7 +66,7 @@
     </div>
     <div
       :id="containerId"
-      style="width:100%; height:400px"
+      style="width:100%; height:200px"
       @mousemove="onMove"
       @touchmove="onMove"
       @touchstart="onMove"
@@ -76,13 +76,13 @@
 
 <script lang="ts" setup>
 import throttle from "lodash.throttle";
+import hexRgb from "hex-rgb";
 import * as Highcharts from "highcharts";
 import accessibilityInitialize from "highcharts/modules/accessibility";
 import exportingInitialize from "highcharts/modules/exporting";
 import exportDataInitialize from "highcharts/modules/export-data";
 import { CIcon } from "@coreui/icons-vue";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
-import { InterventionLevel } from "~/types/resultTypes";
 
 const props = defineProps<{
   id: string
@@ -97,13 +97,24 @@ const appStore = useAppStore();
 
 const prevalenceOrIncidence = ref<string>(`prevalenceFor${props.id}`);
 
+const usePlotLines = props.id === "hospitalised"; // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
+
 const containerId = computed(() => `${props.id}-container`);
 const data = computed(() => appStore.timeSeriesData![props.id]);
 const seriesMetadata = computed((): DisplayInfo | undefined => appStore.metadata?.results?.time_series.find(({ id }) => id === props.id));
+const minRange = computed(() => {
+  if (usePlotLines) {
+    // Get the highest capacity value
+    console.log(appStore.capacitiesData?.reduce((acc, { value }) => Math.max(acc, value), 0));
+    return appStore.capacitiesData?.reduce((acc, { value }) => Math.max(acc, value), 0);
+  } else {
+    return undefined;
+  }
+});
 const plotLines = computed(() => {
   const lines = Array<Highcharts.AxisPlotLinesOptions>();
 
-  if (props.id !== "hospitalised") { // TODO - configure use of plotlines in metadata.
+  if (!usePlotLines) {
     return lines;
   }
 
@@ -142,18 +153,30 @@ const plotLines = computed(() => {
 //                     color: 'rgba(200, 170, 213, .3)'
 //                 }];
 
+const yUnits = "cases"; // TODO: Make this depend on a 'units' property in metadata.
+
+// TODO: reuse this color in a legend
+const plotBandsColor = computed(() => {
+  const colorRgba = hexRgb(Highcharts.getOptions().colors[0]);
+  colorRgba.alpha = 0.3;
+  return `rgba(${Object.values(colorRgba).join(",")})`;
+});
 const plotBands = computed(() => {
   const bands = Array<Highcharts.AxisPlotBandsOptions>();
 
-  appStore.interventionsData?.forEach(({ id, level, start, end }) => {
+  if (props.id === "dead") {
+    return bands;
+  }
+
+  appStore.interventionsData?.forEach(({ id, start, end }) => {
     const interventionLabel = appStore.metadata?.results.interventions.find(({ id: interventionId }) => interventionId === id)?.label;
 
     bands.push({
       from: start,
       to: end,
-      color: (level === InterventionLevel.Heavy) ? "rgba(200, 170, 213, .7)" : "rgba(200, 170, 213, .3)",
+      color: plotBandsColor.value,
       label: {
-        text: `${interventionLabel} - ${start} until ${end}`,
+        text: `${interventionLabel}: Days ${start} to ${end}`,
       },
     });
   });
@@ -207,212 +230,102 @@ const syncExtremes = (event) => {
           { trigger: "syncExtremes" },
         );
         if (event.min && event.max) {
-          ch.showResetZoom();
-        } else if (ch.resetZoomButton) {
-          ch.resetZoomButton.hide();
+          // Prevent exporting while zoomed in since image export doesn't work well when zoomed in
+          ch.update({ chart: { className: undefined }, exporting: { enabled: false } });
+        } else {
+          ch.update({ chart: { className: "hide-reset-zoom-button" }, exporting: { enabled: true } });
         }
       }
     });
   }
 };
 
+const chartInitialOptions = () => ({
+  chart: {
+    backgroundColor: "transparent",
+    className: "hide-reset-zoom-button",
+    style: {
+      fontFamily: "inherit",
+    },
+    zooming: {
+      type: "x",
+    },
+  },
+  exporting: {
+    filename: `${seriesMetadata.value!.label} in ${appStore.currentScenario.parameters?.country}`,
+    chartOptions: { // Show title and subtitle in exported image, but not in normal rendering
+      title: {
+        text: seriesMetadata.value!.label,
+        style: {
+          fontWeight: "500",
+        },
+      },
+      subtitle: {
+        text: seriesMetadata.value!.description,
+      },
+    },
+  },
+  title: {
+    text: "",
+  },
+  credits: {
+    enabled: false,
+  },
+  legend: {
+    enabled: false,
+  },
+  tooltip: {
+    pointFormat: `<span style='font-weight: 500'>{point.y}</span> ${yUnits}`,
+    headerFormat: "<span style='font-size: 0.7rem; margin-bottom: 0.3rem;'>Day {point.x}</span><br/>",
+    valueDecimals: 0,
+  },
+  xAxis: {
+    title: {
+      text: "Days since outbreak",
+    },
+    events: {
+      setExtremes: syncExtremes,
+    },
+    crosshair: true,
+    plotBands: plotBands.value,
+  },
+  yAxis: {
+    title: {
+      text: "",
+    },
+    min: 0,
+    minRange: minRange.value,
+    plotLines: plotLines.value,
+  },
+  series: [{
+    data: data.value,
+    name: seriesMetadata.value!.label,
+    type: "area", // or "line"
+    color: Highcharts.getOptions().colors[props.index + 1], // 0th color is taken by plotBands, so bump the index by one for each time series
+    fillOpacity: 0.3,
+    tooltip: {
+      valueSuffix: ` ${props.id === "vaccination" ? "%" : ""}`, // TODO - use correct id once this time series exists, OR configure in metadata.
+    },
+  }],
+});
+
 onMounted(() => {
   if (!seriesMetadata.value) {
     console.error(`Time series metadata not found for id: ${props.id}`);
   }
 
-  chart = Highcharts.chart(containerId.value, {
-    chart: {
-      backgroundColor: "transparent",
-      style: {
-        fontFamily: "inherit",
-      },
-      zooming: {
-        type: "x",
-      },
-    },
-    credits: {
-      enabled: false,
-    },
-    legend: {
-      enabled: false,
-    },
-    title: {
-      text: seriesMetadata.value!.label,
-      style: {
-        fontWeight: "500",
-      },
-    },
-    subtitle: {
-      text: seriesMetadata.value!.description,
-    },
-    tooltip: {
-      // backgroundColor: "none",
-      pointFormat: "<span style='font-weight: 500'>{point.y}</span>",
-      headerFormat: "<span style='font-size: 0.7rem; margin-bottom: 0.3rem;'>Day {point.x}</span><br/>",
-      // shadow: tru,
-      // style: {
-      //   fontSize: "18px",
-      // },
-      valueDecimals: 0,
-    },
-    xAxis: {
-      title: {
-        text: "Days since outbreak",
-      },
-      events: {
-        setExtremes: syncExtremes,
-      },
-      crosshair: true,
-      plotBands: plotBands.value,
-    },
-    yAxis: {
-      title: {
-        text: "",
-      },
-      plotLines: plotLines.value,
-    },
-    series: [{
-      data: data.value,
-      name: seriesMetadata.value!.label,
-      type: "area", // or "line"
-      color: Highcharts.getOptions().colors[props.index],
-      fillOpacity: 0.3,
-      tooltip: {
-        valueSuffix: ` ${props.id === "vaccination" ? "%" : ""}`, // TODO - use correct id once this time series exists, OR configure in metadata.
-      },
-    }],
-  });
+  chart = Highcharts.chart(containerId.value, chartInitialOptions());
 
-  // Get the data. The contents of the data file can be viewed at
-  //   Highcharts.ajax({
-  //     url: "https://jameel-institute.github.io/daedalus-mockups/samples/data/activity.json",
-  //     // url: 'https://www.highcharts.com/samples/data/activity.json', Original data from here (faked)
-  //     dataType: "text",
-  //     success(activity) {
-  //       activity = JSON.parse(activity);
-  //       activity.datasets.forEach((dataset, i) => {
-  //         // Add X values
-  //         dataset.data = Highcharts.map(dataset.data, (val, j) => {
-  //           return [(activity.xData[j] * 100), val];
-  //         });
-
-  //         let plotlines = [];
-  //         let yAxisTitle = null;
-  //         let xAxisTitle = null;
-  //         let plotbands = [{
-  //           from: 10,
-  //           to: 50,
-  //           color: "rgba(200, 170, 213, .5)",
-  //         }, {
-  //           from: 204,
-  //           to: 258,
-  //           color: "rgba(200, 170, 213, .8)",
-  //         }, {
-  //           from: 509,
-  //           to: 590,
-  //           color: "rgba(200, 170, 213, .3)",
-  //         }];
-  //         switch (dataset.name) {
-  //           case "Speed":
-  //             dataset.name = "Vaccination uptake";
-  //             dataset.unit = "%";
-  //             yAxisTitle = dataset.unit;
-  //             plotbands = [];
-  //             break;
-  //           case "Elevation":
-  //             dataset.name = "Infections";
-  //             dataset.unit = "";
-  //             dataset.data = dataset.data.map(x => [x[0], x[1] * 1000]);
-  //             break;
-  //           case "Heart rate":
-  //             dataset.name = "Hospital occupancy";
-  //             dataset.unit = "";
-  //             dataset.data = dataset.data.map(x => [x[0], x[1] * 1000]);
-  //             xAxisTitle = "Day";
-  //             plotlines = [{
-  //               color: "#FF0000",
-  //               width: 2,
-  //               value: 150000,
-  //             }];
-  //             break;
-  //         }
-
-  //         const chartDiv = document.createElement("div");
-  //         chartDiv.className = "chart";
-  //         document.getElementById("container1").appendChild(chartDiv);
-
-//         Highcharts.chart(chartDiv, {
-//           chart: {
-//             marginLeft: 60, // Keep all charts left aligned
-//             spacingTop: 20,
-//             spacingBottom: 20,
-//           },
-//           title: {
-//             text: dataset.name,
-//             align: "left",
-//             x: 50,
-//           },
-//           credits: {
-//             enabled: false,
-//           },
-//           legend: {
-//             enabled: false,
-//           },
-//           xAxis: {
-//             title: {
-//               text: xAxisTitle,
-//             },
-//             crosshair: true,
-//             events: {
-//               setExtremes: syncExtremes,
-//             },
-//             labels: {
-//               format: "{value}",
-//             },
-//             plotBands: plotbands,
-//           },
-//           yAxis: {
-//             title: {
-//               text: yAxisTitle,
-//             },
-//             plotLines: plotlines,
-//           },
-//           tooltip: {
-//             positioner() {
-//               return {
-//                 // right aligned
-//                 x: (this.chart.chartWidth - this.label.width) - 30,
-//                 y: 16,
-//               };
-//             },
-//             borderWidth: 0,
-//             backgroundColor: "none",
-//             pointFormat: "{point.y}",
-//             headerFormat: "",
-//             shadow: false,
-//             style: {
-//               fontSize: "18px",
-//             },
-//             valueDecimals: dataset.valueDecimals,
-//           },
-//           series: [{
-//             data: dataset.data,
-//             name: dataset.name,
-//             type: dataset.type,
-//             color: Highcharts.getOptions().colors[i],
-//             fillOpacity: 0.3,
-//             tooltip: {
-//               valueSuffix: ` ${dataset.unit}`,
-//             },
-//           }],
-//         });
-//       });
-//     },
-//   });
+  // Create the reset zoom button, initially hidden by the className "hide-reset-zoom-button".
+  // Using a CSS class to toggle visibility is much more performant than re-using this method.
+  chart.showResetZoom();
 });
 </script>
 
 <style>
-
+.hide-reset-zoom-button {
+  .highcharts-reset-zoom {
+    display: none;
+  }
+}
 </style>

@@ -115,9 +115,6 @@
         </div>
       </div>
     </div>
-    <h3>
-      Results {{ appStore.currentScenario.result }}
-    </h3>
   </div>
 </template>
 
