@@ -887,6 +887,363 @@
             "label": "High"
           }
         ]
+      },
+      {
+        "id": "hospital_capacity",
+        "label": "Hospital capacity",
+        "parameterType": "numeric",
+        "ordered": false,
+        "step": 100,
+        "updateNumericFrom": {
+          "parameterId": "country",
+          "values": {
+            "Argentina": {
+              "min": 13600,
+              "default": 20300,
+              "max": 58800
+            },
+            "Australia": {
+              "min": 7600,
+              "default": 11500,
+              "max": 33100
+            },
+            "Austria": {
+              "min": 2700,
+              "default": 4100,
+              "max": 11700
+            },
+            "Belgium": {
+              "min": 3500,
+              "default": 5200,
+              "max": 15100
+            },
+            "Brazil": {
+              "min": 63800,
+              "default": 95700,
+              "max": 276300
+            },
+            "Brunei": {
+              "min": 100,
+              "default": 200,
+              "max": 600
+            },
+            "Bulgaria": {
+              "min": 2100,
+              "default": 3100,
+              "max": 9000
+            },
+            "Cambodia": {
+              "min": 5000,
+              "default": 7500,
+              "max": 21700
+            },
+            "Canada": {
+              "min": 11300,
+              "default": 17000,
+              "max": 49100
+            },
+            "Chile": {
+              "min": 5700,
+              "default": 8600,
+              "max": 24900
+            },
+            "China": {
+              "min": 431800,
+              "default": 647700,
+              "max": 1871100
+            },
+            "Colombia": {
+              "min": 15300,
+              "default": 22900,
+              "max": 66100
+            },
+            "Costa Rica": {
+              "min": 1500,
+              "default": 2300,
+              "max": 6600
+            },
+            "Croatia": {
+              "min": 1200,
+              "default": 1800,
+              "max": 5300
+            },
+            "Cyprus": {
+              "min": 400,
+              "default": 500,
+              "max": 1600
+            },
+            "Czechia": {
+              "min": 3200,
+              "default": 4800,
+              "max": 13900
+            },
+            "Denmark": {
+              "min": 1700,
+              "default": 2600,
+              "max": 7500
+            },
+            "Egypt": {
+              "min": 30700,
+              "default": 46100,
+              "max": 133000
+            },
+            "Estonia": {
+              "min": 400,
+              "default": 600,
+              "max": 1700
+            },
+            "Ethiopia": {
+              "min": 34500,
+              "default": 51700,
+              "max": 149500
+            },
+            "Finland": {
+              "min": 1700,
+              "default": 2500,
+              "max": 7200
+            },
+            "France": {
+              "min": 19600,
+              "default": 29400,
+              "max": 84900
+            },
+            "Germany": {
+              "min": 25100,
+              "default": 37700,
+              "max": 108900
+            },
+            "Greece": {
+              "min": 3100,
+              "default": 4700,
+              "max": 13500
+            },
+            "Hong Kong": {
+              "min": 2200,
+              "default": 3400,
+              "max": 9700
+            },
+            "Hungary": {
+              "min": 2900,
+              "default": 4300,
+              "max": 12600
+            },
+            "Iceland": {
+              "min": 100,
+              "default": 200,
+              "max": 400
+            },
+            "India": {
+              "min": 414000,
+              "default": 621000,
+              "max": 1794000
+            },
+            "Indonesia": {
+              "min": 82100,
+              "default": 123100,
+              "max": 355600
+            },
+            "Ireland": {
+              "min": 1500,
+              "default": 2200,
+              "max": 6400
+            },
+            "Israel": {
+              "min": 2600,
+              "default": 3900,
+              "max": 11300
+            },
+            "Italy": {
+              "min": 18100,
+              "default": 27200,
+              "max": 78600
+            },
+            "Japan": {
+              "min": 37900,
+              "default": 56900,
+              "max": 164400
+            },
+            "Kazakhstan": {
+              "min": 5600,
+              "default": 8400,
+              "max": 24400
+            },
+            "Laos": {
+              "min": 2200,
+              "default": 3300,
+              "max": 9500
+            },
+            "Latvia": {
+              "min": 600,
+              "default": 800,
+              "max": 2500
+            },
+            "Lithuania": {
+              "min": 800,
+              "default": 1200,
+              "max": 3500
+            },
+            "Luxembourg": {
+              "min": 200,
+              "default": 300,
+              "max": 800
+            },
+            "Malaysia": {
+              "min": 9700,
+              "default": 14600,
+              "max": 42100
+            },
+            "Malta": {
+              "min": 100,
+              "default": 200,
+              "max": 600
+            },
+            "Mexico": {
+              "min": 38700,
+              "default": 58000,
+              "max": 167600
+            },
+            "Morocco": {
+              "min": 11100,
+              "default": 16600,
+              "max": 48000
+            },
+            "Myanmar": {
+              "min": 16300,
+              "default": 24500,
+              "max": 70700
+            },
+            "Netherlands": {
+              "min": 5100,
+              "default": 7700,
+              "max": 22300
+            },
+            "New Zealand": {
+              "min": 1400,
+              "default": 2200,
+              "max": 6300
+            },
+            "Norway": {
+              "min": 1600,
+              "default": 2400,
+              "max": 7000
+            },
+            "Peru": {
+              "min": 9900,
+              "default": 14800,
+              "max": 42900
+            },
+            "Philippines": {
+              "min": 32900,
+              "default": 49300,
+              "max": 142500
+            },
+            "Poland": {
+              "min": 11400,
+              "default": 17000,
+              "max": 49200
+            },
+            "Portugal": {
+              "min": 3100,
+              "default": 4600,
+              "max": 13300
+            },
+            "Romania": {
+              "min": 5800,
+              "default": 8700,
+              "max": 25000
+            },
+            "Russia": {
+              "min": 43800,
+              "default": 65700,
+              "max": 189700
+            },
+            "Rwanda": {
+              "min": 3900,
+              "default": 5800,
+              "max": 16800
+            },
+            "Saudi Arabia": {
+              "min": 10400,
+              "default": 15700,
+              "max": 45300
+            },
+            "Singapore": {
+              "min": 1800,
+              "default": 2600,
+              "max": 7600
+            },
+            "Slovakia": {
+              "min": 1600,
+              "default": 2500,
+              "max": 7100
+            },
+            "Slovenia": {
+              "min": 600,
+              "default": 900,
+              "max": 2700
+            },
+            "South Africa": {
+              "min": 17800,
+              "default": 26700,
+              "max": 77100
+            },
+            "South Korea": {
+              "min": 15400,
+              "default": 23100,
+              "max": 66600
+            },
+            "Spain": {
+              "min": 14000,
+              "default": 21000,
+              "max": 60800
+            },
+            "Sweden": {
+              "min": 3000,
+              "default": 4500,
+              "max": 13100
+            },
+            "Switzerland": {
+              "min": 2600,
+              "default": 3900,
+              "max": 11300
+            },
+            "Taiwan": {
+              "min": 7100,
+              "default": 10700,
+              "max": 31000
+            },
+            "Thailand": {
+              "min": 20900,
+              "default": 31400,
+              "max": 90700
+            },
+            "Tunisia": {
+              "min": 3500,
+              "default": 5300,
+              "max": 15400
+            },
+            "Turkey": {
+              "min": 25300,
+              "default": 38000,
+              "max": 109600
+            },
+            "United Kingdom": {
+              "min": 20400,
+              "default": 30500,
+              "max": 88300
+            },
+            "United States": {
+              "min": 99300,
+              "default": 149000,
+              "max": 430300
+            },
+            "Vietnam": {
+              "min": 29200,
+              "default": 43800,
+              "max": 126500
+            }
+          }
+        }
       }
     ],
     "results": {

@@ -3,13 +3,13 @@
     <CIconSvg v-if="iconDetails.custom" class="icon parameter-icon">
       <img :src="customIconPath()">
     </CIconSvg>
-    <CIcon v-else :icon="iconDetails.icon" class="parameter-icon" />
+    <CIcon v-else :icon="iconDetails.icon" class="parameter-icon text-secondary" />
   </span>
 </template>
 
 <script lang="ts" setup>
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
-import type { Parameter } from "@/types/apiResponseTypes";
+import type { Parameter } from "@/types/parameterTypes";
 
 const props = defineProps<{
   parameter: Parameter
@@ -18,13 +18,15 @@ const props = defineProps<{
 const iconDetails = computed((): { icon: string, custom: boolean } | undefined => {
   switch (props.parameter.id) {
     case "country":
-      return { icon: "cilGlobeAlt", custom: false };
+      return { icon: "carbonSEEarth", custom: true }; // License is detailed here https://www.svgrepo.com/svg/340244/earth-southeast-asia
     case "response":
       return { icon: "cilShieldAlt", custom: false };
     case "vaccine":
-      return { icon: "cilIndustry", custom: false };
+      return { icon: "vectopusVaccine", custom: true }; // I heavily adapted this svg. License is detailed at https://www.svgrepo.com/svg/455593/vaccine
     case "pathogen":
-      return { icon: "wikimediaVirusIcon", custom: true };
+      return { icon: "pictogrammersMaterialBacteria", custom: true }; // License is detailed here: https://www.iconarchive.com/show/material-icons-by-pictogrammers/bacteria-outline-icon.html
+    case "hospital_capacity":
+      return { icon: "cilMedicalCross", custom: false };
     default:
       return undefined;
   }
