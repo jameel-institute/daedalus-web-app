@@ -1,15 +1,21 @@
 import type { FetchError } from "ofetch";
+import type { Chart } from "highcharts";
 import type { AsyncDataRequestStatus } from "#app";
-import type { Metadata, ScenarioStatusData, VersionData } from "@/types/apiResponseTypes";
+import type { Metadata, ScenarioResultData, ScenarioStatusData, VersionData } from "@/types/apiResponseTypes";
 import type { ParameterSet } from "@/types/parameterTypes";
 
 interface Scenario {
   runId: string | undefined
   parameters: ParameterSet | undefined
+  result: {
+    data: ScenarioResultData | undefined
+    fetchError: FetchError | undefined
+    fetchStatus: AsyncDataRequestStatus | undefined
+  }
   status: {
-    statusData: ScenarioStatusData | undefined
-    scenarioStatusFetchError: FetchError | undefined
-    scenarioStatusFetchStatus: AsyncDataRequestStatus | undefined
+    data: ScenarioStatusData | undefined
+    fetchError: FetchError | undefined
+    fetchStatus: AsyncDataRequestStatus | undefined
   }
 }
 export interface AppState {
@@ -21,5 +27,5 @@ export interface AppState {
   metadata: Metadata | undefined
   metadataFetchError: FetchError | undefined
   metadataFetchStatus: AsyncDataRequestStatus | undefined
-  currentScenario: Scenario
+  currentScenario: Scenario // Represents the scenario currently being viewed
 };

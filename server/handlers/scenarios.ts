@@ -1,6 +1,14 @@
 import type { EventHandlerRequest, H3Event } from "h3";
 import { fetchRApi } from "@/server/utils/rApi";
-import type { ApiError, NewScenarioData, NewScenarioResponse, ScenarioStatusData, ScenarioStatusResponse } from "@/types/apiResponseTypes";
+import type {
+  ApiError,
+  NewScenarioData,
+  NewScenarioResponse,
+  ScenarioResultData,
+  ScenarioResultResponse,
+  ScenarioStatusData,
+  ScenarioStatusResponse,
+} from "@/types/apiResponseTypes";
 import type { ParameterDict } from "@/types/apiRequestTypes";
 
 const rApiNewScenarioEndpoint = "/scenario/run";
@@ -51,4 +59,32 @@ export const getScenarioStatus = async (runId: string | undefined, event?: H3Eve
     errors: response?.errors || null,
     data: response?.data as ScenarioStatusData,
   } as ScenarioStatusResponse;
+};
+
+const rApiScenarioResultEndpoint = "/scenario/results";
+export const getScenarioResult = async (runId: string | undefined, event?: H3Event<EventHandlerRequest>): Promise<ScenarioResultResponse> => {
+  if (!runId) {
+    const errors: Array<ApiError> = [{ error: "Bad request", detail: "Run ID not provided." }];
+    return {
+      statusText: "Bad request",
+      statusCode: 400,
+      errors,
+      data: null,
+    } as ScenarioResultResponse;
+  }
+
+  const response = await fetchRApi<ScenarioResultData>(
+    `${rApiScenarioResultEndpoint}/${runId}`,
+    {
+      method: "GET",
+    },
+    event,
+  );
+
+  return {
+    statusText: response.statusText,
+    statusCode: response.statusCode,
+    errors: response?.errors || null,
+    data: response?.data as ScenarioResultData,
+  } as ScenarioResultResponse;
 };

@@ -2,8 +2,25 @@ import { defineStore } from "pinia";
 import type { FetchError } from "ofetch";
 import type { AsyncDataRequestStatus } from "#app";
 import type { AppState } from "@/types/storeTypes";
-import type { Metadata, ScenarioStatusData, VersionData } from "@/types/apiResponseTypes";
-import { TypeOfParameter } from "@/types/parameterTypes";
+import type { Metadata, ScenarioResultData, ScenarioStatusData, VersionData } from "@/types/apiResponseTypes";
+import { type Parameter, TypeOfParameter } from "@/types/parameterTypes";
+import type { ScenarioCapacity, ScenarioIntervention } from "~/types/resultTypes";
+
+const emptyScenario = {
+  runId: undefined,
+  parameters: undefined,
+  result: {
+    data: undefined,
+    fetchError: undefined,
+    fetchStatus: undefined,
+  },
+  status: {
+    data: undefined,
+    fetchError: undefined,
+    fetchStatus: undefined,
+  },
+};
+Object.freeze(emptyScenario);
 
 export const useAppStore = defineStore("app", {
   state: (): AppState => ({
@@ -15,18 +32,13 @@ export const useAppStore = defineStore("app", {
     metadata: undefined,
     metadataFetchError: undefined,
     metadataFetchStatus: undefined,
-    currentScenario: { // Represents the scenario currently being viewed
-      runId: undefined,
-      parameters: undefined,
-      status: {
-        statusData: undefined,
-        scenarioStatusFetchError: undefined,
-        scenarioStatusFetchStatus: undefined,
-      },
-    },
+    currentScenario: { ...emptyScenario },
   }),
   getters: {
-    globeParameter: state => state.metadata?.parameters.find(param => param.parameterType === TypeOfParameter.GlobeSelect),
+    globeParameter: (state): Parameter | undefined => state.metadata?.parameters.find(param => param.parameterType === TypeOfParameter.GlobeSelect),
+    timeSeriesData: (state): Record<string, number[]> | undefined => state.currentScenario.result.data?.time_series,
+    capacitiesData: (state): Array<ScenarioCapacity> | undefined => state.currentScenario.result.data?.capacities,
+    interventionsData: (state): Array<ScenarioIntervention> | undefined => state.currentScenario.result.data?.interventions,
   },
   actions: {
     async loadScenarioStatus() {
@@ -44,9 +56,25 @@ export const useAppStore = defineStore("app", {
         error: Ref<FetchError | undefined>
       };
       this.currentScenario.status = {
-        statusData: scenarioStatusData.value,
-        scenarioStatusFetchStatus: scenarioStatusFetchStatus.value,
-        scenarioStatusFetchError: scenarioStatusFetchError.value,
+        data: scenarioStatusData.value,
+        fetchStatus: scenarioStatusFetchStatus.value,
+        fetchError: scenarioStatusFetchError.value,
+      };
+    },
+    async loadScenarioResults() {
+      if (!this.currentScenario.runId) {
+        return;
+      }
+
+      const { data, status, error } = await useFetch(`/api/scenarios/result/${this.currentScenario.runId}`) as {
+        data: Ref<ScenarioResultData>
+        status: Ref<AsyncDataRequestStatus>
+        error: Ref<FetchError | undefined>
+      };
+      this.currentScenario.result = {
+        data: data.value,
+        fetchStatus: status.value,
+        fetchError: error.value,
       };
     },
     async loadMetadata() {
@@ -73,6 +101,9 @@ export const useAppStore = defineStore("app", {
           }
         },
       });
+    },
+    clearScenario() {
+      this.currentScenario = { ...emptyScenario };
     },
   },
 });

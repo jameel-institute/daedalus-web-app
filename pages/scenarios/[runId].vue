@@ -91,21 +91,56 @@
         </CAccordionItem>
       </CAccordion>
     </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card mb-4">
+          <div class="card-header">
+            Time series
+          </div>
+          <div class="card-body">
+            <p>Click and drag to zoom into a selection of the graph. The vertical axis will be re-scaled automatically.</p>
+            <div v-if="appStore.timeSeriesData">
+              <div v-for="(_, seriesId, index) in appStore.timeSeriesData" :key="seriesId">
+                <TimeSeries
+                  :id="seriesId"
+                  :index="index"
+                />
+              </div>
+            </div>
+            <CSpinner
+              v-show="appStore.currentScenario.status.data?.runStatus === runStatus.Queued || appStore.currentScenario.status.data?.runStatus === runStatus.Running"
+              color="secondary"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+    <h3>
+      Results {{ appStore.currentScenario.result }}
+    </h3>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import type { Parameter } from "~/types/parameterTypes";
+import { runStatus } from "~/types/apiResponseTypes";
 
 // TODO: Use the runId from the route rather than getting it out of the store. Use a single source of truth for the runId.
 const appStore = useAppStore();
 
+// Eagerly try to load the status and results, in case they are already available and can be used during server-side rendering.
+await appStore.loadScenarioStatus();
+if (appStore.currentScenario.status.data?.done) {
+  appStore.loadScenarioResults();
+}
+
 let statusInterval: NodeJS.Timeout;
 const loadScenarioStatus = () => {
   appStore.loadScenarioStatus().then(() => {
-    if (appStore.currentScenario.status?.statusData?.done) {
+    if (appStore.currentScenario.status.data?.done) {
       clearInterval(statusInterval);
+      appStore.loadScenarioResults();
     }
   });
 };
@@ -119,7 +154,12 @@ const paramDisplayText = (param: Parameter) => {
 
 onMounted(() => {
   appStore.globe.interactive = false;
-  statusInterval = setInterval(loadScenarioStatus, 200);
+  if (!appStore.currentScenario.status.data?.done || appStore.currentScenario.result.data) {
+    statusInterval = setInterval(loadScenarioStatus, 200); // Poll for status every N ms
+    setTimeout(() => {
+      clearInterval(statusInterval); // Terminate polling for status after 5 seconds
+    }, 5000);
+  }
 });
 
 onUnmounted(() => {
@@ -159,6 +199,12 @@ onUnmounted(() => {
       --cui-gutter-y: 0;
       --cui-gutter-x: 0;
     }
+  }
+}
+
+.help {
+  &:not(:hover) {
+    filter: opacity(0.5);
   }
 }
 </style>

@@ -82,6 +82,11 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/form/CFormRange",
     });
     addComponent({
+      name: "CFormSwitch",
+      export: "CFormSwitch",
+      filePath: "@coreui/vue/src/components/form/CFormSwitch",
+    });
+    addComponent({
       name: "CHeader",
       export: "CHeader",
       filePath: "@coreui/vue/src/components/header/CHeader",
