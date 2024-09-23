@@ -26,7 +26,6 @@
               :aria-label="parameter.label"
               :size="appStore.largeScreen ? 'lg' : undefined"
               :class="`${pulsingParameters.includes(parameter.id) ? 'pulse' : ''}`"
-              @change="handleChange(parameter)"
             >
               <!-- This component's "v-model" prop type signature dictates we can't pass it a number. -->
               <CFormCheck
@@ -40,6 +39,7 @@
                 autocomplete="off"
                 :label="option.label"
                 :value="option.id"
+                @change="handleChange(parameter)"
               />
             </CButtonGroup>
           </CRow>
@@ -166,7 +166,7 @@ const formData = ref(
   appStore.currentScenario.parameters ? { ...appStore.currentScenario.parameters } : initialiseFormDataFromDefaults(),
 );
 const pulsingParameters = ref([] as string[]);
-const dependentParameters = computed((): Record<string, Array<string>> => {
+const dependentParameters = computed((): Record<string, string[]> => {
   const dependentParameters = {} as { [key: string]: Array<string> };
   paramMetadata.value?.forEach((param) => {
     if (param.updateNumericFrom) {
@@ -312,6 +312,7 @@ const submitForm = async () => {
   if (response) {
     const { runId } = response;
     if (runId) {
+      appStore.clearScenario();
       appStore.currentScenario.runId = runId;
       appStore.currentScenario.parameters = formData.value as ParameterSet;
     }

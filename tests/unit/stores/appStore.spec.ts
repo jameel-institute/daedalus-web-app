@@ -82,5 +82,39 @@ describe("app store", () => {
         expect(store.globeParameter).toEqual({ id: "country", parameterType: "globeSelect" });
       });
     });
+
+    it("can clear the current scenario", async () => {
+      const store = useAppStore();
+      store.currentScenario = {
+        runId: "123",
+        parameters: { country: "USA" },
+        result: {
+          data: { costs: { id: "deaths", value: 123 } }, // todo make realistic (correct types)
+          fetchError: undefined,
+          fetchStatus: "success",
+        },
+        status: {
+          data: { status: "completed" }, // todo make realistic (correct types)
+          fetchError: undefined,
+          fetchStatus: "success",
+        },
+      };
+
+      store.clearScenario();
+      expect(store.currentScenario).toEqual({
+        runId: undefined,
+        parameters: undefined,
+        result: {
+          data: undefined,
+          fetchError: undefined,
+          fetchStatus: undefined,
+        },
+        status: {
+          data: undefined,
+          fetchError: undefined,
+          fetchStatus: undefined,
+        },
+      });
+    });
   });
 });

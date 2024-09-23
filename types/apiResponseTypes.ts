@@ -1,5 +1,6 @@
 // Types for responses from our API endpoints.
 import type { Parameter } from "./parameterTypes";
+import type { ScenarioCapacity, ScenarioCost, ScenarioIntervention } from "./resultTypes";
 
 export interface ApiError {
   error: string
@@ -22,9 +23,9 @@ export interface VersionData {
 export interface VersionDataResponse extends ApiResponse<VersionData> { }
 
 // Metadata
-interface DisplayInfo {
+export interface DisplayInfo {
+  id: string
   label: string
-  value: number
   description: string | null
 }
 export interface Metadata {
@@ -42,7 +43,7 @@ export interface NewScenarioData {
 
 export interface NewScenarioResponse extends ApiResponse<NewScenarioData> { }
 
-enum runStatus {
+export enum runStatus {
   Queued = "queued",
   Running = "running",
   Complete = "complete",
@@ -58,3 +59,14 @@ export interface ScenarioStatusData {
 }
 
 export interface ScenarioStatusResponse extends ApiResponse<ScenarioStatusData> { }
+
+export interface ScenarioResultData {
+  runId: string
+  parameters: object | null
+  costs: Array<ScenarioCost>
+  capacities: Array<ScenarioCapacity>
+  interventions: Array<ScenarioIntervention>
+  time_series: Record<string, number[]>
+}
+
+export interface ScenarioResultResponse extends ApiResponse<ScenarioResultData> { }
