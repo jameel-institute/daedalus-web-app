@@ -148,16 +148,14 @@ const appStore = useAppStore();
 const paramMetadata = computed(() => appStore.metadata?.parameters);
 
 const formData = ref(
-  // Initialize formData with a new object with keys set to the id values of the metadata.parameters array of objects, and
-  // all values set to default values, or to previous values if known (i.e. if in app store).
+  // Initialize formData as a dictionary of parameters with values set to defaults if available,
+  // or to the previous scenario's values if any.
   paramMetadata.value?.reduce((acc, { id, defaultOption, options, updateNumericFrom }) => {
-    if (appStore.currentScenario?.parameters[id]) {
-      acc[id] = appStore.currentScenario.parameters[id];
-    } else if (options && !updateNumericFrom) { // Excludes fields whose values depend on others'; we'll set these once all the defaults are set.
+    if (!acc[id] && options && !updateNumericFrom) { // Excludes fields whose values depend on others'; we'll set these once all the defaults are set.
       acc[id] = (defaultOption || options[0].id).toString();
     }
     return acc;
-  }, {} as { [key: string]: string }),
+  }, { ...appStore.currentScenario?.parameters } as { [key: string]: string }),
 );
 const pulsingParameters = ref([] as string[]);
 const dependentParameters = computed((): Record<string, Array<string>> => {
@@ -238,10 +236,11 @@ const invalidFields = computed(() => {
   return invalids;
 });
 
+// Since some defaults depend on the values of other fields, this function should not be used to initialize form values.
 const defaultValue = (param: Parameter) => {
   if (param.updateNumericFrom) {
     const dependedOnParamId = param.updateNumericFrom.parameterId;
-    return param.updateNumericFrom.values[formData.value![dependedOnParamId]].default.toString();
+    return param.updateNumericFrom.values[formData.value[dependedOnParamId]]?.default?.toString();
   } else if (param.parameterType === TypeOfParameter.Select || param.parameterType === TypeOfParameter.GlobeSelect) {
     return param.defaultOption || param.options[0].id;
   }
@@ -307,17 +306,14 @@ const submitForm = async () => {
 };
 
 // Set fields whose default values are dependent on other fields' values to their defaults.
-const resetAllDependents = () => {
-  paramMetadata.value?.filter((param) => {
-    const isDependent = param.updateNumericFrom !== undefined;
-    const shouldBeSetByStore = appStore.currentScenario?.parameters[param.id];
-    return isDependent && !shouldBeSetByStore;
-  }).forEach(resetParam);
-};
+paramMetadata.value?.filter((param) => {
+  const isDependent = param.updateNumericFrom !== undefined;
+  const shouldBeSetByStore = appStore.currentScenario?.parameters[param.id];
+  return isDependent && !shouldBeSetByStore;
+}).forEach(resetParam);
 
 onMounted(() => {
   mounted.value = true; // Use in v-show, otherwise there are up to several seconds during which the form shows with out of date values.
-  resetAllDependents(); // To do this, we need metadata to have been fetched, so do this in the onMounted hook.
 });
 </script>
 
