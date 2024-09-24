@@ -308,7 +308,7 @@ const submitForm = async () => {
 // Set fields whose default values are dependent on other fields' values to their defaults.
 paramMetadata.value?.filter((param) => {
   const isDependent = param.updateNumericFrom !== undefined;
-  const shouldBeSetByStore = appStore.currentScenario?.parameters[param.id];
+  const shouldBeSetByStore = appStore.currentScenario?.parameters?.[param.id];
   return isDependent && !shouldBeSetByStore;
 }).forEach(resetParam);
 
