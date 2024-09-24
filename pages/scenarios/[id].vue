@@ -17,9 +17,11 @@
         <CRow>
           <CCol class="col-auto">
             <div class="card-header h-100 align-content-center">
-              Parameters
-              <NuxtLink to="/scenarios/new" class="ms-2 link-secondary" title="Edit parameters">
-                <CIcon icon="cilPencil" class="form-icon" />
+              <NuxtLink to="/scenarios/new" class="ms-2" title="Edit parameters">
+                <CButton color="light">
+                  Parameters
+                </CButton>
+                <CIcon icon="cilPencil" class="form-icon link-secondary" />
               </NuxtLink>
             </div>
           </CCol>
@@ -97,6 +99,9 @@ onMounted(() => {
       border-bottom: none;
       border-top-right-radius: 0;
       border-bottom-left-radius: var(--cui-card-inner-border-radius) var(--cui-card-inner-border-radius) 0 0;
+
+      padding: 0;
+      padding-right: 1rem;
     }
 
     .row {

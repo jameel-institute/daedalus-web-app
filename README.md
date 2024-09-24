@@ -27,7 +27,7 @@ npm run test:ssr
 
 Run full-stack tests:
 
-1. Ensure Mockoon server is not running
+1. Ensure you have the service dependencies up and running, and that the Mockoon server is not running.
 1. Run:
 ```bash
 npm run test:e2e
