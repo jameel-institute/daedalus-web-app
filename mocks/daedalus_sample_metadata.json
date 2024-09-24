@@ -2,7 +2,7 @@
   "status": "success",
   "errors": null,
   "data": {
-    "modelVersion": "0.0.8",
+    "modelVersion": "0.0.0",
     "parameters": [
       {
         "id": "country",
