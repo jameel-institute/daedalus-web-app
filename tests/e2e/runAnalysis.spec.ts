@@ -30,15 +30,17 @@ test("Can request a scenario analysis run", async ({ page, baseURL, isMobile }) 
   expect(page.url()).toMatch(new RegExp(`${baseURL}/scenarios/[a-f0-9]{32}`));
   await expect(page.getByText("Simulate a new scenario")).not.toBeVisible();
 
+  let parameterLocatorIndex = 0;
   if (isMobile) {
     await expect(page.getByText("Rotate your mobile device").first()).toBeVisible();
-    await page.click('*:has-text("Parameters")');
+    await page.getByRole("button", { name: "Parameters" }).click();
+    parameterLocatorIndex = 1;
   } else {
     await expect(page.getByText("Rotate your mobile device").first()).not.toBeVisible();
   }
-  await expect(page.getByText("Influenza 1957").first()).toBeVisible();
-  await expect(page.getByText("Elimination").first()).toBeVisible();
-  await expect(page.getByText("United States").first()).toBeVisible();
-  await expect(page.getByText("Medium").first()).toBeVisible();
-  await expect(page.getByText("200000").first()).toBeVisible();
+  await expect(page.getByText("Influenza 1957").nth(parameterLocatorIndex)).toBeVisible();
+  await expect(page.getByText("Elimination").nth(parameterLocatorIndex)).toBeVisible();
+  await expect(page.getByText("United States").nth(parameterLocatorIndex)).toBeVisible();
+  await expect(page.getByText("Medium").nth(parameterLocatorIndex)).toBeVisible();
+  await expect(page.getByText("200000").nth(parameterLocatorIndex)).toBeVisible();
 });
