@@ -26,8 +26,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL, isMobile }) 
   await page.selectOption(`select[aria-label="${parameterLabels.response}"]`, { label: "Elimination" });
 
   const initialCountryValue = await page.inputValue(`input[aria-label="${parameterLabels.hospital_capacity}"][type="number"]`);
+  await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue(initialCountryValue);
   await page.selectOption(`select[aria-label="${parameterLabels.country}"]`, { label: "United States" });
-  await expect(page.locator(`input[aria-label="${parameterLabels.hospital_capacity}"][type="number"]`)).not.toHaveValue(initialCountryValue);
+  await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).not.toHaveValue(initialCountryValue);
 
   await page.click(`div[aria-label="${parameterLabels.vaccine}"] label[for="medium"]`);
   await page.fill(`input[aria-label="${parameterLabels.hospital_capacity}"][type="number"]`, "200000");
@@ -51,4 +52,18 @@ test("Can request a scenario analysis run", async ({ page, baseURL, isMobile }) 
   await expect(page.getByText("United States").nth(parameterLocatorIndex)).toBeVisible();
   await expect(page.getByText("Medium").nth(parameterLocatorIndex)).toBeVisible();
   await expect(page.getByText("200000").nth(parameterLocatorIndex)).toBeVisible();
+
+  if (isMobile) {
+    await page.getByRole("link", { name: "Edit parameters" }).click();
+  } else {
+    await page.getByRole("button", { name: "Parameters" }).click();
+  };
+  await expect(page.getByText("Simulate a new scenario")).toBeVisible();
+
+  await expect(page.getByLabel(parameterLabels.country)).toHaveValue("United States");
+  await expect(page.getByLabel(parameterLabels.pathogen)).toHaveValue("influenza_1957");
+  await expect(page.getByLabel(parameterLabels.response)).toHaveValue("elimination");
+  await expect(page.getByLabel("Medium")).toBeChecked();
+  await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue("200000");
+  await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue("200000");
 });
