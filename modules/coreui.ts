@@ -47,6 +47,11 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/grid/CCol",
     });
     addComponent({
+      name: "CContainer",
+      export: "CContainer",
+      filePath: "@coreui/vue/src/components/grid/CContainer",
+    });
+    addComponent({
       name: "CForm",
       export: "CForm",
       filePath: "@coreui/vue/src/components/form/CForm",
@@ -97,6 +102,11 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/header/CHeaderNav",
     });
     addComponent({
+      name: "CNavItem",
+      export: "CNavItem",
+      filePath: "@coreui/vue/src/components/nav/CNavItem",
+    });
+    addComponent({
       name: "CRow",
       export: "CRow",
       filePath: "@coreui/vue/src/components/grid/CRow",
@@ -132,19 +142,9 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/spinner/CSpinner",
     });
     addComponent({
-      name: "CNavItem",
-      export: "CNavItem",
-      filePath: "@coreui/vue/src/components/nav/CNavItem",
-    });
-    addComponent({
-      name: "CContainer",
-      export: "CContainer",
-      filePath: "@coreui/vue/src/components/grid/CContainer",
-    });
-    addComponent({
-      name: "CProgress",
-      export: "CProgress",
-      filePath: "@coreui/vue/src/components/progress/CProgress",
+      name: "CTooltip",
+      export: "CTooltip",
+      filePath: "@coreui/vue/src/components/tooltip/CTooltip",
     });
   },
 });

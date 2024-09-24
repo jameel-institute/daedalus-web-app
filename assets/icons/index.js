@@ -1,4 +1,5 @@
 import {
+  cifTh,
   cilActionUndo,
   cilArrowRight,
   cilArrowThickToLeft,
@@ -18,6 +19,7 @@ import {
 } from "@coreui/icons";
 
 export const iconsSet = {
+  cifTh,
   cilActionUndo,
   cilArrowRight,
   cilArrowThickToLeft,

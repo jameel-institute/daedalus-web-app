@@ -5,7 +5,7 @@
         Results
       </h1>
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
-        <CIconSvg size="xxl" class="icon icon-xxl">
+        <CIconSvg size="xxl">
           <img src="/icons/rotate-device.svg">
           <!-- License: MIT License https://www.svgrepo.com/svg/451262/rotate-device -->
         </CIconSvg>
@@ -15,28 +15,52 @@
       </CAlert>
       <div v-show="appStore.largeScreen && appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="card horizontal-card ms-auto">
         <CRow>
-          <CCol class="col-auto">
-            <div class="card-header h-100 align-content-center">
-              <NuxtLink to="/scenarios/new" class="ms-2" title="Edit parameters">
-                <CButton color="light">
-                  Parameters
-                </CButton>
-                <CIcon icon="cilPencil" class="form-icon link-secondary" />
-              </NuxtLink>
-            </div>
-          </CCol>
           <CCol class="col-sm">
             <div class="card-body py-2">
               <p class="card-text d-flex gap-3 flex-wrap">
-                <span v-for="(parameter) in appStore.metadata?.parameters" :key="parameter.id">
-                  <ParameterIcon :parameter="parameter" />
-                  <span v-show="appStore.currentScenario" class="ms-1">
-                    {{ paramDisplayText(parameter) }}
-                  </span>
-                  <!-- Todo: once metadata uses real country ISOs, get a mapping from 3-letter ISOs to 2-letter ISOs, and look up the correct country flag. -->
-                  <CIcon v-if="parameter.id === appStore.globeParameter?.id" icon="cifZw" class="parameter-icon text-secondary ms-1" size="sm" />
-                </span>
+                <CTooltip
+                  v-for="(parameter) in appStore.metadata!.parameters"
+                  :key="parameter.id"
+                  :content="parameter.label"
+                  placement="top"
+                >
+                  <template #toggler="{ id, on }">
+                    <span
+                      :aria-describedby="id"
+                      v-on="on"
+                    >
+                      <ParameterIcon :parameter="parameter" />
+                      <span class="ms-1">
+                        {{ paramDisplayText(parameter) }}
+                      </span>
+                      <!-- Todo: once metadata uses real country ISOs, get a mapping from 3-letter ISOs to 2-letter ISOs, and look up the correct country flag. -->
+                      <CIcon v-if="parameter.id === appStore.globeParameter?.id" icon="cifTh" class="parameter-icon text-secondary ms-1" size="sm" />
+                    </span>
+                  </template>
+                </CTooltip>
               </p>
+            </div>
+          </CCol>
+          <CCol class="col-auto">
+            <div class="card-footer h-100 align-content-center">
+              <CTooltip
+                content="Edit parameters"
+                placement="top"
+              >
+                <template #toggler="{ id, on }">
+                  <NuxtLink
+                    to="/scenarios/new"
+                    class="ms-2 link-secondary"
+                    :aria-describedby="id"
+                    v-on="on"
+                  >
+                    <CButton color="light">
+                      Parameters
+                    </CButton>
+                    <CIcon icon="cilPencil" class="form-icon" />
+                  </NuxtLink>
+                </template>
+              </CTooltip>
             </div>
           </CCol>
         </CRow>
@@ -63,9 +87,6 @@
         </CAccordionItem>
       </CAccordion>
     </div>
-    <p>
-      Lorum ipsum dolor sit amet
-    </p>
   </div>
 </template>
 
@@ -85,11 +106,11 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @use "sass:map";
 
 .card {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.7);
 
   &.horizontal-card {
     height: fit-content;
@@ -99,9 +120,18 @@ onMounted(() => {
       border-bottom: none;
       border-top-right-radius: 0;
       border-bottom-left-radius: var(--cui-card-inner-border-radius) var(--cui-card-inner-border-radius) 0 0;
+    }
 
-      padding: 0;
-      padding-right: 1rem;
+    .card-footer {
+      border-left: var(--cui-card-border-width) solid var(--cui-card-border-color); // copied from .card-header border-bottom
+      border-top: none;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: var(--cui-card-inner-border-radius) var(--cui-card-inner-border-radius) 0 0;
+
+      padding-bottom: 0;
+      padding-left: 0;
+      padding-top: 0;
     }
 
     .row {
@@ -109,9 +139,5 @@ onMounted(() => {
       --cui-gutter-x: 0;
     }
   }
-}
-
-.accordion {
-  width: 300px;
 }
 </style>

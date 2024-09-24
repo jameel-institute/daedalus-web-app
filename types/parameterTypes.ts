@@ -1,4 +1,4 @@
-export interface ParameterSet { [key: string]: string | number };
+export interface ParameterSet { [key: string]: string };
 
 // For metadata
 // ============
