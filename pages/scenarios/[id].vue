@@ -34,7 +34,7 @@
                         {{ paramDisplayText(parameter) }}
                       </span>
                       <!-- Todo: once metadata uses real country ISOs, get a mapping from 3-letter ISOs to 2-letter ISOs, and look up the correct country flag. -->
-                      <CIcon v-if="parameter.id === appStore.globeParameter?.id" icon="cifTh" class="parameter-icon text-secondary ms-1" size="sm" />
+                      <CIcon v-if="parameter.id === appStore.globeParameter?.id" icon="cifGb" class="parameter-icon text-secondary ms-1" />
                     </span>
                   </template>
                 </CTooltip>
