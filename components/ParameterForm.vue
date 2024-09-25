@@ -145,17 +145,25 @@ import type { NewScenarioData } from "@/types/apiResponseTypes";
 
 const appStore = useAppStore();
 
+const formSubmitting = ref(false);
+const showValidations = ref(false);
+const mounted = ref(false);
+
 const paramMetadata = computed(() => appStore.metadata?.parameters);
+
+const initialiseFormDataFromDefaults = () => {
+  return paramMetadata.value?.reduce((acc, { id, defaultOption, options, updateNumericFrom }) => {
+    if (options && !updateNumericFrom) { // Excludes fields whose values depend on others'; we'll set these once all the defaults are set.
+      acc[id] = (defaultOption || options[0].id).toString();
+    }
+    return acc;
+  }, {} as { [key: string]: string });
+};
 
 const formData = ref(
   // Initialize formData as a dictionary of parameters with values set to defaults if available,
   // or to the previous scenario's values if any.
-  paramMetadata.value?.reduce((acc, { id, defaultOption, options, updateNumericFrom }) => {
-    if (!acc[id] && options && !updateNumericFrom) { // Excludes fields whose values depend on others'; we'll set these once all the defaults are set.
-      acc[id] = (defaultOption || options[0].id).toString();
-    }
-    return acc;
-  }, { ...appStore.currentScenario?.parameters } as { [key: string]: string }),
+  appStore.currentScenario ? { ...appStore.currentScenario.parameters } : initialiseFormDataFromDefaults(),
 );
 const pulsingParameters = ref([] as string[]);
 const dependentParameters = computed((): Record<string, Array<string>> => {
@@ -171,9 +179,6 @@ const dependentParameters = computed((): Record<string, Array<string>> => {
   });
   return dependentParameters;
 });
-const formSubmitting = ref(false);
-const showValidations = ref(false);
-const mounted = ref(false);
 
 const optionsAreTerse = (param: Parameter) => {
   const eachOptionIsASingleWord = param.options.every((option) => {
@@ -238,9 +243,15 @@ const invalidFields = computed(() => {
 
 // Since some defaults depend on the values of other fields, this function should not be used to initialize form values.
 const defaultValue = (param: Parameter) => {
+  if (!formData.value) {
+    return;
+  }
+
   if (param.updateNumericFrom) {
     const dependedOnParamId = param.updateNumericFrom.parameterId;
-    return param.updateNumericFrom.values[formData.value[dependedOnParamId]]?.default?.toString();
+    const dependedOnValue = formData.value[dependedOnParamId];
+    const dependentDefaultValue = param.updateNumericFrom.values[dependedOnValue]?.default;
+    return dependentDefaultValue?.toString();
   } else if (param.parameterType === TypeOfParameter.Select || param.parameterType === TypeOfParameter.GlobeSelect) {
     return param.defaultOption || param.options[0].id;
   }
@@ -305,15 +316,15 @@ const submitForm = async () => {
   };
 };
 
-// Set fields whose default values are dependent on other fields' values to their defaults.
-paramMetadata.value?.filter((param) => {
-  const isDependent = param.updateNumericFrom !== undefined;
-  const shouldBeSetByStore = appStore.currentScenario?.parameters?.[param.id];
-  return isDependent && !shouldBeSetByStore;
-}).forEach(resetParam);
-
 onMounted(() => {
   mounted.value = true; // Use in v-show, otherwise there are up to several seconds during which the form shows with out of date values.
+
+  // Set fields whose default values are dependent on other fields' values to their defaults, except if they have been set from the store.
+  paramMetadata.value?.filter((param) => {
+    const isDependent = param.updateNumericFrom !== undefined;
+    const shouldBeSetFromStore = appStore.currentScenario?.parameters?.[param.id];
+    return isDependent && !shouldBeSetFromStore;
+  }).forEach(resetParam);
 });
 </script>
 
