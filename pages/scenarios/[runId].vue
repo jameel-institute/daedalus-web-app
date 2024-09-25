@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="container-fluid d-flex flex-wrap gap-3">
-      <h1 class="fs-1">
+    <div class="d-flex flex-wrap mb-2">
+      <h1 class="fs-1 mb-0">
         Results
       </h1>
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
@@ -13,8 +13,33 @@
           Rotate your mobile device to landscape for the best experience.
         </p>
       </CAlert>
-      <div v-show="appStore.largeScreen && appStore.currentScenario.parameters && appStore.metadata?.parameters" class="card horizontal-card ms-auto">
+      <CModal
+        :visible="parameterModalVisible"
+        aria-labelledby="LiveDemoExampleLabel"
+        @close="() => { parameterModalVisible = false }"
+      >
+        <CModalHeader>
+          <CModalTitle id="LiveDemoExampleLabel">
+            Edit parameters
+          </CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <ParameterForm :in-modal="true" />
+        </CModalBody>
+      </CModal>
+      <div v-show="appStore.currentScenario.parameters && appStore.metadata?.parameters" class="card horizontal-card ms-auto">
         <CRow>
+          <div
+            v-show="!appStore.largeScreen"
+            class="card-header h-100 align-content-center"
+            role="button"
+            @click="() => { parameterModalVisible = true }"
+          >
+            <CButton color="light" size="">
+              Parameters
+            </CButton>
+            <CIcon icon="cilPencil" class="form-icon link-secondary" />
+          </div>
           <CCol class="col-sm">
             <div class="card-body py-2">
               <p class="card-text d-flex gap-3 flex-wrap">
@@ -45,31 +70,30 @@
               </p>
             </div>
           </CCol>
-          <CCol class="col-auto">
-            <div class="card-footer h-100 align-content-center">
-              <CTooltip
-                content="Edit parameters"
-                placement="top"
-              >
-                <template #toggler="{ id, on }">
-                  <NuxtLink
-                    to="/scenarios/new"
-                    class="ms-2 link-secondary"
-                    :aria-describedby="id"
-                    v-on="on"
-                  >
-                    <CButton color="light">
-                      Parameters
-                    </CButton>
-                    <CIcon icon="cilPencil" class="form-icon" />
-                  </NuxtLink>
-                </template>
-              </CTooltip>
-            </div>
+          <CCol v-show="appStore.largeScreen" class="col-auto">
+            <CTooltip
+              content="Edit parameters"
+              placement="top"
+            >
+              <template #toggler="{ togglerId, on }">
+                <div
+                  class="card-footer h-100 align-content-center"
+                  role="button"
+                  :aria-describedby="togglerId"
+                  @click="() => { parameterModalVisible = true }"
+                  v-on="on"
+                >
+                  <CButton color="light">
+                    Parameters
+                  </CButton>
+                  <CIcon icon="cilPencil" class="form-icon link-secondary" />
+                </div>
+              </template>
+            </CTooltip>
           </CCol>
         </CRow>
       </div>
-      <CAccordion v-show="!appStore.largeScreen && appStore.currentScenario.parameters && appStore.metadata?.parameters" class="ms-auto">
+      <CAccordion v-show="false && !appStore.largeScreen && appStore.currentScenario.parameters && appStore.metadata?.parameters" class="ms-auto">
         <CAccordionItem :item-key="1">
           <CAccordionHeader>
             Parameters
@@ -91,7 +115,16 @@
         </CAccordionItem>
       </CAccordion>
     </div>
-    <div class="row">
+    <CAlert v-if="appStore.currentScenario.status.data?.runSuccess === false" color="danger">
+      The analysis run failed. Please
+      <NuxtLink prefetch-on="interaction" to="/scenarios/new">
+        try again.
+      </NuxtLink>
+      <p v-for="(errorMsg, index) in appStore.currentScenario.status.data.runErrors" :key="index">
+        {{ errorMsg }}
+      </p>
+    </CAlert>
+    <div v-else class="row">
       <div class="col-md-12">
         <div class="card mb-4">
           <div class="card-header">
@@ -126,16 +159,18 @@ import { runStatus } from "~/types/apiResponseTypes";
 // TODO: Use the runId from the route rather than getting it out of the store. Use a single source of truth for the runId.
 const appStore = useAppStore();
 
+const parameterModalVisible = ref(false);
+
 // Eagerly try to load the status and results, in case they are already available and can be used during server-side rendering.
 await appStore.loadScenarioStatus();
-if (appStore.currentScenario.status.data?.done) {
+if (appStore.currentScenario.status.data?.runSuccess) {
   appStore.loadScenarioResults();
 }
 
 let statusInterval: NodeJS.Timeout;
 const loadScenarioStatus = () => {
   appStore.loadScenarioStatus().then(() => {
-    if (appStore.currentScenario.status.data?.done) {
+    if (appStore.currentScenario.status.data?.runSuccess) {
       clearInterval(statusInterval);
       appStore.loadScenarioResults();
     }
@@ -174,10 +209,7 @@ onUnmounted(() => {
     height: fit-content;
 
     .card-header {
-      border-right: var(--cui-card-border-width) solid var(--cui-card-border-color); // copied from .card-header border-bottom
-      border-bottom: none;
-      border-top-right-radius: 0;
-      border-bottom-left-radius: var(--cui-card-inner-border-radius) var(--cui-card-inner-border-radius) 0 0;
+      padding: 0;
     }
 
     .card-footer {

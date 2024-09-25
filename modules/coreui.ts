@@ -107,6 +107,26 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/header/CHeaderNav",
     });
     addComponent({
+      name: "CModal",
+      export: "CModal",
+      filePath: "@coreui/vue/src/components/modal/CModal",
+    });
+    addComponent({
+      name: "CModalHeader",
+      export: "CModalHeader",
+      filePath: "@coreui/vue/src/components/modal/CModalHeader",
+    });
+    addComponent({
+      name: "CModalTitle",
+      export: "CModalTitle",
+      filePath: "@coreui/vue/src/components/modal/CModalTitle",
+    });
+    addComponent({
+      name: "CModalBody",
+      export: "CModalBody",
+      filePath: "@coreui/vue/src/components/modal/CModalBody",
+    });
+    addComponent({
       name: "CNavItem",
       export: "CNavItem",
       filePath: "@coreui/vue/src/components/nav/CNavItem",

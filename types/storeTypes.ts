@@ -1,5 +1,4 @@
 import type { FetchError } from "ofetch";
-import type { Chart } from "highcharts";
 import type { AsyncDataRequestStatus } from "#app";
 import type { Metadata, ScenarioResultData, ScenarioStatusData, VersionData } from "@/types/apiResponseTypes";
 import type { ParameterSet } from "@/types/parameterTypes";

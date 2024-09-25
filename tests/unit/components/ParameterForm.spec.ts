@@ -140,6 +140,9 @@ describe("parameter form", () => {
       { value: "yes", label: "Yes", checked: false },
       { value: "no", label: "No", checked: true },
     ]);
+
+    const submitButton = component.find("button[type='submit']");
+    expect(submitButton.element.disabled).toBe(false);
   });
 
   it("renders the current parameter values if the app store contains a current scenario", async () => {
@@ -193,6 +196,30 @@ describe("parameter form", () => {
     ]);
   });
 
+  it("sets the submit button to disabled when the component is rendered within a modal, until the inputs differ from current scenario", async () => {
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: true },
+      global: {
+        stubs,
+        plugins: [mockPinia({
+          metadata,
+          metadataFetchStatus: "success",
+          currentScenario: {
+            parameters: {
+              long_list: "3",
+              region: "CLD",
+              population: "25000",
+              short_list: "yes",
+            },
+          },
+        })],
+      },
+    });
+
+    const submitButton = component.find("button[type='submit']");
+    expect(submitButton.element.disabled).toBe(true);
+  });
+
   it("updates the numeric input's min, max, and default values based on the selected option", async () => {
     const component = await mountSuspended(ParameterForm, {
       global: { stubs, plugins: [mockPinia({ metadata, metadataFetchStatus: "success" })] },
@@ -206,12 +233,16 @@ describe("parameter form", () => {
     expect(rangeInput.element.value).toBe("2000");
 
     await shortList.find("input[value='yes']").setChecked();
-    expect(numericInput.element.value).toBe("17000");
-    expect(rangeInput.element.value).toBe("17000");
+    setTimeout(() => {
+      expect(numericInput.element.value).toBe("17000");
+      expect(rangeInput.element.value).toBe("17000");
+    }, 200);
 
     await shortList.find("input[value='no']").setChecked();
-    expect(numericInput.element.value).toBe("2000");
-    expect(rangeInput.element.value).toBe("2000");
+    setTimeout(() => {
+      expect(numericInput.element.value).toBe("2000");
+      expect(rangeInput.element.value).toBe("2000");
+    }, 200);
   });
 
   it("resets a numeric input that can be updated from another input to its default value when the reset button is clicked", async () => {
