@@ -10,7 +10,20 @@ export const mockPinia = (appState: Partial<AppState> = {}) => {
       metadata: undefined,
       metadataFetchError: undefined,
       metadataFetchStatus: undefined,
-      currentScenario: undefined,
+      currentScenario: {
+        runId: undefined,
+        parameters: undefined,
+        result: {
+          data: undefined,
+          fetchError: undefined,
+          fetchStatus: undefined,
+        },
+        status: {
+          data: undefined,
+          fetchError: undefined,
+          fetchStatus: undefined,
+        },
+      },
       ...appState,
     },
   };

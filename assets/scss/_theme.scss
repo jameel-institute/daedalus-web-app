@@ -116,3 +116,8 @@ body {
 .btn:disabled, .btn.disabled, fieldset:disabled .btn {
   opacity: 0.5;
 }
+
+// Prevent body width changing when modal-open is applied to the body. https://github.com/jschr/bootstrap-modal/issues/64#issuecomment-55794181
+.modal-open {
+  overflow-y: auto !important;
+}

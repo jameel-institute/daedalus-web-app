@@ -27,12 +27,11 @@
               :size="appStore.largeScreen ? 'lg' : undefined"
               :class="`${pulsingParameters.includes(parameter.id) ? 'pulse' : ''}`"
             >
-              <!-- This component's "v-model" prop type signature dictates we can't pass it a number. -->
               <CFormCheck
                 v-for="(option) in parameter.options"
                 :id="option.id"
                 :key="option.id"
-                v-model="formData[parameter.id] as string"
+                v-model="formData[parameter.id]"
                 type="radio"
                 :button="{ color: 'primary', variant: 'outline' }"
                 :name="parameter.id"
@@ -121,7 +120,7 @@
         color="primary"
         :size="appStore.largeScreen ? 'lg' : undefined"
         type="submit"
-        :disabled="formSubmitting || appStore.metadataFetchStatus === 'error'"
+        :disabled="formSubmitting || appStore.metadataFetchStatus === 'error' || (props.inModal && !parametersHaveChanged)"
         @click="submitForm"
       >
         Run
@@ -142,6 +141,10 @@ import { CIcon } from "@coreui/icons-vue";
 import type { Parameter, ParameterSet, ValueData } from "@/types/parameterTypes";
 import { TypeOfParameter } from "@/types/parameterTypes";
 import type { NewScenarioData } from "@/types/apiResponseTypes";
+
+const props = defineProps<{
+  inModal?: boolean
+}>();
 
 const appStore = useAppStore();
 
@@ -178,6 +181,16 @@ const dependentParameters = computed((): Record<string, string[]> => {
     }
   });
   return dependentParameters;
+});
+
+const parametersHaveChanged = computed(() => {
+  if (!appStore.currentScenario.parameters || !formData.value) {
+    return false;
+  }
+
+  return Object.keys(formData.value).some((key) => {
+    return formData.value![key] !== appStore.currentScenario.parameters![key];
+  });
 });
 
 const optionsAreTerse = (param: Parameter) => {

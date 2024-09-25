@@ -10,12 +10,9 @@
         placement="top"
       >
         <template #toggler="{ togglerId, on }">
-          <CIcon
-            icon="cilInfo"
-            class="icon help ms-2 mt-1 me-3"
-            :aria-describedby="togglerId"
-            v-on="on"
-          />
+          <CIconSvg class="icon opacity-50 ms-2 mt-1">
+            <img src="~/assets/icons/circleQuestion.svg" :aria-describedby="togglerId" v-on="on">
+          </CIconSvg>
         </template>
       </CTooltip>
       <!-- <CTooltip
@@ -66,7 +63,8 @@
     </div>
     <div
       :id="containerId"
-      style="width:100%; height:200px"
+      class="chart-container"
+      :style="{ zIndex }"
       @mousemove="onMove"
       @touchmove="onMove"
       @touchstart="onMove"
@@ -81,7 +79,7 @@ import * as Highcharts from "highcharts";
 import accessibilityInitialize from "highcharts/modules/accessibility";
 import exportingInitialize from "highcharts/modules/exporting";
 import exportDataInitialize from "highcharts/modules/export-data";
-import { CIcon } from "@coreui/icons-vue";
+import { CIconSvg } from "@coreui/icons-vue";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 
 const props = defineProps<{
@@ -95,17 +93,18 @@ exportDataInitialize(Highcharts);
 
 const appStore = useAppStore();
 
-const prevalenceOrIncidence = ref<string>(`prevalenceFor${props.id}`);
+// const prevalenceOrIncidence = ref<string>(`prevalenceFor${props.id}`);
 
 const usePlotLines = props.id === "hospitalised"; // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
-
+// We need each chart to have a higher z-index than the next one so that the exporting context menu is always on top and clickable.
+const zIndex = Object.keys(appStore.timeSeriesData!).length - props.index;
 const containerId = computed(() => `${props.id}-container`);
 const data = computed(() => appStore.timeSeriesData![props.id]);
 const seriesMetadata = computed((): DisplayInfo | undefined => appStore.metadata?.results?.time_series.find(({ id }) => id === props.id));
+// On zooming, the y-axis automatically rescales to the data (ignoring the plotLines). We want the plotLines
+// to remain visible, so we limit the y-axis' minimum range.
 const minRange = computed(() => {
   if (usePlotLines) {
-    // Get the highest capacity value
-    console.log(appStore.capacitiesData?.reduce((acc, { value }) => Math.max(acc, value), 0));
     return appStore.capacitiesData?.reduce((acc, { value }) => Math.max(acc, value), 0);
   } else {
     return undefined;
@@ -243,6 +242,22 @@ const syncExtremes = (event) => {
 const chartInitialOptions = () => ({
   chart: {
     backgroundColor: "transparent",
+    events: {
+      fullscreenOpen() {
+        this.update({
+          chart: {
+            backgroundColor: "white",
+          },
+        });
+      },
+      fullscreenClose() {
+        this.update({
+          chart: {
+            backgroundColor: "transparent",
+          },
+        });
+      },
+    },
     className: "hide-reset-zoom-button",
     style: {
       fontFamily: "inherit",
@@ -327,5 +342,11 @@ onMounted(() => {
   .highcharts-reset-zoom {
     display: none;
   }
+}
+
+.chart-container {
+  width: 100%;
+  height: 200px;
+  position: relative; /* Required for z-index to work */
 }
 </style>
