@@ -10,9 +10,6 @@
         <CIcon icon="cilGlobeAlt" size="lg" />
         <span id="appTitle">DAEDALUS Explore</span>
       </CHeaderBrand>
-      <div v-show="showBreadcrumbs" class="ms-2 d-none d-md-block">
-        <BreadCrumb />
-      </div>
       <CHeaderNav class="ms-auto">
         <CNavItem class="py-1">
           <div class="vr h-100 mx-1 text-body text-opacity-75" />
@@ -22,22 +19,14 @@
         </CNavItem>
       </CHeaderNav>
     </CContainer>
-    <CContainer v-show="showBreadcrumbs" fluid class="d-md-none full-breadcrumb-container">
-      <BreadCrumb />
-    </CContainer>
   </CHeader>
 </template>
 
 <script setup lang="ts">
 import { CIcon } from "@coreui/icons-vue";
 import throttle from "lodash.throttle";
-import { useRoute } from "vue-router";
 
 const emit = defineEmits(["toggleSidebarVisibility"]);
-
-const route = useRoute();
-
-const showBreadcrumbs = computed(() => !route.meta.hideBreadcrumbs);
 
 function toggleSidebarVisibility() {
   emit("toggleSidebarVisibility");
@@ -74,14 +63,6 @@ onBeforeUnmount(() => {
 }
 .header-toggler {
   margin-inline-start: -14px;
-}
-.full-breadcrumb-container {
-  min-height: 2.5rem !important;
-  background-color: rgb(250, 250, 250);
-
-  @media (min-width: map.get($grid-breakpoints, 'lg')) {
-    margin-left: calc($sidebar-narrow-width + 0.5rem);
-  }
 }
 
 // Align sidebar toggler with sidebar icons

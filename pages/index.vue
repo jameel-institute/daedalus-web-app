@@ -7,9 +7,6 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({
-  hideBreadcrumbs: true,
-});
 </script>
 
 <style lang="scss" scoped>

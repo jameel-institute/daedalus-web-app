@@ -7,6 +7,26 @@ import { addComponent, defineNuxtModule } from "@nuxt/kit";
 export default defineNuxtModule({
   setup() {
     addComponent({
+      name: "CAccordion",
+      export: "CAccordion",
+      filePath: "@coreui/vue/src/components/accordion/CAccordion",
+    });
+    addComponent({
+      name: "CAccordionBody",
+      export: "CAccordionBody",
+      filePath: "@coreui/vue/src/components/accordion/CAccordionBody",
+    });
+    addComponent({
+      name: "CAccordionHeader",
+      export: "CAccordionHeader",
+      filePath: "@coreui/vue/src/components/accordion/CAccordionHeader",
+    });
+    addComponent({
+      name: "CAccordionItem",
+      export: "CAccordionItem",
+      filePath: "@coreui/vue/src/components/accordion/CAccordionItem",
+    });
+    addComponent({
       name: "CAlert",
       export: "CAlert",
       filePath: "@coreui/vue/src/components/alert/CAlert",
@@ -25,6 +45,11 @@ export default defineNuxtModule({
       name: "CCol",
       export: "CCol",
       filePath: "@coreui/vue/src/components/grid/CCol",
+    });
+    addComponent({
+      name: "CContainer",
+      export: "CContainer",
+      filePath: "@coreui/vue/src/components/grid/CContainer",
     });
     addComponent({
       name: "CForm",
@@ -77,6 +102,11 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/header/CHeaderNav",
     });
     addComponent({
+      name: "CNavItem",
+      export: "CNavItem",
+      filePath: "@coreui/vue/src/components/nav/CNavItem",
+    });
+    addComponent({
       name: "CRow",
       export: "CRow",
       filePath: "@coreui/vue/src/components/grid/CRow",
@@ -112,29 +142,9 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/spinner/CSpinner",
     });
     addComponent({
-      name: "CNavItem",
-      export: "CNavItem",
-      filePath: "@coreui/vue/src/components/nav/CNavItem",
-    });
-    addComponent({
-      name: "CContainer",
-      export: "CContainer",
-      filePath: "@coreui/vue/src/components/grid/CContainer",
-    });
-    addComponent({
-      name: "CBreadcrumb",
-      export: "CBreadcrumb",
-      filePath: "@coreui/vue/src/components/breadcrumb/CBreadcrumb",
-    });
-    addComponent({
-      name: "CBreadcrumbItem",
-      export: "CBreadcrumbItem",
-      filePath: "@coreui/vue/src/components/breadcrumb/CBreadcrumbItem",
-    });
-    addComponent({
-      name: "CProgress",
-      export: "CProgress",
-      filePath: "@coreui/vue/src/components/progress/CProgress",
+      name: "CTooltip",
+      export: "CTooltip",
+      filePath: "@coreui/vue/src/components/tooltip/CTooltip",
     });
   },
 });

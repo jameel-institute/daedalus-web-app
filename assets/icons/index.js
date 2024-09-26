@@ -1,4 +1,6 @@
 import {
+  cifGb,
+  cifTh,
   cilActionUndo,
   cilArrowRight,
   cilArrowThickToLeft,
@@ -11,12 +13,15 @@ import {
   cilMedicalCross,
   cilMenu,
   cilNoteAdd,
+  cilPencil,
   cilPlus,
   cilShareAlt,
   cilShieldAlt,
 } from "@coreui/icons";
 
 export const iconsSet = {
+  cifGb,
+  cifTh,
   cilActionUndo,
   cilArrowRight,
   cilArrowThickToLeft,
@@ -29,6 +34,7 @@ export const iconsSet = {
   cilMedicalCross,
   cilMenu,
   cilNoteAdd,
+  cilPencil,
   cilPlus,
   cilShareAlt,
   cilShieldAlt,

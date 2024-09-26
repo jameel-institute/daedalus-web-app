@@ -142,6 +142,57 @@ describe("parameter form", () => {
     ]);
   });
 
+  it("renders the current parameter values if the app store contains a current scenario", async () => {
+    const component = await mountSuspended(ParameterForm, {
+      global: {
+        stubs,
+        plugins: [mockPinia({
+          metadata,
+          metadataFetchStatus: "success",
+          currentScenario: {
+            parameters: {
+              long_list: "3",
+              region: "CLD",
+              population: "25000",
+              short_list: "yes",
+            },
+          },
+        })],
+      },
+    });
+
+    const selectElements = component.findAll("select");
+
+    expect(selectElements[0].findAll("option").map((option) => {
+      return { value: option.element.value, label: option.text(), selected: option.element.selected };
+    })).toEqual([
+      { value: "1", label: "Option 1", selected: false },
+      { value: "2", label: "Option 2", selected: false },
+      { value: "3", label: "Option 3", selected: true },
+      { value: "4", label: "Option 4", selected: false },
+      { value: "5", label: "Option 5", selected: false },
+      { value: "6", label: "Option 6", selected: false },
+    ]);
+
+    expect(selectElements[1].findAll("option").map((option) => {
+      return { value: option.element.value, label: option.text(), selected: option.element.selected };
+    })).toEqual([
+      { value: "CLD", label: "Cloud Nine", selected: true },
+      { value: "HVN", label: "Heaven", selected: false },
+    ]);
+
+    const numericInput = component.find("input[type='number']");
+    expect(numericInput.element.value).toBe("25000");
+
+    const shortList = component.findComponent({ name: "CButtonGroup" });
+    expect(shortList.findAll("input").map((input) => {
+      return { value: input.element.value, label: input.element.labels![0].textContent, checked: input.element.checked };
+    })).toEqual([
+      { value: "yes", label: "Yes", checked: true },
+      { value: "no", label: "No", checked: false },
+    ]);
+  });
+
   it("updates the numeric input's min, max, and default values based on the selected option", async () => {
     const component = await mountSuspended(ParameterForm, {
       global: { stubs, plugins: [mockPinia({ metadata, metadataFetchStatus: "success" })] },

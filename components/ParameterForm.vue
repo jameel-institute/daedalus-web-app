@@ -139,22 +139,31 @@
 <script lang="ts" setup>
 import type { FetchError } from "ofetch";
 import { CIcon } from "@coreui/icons-vue";
-import type { Parameter, ValueData } from "@/types/parameterTypes";
+import type { Parameter, ParameterSet, ValueData } from "@/types/parameterTypes";
 import { TypeOfParameter } from "@/types/parameterTypes";
 import type { NewScenarioData } from "@/types/apiResponseTypes";
 
 const appStore = useAppStore();
 
+const formSubmitting = ref(false);
+const showValidations = ref(false);
+const mounted = ref(false);
+
 const paramMetadata = computed(() => appStore.metadata?.parameters);
 
-const formData = ref(
-  // Create a new object with keys set to the id values of the metadata.parameters array of objects, and all values set to default values.
-  paramMetadata.value?.reduce((acc, { id, defaultOption, options, updateNumericFrom }) => {
+const initialiseFormDataFromDefaults = () => {
+  return paramMetadata.value?.reduce((acc, { id, defaultOption, options, updateNumericFrom }) => {
     if (options && !updateNumericFrom) { // Excludes fields whose values depend on others'; we'll set these once all the defaults are set.
       acc[id] = (defaultOption || options[0].id).toString();
     }
     return acc;
-  }, {} as { [key: string]: string }),
+  }, {} as { [key: string]: string });
+};
+
+const formData = ref(
+  // Initialize formData as a dictionary of parameters with values set to defaults if available,
+  // or to the previous scenario's values if any.
+  appStore.currentScenario ? { ...appStore.currentScenario.parameters } : initialiseFormDataFromDefaults(),
 );
 const pulsingParameters = ref([] as string[]);
 const dependentParameters = computed((): Record<string, Array<string>> => {
@@ -170,9 +179,6 @@ const dependentParameters = computed((): Record<string, Array<string>> => {
   });
   return dependentParameters;
 });
-const formSubmitting = ref(false);
-const showValidations = ref(false);
-const mounted = ref(false);
 
 const optionsAreTerse = (param: Parameter) => {
   const eachOptionIsASingleWord = param.options.every((option) => {
@@ -235,10 +241,17 @@ const invalidFields = computed(() => {
   return invalids;
 });
 
+// Since some defaults depend on the values of other fields, this function should not be used to initialize form values.
 const defaultValue = (param: Parameter) => {
+  if (!formData.value) {
+    return;
+  }
+
   if (param.updateNumericFrom) {
     const dependedOnParamId = param.updateNumericFrom.parameterId;
-    return param.updateNumericFrom.values[formData.value![dependedOnParamId]].default.toString();
+    const dependedOnValue = formData.value[dependedOnParamId];
+    const dependentDefaultValue = param.updateNumericFrom.values[dependedOnValue]?.default;
+    return dependentDefaultValue?.toString();
   } else if (param.parameterType === TypeOfParameter.Select || param.parameterType === TypeOfParameter.GlobeSelect) {
     return param.defaultOption || param.options[0].id;
   }
@@ -280,6 +293,7 @@ const handleChange = (param: Parameter) => {
     }
   });
 };
+
 const submitForm = async () => {
   if (invalidFields.value?.length) {
     showValidations.value = true;
@@ -297,20 +311,20 @@ const submitForm = async () => {
 
   if (response) {
     const { runId } = response;
+    appStore.setCurrentScenario(formData.value as ParameterSet);
     await navigateTo(`/scenarios/${runId}`);
-  }
-};
-
-// Set fields whose default values are dependent on other fields' values to their defaults.
-const resetAllDependents = () => {
-  paramMetadata.value?.filter((param) => {
-    return param.updateNumericFrom !== undefined;
-  }).forEach(resetParam);
+  };
 };
 
 onMounted(() => {
   mounted.value = true; // Use in v-show, otherwise there are up to several seconds during which the form shows with out of date values.
-  resetAllDependents(); // To do this, we need metadata to have been fetched, so do this in the onMounted hook.
+
+  // Set fields whose default values are dependent on other fields' values to their defaults, except if they have been set from the store.
+  paramMetadata.value?.filter((param) => {
+    const isDependent = param.updateNumericFrom !== undefined;
+    const shouldBeSetFromStore = appStore.currentScenario?.parameters?.[param.id];
+    return isDependent && !shouldBeSetFromStore;
+  }).forEach(resetParam);
 });
 </script>
 

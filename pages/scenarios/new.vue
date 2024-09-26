@@ -1,19 +1,20 @@
 <template>
   <div>
-    <div class="overlay">
+    <div :class="`overlay ${appStore.largeScreen ? 'large-screen' : ''}`">
       <h3>Simulate a new scenario</h3>
       <p>
         Select the parameters for your next scenario.
       </p>
       <ParameterForm />
     </div>
-    <!-- <Globe /> -->
   </div>
 </template>
 
 <script lang="ts" setup>
-definePageMeta({
-  hideBreadcrumbs: true,
+const appStore = useAppStore();
+
+onMounted(() => {
+  appStore.globe.interactive = true;
 });
 </script>
 
@@ -42,5 +43,9 @@ definePageMeta({
   background-color: rgba(red($cui-tertiary-bg), green($cui-tertiary-bg), blue($cui-tertiary-bg), 0.8);
   mix-blend-mode: color-burn;
   pointer-events: none;
+}
+
+.overlay.large-screen::before {
+  box-shadow: var(--cui-box-shadow);
 }
 </style>

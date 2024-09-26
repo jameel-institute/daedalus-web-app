@@ -93,7 +93,7 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
       expect(response.statusText).toBe("OK");
 
       const json = await response.json();
-      expect(json.modelVersion).toBe("0.1.0");
+      expect(json.modelVersion).toBe("0.0.0");
       expect(json.parameters[0].id).toBe("country");
     });
 
