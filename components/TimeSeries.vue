@@ -1,106 +1,72 @@
 <template>
-  <div>
-    <div class="d-flex">
-      <h4>
+  <!-- Per time series, use one accordion component with one item, so we can easily initialise them all as open with active-item-key -->
+  <CAccordion
+    :style="accordionStyle"
+    :active-item-key="isOpen ? props.seriesId : undefined"
+  >
+    <CAccordionItem :item-key="seriesId" class="border-0">
+      <CAccordionHeader class="border-top" @click="handleAccordionToggle">
         {{ seriesMetadata?.label }}
-      </h4>
-      <CTooltip
-        v-if="seriesMetadata?.description"
-        :content="seriesMetadata?.description || undefined"
-        placement="top"
-      >
-        <template #toggler="{ togglerId, on }">
-          <CIconSvg class="icon opacity-50 ms-2 mt-1">
-            <img src="~/assets/icons/circleQuestion.svg" :aria-describedby="togglerId" v-on="on">
-          </CIconSvg>
-        </template>
-      </CTooltip>
-      <!-- <CTooltip
-        content="When switched on, the total values will be displayed. When switched off, the daily rates will be displayed."
-        placement="top"
-      >
-        <template #toggler="{ togglerId, on }">
-          <span :aria-describedby="togglerId" class="ms-auto" v-on="on">
-            <CFormSwitch
-              :id="`formSwitchCheckDefaultFor${props.id}`"
-              label="Display total values (currently this does nothing)"
-              class="ms-2"
-              :reverse="true"
-              :checked="true"
-            />
-          </span>
-        </template>
-      </CTooltip> -->
-      <!-- <CButtonGroup
-        role="group"
-        aria-label="Show data by prevalence or by incidence"
-        size="sm"
-        style="height: fit-content;"
-      >
-        <CFormCheck
-          :id="`prevalenceFor${props.id}`"
-          v-model="prevalenceOrIncidence"
-          :name="`prevalenceFor${props.id}`"
-          :value="`prevalenceFor${props.id}`"
-          label="Prevalence"
-          type="radio"
-          :button="{ color: 'primary', variant: 'outline' }"
-          autocomplete="off"
-          :checked="prevalenceOrIncidence === `prevalenceFor${props.id}`"
+      </CAccordionHeader>
+      <CAccordionBody>
+        <div
+          :id="containerId"
+          class="chart-container"
+          :style="{ zIndex, height: `${containerHeightPx}px` }"
+          @mousemove="onMove"
+          @touchmove="onMove"
+          @touchstart="onMove"
         />
-        <CFormCheck
-          id="incidence"
-          v-model="prevalenceOrIncidence"
-          type="radio"
-          :button="{ color: 'primary', variant: 'outline' }"
-          name="incidence"
-          autocomplete="off"
-          label="Incidence"
-          value="incidence"
-          :checked="prevalenceOrIncidence === 'incidence'"
-        />
-      </CButtonGroup> -->
-    </div>
-    <div
-      :id="containerId"
-      class="chart-container"
-      :style="{ zIndex }"
-      @mousemove="onMove"
-      @touchmove="onMove"
-      @touchstart="onMove"
-    />
-  </div>
+      </CAccordionBody>
+    </CAccordionItem>
+  </CAccordion>
 </template>
 
 <script lang="ts" setup>
 import throttle from "lodash.throttle";
-import hexRgb from "hex-rgb";
 import * as Highcharts from "highcharts";
 import accessibilityInitialize from "highcharts/modules/accessibility";
 import exportingInitialize from "highcharts/modules/exporting";
 import exportDataInitialize from "highcharts/modules/export-data";
-import { CIconSvg } from "@coreui/icons-vue";
+
+import { highchartsColors, plotBandsColor, plotLinesColor } from "./utils/charts";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 
 const props = defineProps<{
-  id: string
+  seriesId: string
   index: number
+  openAccordions: string[]
 }>();
 
+const emit = defineEmits(["toggleOpen"]);
 accessibilityInitialize(Highcharts);
 exportingInitialize(Highcharts);
 exportDataInitialize(Highcharts);
 
 const appStore = useAppStore();
 
-// const prevalenceOrIncidence = ref<string>(`prevalenceFor${props.id}`);
-
-const usePlotLines = props.id === "hospitalised"; // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
+let chart: Highcharts.Chart;
+const accordionBodyYPadding = 8;
+const accordionStyle = {
+  "--cui-accordion-btn-focus-box-shadow": "none",
+  "--cui-accordion-bg": "rgba(255, 255, 255, 0.7)",
+};
+const usePlotLines = props.seriesId === "hospitalised"; // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
 // We need each chart to have a higher z-index than the next one so that the exporting context menu is always on top and clickable.
-const zIndex = Object.keys(appStore.timeSeriesData!).length - props.index;
-const containerId = computed(() => `${props.id}-container`);
-const data = computed(() => appStore.timeSeriesData![props.id]);
-const seriesMetadata = computed((): DisplayInfo | undefined => appStore.metadata?.results?.time_series.find(({ id }) => id === props.id));
+// Also, they should be at least 3 so that they are above .accordion-button:focus
+const zIndex = (Object.keys(appStore.timeSeriesData!).length - props.index) + 3;
+const yUnits = props.seriesId === "dead" ? "deaths" : "cases"; // TODO: Make this depend on a 'units' property in metadata.
+const accordionMinHeight = 150;
+// Allow at least accordionMinHeight for each accordion
+const maxHeightForAllAccordions = Math.max(500, (Object.keys(appStore.timeSeriesData!).length * accordionMinHeight));
+
+const isOpen = computed(() => props.openAccordions.includes(props.seriesId));
+const containerHeightPx = computed(() => maxHeightForAllAccordions / props.openAccordions.length);
+const containerId = computed(() => `${props.seriesId}-container`);
+const data = computed(() => {
+  return appStore.timeSeriesData![props.seriesId].map((value, index) => [index + 1, value]);
+});
+const seriesMetadata = computed((): DisplayInfo | undefined => appStore.metadata?.results?.time_series.find(({ id }) => id === props.seriesId));
 // On zooming, the y-axis automatically rescales to the data (ignoring the plotLines). We want the plotLines
 // to remain visible, so we limit the y-axis' minimum range.
 const minRange = computed(() => {
@@ -121,49 +87,26 @@ const plotLines = computed(() => {
     const capacityLabel = appStore.metadata?.results.capacities.find(({ id: capacityId }) => capacityId === id)?.label;
 
     lines.push({
-      color: "#FF0000", // red
+      color: plotLinesColor,
       label: {
         text: `${capacityLabel}: ${value}`,
         style: {
-          color: "#FF0000",
+          color: plotLinesColor,
         },
       },
       width: 2,
       value,
+      zIndex: 4, // Render plot line and label in front of the series line
     });
   });
 
   return lines;
 });
 
-// let plotbands = [{
-//                     from: 10,
-//                     to: 50,
-//                     color: 'rgba(200, 170, 213, .5)'
-//                 },
-//                 {
-//                     from: 204,
-//                     to: 258,
-//                     color: 'rgba(200, 170, 213, .8)'
-//                 },
-//                 {
-//                     from: 509,
-//                     to: 590,
-//                     color: 'rgba(200, 170, 213, .3)'
-//                 }];
-
-const yUnits = "cases"; // TODO: Make this depend on a 'units' property in metadata.
-
-// TODO: reuse this color in a legend
-const plotBandsColor = computed(() => {
-  const colorRgba = hexRgb(Highcharts.getOptions().colors[0]);
-  colorRgba.alpha = 0.3;
-  return `rgba(${Object.values(colorRgba).join(",")})`;
-});
 const plotBands = computed(() => {
   const bands = Array<Highcharts.AxisPlotBandsOptions>();
 
-  if (props.id === "dead") {
+  if (props.seriesId === "dead") {
     return bands;
   }
 
@@ -173,17 +116,15 @@ const plotBands = computed(() => {
     bands.push({
       from: start,
       to: end,
-      color: plotBandsColor.value,
+      color: plotBandsColor,
       label: {
-        text: `${interventionLabel}: Days ${start} to ${end}`,
+        text: `${interventionLabel ? `${interventionLabel} : ` : ""}Days ${start} to ${end}`,
       },
     });
   });
 
   return bands;
 });
-
-let chart: Highcharts.Chart;
 
 const syncTooltipsAndCrosshairs = throttle(() => {
   const pointOnOriginalChart = chart.series[0].getValidPoints().find(({ state }) => state === "hover");
@@ -199,6 +140,10 @@ const syncTooltipsAndCrosshairs = throttle(() => {
     });
   };
 }, 25, { leading: true });
+
+const handleAccordionToggle = () => {
+  emit("toggleOpen");
+};
 
 /**
  * In order to synchronize tooltips and crosshairs, override the
@@ -241,6 +186,7 @@ const syncExtremes = (event) => {
 
 const chartInitialOptions = () => ({
   chart: {
+    marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
     backgroundColor: "transparent",
     events: {
       fullscreenOpen() {
@@ -283,9 +229,6 @@ const chartInitialOptions = () => ({
   title: {
     text: "",
   },
-  credits: {
-    enabled: false,
-  },
   legend: {
     enabled: false,
   },
@@ -294,15 +237,14 @@ const chartInitialOptions = () => ({
     headerFormat: "<span style='font-size: 0.7rem; margin-bottom: 0.3rem;'>Day {point.x}</span><br/>",
     valueDecimals: 0,
   },
-  xAxis: {
-    title: {
-      text: "Days since outbreak",
-    },
+  xAxis: { // Omit title to save vertical space
     events: {
       setExtremes: syncExtremes,
     },
     crosshair: true,
     plotBands: plotBands.value,
+    minTickInterval: 1,
+    min: 1,
   },
   yAxis: {
     title: {
@@ -316,17 +258,20 @@ const chartInitialOptions = () => ({
     data: data.value,
     name: seriesMetadata.value!.label,
     type: "area", // or "line"
-    color: Highcharts.getOptions().colors[props.index + 1], // 0th color is taken by plotBands, so bump the index by one for each time series
+    color: highchartsColors[props.index],
     fillOpacity: 0.3,
     tooltip: {
-      valueSuffix: ` ${props.id === "vaccination" ? "%" : ""}`, // TODO - use correct id once this time series exists, OR configure in metadata.
+      valueSuffix: ` ${props.seriesId === "vaccination" ? "%" : ""}`, // TODO - use correct id once this time series exists, OR configure in metadata.
+    },
+    marker: {
+      enabled: false,
     },
   }],
 });
 
 onMounted(() => {
   if (!seriesMetadata.value) {
-    console.error(`Time series metadata not found for id: ${props.id}`);
+    console.error(`Time series metadata not found for id: ${props.seriesId}`);
   }
 
   chart = Highcharts.chart(containerId.value, chartInitialOptions());
@@ -335,9 +280,16 @@ onMounted(() => {
   // Using a CSS class to toggle visibility is much more performant than re-using this method.
   chart.showResetZoom();
 });
+
+watch(() => props.openAccordions, () => {
+  if (isOpen.value) {
+    const newHeight = (containerHeightPx.value - (2 * accordionBodyYPadding));
+    chart.setSize(undefined, newHeight, { duration: 250 });
+  }
+});
 </script>
 
-<style>
+<style lang="scss">
 .hide-reset-zoom-button {
   .highcharts-reset-zoom {
     display: none;
@@ -346,7 +298,16 @@ onMounted(() => {
 
 .chart-container {
   width: 100%;
-  height: 200px;
   position: relative; /* Required for z-index to work */
+  left: -20px;
+}
+
+.accordion-button {
+  color: var(--cui-black) !important;
+  background-color: var(--cui-light) !important;
+}
+
+.accordion-item {
+  background: rgba(255, 255, 255, 0.5);
 }
 </style>

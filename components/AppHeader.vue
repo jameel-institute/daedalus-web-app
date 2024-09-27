@@ -6,10 +6,11 @@
           <CIcon icon="cilMenu" size="lg" />
         </span>
       </CHeaderToggler>
-      <!-- TOdo - use NuxtLink instead of href below -->
-      <CHeaderBrand href="/" class="px-2">
-        <CIcon icon="cilGlobeAlt" size="lg" />
-        <span id="appTitle">DAEDALUS Explore</span>
+      <CHeaderBrand class="px-2">
+        <NuxtLink prefetch-on="interaction" to="/" class="nav-link">
+          <CIcon icon="cilGlobeAlt" size="lg" />
+          <span id="appTitle">DAEDALUS Explore</span>
+        </NuxtLink>
       </CHeaderBrand>
       <CHeaderNav class="ms-auto">
         <CNavItem class="py-1">
