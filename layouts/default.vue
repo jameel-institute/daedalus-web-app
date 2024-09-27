@@ -15,7 +15,7 @@
         </CContainer>
       </div>
     </div>
-    <Globe />
+    <!-- <Globe /> -->
   </div>
 </template>
 
