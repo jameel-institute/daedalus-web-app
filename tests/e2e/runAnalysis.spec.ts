@@ -20,7 +20,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, isMobile }) 
   await expect(page.getByText("Simulate a new scenario")).toBeVisible();
 
   // Reduce flakeyness of tests by waiting for evidence that the page has mounted.
-  await expect(page.getByTitle(/Web app version: 0.0.1/)).toHaveCount(1);
+  await expect(page.getByTitle(/Web app version: 0.0.2/)).toHaveCount(1);
 
   await page.selectOption(`select[aria-label="${parameterLabels.pathogen}"]`, { label: "Influenza 1957" });
   await page.selectOption(`select[aria-label="${parameterLabels.response}"]`, { label: "Elimination" });
