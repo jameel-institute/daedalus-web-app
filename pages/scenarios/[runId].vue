@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="d-flex flex-wrap mb-2">
+    <div class="d-flex flex-wrap mb-4">
       <h1 class="fs-1 mb-0">
         Results
       </h1>
@@ -35,7 +35,7 @@
             role="button"
             @click="() => { parameterModalVisible = true }"
           >
-            <CButton color="light" size="">
+            <CButton color="light">
               Parameters
             </CButton>
             <CIcon icon="cilPencil" class="form-icon link-secondary" />
@@ -93,27 +93,6 @@
           </CCol>
         </CRow>
       </div>
-      <CAccordion v-show="false && !appStore.largeScreen && appStore.currentScenario.parameters && appStore.metadata?.parameters" class="ms-auto">
-        <CAccordionItem :item-key="1">
-          <CAccordionHeader>
-            Parameters
-          </CAccordionHeader>
-          <CAccordionBody>
-            <p v-for="(parameter) in appStore.metadata?.parameters" :key="parameter.id" class="card-text">
-              <ParameterIcon :parameter="parameter" />
-              <span v-show="appStore.currentScenario" class="ms-2">
-                {{ paramDisplayText(parameter) }}
-              </span>
-              <!-- Todo: once metadata uses real country ISOs, get a mapping from 3-letter ISOs to 2-letter ISOs, and look up the correct country flag. -->
-              <CIcon v-if="parameter.id === appStore.globeParameter?.id" icon="cifZw" class="parameter-icon text-secondary ms-1" size="sm" />
-            </p>
-            <CIcon icon="cilPencil" class="form-icon" />
-            <NuxtLink to="/scenarios/new" class="ms-2 link-secondary">
-              <span>Edit parameters</span>
-            </NuxtLink>
-          </CAccordionBody>
-        </CAccordionItem>
-      </CAccordion>
     </div>
     <CAlert v-if="appStore.currentScenario.status.data?.runSuccess === false" color="danger">
       The analysis run failed. Please
@@ -124,25 +103,42 @@
         {{ errorMsg }}
       </p>
     </CAlert>
-    <div v-else class="row">
+    <div v-else-if="appStore.timeSeriesData" class="row">
       <div class="col-md-12">
-        <div class="card mb-4">
-          <div class="card-header">
-            Time series
+        <div class="card">
+          <div class="card-header border-bottom-0">
+            <h2 class="fs-5 mt-1">
+              Time series
+            </h2>
+            <div class="d-flex justify-content-between">
+              <p>
+                Click and drag to zoom into a selection of the graph. The vertical axis will be re-scaled automatically.
+              </p>
+              <TimeSeriesLegend />
+            </div>
           </div>
-          <div class="card-body">
-            <p>Click and drag to zoom into a selection of the graph. The vertical axis will be re-scaled automatically.</p>
-            <div v-if="appStore.timeSeriesData">
-              <div v-for="(_, seriesId, index) in appStore.timeSeriesData" :key="seriesId">
+          <div class="card-body p-0">
+            <!-- Per time series, use one accordion component with one item, so we can easily initialise them all as open with active-item-key -->
+            <!-- <CAccordion
+              v-for="(_, seriesId, index) in appStore.timeSeriesData"
+              :key="seriesId"
+              :style="accordionStyle"
+              :active-item-key="seriesId"
+            >
+              <CAccordionItem :item-key="seriesId" class="border-0">
                 <TimeSeries
                   :id="seriesId"
                   :index="index"
                 />
-              </div>
-            </div>
-            <CSpinner
-              v-show="appStore.currentScenario.status.data?.runStatus === runStatus.Queued || appStore.currentScenario.status.data?.runStatus === runStatus.Running"
-              color="secondary"
+              </CAccordionItem>
+            </CAccordion> -->
+            <TimeSeries
+              v-for="(_, seriesId, index) in appStore.timeSeriesData"
+              :key="seriesId"
+              :series-id="seriesId"
+              :index="index"
+              :open-accordions="openTimeSeriesAccordions"
+              @toggle-open="toggleOpen(seriesId)"
             />
           </div>
         </div>
@@ -154,12 +150,27 @@
 <script lang="ts" setup>
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import type { Parameter } from "~/types/parameterTypes";
-import { runStatus } from "~/types/apiResponseTypes";
 
 // TODO: Use the runId from the route rather than getting it out of the store. Use a single source of truth for the runId.
 const appStore = useAppStore();
 
 const parameterModalVisible = ref(false);
+const openTimeSeriesAccordions = ref<string[]>([]);
+
+const paramDisplayText = (param: Parameter) => {
+  if (appStore.currentScenario.parameters && appStore.currentScenario.parameters[param.id]) {
+    const rawVal = appStore.currentScenario.parameters[param.id].toString();
+    return param.options ? param.options.find(({ id }) => id === rawVal)!.label : rawVal;
+  }
+};
+
+const toggleOpen = (seriesId: string) => {
+  if (openTimeSeriesAccordions.value.includes(seriesId)) {
+    openTimeSeriesAccordions.value = openTimeSeriesAccordions.value.filter(id => id !== seriesId);
+  } else {
+    openTimeSeriesAccordions.value = [...openTimeSeriesAccordions.value, seriesId];
+  }
+};
 
 // Eagerly try to load the status and results, in case they are already available and can be used during server-side rendering.
 await appStore.loadScenarioStatus();
@@ -177,12 +188,9 @@ const loadScenarioStatus = () => {
   });
 };
 
-const paramDisplayText = (param: Parameter) => {
-  if (appStore.currentScenario.parameters && appStore.currentScenario.parameters[param.id]) {
-    const rawVal = appStore.currentScenario.parameters[param.id].toString();
-    return param.options ? param.options.find(({ id }) => id === rawVal)!.label : rawVal;
-  }
-};
+watch(() => (Object.keys(appStore.timeSeriesData || {})), (seriesIds) => {
+  openTimeSeriesAccordions.value = seriesIds;
+});
 
 onMounted(() => {
   appStore.globe.interactive = false;
