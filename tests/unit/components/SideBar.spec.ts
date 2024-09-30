@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 import type { VueWrapper } from "@vue/test-utils";
@@ -51,10 +51,6 @@ describe("sidebar", () => {
           expect(logoTitleAttribute).toContain("Web app version: 7.8.9");
         });
       });
-
-      afterAll(() => {
-        vi.unstubAllGlobals();
-      });
     });
 
     describe("on larger devices", () => {
@@ -83,10 +79,6 @@ describe("sidebar", () => {
         expect(component.text()).toContain("New scenario");
         const navLink = component.findComponent({ name: "NuxtLink" });
         expect(navLink.props("to")).toBe("/scenarios/new");
-      });
-
-      afterAll(() => {
-        vi.unstubAllGlobals();
       });
     });
   });

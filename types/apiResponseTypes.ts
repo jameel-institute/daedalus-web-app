@@ -28,10 +28,11 @@ export interface DisplayInfo {
   label: string
   description: string | null
 }
+export type ResultsMetadata = Record<string, Array<DisplayInfo>>;
 export interface Metadata {
   modelVersion: string
   parameters: Array<Parameter>
-  results: Record<string, Array<DisplayInfo>>
+  results: ResultsMetadata
 }
 
 export interface MetadataResponse extends ApiResponse<Metadata> { }
