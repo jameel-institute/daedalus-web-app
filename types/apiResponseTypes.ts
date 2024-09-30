@@ -1,5 +1,5 @@
 // Types for responses from our API endpoints.
-import type { Parameter } from "./parameterTypes";
+import type { Parameter, ParameterSet } from "./parameterTypes";
 import type { ScenarioCapacity, ScenarioCost, ScenarioIntervention } from "./resultTypes";
 
 export interface ApiError {
@@ -62,7 +62,7 @@ export interface ScenarioStatusResponse extends ApiResponse<ScenarioStatusData> 
 
 export interface ScenarioResultData {
   runId: string
-  parameters: object | null
+  parameters: ParameterSet
   costs: Array<ScenarioCost>
   capacities: Array<ScenarioCapacity>
   interventions: Array<ScenarioIntervention>
