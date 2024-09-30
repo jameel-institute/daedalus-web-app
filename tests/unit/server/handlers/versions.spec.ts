@@ -44,9 +44,6 @@ describe("get version data", () => {
 
       const response = await getVersionData();
 
-      // NB Couldn't find a way to expose error details in the response using registerEndpoint,
-      // but the error details are passed on in the real implementation and this is tested in
-      // the integration tests.
       expect(response.data).toBeNull();
       expect(response.statusCode).toBe(418);
       expect(response.statusText).toBe("I'm a teapot");

@@ -119,7 +119,7 @@
           "label": "",
           "headers": [],
           "bodyType": "FILE",
-          "filePath": "daedalus_sample_metadata.json",
+          "filePath": "responses/metadata.json",
           "databucketID": "",
           "sendFileAsBody": false,
           "rules": [],
@@ -366,6 +366,248 @@
         }
       ],
       "responseMode": null
+    },
+    {
+      "uuid": "1786b700-fea4-429d-8b2e-a812ff1e67df",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "scenario/status/notFoundRunId",
+      "responses": [
+        {
+          "uuid": "8c9ffc66-e162-4c74-80a8-f361360b78b9",
+          "body": "{\n  \"status\": \"failure\",\n  \"errors\": [\n    {\n      \"error\": \"SERVER_ERROR\",\n      \"detail\": \"Missing result for task: 'notFoundRunId'\"\n    }\n  ],\n  \"data\": null\n}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null
+    },
+    {
+      "uuid": "e89b5669-2cba-4237-b266-4bf6eb9435e3",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "scenario/status/successfulResponseRunId",
+      "responses": [
+        {
+          "uuid": "58b3039a-1420-4590-8216-c2dd137528cd",
+          "body": "{\n  \"status\": \"success\",\n  \"errors\": null,\n  \"data\": {\n    \"runStatus\": \"complete\",\n    \"runSuccess\": true,\n    \"done\": true,\n    \"runErrors\": null,\n    \"runId\": \"successfulResponseRunId\"\n  }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null
+    },
+    {
+      "uuid": "fdfcdd62-99e4-41c4-b52f-fbcffdf27926",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "scenario/status/slowResponseRunId",
+      "responses": [
+        {
+          "uuid": "97942d15-db5f-49bb-8adf-613699623b46",
+          "body": "{\n  \"thisResponse\": \"shouldNeverBeReceivedSinceIConfiguredTheDelayToBeGreaterThanTheTimeoutWeWaitForTheResponseFor\"\n}",
+          "latency": 99999999,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null
+    },
+    {
+      "uuid": "63029dfc-a4ce-4304-9d61-6ca75c376e7d",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "scenario/results/notFoundRunId",
+      "responses": [
+        {
+          "uuid": "8524ab95-fd74-4ed8-9888-4ac36b6ccb89",
+          "body": "{\n  \"status\": \"failure\",\n  \"errors\": [\n    {\n      \"error\": \"SERVER_ERROR\",\n      \"detail\": \"Missing result for task: 'notFoundRunId'\"\n    }\n  ],\n  \"data\": null\n}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null
+    },
+    {
+      "uuid": "eb485c3a-ae4e-4cf7-a0e6-6963889dd262",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "scenario/results/slowResponseRunId",
+      "responses": [
+        {
+          "uuid": "e2efe74f-763e-4562-8f23-45056eca808c",
+          "body": "{\n  \"thisResponse\": \"shouldNeverBeReceivedSinceIConfiguredTheDelayToBeGreaterThanTheTimeoutWeWaitForTheResponseFor\"\n}",
+          "latency": 99999999,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null
+    },
+    {
+      "uuid": "e6cef693-0414-45a3-9551-3108bf15b5c1",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "scenario/results/successfulResponseRunId",
+      "responses": [
+        {
+          "uuid": "ed07a0b1-d343-4c98-8ddc-3b3fe40b1bea",
+          "body": "",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "bodyType": "FILE",
+          "filePath": "responses/results.json",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null
     }
   ],
   "rootChildren": [
@@ -384,6 +626,30 @@
     {
       "type": "route",
       "uuid": "873f4dae-407e-4a88-b777-0888ff8b471a"
+    },
+    {
+      "type": "route",
+      "uuid": "1786b700-fea4-429d-8b2e-a812ff1e67df"
+    },
+    {
+      "type": "route",
+      "uuid": "e89b5669-2cba-4237-b266-4bf6eb9435e3"
+    },
+    {
+      "type": "route",
+      "uuid": "fdfcdd62-99e4-41c4-b52f-fbcffdf27926"
+    },
+    {
+      "type": "route",
+      "uuid": "63029dfc-a4ce-4304-9d61-6ca75c376e7d"
+    },
+    {
+      "type": "route",
+      "uuid": "eb485c3a-ae4e-4cf7-a0e6-6963889dd262"
+    },
+    {
+      "type": "route",
+      "uuid": "e6cef693-0414-45a3-9551-3108bf15b5c1"
     }
   ],
   "proxyMode": false,
