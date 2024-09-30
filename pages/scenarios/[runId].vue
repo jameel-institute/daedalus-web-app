@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="d-flex flex-wrap mb-4">
-      <h1 class="fs-1 mb-0">
+      <h1 class="fs-2 mb-0">
         Results
       </h1>
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>

@@ -56,12 +56,19 @@ const usePlotLines = props.seriesId === "hospitalised"; // https://mrc-ide.myjet
 // Also, they should be at least 3 so that they are above .accordion-button:focus
 const zIndex = (Object.keys(appStore.timeSeriesData!).length - props.index) + 3;
 const yUnits = props.seriesId === "dead" ? "deaths" : "cases"; // TODO: Make this depend on a 'units' property in metadata.
-const accordionMinHeight = 150;
-// Allow at least accordionMinHeight for each accordion
-const maxHeightForAllAccordions = Math.max(500, (Object.keys(appStore.timeSeriesData!).length * accordionMinHeight));
+const minAccordionHeight = 150;
+const minTotalAccordionHeight = 500;
 
 const isOpen = computed(() => props.openAccordions.includes(props.seriesId));
-const containerHeightPx = computed(() => maxHeightForAllAccordions / props.openAccordions.length);
+const maxHeightForAllAccordions = computed(() => {
+  if (appStore.timeSeriesData) { // Allow at least minAccordionHeight for each accordion
+    return Math.max(minTotalAccordionHeight, (Object.keys(appStore.timeSeriesData!).length * minAccordionHeight));
+  } else {
+    return minTotalAccordionHeight;
+  }
+});
+// Share available height equally between open accordions
+const containerHeightPx = computed(() => maxHeightForAllAccordions.value / props.openAccordions.length);
 const containerId = computed(() => `${props.seriesId}-container`);
 const data = computed(() => {
   return appStore.timeSeriesData![props.seriesId].map((value, index) => [index + 1, value]);
