@@ -1,9 +1,18 @@
 <template>
   <div>
     <div class="d-flex flex-wrap mb-4">
-      <h1 class="fs-2 mb-0">
+      <h1 class="fs-2 mb-0 pt-1">
         Results
       </h1>
+      <div class="d-inline-block float-end ms-2 align-content-end">
+        <CTooltip content="Download as Excel file" placement="top">
+          <template #toggler="{ togglerId, on }">
+            <CButton color="light" :aria-describedby="togglerId" shape="ghost" v-on="on">
+              <CIcon icon="cilCloudDownload" size="lg" />
+            </CButton>
+          </template>
+        </CTooltip>
+      </div>
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
         <CIconSvg size="xxl">
           <img src="/icons/rotate-device.svg">
