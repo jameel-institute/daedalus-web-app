@@ -108,6 +108,7 @@ export const useAppStore = defineStore("app", {
       this.currentScenario = { ...emptyScenario };
     },
     downloadExcel() {
+      // TODO: debounce this, set to pending/done and catch any errors
       new ExcelScenarioDownload(this.currentScenario).download();
     },
   },

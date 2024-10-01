@@ -10,7 +10,8 @@ interface FlatCost {
 export class ExcelScenarioDownload {
   private readonly _scenario: Scenario;
   private readonly _workbook: XLSX.WorkBook;
-  // TODO: we'll probably want to add store as well so we can commit state change to downloading/add error
+  // TODO: we'll probably want to add store as well so we can commit state change to downloading/add error - OR just let
+  // the store handle any error we throw (remove the catch in download method)
 
   constructor(scenario: Scenario) {
     this._scenario = scenario;
@@ -51,11 +52,27 @@ export class ExcelScenarioDownload {
     this._addDataAsSheet(this._scenario.result.data!.interventions, "Interventions");
   }
 
+  private _addTimeSeries() {
+    // Reshape wide time series data to long, and add rows to sheet
+    const timeSeries = this._scenario.result.data!.time_series;
+    const headers = Object.keys(timeSeries);
+    // We rely on there being the same number of time points for each time series!
+    const timePoints = timeSeries[headers[0]].length;
+    const sheetData = [];
+    sheetData.push(headers);
+    for (let timePoint = 0; timePoint < timePoints; timePoint++) {
+      const row = headers.map((header: string) => timeSeries[header][timePoint]);
+      sheetData.push(row);
+    }
+    const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+    XLSX.utils.book_append_sheet(this._workbook, worksheet, "Time series");
+  }
+
   private _buildWorkbook() {
     this._addParameters();
     this._addCosts();
     this._addInterventions();
-    // TODO: add time_series
+    this._addTimeSeries();
   }
 
   public download() {
