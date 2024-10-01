@@ -4,10 +4,10 @@
       <h1 class="fs-2 mb-0 pt-1">
         Results
       </h1>
-      <div class="d-inline-block float-end ms-2 align-content-end">
+      <div v-show="appStore.currentScenario.parameters" class="d-inline-block float-end ms-2 align-content-end">
         <CTooltip content="Download as Excel file" placement="top">
           <template #toggler="{ togglerId, on }">
-            <CButton color="light" :aria-describedby="togglerId" shape="ghost" v-on="on">
+            <CButton color="light" :aria-describedby="togglerId" shape="ghost" v-on="on" @click="appStore.downloadExcel()">
               <CIcon icon="cilCloudDownload" size="lg" />
             </CButton>
           </template>
