@@ -35,10 +35,19 @@
             role="button"
             @click="() => { parameterModalVisible = true }"
           >
-            <CButton color="light">
-              Parameters
-            </CButton>
-            <CIcon icon="cilPencil" class="form-icon link-secondary" />
+            <CTooltip
+              content="Edit parameters"
+              placement="top"
+            >
+              <template #toggler="{ togglerId, on }">
+                <span :aria-describedby="togglerId" v-on="on">
+                  <CButton color="light">
+                    Parameters
+                  </CButton>
+                  <CIcon icon="cilPencil" class="form-icon link-secondary" />
+                </span>
+              </template>
+            </CTooltip>
           </div>
           <CCol class="col-sm">
             <div class="card-body py-2">
@@ -103,35 +112,34 @@
         {{ errorMsg }}
       </p>
     </CAlert>
-    <div v-else-if="appStore.timeSeriesData" class="row">
-      <div class="col-md-12">
+    <CRow v-else-if="appStore.timeSeriesData">
+      <div class="col-md-6">
         <div class="card">
-          <div class="card-header border-bottom-0">
-            <h2 class="fs-5 mt-1">
-              Time series
-            </h2>
-            <div class="d-flex justify-content-between">
-              <p>
-                Click and drag to zoom into a selection of the graph. The vertical axis will be re-scaled automatically.
-              </p>
-              <TimeSeriesLegend />
+          <div class="card-header border-bottom-0 d-flex justify-content-between">
+            <div class="d-flex align-items-center">
+              <CIcon icon="cilChartPie" size="xl" class="mb-1 text-secondary" />
+              <h2 class="fs-5 m-0 ms-3 chart-header">
+                Costs
+              </h2>
             </div>
           </div>
+          <div class="card-body">
+            <p>Placeholder for costs chart</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header border-bottom-0 d-flex justify-content-between">
+            <div class="d-flex align-items-center">
+              <CIcon icon="cilChartLine" size="xl" class="mb-1 text-secondary" />
+              <h2 class="fs-5 m-0 ms-3 chart-header">
+                Time series
+              </h2>
+            </div>
+            <TimeSeriesLegend />
+          </div>
           <div class="card-body p-0">
-            <!-- Per time series, use one accordion component with one item, so we can easily initialise them all as open with active-item-key -->
-            <!-- <CAccordion
-              v-for="(_, seriesId, index) in appStore.timeSeriesData"
-              :key="seriesId"
-              :style="accordionStyle"
-              :active-item-key="seriesId"
-            >
-              <CAccordionItem :item-key="seriesId" class="border-0">
-                <TimeSeries
-                  :id="seriesId"
-                  :index="index"
-                />
-              </CAccordionItem>
-            </CAccordion> -->
             <TimeSeries
               v-for="(_, seriesId, index) in appStore.timeSeriesData"
               :key="seriesId"
@@ -143,7 +151,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </CRow>
   </div>
 </template>
 
@@ -243,5 +251,9 @@ onUnmounted(() => {
   &:not(:hover) {
     filter: opacity(0.5);
   }
+}
+
+.chart-header {
+  height: fit-content;
 }
 </style>

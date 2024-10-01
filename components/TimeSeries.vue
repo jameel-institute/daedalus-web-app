@@ -28,6 +28,7 @@ import * as Highcharts from "highcharts";
 import accessibilityInitialize from "highcharts/modules/accessibility";
 import exportingInitialize from "highcharts/modules/exporting";
 import exportDataInitialize from "highcharts/modules/export-data";
+import offlineExportingInitialize from "highcharts/modules/offline-exporting";
 
 import { highchartsColors, plotBandsColor, plotLinesColor } from "./utils/charts";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
@@ -42,6 +43,7 @@ const emit = defineEmits(["toggleOpen"]);
 accessibilityInitialize(Highcharts);
 exportingInitialize(Highcharts);
 exportDataInitialize(Highcharts);
+offlineExportingInitialize(Highcharts);
 
 const appStore = useAppStore();
 
@@ -133,11 +135,21 @@ const plotBands = computed(() => {
   return bands;
 });
 
+const allCharts = computed(() => {
+  // Excludes undefineds. When a chart is destroyed, Highcharts.charts retains its index, but the value is undefined.
+  return Array.from(Highcharts.charts).filter(chart => chart) as (Highcharts.Chart)[];
+});
+
+/**
+ * In order to synchronize tooltips and crosshairs, override the
+ * built-in events with handlers defined on the parent element.
+ * Demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
+ */
 const syncTooltipsAndCrosshairs = throttle(() => {
-  const pointOnOriginalChart = chart.series[0].getValidPoints().find(({ state }) => state === "hover");
+  const pointOnOriginalChart = chart.hoverPoint;
 
   if (pointOnOriginalChart) {
-    Highcharts.each(Highcharts.charts, ({ series }: { series: Highcharts.Series[] }) => {
+    allCharts.value.forEach(({ series }) => {
       // Get the point with the same x as the hovered point
       const point = series[0].getValidPoints().find(({ x }) => x === pointOnOriginalChart.x);
 
@@ -146,32 +158,23 @@ const syncTooltipsAndCrosshairs = throttle(() => {
       }
     });
   };
-}, 25, { leading: true });
+}, 100, { leading: true });
 
 const handleAccordionToggle = () => {
   emit("toggleOpen");
 };
 
-/**
- * In order to synchronize tooltips and crosshairs, override the
- * built-in events with handlers defined on the parent element.
- */
 const onMove = () => syncTooltipsAndCrosshairs();
 
-/**
- * Override the reset function, we don't need to hide the tooltips and
- * crosshairs.
- */
-Highcharts.Pointer.prototype.reset = function () {
+// Override the reset function as per synchronisation demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
+Highcharts.Pointer.prototype.reset = () => {
   return undefined;
 };
 
-/**
- * Synchronize zooming through the setExtremes event handler.
- */
-const syncExtremes = (event) => {
+// Synchronize zooming through the setExtremes event handler.
+const syncExtremes = (event: { trigger: string, min: number | undefined, max: number | undefined }) => {
   if (event.trigger !== "syncExtremes") {
-    Highcharts.each(Highcharts.charts, (ch: Highcharts.Chart) => {
+    allCharts.value.forEach((ch: Highcharts.Chart) => {
       if (ch.xAxis[0].setExtremes) { // setExtremes is null while updating
         ch.xAxis[0].setExtremes(
           event.min,
@@ -191,101 +194,139 @@ const syncExtremes = (event) => {
   }
 };
 
-const chartInitialOptions = () => ({
-  chart: {
-    marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
-    backgroundColor: "transparent",
-    events: {
-      fullscreenOpen() {
-        this.update({
-          chart: {
-            backgroundColor: "white",
-          },
-        });
-      },
-      fullscreenClose() {
-        this.update({
-          chart: {
-            backgroundColor: "transparent",
-          },
-        });
-      },
-    },
-    className: "hide-reset-zoom-button",
-    style: {
-      fontFamily: "inherit",
-    },
-    zooming: {
-      type: "x",
-    },
-  },
-  exporting: {
-    filename: `${seriesMetadata.value!.label} in ${appStore.currentScenario.parameters?.country}`,
-    chartOptions: { // Show title and subtitle in exported image, but not in normal rendering
-      title: {
-        text: seriesMetadata.value!.label,
-        style: {
-          fontWeight: "500",
+const chartInitialOptions = () => {
+  return {
+    chart: {
+      marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
+      backgroundColor: "transparent",
+      events: {
+        fullscreenOpen() {
+          this.update({
+            chart: {
+              backgroundColor: "white",
+            },
+          });
+        },
+        fullscreenClose() {
+          this.update({
+            chart: {
+              backgroundColor: "transparent",
+            },
+          });
         },
       },
-      subtitle: {
-        text: seriesMetadata.value!.description,
+      className: "hide-reset-zoom-button",
+      style: {
+        fontFamily: "ImperialSansText, sans-serif",
+      },
+      zooming: {
+        type: "x",
       },
     },
-  },
-  title: {
-    text: "",
-  },
-  legend: {
-    enabled: false,
-  },
-  tooltip: {
-    pointFormat: `<span style='font-weight: 500'>{point.y}</span> ${yUnits}`,
-    headerFormat: "<span style='font-size: 0.7rem; margin-bottom: 0.3rem;'>Day {point.x}</span><br/>",
-    valueDecimals: 0,
-  },
-  xAxis: { // Omit title to save vertical space
-    events: {
-      setExtremes: syncExtremes,
+    exporting: {
+      filename: `${seriesMetadata.value!.label} in ${appStore.currentScenario.parameters?.country}`,
+      chartOptions: {
+        title: {
+          text: seriesMetadata.value!.label,
+        },
+        subtitle: {
+          text: seriesMetadata.value!.description,
+        },
+        chart: {
+          backgroundColor: "white",
+          height: 500,
+        },
+      },
+      buttons: {
+        contextButton: {
+          height: 20,
+          width: 22,
+          symbolSize: 12,
+          symbolY: 10,
+          symbolX: 12,
+          symbolStrokeWidth: 2,
+          menuItems: [
+            "downloadCSV",
+            "downloadXLS",
+            "separator",
+            "downloadPNG",
+            "downloadJPEG",
+            "downloadPDF",
+            "downloadSVG",
+            "separator",
+            "viewFullscreen",
+          ], // Omit 'printChart' and 'viewData' from menu items
+          useHTML: true,
+        },
+      },
+      menuItemDefinitions: {
+        downloadCSV: {
+          text: "Download CSV for this chart",
+        },
+        downloadXLS: {
+          text: "Download XLS for this chart",
+        },
+      },
     },
-    crosshair: true,
-    plotBands: plotBands.value,
-    minTickInterval: 1,
-    min: 1,
-  },
-  yAxis: {
     title: {
       text: "",
+      style: {
+        fontWeight: "500",
+      },
     },
-    min: 0,
-    minRange: minRange.value,
-    plotLines: plotLines.value,
-  },
-  series: [{
-    data: data.value,
-    name: seriesMetadata.value!.label,
-    type: "area", // or "line"
-    color: highchartsColors[props.index],
-    fillOpacity: 0.3,
-    tooltip: {
-      valueSuffix: ` ${props.seriesId === "vaccination" ? "%" : ""}`, // TODO - use correct id once this time series exists, OR configure in metadata.
-    },
-    marker: {
+    legend: {
       enabled: false,
     },
-  }],
-});
+    tooltip: {
+      headerFormat: "<span style='font-size: 0.7rem; margin-bottom: 0.3rem;'>Day {point.x}</span><br/>",
+      pointFormat: `<span style='font-weight: 500'>{point.y}</span> ${yUnits}`,
+      valueDecimals: 0,
+    },
+    xAxis: { // Omit title to save vertical space
+      events: {
+        setExtremes: syncExtremes,
+      },
+      crosshair: true,
+      plotBands: plotBands.value,
+      minTickInterval: 1,
+      min: 1,
+    },
+    yAxis: {
+      title: {
+        text: "",
+      },
+      min: 0,
+      minRange: minRange.value,
+      plotLines: plotLines.value,
+    },
+    series: [{
+      data: data.value,
+      name: seriesMetadata.value!.label,
+      type: "area",
+      color: highchartsColors[props.index],
+      fillOpacity: 0.3,
+      tooltip: {
+        valueSuffix: ` ${props.seriesId === "vaccination" ? "%" : ""}`, // TODO - use correct id once this time series exists, OR configure in metadata.
+      },
+      marker: {
+        enabled: false,
+      },
+    }],
+  } as Highcharts.Options;
+};
 
 onMounted(() => {
-  if (!seriesMetadata.value) {
-    console.error(`Time series metadata not found for id: ${props.seriesId}`);
-  }
-
   chart = Highcharts.chart(containerId.value, chartInitialOptions());
 
   // Create the reset zoom button, initially hidden by the className "hide-reset-zoom-button".
   // Using a CSS class to toggle visibility is much more performant than re-using this method.
   chart.showResetZoom();
+});
+
+onUnmounted(() => {
+  // Destroy this chart, otherwise every time we navigate away and back to this page, another set
+  // of charts is created, burdening the browser.
+  chart.destroy();
 });
 
 watch(() => props.openAccordions, () => {

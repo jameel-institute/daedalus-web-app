@@ -92,11 +92,6 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/header/CHeader",
     });
     addComponent({
-      name: "CHeaderBrand",
-      export: "CHeaderBrand",
-      filePath: "@coreui/vue/src/components/header/CHeaderBrand",
-    });
-    addComponent({
       name: "CHeaderToggler",
       export: "CHeaderToggler",
       filePath: "@coreui/vue/src/components/header/CHeaderToggler",
