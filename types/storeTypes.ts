@@ -3,7 +3,7 @@ import type { AsyncDataRequestStatus } from "#app";
 import type { Metadata, ScenarioResultData, ScenarioStatusData, VersionData } from "@/types/apiResponseTypes";
 import type { ParameterSet } from "@/types/parameterTypes";
 
-interface Scenario {
+export interface Scenario {
   runId: string | undefined
   parameters: ParameterSet | undefined
   result: {
