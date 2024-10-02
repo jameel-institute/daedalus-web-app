@@ -3,85 +3,28 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FetchError } from "ofetch";
 import { flushPromises } from "@vue/test-utils";
 
-import { mockPinia } from "@/tests/unit/mocks/mockPinia";
-import type { Metadata } from "@/types/apiResponseTypes";
+import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import ParameterForm from "@/components/ParameterForm.vue";
 
 const stubs = {
   CIcon: true,
 };
 
-const globeParameter = {
-  id: "region",
-  label: "Region",
-  parameterType: "globeSelect",
-  defaultOption: "HVN",
-  ordered: false,
-  options: [
-    { id: "CLD", label: "Cloud Nine" },
-    { id: "HVN", label: "Heaven" },
-  ],
-};
-
-const selectParameters = [
-  {
-    id: "long_list",
-    label: "Drop Down",
-    parameterType: "select",
-    defaultOption: null,
-    ordered: false,
-    options: [
-      { id: "1", label: "Option 1" },
-      { id: "2", label: "Option 2" },
-      { id: "3", label: "Option 3" },
-      { id: "4", label: "Option 4" },
-      { id: "5", label: "Option 5" },
-      { id: "6", label: "Option 6" },
-    ],
-  },
-  {
-    id: "short_list",
-    label: "Radio Buttons",
-    parameterType: "select",
-    defaultOption: "no",
-    ordered: false,
-    options: [
-      { id: "yes", label: "Yes" },
-      { id: "no", label: "No" },
-    ],
-  },
-];
-
-const updatableNumericParameter = {
-  id: "population",
-  label: "Population",
-  parameterType: "numeric",
-  ordered: false,
-  step: 1000,
-  updateNumericFrom: {
-    parameterId: "short_list",
-    values: {
-      yes: {
-        min: 11000,
-        default: 17000,
-        max: 50000,
-      },
-      no: {
-        min: 1000,
-        default: 2000,
-        max: 4000,
-      },
-    },
-  },
-};
-
-const metadata = { modelVersion: "0.0.0", parameters: [...selectParameters, globeParameter, updatableNumericParameter], results: {} } as Metadata;
-
 // Need to do this in hoisted - see https://developer.mamezou-tech.com/en/blogs/2024/02/12/nuxt3-unit-testing-mock/
 const { mockNavigateTo } = vi.hoisted(() => ({
   mockNavigateTo: vi.fn(),
 }));
 mockNuxtImport("navigateTo", () => mockNavigateTo);
+
+const scenarioWithParameters = {
+  ...emptyScenario,
+  parameters: {
+    long_list: "3",
+    region: "CLD",
+    population: "25000",
+    short_list: "yes",
+  },
+};
 
 describe("parameter form", () => {
   beforeEach(() => {
@@ -90,7 +33,7 @@ describe("parameter form", () => {
 
   it("renders the correct parameter labels, inputs, options, and default values", async () => {
     const component = await mountSuspended(ParameterForm, {
-      global: { stubs, plugins: [mockPinia({ metadata, metadataFetchStatus: "success" })] },
+      global: { stubs, plugins: [mockPinia()] },
     });
 
     expect(component.text()).toContain("Region");
@@ -143,23 +86,7 @@ describe("parameter form", () => {
   });
 
   it("renders the current parameter values if the app store contains a current scenario", async () => {
-    const component = await mountSuspended(ParameterForm, {
-      global: {
-        stubs,
-        plugins: [mockPinia({
-          metadata,
-          metadataFetchStatus: "success",
-          currentScenario: {
-            parameters: {
-              long_list: "3",
-              region: "CLD",
-              population: "25000",
-              short_list: "yes",
-            },
-          },
-        })],
-      },
-    });
+    const component = await mountSuspended(ParameterForm, { global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithParameters })] } });
 
     const selectElements = component.findAll("select");
 
@@ -195,7 +122,7 @@ describe("parameter form", () => {
 
   it("updates the numeric input's min, max, and default values based on the selected option", async () => {
     const component = await mountSuspended(ParameterForm, {
-      global: { stubs, plugins: [mockPinia({ metadata, metadataFetchStatus: "success" })] },
+      global: { stubs, plugins: [mockPinia()] },
     });
 
     const shortList = component.findComponent({ name: "CButtonGroup" });
@@ -216,7 +143,7 @@ describe("parameter form", () => {
 
   it("resets a numeric input that can be updated from another input to its default value when the reset button is clicked", async () => {
     const component = await mountSuspended(ParameterForm, {
-      global: { stubs, plugins: [mockPinia({ metadata, metadataFetchStatus: "success" })] },
+      global: { stubs, plugins: [mockPinia()] },
     });
 
     const numericInput = component.find("input[type='number']");
@@ -236,7 +163,7 @@ describe("parameter form", () => {
 
   it("displays feedback when the form is submitted with invalid values", async () => {
     const component = await mountSuspended(ParameterForm, {
-      global: { stubs, plugins: [mockPinia({ metadata, metadataFetchStatus: "success" })] },
+      global: { stubs, plugins: [mockPinia()] },
     });
 
     const numericInput = component.find("input[type='number']");
@@ -271,7 +198,7 @@ describe("parameter form", () => {
     });
 
     const component = await mountSuspended(ParameterForm, {
-      global: { stubs, plugins: [mockPinia({ metadata, metadataFetchStatus: "success" })] },
+      global: { stubs, plugins: [mockPinia()] },
     });
 
     const buttonEl = component.find("button[type='submit']");
@@ -293,7 +220,7 @@ describe("parameter form", () => {
           metadata: undefined,
           metadataFetchStatus: "error",
           metadataFetchError: error,
-        })],
+        }, false)],
       },
     });
 
@@ -304,7 +231,7 @@ describe("parameter form", () => {
 
   it("displays CSpinner when metadata is not defined and there is no error", async () => {
     const component = await mountSuspended(ParameterForm, {
-      global: { stubs, plugins: [mockPinia({ metadata: undefined })] },
+      global: { stubs, plugins: [mockPinia({ metadata: undefined }, false)] },
     });
 
     expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(true);

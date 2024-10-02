@@ -84,10 +84,6 @@ body {
   border-radius: 0.75rem;
 }
 
-.btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active, .btn.show {
-  background-color: var(--cui-btn-color);
-}
-
 .btn-group-lg > label.btn {
   border-radius: 1rem;
 }

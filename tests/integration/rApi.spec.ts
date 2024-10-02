@@ -177,4 +177,84 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
       expect(json.message).toBe("Unknown error: No response from the API");
     });
   });
+
+  describe("api/scenarios/:id/status", async () => {
+    it("returns a successful response when the mock server responds successfully", async () => {
+      const response = await nuxtTestUtilsFetch(`/api/scenarios/successfulResponseRunId/status`);
+
+      expect(response.ok).toBe(true);
+      expect(response.status).toBe(200);
+      expect(response.statusText).toBe("OK");
+
+      const json = await response.json();
+      expect(json.runStatus).toBe("complete");
+      expect(json.runSuccess).toBe(true);
+      expect(json.done).toBe(true);
+      expect(json.runErrors).toBeNull();
+      expect(json.runId).toBe("successfulResponseRunId");
+    });
+
+    it("returns a response with informative errors when the mock server responds with an error", async () => {
+      const response = await nuxtTestUtilsFetch(`/api/scenarios/notFoundRunId/status`);
+
+      expect(response.ok).toBe(false);
+      expect(response.status).toBe(500);
+      expect(response.statusText).toBe("Internal Server Error");
+      const json = await response.json();
+      expect(json.data[0].error).toBe("SERVER_ERROR");
+      expect(json.data[0].detail).toBe("Missing result for task: 'notFoundRunId'");
+      expect(json.message).toBe("SERVER_ERROR: Missing result for task: 'notFoundRunId'"); // A concatenation of the error details from the R API.
+    });
+
+    it("returns a response with informative errors when the mock server doesn't respond in time", async () => {
+      const response = await nuxtTestUtilsFetch(`/api/scenarios/slowResponseRunId/status`);
+
+      expect(response.ok).toBe(false);
+      expect(response.status).toBe(500);
+      expect(response.statusText).toBe("error");
+
+      const json = await response.json();
+      expect(json.message).toBe("Unknown error: No response from the API");
+    });
+  });
+
+  describe("api/scenarios/:id/result", async () => {
+    it("returns a successful response when the mock server responds successfully", async () => {
+      const response = await nuxtTestUtilsFetch(`/api/scenarios/successfulResponseRunId/result`);
+
+      expect(response.ok).toBe(true);
+      expect(response.status).toBe(200);
+      expect(response.statusText).toBe("OK");
+
+      const json = await response.json();
+      expect(json.runId).toBe("successfulResponseRunId");
+      ["runId", "time_series", "parameters", "costs", "capacities", "interventions"].forEach((key) => {
+        expect(json).toHaveProperty(key);
+      });
+      expect(json.time_series.infect[0]).toBe(67.886);
+    });
+
+    it("returns a response with informative errors when the mock server responds with an error", async () => {
+      const response = await nuxtTestUtilsFetch(`/api/scenarios/notFoundRunId/result`);
+
+      expect(response.ok).toBe(false);
+      expect(response.status).toBe(500);
+      expect(response.statusText).toBe("Internal Server Error");
+      const json = await response.json();
+      expect(json.data[0].error).toBe("SERVER_ERROR");
+      expect(json.data[0].detail).toBe("Missing result for task: 'notFoundRunId'");
+      expect(json.message).toBe("SERVER_ERROR: Missing result for task: 'notFoundRunId'"); // A concatenation of the error details from the R API.
+    });
+
+    it("returns a response with informative errors when the mock server doesn't respond in time", async () => {
+      const response = await nuxtTestUtilsFetch(`/api/scenarios/slowResponseRunId/result`);
+
+      expect(response.ok).toBe(false);
+      expect(response.status).toBe(500);
+      expect(response.statusText).toBe("error");
+
+      const json = await response.json();
+      expect(json.message).toBe("Unknown error: No response from the API");
+    });
+  });
 });

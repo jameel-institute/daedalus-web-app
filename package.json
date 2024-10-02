@@ -35,6 +35,8 @@
     "@pinia/nuxt": "^0.5.4",
     "@prisma/client": "^5.19.0",
     "@socket.io/admin-ui": "^0.5.1",
+    "hex-rgb": "^5.0.0",
+    "highcharts": "^11.4.8",
     "lodash.throttle": "^4.1.1",
     "nuxt": "^3.13.0",
     "pinia": "^2.2.2",
