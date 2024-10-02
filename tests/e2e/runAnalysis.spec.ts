@@ -31,7 +31,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).not.toHaveValue(initialCountryValue);
 
   await page.click(`div[aria-label="${parameterLabels.vaccine}"] label[for="medium"]`);
-  await page.fill(`input[aria-label="${parameterLabels.hospital_capacity}"][type="number"]`, "200000");
+  await page.fill(`input[aria-label="${parameterLabels.hospital_capacity}"][type="number"]`, "305000");
 
   await page.click('button:has-text("Run")');
 
@@ -43,7 +43,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   await expect(page.getByText("Elimination").first()).toBeVisible();
   await expect(page.getByText("United States").first()).toBeVisible();
   await expect(page.getByText("Medium").first()).toBeVisible();
-  await expect(page.getByText("200000").first()).toBeVisible();
+  await expect(page.getByText("305000").first()).toBeVisible();
 
   // To regenerate these screenshots:
   // 1. Insert a generous timeout so that screenshots are of the final chart, not the chart half-way through
@@ -71,8 +71,8 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   await expect(page.getByLabel(parameterLabels.pathogen)).toHaveValue("influenza_1957");
   await expect(page.getByLabel(parameterLabels.response)).toHaveValue("elimination");
   await expect(page.getByLabel("Medium")).toBeChecked();
-  await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue("200000");
-  await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue("200000");
+  await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue("305000");
+  await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue("305000");
 
   await page.click(`div[aria-label="${parameterLabels.vaccine}"] label[for="high"]`);
 
