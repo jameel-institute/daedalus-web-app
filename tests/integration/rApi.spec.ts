@@ -178,9 +178,9 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     });
   });
 
-  describe("api/scenarios/status/:id", async () => {
+  describe("api/scenarios/:id/status", async () => {
     it("returns a successful response when the mock server responds successfully", async () => {
-      const response = await nuxtTestUtilsFetch(`/api/scenarios/status/successfulResponseRunId`);
+      const response = await nuxtTestUtilsFetch(`/api/scenarios/successfulResponseRunId/status`);
 
       expect(response.ok).toBe(true);
       expect(response.status).toBe(200);
@@ -195,7 +195,7 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     });
 
     it("returns a response with informative errors when the mock server responds with an error", async () => {
-      const response = await nuxtTestUtilsFetch(`/api/scenarios/status/notFoundRunId`);
+      const response = await nuxtTestUtilsFetch(`/api/scenarios/notFoundRunId/status`);
 
       expect(response.ok).toBe(false);
       expect(response.status).toBe(500);
@@ -207,7 +207,7 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     });
 
     it("returns a response with informative errors when the mock server doesn't respond in time", async () => {
-      const response = await nuxtTestUtilsFetch(`/api/scenarios/status/slowResponseRunId`);
+      const response = await nuxtTestUtilsFetch(`/api/scenarios/slowResponseRunId/status`);
 
       expect(response.ok).toBe(false);
       expect(response.status).toBe(500);
@@ -218,9 +218,9 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     });
   });
 
-  describe("api/scenarios/result/:id", async () => {
+  describe("api/scenarios/:id/result", async () => {
     it("returns a successful response when the mock server responds successfully", async () => {
-      const response = await nuxtTestUtilsFetch(`/api/scenarios/result/successfulResponseRunId`);
+      const response = await nuxtTestUtilsFetch(`/api/scenarios/successfulResponseRunId/result`);
 
       expect(response.ok).toBe(true);
       expect(response.status).toBe(200);
@@ -235,7 +235,7 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     });
 
     it("returns a response with informative errors when the mock server responds with an error", async () => {
-      const response = await nuxtTestUtilsFetch(`/api/scenarios/result/notFoundRunId`);
+      const response = await nuxtTestUtilsFetch(`/api/scenarios/notFoundRunId/result`);
 
       expect(response.ok).toBe(false);
       expect(response.status).toBe(500);
@@ -247,7 +247,7 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     });
 
     it("returns a response with informative errors when the mock server doesn't respond in time", async () => {
-      const response = await nuxtTestUtilsFetch(`/api/scenarios/result/slowResponseRunId`);
+      const response = await nuxtTestUtilsFetch(`/api/scenarios/slowResponseRunId/result`);
 
       expect(response.ok).toBe(false);
       expect(response.status).toBe(500);

@@ -15,11 +15,11 @@
       </CAlert>
       <CModal
         :visible="parameterModalVisible"
-        aria-labelledby="LiveDemoExampleLabel"
+        aria-labelledby="modalTitle"
         @close="() => { parameterModalVisible = false }"
       >
         <CModalHeader>
-          <CModalTitle id="LiveDemoExampleLabel">
+          <CModalTitle id="modalTitle">
             Edit parameters
           </CModalTitle>
         </CModalHeader>
@@ -139,13 +139,18 @@
             </div>
             <TimeSeriesLegend />
           </div>
-          <div class="card-body p-0">
+          <div
+            class="card-body p-0"
+            @mouseleave="onMouseLeaveTimeSeries"
+            @mouseover="() => { hideTimeSeriesTooltips = false }"
+          >
             <TimeSeries
               v-for="(_, seriesId, index) in appStore.timeSeriesData"
               :key="seriesId"
               :series-id="seriesId"
               :index="index"
-              :open-accordions="openTimeSeriesAccordions"
+              :opened-accordions="openedTimeSeriesAccordions"
+              :hide-tooltips="hideTimeSeriesTooltips"
               @toggle-open="toggleOpen(seriesId)"
             />
           </div>
@@ -163,7 +168,8 @@ import type { Parameter } from "~/types/parameterTypes";
 const appStore = useAppStore();
 
 const parameterModalVisible = ref(false);
-const openTimeSeriesAccordions = ref<string[]>([]);
+const openedTimeSeriesAccordions = ref<string[]>([]);
+const hideTimeSeriesTooltips = ref(false);
 
 const paramDisplayText = (param: Parameter) => {
   if (appStore.currentScenario.parameters && appStore.currentScenario.parameters[param.id]) {
@@ -173,17 +179,23 @@ const paramDisplayText = (param: Parameter) => {
 };
 
 const toggleOpen = (seriesId: string) => {
-  if (openTimeSeriesAccordions.value.includes(seriesId)) {
-    openTimeSeriesAccordions.value = openTimeSeriesAccordions.value.filter(id => id !== seriesId);
+  if (openedTimeSeriesAccordions.value.includes(seriesId)) {
+    openedTimeSeriesAccordions.value = openedTimeSeriesAccordions.value.filter(id => id !== seriesId);
   } else {
-    openTimeSeriesAccordions.value = [...openTimeSeriesAccordions.value, seriesId];
+    openedTimeSeriesAccordions.value = [...openedTimeSeriesAccordions.value, seriesId];
   }
+};
+
+const onMouseLeaveTimeSeries = () => {
+  setTimeout(() => {
+    hideTimeSeriesTooltips.value = true;
+  }, 500);
 };
 
 // Eagerly try to load the status and results, in case they are already available and can be used during server-side rendering.
 await appStore.loadScenarioStatus();
 if (appStore.currentScenario.status.data?.runSuccess) {
-  appStore.loadScenarioResults();
+  appStore.loadScenarioResult();
 }
 
 let statusInterval: NodeJS.Timeout;
@@ -191,13 +203,13 @@ const loadScenarioStatus = () => {
   appStore.loadScenarioStatus().then(() => {
     if (appStore.currentScenario.status.data?.runSuccess) {
       clearInterval(statusInterval);
-      appStore.loadScenarioResults();
+      appStore.loadScenarioResult();
     }
   });
 };
 
 watch(() => (Object.keys(appStore.timeSeriesData || {})), (seriesIds) => {
-  openTimeSeriesAccordions.value = seriesIds;
+  openedTimeSeriesAccordions.value = seriesIds;
 });
 
 onMounted(() => {
@@ -205,7 +217,7 @@ onMounted(() => {
   if (!appStore.currentScenario.status.data?.done || appStore.currentScenario.result.data) {
     statusInterval = setInterval(loadScenarioStatus, 200); // Poll for status every N ms
     setTimeout(() => {
-      clearInterval(statusInterval); // Terminate polling for status after 5 seconds
+      clearInterval(statusInterval); // Terminate polling for status after several seconds
     }, 5000);
   }
 });

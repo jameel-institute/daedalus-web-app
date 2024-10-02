@@ -1,5 +1,5 @@
 <template>
-  <!-- Per time series, use one accordion component with one item, so we can easily initialise them all as open with active-item-key -->
+  <!-- Per each time series, use one accordion component with one item, so we can easily initialise them all as open with active-item-key -->
   <CAccordion
     :style="accordionStyle"
     :active-item-key="isOpen ? props.seriesId : undefined"
@@ -11,7 +11,7 @@
       <CAccordionBody>
         <div
           :id="containerId"
-          class="chart-container"
+          :class="`chart-container ${props.hideTooltips ? hideTooltipsClassName : ''}`"
           :style="{ zIndex, height: `${containerHeightPx}px` }"
           @mousemove="onMove"
           @touchmove="onMove"
@@ -36,7 +36,8 @@ import type { DisplayInfo } from "~/types/apiResponseTypes";
 const props = defineProps<{
   seriesId: string
   index: number
-  openAccordions: string[]
+  openedAccordions: string[]
+  hideTooltips: boolean
 }>();
 
 const emit = defineEmits(["toggleOpen"]);
@@ -48,21 +49,24 @@ offlineExportingInitialize(Highcharts);
 const appStore = useAppStore();
 
 let chart: Highcharts.Chart;
+const chartBackgroundColor = "transparent";
+const chartBackgroundColorOnExporting = "white";
+const hideResetZoomButtonClassName = "hide-reset-zoom-button";
+const hideTooltipsClassName = "hide-tooltips";
 const accordionBodyYPadding = 8;
 const accordionStyle = {
   "--cui-accordion-btn-focus-box-shadow": "none",
   "--cui-accordion-bg": "rgba(255, 255, 255, 0.7)",
 };
-const usePlotLines = props.seriesId === "hospitalised"; // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
 // We need each chart to have a higher z-index than the next one so that the exporting context menu is always on top and clickable.
 // Also, they should be at least 3 so that they are above .accordion-button:focus
 const zIndex = (Object.keys(appStore.timeSeriesData!).length - props.index) + 3;
-const yUnits = props.seriesId === "dead" ? "deaths" : "cases"; // TODO: Make this depend on a 'units' property in metadata.
+const yUnits = props.seriesId === "dead" ? "deaths" : "cases"; // TODO: Make this depend on a 'units' property in metadata. https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-117/
 const minAccordionHeight = 150;
 const minTotalAccordionHeight = 500;
 
-const isOpen = computed(() => props.openAccordions.includes(props.seriesId));
-const maxHeightForAllAccordions = computed(() => {
+const isOpen = computed(() => props.openedAccordions.includes(props.seriesId));
+const maxTotalAccordionHeight = computed(() => {
   if (appStore.timeSeriesData) { // Allow at least minAccordionHeight for each accordion
     return Math.max(minTotalAccordionHeight, (Object.keys(appStore.timeSeriesData!).length * minAccordionHeight));
   } else {
@@ -70,14 +74,19 @@ const maxHeightForAllAccordions = computed(() => {
   }
 });
 // Share available height equally between open accordions
-const containerHeightPx = computed(() => maxHeightForAllAccordions.value / props.openAccordions.length);
+const containerHeightPx = computed(() => maxTotalAccordionHeight.value / props.openedAccordions.length);
 const containerId = computed(() => `${props.seriesId}-container`);
+// Assign an x-position to y-values. Nth value corresponds to "N+1th day" of simulation.
 const data = computed(() => {
   return appStore.timeSeriesData![props.seriesId].map((value, index) => [index + 1, value]);
 });
-const seriesMetadata = computed((): DisplayInfo | undefined => appStore.metadata?.results?.time_series.find(({ id }) => id === props.seriesId));
+const seriesMetadata = computed((): DisplayInfo | undefined => {
+  return appStore.metadata?.results?.time_series.find(({ id }) => id === props.seriesId);
+});
+const usePlotLines = props.seriesId === "hospitalised"; // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
+const usePlotBands = props.seriesId === "dead"; // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
 // On zooming, the y-axis automatically rescales to the data (ignoring the plotLines). We want the plotLines
-// to remain visible, so we limit the y-axis' minimum range.
+// to remain visible, so we limit the y-axis' ability to rescale, by defining a minimum range.
 const minRange = computed(() => {
   if (usePlotLines) {
     return appStore.capacitiesData?.reduce((acc, { value }) => Math.max(acc, value), 0);
@@ -85,7 +94,7 @@ const minRange = computed(() => {
     return undefined;
   }
 });
-const plotLines = computed(() => {
+const capacitiesPlotLines = computed(() => {
   const lines = Array<Highcharts.AxisPlotLinesOptions>();
 
   if (!usePlotLines) {
@@ -112,24 +121,17 @@ const plotLines = computed(() => {
   return lines;
 });
 
-const plotBands = computed(() => {
+const interventionsPlotBands = computed(() => {
   const bands = Array<Highcharts.AxisPlotBandsOptions>();
 
-  if (props.seriesId === "dead") {
+  if (!usePlotBands) {
     return bands;
   }
 
   appStore.interventionsData?.forEach(({ id, start, end }) => {
     const interventionLabel = appStore.metadata?.results.interventions.find(({ id: interventionId }) => interventionId === id)?.label;
-
-    bands.push({
-      from: start,
-      to: end,
-      color: plotBandsColor,
-      label: {
-        text: `${interventionLabel ? `${interventionLabel} : ` : ""}Days ${start} to ${end}`,
-      },
-    });
+    const text = `${interventionLabel ? `${interventionLabel} : ` : ""}Days ${start} to ${end}`;
+    bands.push({ from: start, to: end, color: plotBandsColor, label: { text } });
   });
 
   return bands;
@@ -140,29 +142,26 @@ const allCharts = computed(() => {
   return Array.from(Highcharts.charts).filter(chart => chart) as (Highcharts.Chart)[];
 });
 
+const handleAccordionToggle = () => {
+  emit("toggleOpen");
+};
+
 /**
- * In order to synchronize tooltips and crosshairs, override the
- * built-in events with handlers defined on the parent element.
+ * Synchronize tooltips and crosshairs between charts.
  * Demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
  */
 const syncTooltipsAndCrosshairs = throttle(() => {
-  const pointOnOriginalChart = chart.hoverPoint;
-
-  if (pointOnOriginalChart) {
+  if (chart.hoverPoint) {
     allCharts.value.forEach(({ series }) => {
       // Get the point with the same x as the hovered point
-      const point = series[0].getValidPoints().find(({ x }) => x === pointOnOriginalChart.x);
+      const point = series[0].getValidPoints().find(({ x }) => x === chart.hoverPoint!.x);
 
-      if (point && point !== pointOnOriginalChart) {
+      if (point && point !== chart.hoverPoint) {
         point.onMouseOver();
       }
     });
   };
 }, 100, { leading: true });
-
-const handleAccordionToggle = () => {
-  emit("toggleOpen");
-};
 
 const onMove = () => syncTooltipsAndCrosshairs();
 
@@ -176,18 +175,12 @@ const syncExtremes = (event: { trigger: string, min: number | undefined, max: nu
   if (event.trigger !== "syncExtremes") {
     allCharts.value.forEach((ch: Highcharts.Chart) => {
       if (ch.xAxis[0].setExtremes) { // setExtremes is null while updating
-        ch.xAxis[0].setExtremes(
-          event.min,
-          event.max,
-          undefined,
-          { duration: 250 },
-          { trigger: "syncExtremes" },
-        );
+        ch.xAxis[0].setExtremes(event.min, event.max, undefined, { duration: 250 }, { trigger: "syncExtremes" });
         if (event.min && event.max) {
           // Prevent exporting while zoomed in since image export doesn't work well when zoomed in
           ch.update({ chart: { className: undefined }, exporting: { enabled: false } });
         } else {
-          ch.update({ chart: { className: "hide-reset-zoom-button" }, exporting: { enabled: true } });
+          ch.update({ chart: { className: hideResetZoomButtonClassName }, exporting: { enabled: true } });
         }
       }
     });
@@ -198,26 +191,18 @@ const chartInitialOptions = () => {
   return {
     chart: {
       marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
-      backgroundColor: "transparent",
+      backgroundColor: chartBackgroundColor,
       events: {
         fullscreenOpen() {
-          this.update({
-            chart: {
-              backgroundColor: "white",
-            },
-          });
+          this.update({ chart: { backgroundColor: chartBackgroundColorOnExporting } });
         },
         fullscreenClose() {
-          this.update({
-            chart: {
-              backgroundColor: "transparent",
-            },
-          });
+          this.update({ chart: { backgroundColor: chartBackgroundColor } });
         },
       },
-      className: "hide-reset-zoom-button",
+      className: hideResetZoomButtonClassName,
       style: {
-        fontFamily: "ImperialSansText, sans-serif",
+        fontFamily: "ImperialSansText, sans-serif", // TODO: Make the font-family derive from a globally configurable constant
       },
       zooming: {
         type: "x",
@@ -233,7 +218,7 @@ const chartInitialOptions = () => {
           text: seriesMetadata.value!.description,
         },
         chart: {
-          backgroundColor: "white",
+          backgroundColor: chartBackgroundColorOnExporting,
           height: 500,
         },
       },
@@ -245,17 +230,8 @@ const chartInitialOptions = () => {
           symbolY: 10,
           symbolX: 12,
           symbolStrokeWidth: 2,
-          menuItems: [
-            "downloadCSV",
-            "downloadXLS",
-            "separator",
-            "downloadPNG",
-            "downloadJPEG",
-            "downloadPDF",
-            "downloadSVG",
-            "separator",
-            "viewFullscreen",
-          ], // Omit 'printChart' and 'viewData' from menu items
+          // Omit 'printChart' and 'viewData' from menu items
+          menuItems: ["downloadCSV", "downloadXLS", "separator", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG", "separator", "viewFullscreen"],
           useHTML: true,
         },
       },
@@ -282,12 +258,12 @@ const chartInitialOptions = () => {
       pointFormat: `<span style='font-weight: 500'>{point.y}</span> ${yUnits}`,
       valueDecimals: 0,
     },
-    xAxis: { // Omit title to save vertical space
+    xAxis: { // Omit title to save vertical space on page
       events: {
         setExtremes: syncExtremes,
       },
       crosshair: true,
-      plotBands: plotBands.value,
+      plotBands: interventionsPlotBands.value,
       minTickInterval: 1,
       min: 1,
     },
@@ -297,7 +273,7 @@ const chartInitialOptions = () => {
       },
       min: 0,
       minRange: minRange.value,
-      plotLines: plotLines.value,
+      plotLines: capacitiesPlotLines.value,
     },
     series: [{
       data: data.value,
@@ -306,7 +282,7 @@ const chartInitialOptions = () => {
       color: highchartsColors[props.index],
       fillOpacity: 0.3,
       tooltip: {
-        valueSuffix: ` ${props.seriesId === "vaccination" ? "%" : ""}`, // TODO - use correct id once this time series exists, OR configure in metadata.
+        valueSuffix: ` ${props.seriesId === "vaccination" ? "%" : ""}`, // TODO: Make this depend on a 'units' property in metadata. https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-117/
       },
       marker: {
         enabled: false,
@@ -319,7 +295,7 @@ onMounted(() => {
   chart = Highcharts.chart(containerId.value, chartInitialOptions());
 
   // Create the reset zoom button, initially hidden by the className "hide-reset-zoom-button".
-  // Using a CSS class to toggle visibility is much more performant than re-using this method.
+  // Using a CSS class to toggle visibility is much more performant than using this method each time.
   chart.showResetZoom();
 });
 
@@ -329,7 +305,7 @@ onUnmounted(() => {
   chart.destroy();
 });
 
-watch(() => props.openAccordions, () => {
+watch(() => props.openedAccordions, () => {
   if (isOpen.value) {
     const newHeight = (containerHeightPx.value - (2 * accordionBodyYPadding));
     chart.setSize(undefined, newHeight, { duration: 250 });
@@ -341,6 +317,13 @@ watch(() => props.openAccordions, () => {
 .hide-reset-zoom-button {
   .highcharts-reset-zoom {
     display: none;
+  }
+}
+
+.hide-tooltips {
+  .highcharts-tooltip, .highcharts-tracker, .highcharts-crosshair {
+    filter: opacity(0);
+    transition: filter 0.2s;
   }
 }
 
