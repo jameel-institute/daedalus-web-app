@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { debounce } from "perfect-debounce";
 import type { FetchError } from "ofetch";
 import type { AsyncDataRequestStatus } from "#app";
 import type { AppState } from "@/types/storeTypes";
@@ -33,6 +34,8 @@ export const useAppStore = defineStore("app", {
     metadata: undefined,
     metadataFetchError: undefined,
     metadataFetchStatus: undefined,
+    downloading: false,
+    downloadError: undefined,
     currentScenario: { ...emptyScenario },
   }),
   getters: {
@@ -106,9 +109,24 @@ export const useAppStore = defineStore("app", {
     clearScenario() {
       this.currentScenario = { ...emptyScenario };
     },
-    downloadExcel() {
-      // TODO: debounce this, set to pending/done and catch any errors
-      new ExcelScenarioDownload(this.currentScenario).download();
+    async downloadExcel() {
+      this.downloading = true;
+      await debounce(async () => {
+        this.downloadError = undefined;
+        try {
+          new ExcelScenarioDownload(this.currentScenario).download();
+        } catch (e) {
+          let downloadError = "Unexpected download error";
+          if (typeof e === "string") {
+            downloadError = e;
+          } else if ((e as any).message) {
+            downloadError = (e as any).message;
+          }
+          this.downloadError = downloadError;
+        } finally {
+          this.downloading = false;
+        }
+      })();
     },
   },
 });
