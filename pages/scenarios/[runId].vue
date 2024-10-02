@@ -4,18 +4,7 @@
       <h1 class="fs-2 mb-0 pt-1">
         Results
       </h1>
-      <!-- TODO: move this into its own component -->
-      <div v-show="appStore.currentScenario.parameters" class="d-inline-block ms-2 align-content-center">
-        <CSpinner v-if="appStore.downloading" size="sm" class="ms-2" />
-        <CTooltip v-else content="Download as Excel file" placement="top">
-          <template #toggler="{ togglerId, on }">
-            <CButton color="light" :aria-describedby="togglerId" v-on="on" @click="appStore.downloadExcel()">
-              <CIcon icon="cilCloudDownload" size="lg" />
-            </CButton>
-          </template>
-        </CTooltip>
-      </div>
-
+      <DownloadExcel />
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
         <CIconSvg size="xxl">
           <img src="/icons/rotate-device.svg">
