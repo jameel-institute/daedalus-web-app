@@ -84,7 +84,7 @@ const seriesMetadata = computed((): DisplayInfo | undefined => {
   return appStore.metadata?.results?.time_series.find(({ id }) => id === props.seriesId);
 });
 const usePlotLines = props.seriesId === "hospitalised"; // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
-const usePlotBands = props.seriesId === "dead"; // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
+const usePlotBands = props.seriesId === "hospitalised" || props.seriesId === "infect"; // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
 // On zooming, the y-axis automatically rescales to the data (ignoring the plotLines). We want the plotLines
 // to remain visible, so we limit the y-axis' ability to rescale, by defining a minimum range.
 const minRange = computed(() => {
