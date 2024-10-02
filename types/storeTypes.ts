@@ -26,5 +26,7 @@ export interface AppState {
   metadata: Metadata | undefined
   metadataFetchError: FetchError | undefined
   metadataFetchStatus: AsyncDataRequestStatus | undefined
+  downloading: boolean
+  downloadError: string | undefined
   currentScenario: Scenario // Represents the scenario currently being viewed
-};
+}
