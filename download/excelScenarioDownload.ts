@@ -10,8 +10,6 @@ interface FlatCost {
 export class ExcelScenarioDownload {
   private readonly _scenario: Scenario;
   private readonly _workbook: XLSX.WorkBook;
-  // TODO: we'll probably want to add store as well so we can commit state change to downloading/add error - OR just let
-  // the store handle any error we throw (remove the catch in download method)
 
   constructor(scenario: Scenario) {
     this._scenario = scenario;
@@ -76,15 +74,11 @@ export class ExcelScenarioDownload {
   }
 
   public download() {
-    try {
-      if (!this._scenario.parameters && !this._scenario.result.data) {
-        throw new Error("Cannot download scenario with no data.");
-      }
-      this._buildWorkbook();
-      const paramValues = Object.values(this._scenario.parameters).join("_");
-      XLSX.writeFile(this._workbook, `daedalus_${paramValues}.xlsx`);
-    } catch (e) {
-      // TODO: Set error in store, and display
+    if (!this._scenario.parameters && !this._scenario.result.data) {
+      throw new Error("Cannot download scenario with no data.");
     }
+    this._buildWorkbook();
+    const paramValues = Object.values(this._scenario.parameters!).join("_");
+    XLSX.writeFile(this._workbook, `daedalus_${paramValues}.xlsx`);
   }
 }
