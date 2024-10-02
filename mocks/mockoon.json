@@ -372,7 +372,7 @@
       "type": "http",
       "documentation": "",
       "method": "get",
-      "endpoint": "scenario/notFoundRunId/status",
+      "endpoint": "scenario/status/notFoundRunId",
       "responses": [
         {
           "uuid": "8c9ffc66-e162-4c74-80a8-f361360b78b9",
@@ -401,7 +401,7 @@
       "type": "http",
       "documentation": "",
       "method": "get",
-      "endpoint": "scenario/successfulResponseRunId/status",
+      "endpoint": "scenario/status/successfulResponseRunId",
       "responses": [
         {
           "uuid": "58b3039a-1420-4590-8216-c2dd137528cd",
@@ -447,7 +447,7 @@
       "type": "http",
       "documentation": "",
       "method": "get",
-      "endpoint": "scenario/slowResponseRunId/status",
+      "endpoint": "scenario/status/slowResponseRunId",
       "responses": [
         {
           "uuid": "97942d15-db5f-49bb-8adf-613699623b46",
@@ -493,7 +493,7 @@
       "type": "http",
       "documentation": "",
       "method": "get",
-      "endpoint": "scenario/notFoundRunId/result",
+      "endpoint": "scenario/results/notFoundRunId",
       "responses": [
         {
           "uuid": "8524ab95-fd74-4ed8-9888-4ac36b6ccb89",
@@ -522,7 +522,7 @@
       "type": "http",
       "documentation": "",
       "method": "get",
-      "endpoint": "scenario/slowResponseRunId/result",
+      "endpoint": "scenario/results/slowResponseRunId",
       "responses": [
         {
           "uuid": "e2efe74f-763e-4562-8f23-45056eca808c",
@@ -568,7 +568,7 @@
       "type": "http",
       "documentation": "",
       "method": "get",
-      "endpoint": "scenario/successfulResponseRunId/result",
+      "endpoint": "scenario/results/successfulResponseRunId",
       "responses": [
         {
           "uuid": "ed07a0b1-d343-4c98-8ddc-3b3fe40b1bea",
