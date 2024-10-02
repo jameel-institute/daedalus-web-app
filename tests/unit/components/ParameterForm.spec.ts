@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FetchError } from "ofetch";
 import { flushPromises } from "@vue/test-utils";
 
-import { mockPinia } from "@/tests/unit/mocks/mockPinia";
+import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import ParameterForm from "@/components/ParameterForm.vue";
 
 const stubs = {
@@ -15,6 +15,16 @@ const { mockNavigateTo } = vi.hoisted(() => ({
   mockNavigateTo: vi.fn(),
 }));
 mockNuxtImport("navigateTo", () => mockNavigateTo);
+
+const scenarioWithParameters = {
+  ...emptyScenario,
+  parameters: {
+    long_list: "3",
+    region: "CLD",
+    population: "25000",
+    short_list: "yes",
+  },
+};
 
 describe("parameter form", () => {
   beforeEach(() => {
@@ -79,21 +89,7 @@ describe("parameter form", () => {
   });
 
   it("renders the current parameter values if the app store contains a current scenario", async () => {
-    const component = await mountSuspended(ParameterForm, {
-      global: {
-        stubs,
-        plugins: [mockPinia({
-          currentScenario: {
-            parameters: {
-              long_list: "3",
-              region: "CLD",
-              population: "25000",
-              short_list: "yes",
-            },
-          },
-        })],
-      },
-    });
+    const component = await mountSuspended(ParameterForm, { global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithParameters })] } });
 
     const selectElements = component.findAll("select");
 
@@ -130,19 +126,7 @@ describe("parameter form", () => {
   it("sets the submit button to disabled when the component is rendered within a modal, until the inputs differ from current scenario", async () => {
     const component = await mountSuspended(ParameterForm, {
       props: { inModal: true },
-      global: {
-        stubs,
-        plugins: [mockPinia({
-          currentScenario: {
-            parameters: {
-              long_list: "3",
-              region: "CLD",
-              population: "25000",
-              short_list: "yes",
-            },
-          },
-        })],
-      },
+      global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithParameters })] },
     });
 
     const submitButton = component.find("button[type='submit']");

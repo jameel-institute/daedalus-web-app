@@ -1,17 +1,35 @@
 import { afterAll, describe, expect, it, vi } from "vitest";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { mockPinia, mockedMetadata } from "@/tests/unit/mocks/mockPinia";
-import sampleResultsResponse from "@/mocks/responses/results.json";
+import { mockResultResponseData } from "@/tests/unit/mocks/mockResultResponseData";
+import { emptyScenario, mockPinia, mockedMetadata } from "@/tests/unit/mocks/mockPinia";
 import TimeSeries from "@/components/TimeSeries.vue";
+import type { ScenarioResultData } from "~/types/apiResponseTypes";
 
 const seriesId = mockedMetadata.results.time_series[0].id;
 const stubs = {
   CIcon: true,
 };
 const plugins = [mockPinia(
-  { currentScenario: { result: { data: sampleResultsResponse.data } } },
+  {
+    currentScenario: {
+      ...emptyScenario,
+      parameters: {
+        country: "USA",
+      },
+      result: {
+        data: mockResultResponseData as ScenarioResultData,
+        fetchError: undefined,
+        fetchStatus: "success",
+      },
+    },
+  },
 )];
-const props = { seriesId, index: 0, openAccordions: mockedMetadata.results.time_series.map(({ id }) => id) };
+const props = {
+  seriesId,
+  index: 0,
+  openedAccordions: mockedMetadata.results.time_series.map(({ id }) => id),
+  hideTooltips: false,
+};
 
 const mockSetSize = vi.fn();
 const mockDestroy = vi.fn();
@@ -33,13 +51,17 @@ vi.mock("highcharts", async (importOriginal) => {
 });
 
 describe("time series", () => {
-  it("should render the correct label for the time series, and the chart container", async () => {
+  it("should render the correct label for the time series, and render the chart container", async () => {
     const component = await mountSuspended(TimeSeries, { props, global: { stubs, plugins } });
 
-    expect(component.text()).toContain(mockedMetadata.results.time_series[0].label);
+    expect(component.text()).toContain("Community infections");
 
     const chartContainer = component.find(`#${seriesId}-container`);
     expect(chartContainer.exists()).toBe(true);
+
+    expect(chartContainer.classes()).not.toContain("hide-tooltips");
+    await component.setProps({ hideTooltips: true });
+    expect(chartContainer.classes()).toContain("hide-tooltips");
   });
 
   it("should emit toggleOpen when the accordion header is clicked", async () => {
@@ -58,8 +80,8 @@ describe("time series", () => {
     const chartContainer = component.find(`#${seriesId}-container`);
     const initialHeight = Number.parseInt(chartContainer.element.style.height);
 
-    // All other accordions are closed, outside this component, changing the 'openAccordions' prop
-    await component.setProps({ openAccordions: [seriesId] });
+    // All other accordions are closed, outside this component, changing the 'openedAccordions' prop
+    await component.setProps({ openedAccordions: [seriesId] });
 
     await component.vm.$nextTick();
     expect(mockSetSize).toHaveBeenCalled();
