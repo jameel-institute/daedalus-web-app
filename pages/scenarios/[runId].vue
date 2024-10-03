@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="d-flex flex-wrap mb-4">
+    <div class="d-flex flex-wrap mb-4 gap-3">
       <h1 class="fs-2 mb-0 pt-1">
         Results
       </h1>
@@ -28,7 +28,7 @@
           <ParameterForm :in-modal="true" />
         </CModalBody>
       </CModal>
-      <div v-show="appStore.currentScenario.parameters && appStore.metadata?.parameters" class="card horizontal-card ms-auto">
+      <div v-show="appStore.currentScenario.parameters && appStore.metadata?.parameters" class="card horizontal-card">
         <CRow>
           <div
             v-show="!appStore.largeScreen"
