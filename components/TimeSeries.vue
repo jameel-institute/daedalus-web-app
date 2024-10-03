@@ -12,7 +12,7 @@
         <div
           :id="containerId"
           :class="`chart-container ${props.hideTooltips ? hideTooltipsClassName : ''}`"
-          :style="{ zIndex, height: `${containerHeightPx}px` }"
+          :style="{ zIndex, height: 'fit-content' }"
           @mousemove="onMove"
           @touchmove="onMove"
           @touchstart="onMove"
@@ -146,6 +146,9 @@ const handleAccordionToggle = () => {
   emit("toggleOpen");
 };
 
+const minChartHeight = minAccordionHeight - (2 * accordionBodyYPadding);
+const chartHeight = () => (containerHeightPx.value - (2 * accordionBodyYPadding));
+
 /**
  * Synchronize tooltips and crosshairs between charts.
  * Demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
@@ -190,6 +193,7 @@ const syncExtremes = (event: { trigger: string, min: number | undefined, max: nu
 const chartInitialOptions = () => {
   return {
     chart: {
+      height: chartHeight(),
       marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
       backgroundColor: chartBackgroundColor,
       events: {
@@ -307,8 +311,9 @@ onUnmounted(() => {
 
 watch(() => props.openedAccordions, () => {
   if (isOpen.value) {
-    const newHeight = (containerHeightPx.value - (2 * accordionBodyYPadding));
-    chart.setSize(undefined, newHeight, { duration: 250 });
+    chart.setSize(undefined, chartHeight(), { duration: 250 });
+  } else {
+    chart.setSize(undefined, minChartHeight, { duration: 250 });
   }
 });
 </script>
@@ -331,6 +336,10 @@ watch(() => props.openedAccordions, () => {
   width: 100%;
   position: relative; /* Required for z-index to work */
   left: -20px;
+}
+
+.collapsing {
+  transition: height .2s ease;
 }
 
 .accordion-button {
