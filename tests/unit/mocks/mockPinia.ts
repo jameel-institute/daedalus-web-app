@@ -198,6 +198,8 @@ Object.freeze(mockResultData);
 
 export const emptyScenario = {
   runId: undefined,
+  downloading: false,
+  downloadError: undefined,
   parameters: undefined,
   result: {
     data: undefined,
