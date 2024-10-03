@@ -3,6 +3,7 @@
   <CAccordion
     :style="accordionStyle"
     :active-item-key="isOpen ? props.seriesId : undefined"
+    class="time-series-accordion"
   >
     <CAccordionItem :item-key="seriesId" class="border-0">
       <CAccordionHeader class="border-top" @click="handleAccordionToggle">
@@ -23,7 +24,7 @@
       <CAccordionBody>
         <div
           :id="containerId"
-          :class="`chart-container ${props.hideTooltips ? hideTooltipsClassName : ''}`"
+          :class="`chart-container time-series ${props.hideTooltips ? hideTooltipsClassName : ''}`"
           :style="{ zIndex, height: 'fit-content' }"
           @mousemove="onMove"
           @touchmove="onMove"
@@ -43,7 +44,7 @@ import exportDataInitialize from "highcharts/modules/export-data";
 import offlineExportingInitialize from "highcharts/modules/offline-exporting";
 import { CIconSvg } from "@coreui/icons-vue";
 
-import { highchartsColors, plotBandsColor, plotLinesColor } from "./utils/charts";
+import { plotBandsColor, plotLinesColor, timeSeriesColors } from "./utils/charts";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 
 const props = defineProps<{
@@ -167,12 +168,16 @@ const chartHeight = () => (containerHeightPx.value - (2 * accordionBodyYPadding)
  * Demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
  */
 const syncTooltipsAndCrosshairs = throttle(() => {
-  if (chart.hoverPoint) {
+  const hoverPoint = chart.hoverPoint;
+  if (hoverPoint) {
     allCharts.value.forEach(({ series }) => {
+      if (!series) {
+        return;
+      }
       // Get the point with the same x as the hovered point
-      const point = series[0].getValidPoints().find(({ x }) => x === chart.hoverPoint!.x);
+      const point = series[0].getValidPoints()?.find(({ x }) => x === hoverPoint!.x);
 
-      if (point && point !== chart.hoverPoint) {
+      if (point && point !== hoverPoint) {
         point.onMouseOver();
       }
     });
@@ -182,6 +187,7 @@ const syncTooltipsAndCrosshairs = throttle(() => {
 const onMove = () => syncTooltipsAndCrosshairs();
 
 // Override the reset function as per synchronisation demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
+// Seems to be required in order for tooltips to hang around more than about a second.
 Highcharts.Pointer.prototype.reset = () => {
   return undefined;
 };
@@ -296,7 +302,7 @@ const chartInitialOptions = () => {
       data: data.value,
       name: seriesMetadata.value!.label,
       type: "area",
-      color: highchartsColors[props.index],
+      color: timeSeriesColors[props.index],
       fillOpacity: 0.3,
       tooltip: {
         valueSuffix: ` ${props.seriesId === "vaccination" ? "%" : ""}`, // TODO: Make this depend on a 'units' property in metadata. https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-117/
@@ -332,35 +338,40 @@ watch(() => props.openedAccordions, () => {
 </script>
 
 <style lang="scss">
-.hide-reset-zoom-button {
-  .highcharts-reset-zoom {
-    display: none;
-  }
-}
-
-.hide-tooltips {
-  .highcharts-tooltip, .highcharts-tracker, .highcharts-crosshair {
-    filter: opacity(0);
-    transition: filter 0.2s;
-  }
-}
-
-.chart-container {
+.chart-container.time-series {
   width: 100%;
   position: relative; /* Required for z-index to work */
   left: -20px;
+
+  .highcharts-tooltip {
+    transition: filter 0.2s;
+  }
+
+  &.hide-tooltips {
+    .highcharts-tooltip, .highcharts-tracker, .highcharts-crosshair {
+      filter: opacity(0);
+    }
+  }
 }
 
-.collapsing {
-  transition: height .2s ease;
-}
+.time-series-accordion {
+  .collapsing {
+    transition: height .2s ease;
+  }
 
-.accordion-button {
-  color: var(--cui-black) !important;
-  background-color: var(--cui-light) !important;
-}
+  .accordion-button {
+    color: var(--cui-black) !important;
+    background-color: var(--cui-light) !important;
+  }
 
-.accordion-item {
-  background: rgba(255, 255, 255, 0.5);
+  .accordion-item {
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  .hide-reset-zoom-button {
+    .highcharts-reset-zoom {
+      display: none;
+    }
+  }
 }
 </style>

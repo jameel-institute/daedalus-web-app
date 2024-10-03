@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { highchartsColors, plotBandsColor } from "@/components/utils/charts";
+import { plotBandsColor, timeSeriesColors } from "@/components/utils/charts";
 
 describe("plotBandsColor", () => {
   it("should be in the correct rgba format", () => {
@@ -8,8 +8,8 @@ describe("plotBandsColor", () => {
   });
 });
 
-describe("highchartsColors", () => {
+describe("timeSeriesColors", () => {
   it("should be 9 colors long", () => {
-    expect(highchartsColors).toHaveLength(9);
+    expect(timeSeriesColors).toHaveLength(9);
   });
 });

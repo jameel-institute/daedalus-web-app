@@ -5,8 +5,8 @@ import type { AsyncDataRequestStatus } from "#app";
 import type { AppState } from "@/types/storeTypes";
 import type { Metadata, ScenarioResultData, ScenarioStatusData, VersionData } from "@/types/apiResponseTypes";
 import { type Parameter, TypeOfParameter } from "@/types/parameterTypes";
-import type { ScenarioCapacity, ScenarioIntervention } from "~/types/resultTypes";
 import { ExcelScenarioDownload } from "~/download/excelScenarioDownload";
+import type { ScenarioCapacity, ScenarioCost, ScenarioIntervention } from "~/types/resultTypes";
 
 const emptyScenario = {
   runId: undefined,
@@ -43,6 +43,13 @@ export const useAppStore = defineStore("app", {
     timeSeriesData: (state): Record<string, number[]> | undefined => state.currentScenario.result.data?.time_series,
     capacitiesData: (state): Array<ScenarioCapacity> | undefined => state.currentScenario.result.data?.capacities,
     interventionsData: (state): Array<ScenarioIntervention> | undefined => state.currentScenario.result.data?.interventions,
+    costsData: (state): Array<ScenarioCost> | undefined => state.currentScenario.result.data?.costs,
+    totalCost(): ScenarioCost | undefined {
+      if (this.costsData?.[0]?.id === "total") {
+        return this.costsData[0];
+      }
+      return undefined;
+    },
   },
   actions: {
     async loadScenarioStatus() {
