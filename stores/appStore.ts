@@ -110,9 +110,9 @@ export const useAppStore = defineStore("app", {
       this.currentScenario = { ...emptyScenario };
     },
     async downloadExcel() {
+      this.downloadError = undefined;
       this.downloading = true;
       await debounce(async () => {
-        this.downloadError = undefined;
         try {
           new ExcelScenarioDownload(this.currentScenario).download();
         } catch (e) {
