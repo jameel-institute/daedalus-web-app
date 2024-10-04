@@ -77,16 +77,20 @@ describe("time series", () => {
   it("should resize the chart when accordions are opened or closed", async () => {
     const component = await mountSuspended(TimeSeries, { props, global: { stubs, plugins } });
 
-    const chartContainer = component.find(`#${seriesId}-container`);
-    const initialHeight = Number.parseInt(chartContainer.element.style.height);
-
     // All other accordions are closed, outside this component, changing the 'openedAccordions' prop
     await component.setProps({ openedAccordions: [seriesId] });
 
     await component.vm.$nextTick();
     expect(mockSetSize).toHaveBeenCalled();
-    const newHeight = Number.parseInt(chartContainer.element.style.height);
-    expect(newHeight).toBeGreaterThan(initialHeight);
+    const secondHeight = mockSetSize.mock.calls[0][1]; // The second argument to setSize is the new height
+
+    await component.setProps({ openedAccordions: props.openedAccordions });
+
+    await component.vm.$nextTick();
+    expect(mockSetSize).toHaveBeenCalled();
+    const thirdHeight = mockSetSize.mock.calls[1][1];
+
+    expect(secondHeight).toBeGreaterThan(thirdHeight);
   });
 
   it("should destroy the chart when the component is unmounted", async () => {
