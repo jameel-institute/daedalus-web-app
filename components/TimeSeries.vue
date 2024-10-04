@@ -2,8 +2,8 @@
   <!-- Per each time series, use one accordion component with one item, so we can easily initialise them all as open with active-item-key -->
   <CAccordion
     :style="accordionStyle"
-    :active-item-key="isOpen ? props.seriesId : undefined"
     class="time-series-accordion"
+    :active-item-key="props.open ? props.seriesId : undefined"
   >
     <CAccordionItem :item-key="seriesId" class="border-0">
       <CAccordionHeader class="border-top" @click="handleAccordionToggle">
@@ -29,6 +29,8 @@
           @mousemove="onMove"
           @touchmove="onMove"
           @touchstart="onMove"
+          @mouseleave="handleMouseLeave"
+          @mouseover="handleMouseOver"
         />
       </CAccordionBody>
     </CAccordionItem>
@@ -50,11 +52,13 @@ import type { DisplayInfo } from "~/types/apiResponseTypes";
 const props = defineProps<{
   seriesId: string
   index: number
-  openedAccordions: string[]
+  open: boolean
   hideTooltips: boolean
+  chartHeightPx: number
+  minChartHeightPx: number
 }>();
 
-const emit = defineEmits(["toggleOpen"]);
+const emit = defineEmits(["toggleOpen", "showAllTooltips", "hideAllTooltips"]);
 accessibilityInitialize(Highcharts);
 exportingInitialize(Highcharts);
 exportDataInitialize(Highcharts);
@@ -67,7 +71,6 @@ const chartBackgroundColor = "transparent";
 const chartBackgroundColorOnExporting = "white";
 const hideResetZoomButtonClassName = "hide-reset-zoom-button";
 const hideTooltipsClassName = "hide-tooltips";
-const accordionBodyYPadding = 8;
 const accordionStyle = {
   "--cui-accordion-btn-focus-box-shadow": "none",
   "--cui-accordion-bg": "rgba(255, 255, 255, 0.7)",
@@ -76,19 +79,6 @@ const accordionStyle = {
 // Also, they should be at least 3 so that they are above .accordion-button:focus
 const zIndex = (Object.keys(appStore.timeSeriesData!).length - props.index) + 3;
 const yUnits = props.seriesId === "dead" ? "deaths" : "cases"; // TODO: Make this depend on a 'units' property in metadata. https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-117/
-const minAccordionHeight = 150;
-const minTotalAccordionHeight = 500;
-
-const isOpen = computed(() => props.openedAccordions.includes(props.seriesId));
-const maxTotalAccordionHeight = computed(() => {
-  if (appStore.timeSeriesData) { // Allow at least minAccordionHeight for each accordion
-    return Math.max(minTotalAccordionHeight, (Object.keys(appStore.timeSeriesData!).length * minAccordionHeight));
-  } else {
-    return minTotalAccordionHeight;
-  }
-});
-// Share available height equally between open accordions. Avoid division by zero.
-const containerHeightPx = computed(() => props.openedAccordions.length ? (maxTotalAccordionHeight.value / props.openedAccordions.length) : 1);
 const chartContainerId = computed(() => `${props.seriesId}-container`);
 // Assign an x-position to y-values. Nth value corresponds to "N+1th day" of simulation.
 const data = computed(() => {
@@ -160,9 +150,6 @@ const handleAccordionToggle = () => {
   emit("toggleOpen");
 };
 
-const minChartHeight = minAccordionHeight - (2 * accordionBodyYPadding);
-const chartHeight = () => (containerHeightPx.value - (2 * accordionBodyYPadding));
-
 /**
  * Synchronize tooltips and crosshairs between charts.
  * Demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
@@ -185,6 +172,14 @@ const syncTooltipsAndCrosshairs = throttle(() => {
 }, 100, { leading: true });
 
 const onMove = () => syncTooltipsAndCrosshairs();
+
+const handleMouseLeave = () => {
+  emit("hideAllTooltips");
+};
+
+const handleMouseOver = () => {
+  emit("showAllTooltips");
+};
 
 // Override the reset function as per synchronisation demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
 // Seems to be required in order for tooltips to hang around more than about a second.
@@ -212,7 +207,7 @@ const syncExtremes = (event: { trigger: string, min: number | undefined, max: nu
 const chartInitialOptions = () => {
   return {
     chart: {
-      height: chartHeight(),
+      height: props.chartHeightPx,
       marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
       backgroundColor: chartBackgroundColor,
       events: {
@@ -328,11 +323,12 @@ onUnmounted(() => {
   chart.destroy();
 });
 
-watch(() => props.openedAccordions, () => {
-  if (isOpen.value) {
-    chart.setSize(undefined, chartHeight(), { duration: 250 });
+// Resize the chart when the accordion is opened or closed.
+watch(() => [props.chartHeightPx, props.minChartHeightPx, props.open], () => {
+  if (props.open) {
+    chart.setSize(undefined, props.chartHeightPx, { duration: 250 });
   } else {
-    chart.setSize(undefined, minChartHeight, { duration: 250 });
+    chart.setSize(undefined, props.minChartHeightPx, { duration: 250 });
   }
 });
 </script>
@@ -362,6 +358,11 @@ watch(() => props.openedAccordions, () => {
   .accordion-button {
     color: var(--cui-black) !important;
     background-color: var(--cui-light) !important;
+  }
+
+  .accordion-body { // These are the default values from CoreUI, but we need to pin them so that our const accordionBodyYPadding is correct.
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
   }
 
   .accordion-item {
