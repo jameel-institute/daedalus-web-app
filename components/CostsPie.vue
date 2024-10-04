@@ -1,5 +1,5 @@
 <template>
-  <div :id="containerId" :class="`${props.hideTooltips ? hideTooltipsClassName : ''}`" />
+  <div :id="chartContainerId" :class="`${props.hideTooltips ? hideTooltipsClassName : ''}`" />
 </template>
 
 <script lang="ts" setup>
@@ -16,7 +16,7 @@ const props = defineProps<{
 accessibilityInitialize(Highcharts);
 sunburstInitialize(Highcharts);
 
-const containerId = "costsPieContainerId";
+const chartContainerId = "costsPieContainerId";
 const hideTooltipsClassName = "hide-tooltips";
 const chartBackgroundColor = "transparent";
 const chartBackgroundColorOnExporting = "white";
@@ -198,7 +198,7 @@ watch(() => appStore.costsData, () => {
 });
 
 onMounted(() => {
-  chart = Highcharts.chart(containerId, chartInitialOptions());
+  chart = Highcharts.chart(chartContainerId, chartInitialOptions());
 
   if (appStore.costsData) {
     populateCostsDataIntoPie();
