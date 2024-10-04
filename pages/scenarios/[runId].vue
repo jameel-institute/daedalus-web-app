@@ -139,21 +139,7 @@
             </div>
             <TimeSeriesLegend />
           </div>
-          <div
-            class="card-body p-0"
-            @mouseleave="onMouseLeaveTimeSeries"
-            @mouseover="() => { hideTimeSeriesTooltips = false }"
-          >
-            <TimeSeries
-              v-for="(_, seriesId, index) in appStore.timeSeriesData"
-              :key="seriesId"
-              :series-id="seriesId"
-              :index="index"
-              :opened-accordions="openedTimeSeriesAccordions"
-              :hide-tooltips="hideTimeSeriesTooltips"
-              @toggle-open="toggleOpen(seriesId)"
-            />
-          </div>
+          <TimeSeriesList />
         </div>
       </div>
     </CRow>
@@ -168,28 +154,12 @@ import type { Parameter } from "~/types/parameterTypes";
 const appStore = useAppStore();
 
 const parameterModalVisible = ref(false);
-const openedTimeSeriesAccordions = ref<string[]>([]);
-const hideTimeSeriesTooltips = ref(false);
 
 const paramDisplayText = (param: Parameter) => {
   if (appStore.currentScenario.parameters && appStore.currentScenario.parameters[param.id]) {
     const rawVal = appStore.currentScenario.parameters[param.id].toString();
     return param.options ? param.options.find(({ id }) => id === rawVal)!.label : rawVal;
   }
-};
-
-const toggleOpen = (seriesId: string) => {
-  if (openedTimeSeriesAccordions.value.includes(seriesId)) {
-    openedTimeSeriesAccordions.value = openedTimeSeriesAccordions.value.filter(id => id !== seriesId);
-  } else {
-    openedTimeSeriesAccordions.value = [...openedTimeSeriesAccordions.value, seriesId];
-  }
-};
-
-const onMouseLeaveTimeSeries = () => {
-  setTimeout(() => {
-    hideTimeSeriesTooltips.value = true;
-  }, 500);
 };
 
 // Eagerly try to load the status and results, in case they are already available and can be used during server-side rendering.
@@ -207,10 +177,6 @@ const loadScenarioStatus = () => {
     }
   });
 };
-
-watch(() => (Object.keys(appStore.timeSeriesData || {})), (seriesIds) => {
-  openedTimeSeriesAccordions.value = seriesIds;
-});
 
 onMounted(() => {
   appStore.globe.interactive = false;
