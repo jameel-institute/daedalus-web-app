@@ -22,7 +22,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   // Reduce flakeyness of tests by waiting for evidence that the page has mounted.
   await expect(page.getByTitle(/Web app version: 0.0.1/)).toHaveCount(1);
 
-  await page.selectOption(`select[aria-label="${parameterLabels.pathogen}"]`, { label: "Influenza 1957" });
+  await page.selectOption(`select[aria-label="${parameterLabels.pathogen}"]`, { label: "SARS 2004" });
   await page.selectOption(`select[aria-label="${parameterLabels.response}"]`, { label: "Elimination" });
 
   const initialCountryValue = await page.inputValue(`input[aria-label="${parameterLabels.hospital_capacity}"][type="number"]`);
@@ -39,7 +39,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   expect(page.url()).toMatch(new RegExp(`${baseURL}/scenarios/[a-f0-9]{32}`));
   await expect(page.getByText("Simulate a new scenario")).not.toBeVisible();
 
-  await expect(page.getByText("Influenza 1957").first()).toBeVisible();
+  await expect(page.getByText("SARS 2004").first()).toBeVisible();
   await expect(page.getByText("Elimination").first()).toBeVisible();
   await expect(page.getByText("United States").first()).toBeVisible();
   await expect(page.getByText("Medium").first()).toBeVisible();
@@ -68,7 +68,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   await expect(page.getByRole("heading", { name: "Edit parameters" })).toBeVisible();
 
   await expect(page.getByLabel(parameterLabels.country)).toHaveValue("United States");
-  await expect(page.getByLabel(parameterLabels.pathogen)).toHaveValue("influenza_1957");
+  await expect(page.getByLabel(parameterLabels.pathogen)).toHaveValue("sars_cov_1");
   await expect(page.getByLabel(parameterLabels.response)).toHaveValue("elimination");
   await expect(page.getByLabel("Medium")).toBeChecked();
   await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue("305000");
