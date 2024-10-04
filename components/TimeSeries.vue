@@ -86,8 +86,8 @@ const maxTotalAccordionHeight = computed(() => {
     return minTotalAccordionHeight;
   }
 });
-// Share available height equally between open accordions
-const containerHeightPx = computed(() => maxTotalAccordionHeight.value / props.openedAccordions.length);
+// Share available height equally between open accordions. Avoid division by zero.
+const containerHeightPx = computed(() => props.openedAccordions.length ? (maxTotalAccordionHeight.value / props.openedAccordions.length) : 1);
 const chartContainerId = computed(() => `${props.seriesId}-container`);
 // Assign an x-position to y-values. Nth value corresponds to "N+1th day" of simulation.
 const data = computed(() => {
