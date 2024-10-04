@@ -44,6 +44,7 @@ import exportingInitialize from "highcharts/modules/exporting";
 import exportDataInitialize from "highcharts/modules/export-data";
 import offlineExportingInitialize from "highcharts/modules/offline-exporting";
 import { CIconSvg } from "@coreui/icons-vue";
+import { debounce } from "perfect-debounce";
 
 import { highchartsColors, plotBandsColor, plotLinesColor } from "./utils/charts";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
@@ -198,6 +199,15 @@ const syncExtremes = (event: { trigger: string, min: number | undefined, max: nu
   }
 };
 
+const setChartHeight = debounce(async (height: number) => {
+  chart.setSize(undefined, height, { duration: 250 });
+}, 10);
+
+// Resize the chart when the accordion is opened or closed.
+watch(() => [props.chartHeightPx, props.open], () => {
+  setChartHeight((props.open ? props.chartHeightPx : props.minChartHeightPx));
+});
+
 const chartInitialOptions = () => {
   return {
     chart: {
@@ -315,15 +325,6 @@ onUnmounted(() => {
   // Destroy this chart, otherwise every time we navigate away and back to this page, another set
   // of charts is created, burdening the browser.
   chart.destroy();
-});
-
-// Resize the chart when the accordion is opened or closed.
-watch(() => [props.chartHeightPx, props.minChartHeightPx, props.open], () => {
-  if (props.open) {
-    chart.setSize(undefined, props.chartHeightPx, { duration: 250 });
-  } else {
-    chart.setSize(undefined, props.minChartHeightPx, { duration: 250 });
-  }
 });
 </script>
 
