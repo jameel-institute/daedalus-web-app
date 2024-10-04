@@ -187,21 +187,7 @@
               <TimeSeriesLegend />
             </div>
           </div>
-          <div
-            class="card-body p-0"
-            @mouseleave="onMouseLeaveTimeSeries"
-            @mouseover="() => { hideTimeSeriesTooltips = false }"
-          >
-            <TimeSeries
-              v-for="(_, seriesId, index) in appStore.timeSeriesData"
-              :key="seriesId"
-              :series-id="seriesId"
-              :index="index"
-              :opened-accordions="openedTimeSeriesAccordions"
-              :hide-tooltips="hideTimeSeriesTooltips"
-              @toggle-open="toggleOpen(seriesId)"
-            />
-          </div>
+          <TimeSeriesList />
         </div>
       </div>
     </CRow>
@@ -217,8 +203,6 @@ import { abbreviateMillionsDollars } from "~/utils/money";
 const appStore = useAppStore();
 
 const parameterModalVisible = ref(false);
-const openedTimeSeriesAccordions = ref<string[]>([]);
-const hideTimeSeriesTooltips = ref(false);
 const hideCostsPieTooltips = ref(false);
 
 const totalCostAbbr = computed(() => {
@@ -234,20 +218,6 @@ const paramDisplayText = (param: Parameter) => {
     const rawVal = appStore.currentScenario.parameters[param.id].toString();
     return param.options ? param.options.find(({ id }) => id === rawVal)!.label : rawVal;
   }
-};
-
-const toggleOpen = (seriesId: string) => {
-  if (openedTimeSeriesAccordions.value.includes(seriesId)) {
-    openedTimeSeriesAccordions.value = openedTimeSeriesAccordions.value.filter(id => id !== seriesId);
-  } else {
-    openedTimeSeriesAccordions.value = [...openedTimeSeriesAccordions.value, seriesId];
-  }
-};
-
-const onMouseLeaveTimeSeries = () => {
-  setTimeout(() => {
-    hideTimeSeriesTooltips.value = true;
-  }, 500);
 };
 
 const onMouseLeaveCostsPie = () => {
@@ -271,10 +241,6 @@ const loadScenarioStatus = () => {
     }
   });
 };
-
-watch(() => (Object.keys(appStore.timeSeriesData || {})), (seriesIds) => {
-  openedTimeSeriesAccordions.value = seriesIds;
-});
 
 onMounted(() => {
   appStore.globe.interactive = false;
