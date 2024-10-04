@@ -22,7 +22,7 @@
       </CAccordionHeader>
       <CAccordionBody>
         <div
-          :id="containerId"
+          :id="chartContainerId"
           :class="`chart-container ${props.hideTooltips ? hideTooltipsClassName : ''}`"
           :style="{ zIndex, height: 'fit-content' }"
           @mousemove="onMove"
@@ -88,7 +88,7 @@ const maxTotalAccordionHeight = computed(() => {
 });
 // Share available height equally between open accordions
 const containerHeightPx = computed(() => maxTotalAccordionHeight.value / props.openedAccordions.length);
-const containerId = computed(() => `${props.seriesId}-container`);
+const chartContainerId = computed(() => `${props.seriesId}-container`);
 // Assign an x-position to y-values. Nth value corresponds to "N+1th day" of simulation.
 const data = computed(() => {
   return appStore.timeSeriesData![props.seriesId].map((value, index) => [index + 1, value]);
@@ -309,7 +309,7 @@ const chartInitialOptions = () => {
 };
 
 onMounted(() => {
-  chart = Highcharts.chart(containerId.value, chartInitialOptions());
+  chart = Highcharts.chart(chartContainerId.value, chartInitialOptions());
 
   // Create the reset zoom button, initially hidden by the className "hide-reset-zoom-button".
   // Using a CSS class to toggle visibility is much more performant than using this method each time.
