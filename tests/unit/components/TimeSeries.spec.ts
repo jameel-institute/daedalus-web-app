@@ -51,10 +51,11 @@ vi.mock("highcharts", async (importOriginal) => {
 });
 
 describe("time series", () => {
-  it("should render the correct label for the time series, and render the chart container", async () => {
+  it("should render the correct label and description for the time series, and render the chart container", async () => {
     const component = await mountSuspended(TimeSeries, { props, global: { stubs, plugins } });
 
     expect(component.text()).toContain("Community infections");
+    expect(component.text()).toContain("Infections not requiring hospitalisation");
 
     const chartContainer = component.find(`#${seriesId}-container`);
     expect(chartContainer.exists()).toBe(true);

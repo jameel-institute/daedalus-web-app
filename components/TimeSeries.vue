@@ -6,7 +6,19 @@
   >
     <CAccordionItem :item-key="seriesId" class="border-0">
       <CAccordionHeader class="border-top" @click="handleAccordionToggle">
-        {{ seriesMetadata?.label }}
+        <span aria-describedby="labelDescriptor">{{ seriesMetadata?.label }}</span>
+        <span id="labelDescriptor" class="visually-hidden">{{ seriesMetadata?.description }}</span>
+        <CTooltip
+          v-if="seriesMetadata?.description"
+          :content="seriesMetadata.description"
+          placement="top"
+        >
+          <template #toggler="{ togglerId, on }">
+            <CIconSvg class="icon opacity-50 ms-2">
+              <img src="~/assets/icons/circleQuestion.svg" :aria-describedby="togglerId" v-on="on">
+            </CIconSvg>
+          </template>
+        </CTooltip>
       </CAccordionHeader>
       <CAccordionBody>
         <div
@@ -29,6 +41,7 @@ import accessibilityInitialize from "highcharts/modules/accessibility";
 import exportingInitialize from "highcharts/modules/exporting";
 import exportDataInitialize from "highcharts/modules/export-data";
 import offlineExportingInitialize from "highcharts/modules/offline-exporting";
+import { CIconSvg } from "@coreui/icons-vue";
 
 import { highchartsColors, plotBandsColor, plotLinesColor } from "./utils/charts";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
