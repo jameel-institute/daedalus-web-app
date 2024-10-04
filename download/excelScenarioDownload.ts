@@ -74,7 +74,7 @@ export class ExcelScenarioDownload {
   }
 
   public download() {
-    if (!this._scenario.parameters && !this._scenario.result.data) {
+    if (!this._scenario.parameters || !this._scenario.result.data) {
       throw new Error("Cannot download scenario with no data.");
     }
     this._buildWorkbook();
