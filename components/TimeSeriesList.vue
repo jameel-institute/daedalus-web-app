@@ -9,7 +9,6 @@
       :index="index"
       :open="openedAccordions.includes(seriesId)"
       :hide-tooltips="hideTooltips"
-      :container-height-px="containerHeightPx"
       :chart-height-px="chartHeightPx"
       :min-chart-height-px="minChartHeightPx"
       @toggle-open="toggleOpen(seriesId)"
@@ -26,6 +25,7 @@ const openedAccordions = ref<string[]>([]);
 const hideTooltips = ref(false);
 const accordionBodyYPadding = 8;
 const minAccordionHeight = 150;
+const maxAccordionHeight = 400;
 const minTotalAccordionHeight = 500;
 const minChartHeightPx = minAccordionHeight - (2 * accordionBodyYPadding);
 const maxTotalAccordionHeight = computed(() => {
@@ -35,10 +35,9 @@ const maxTotalAccordionHeight = computed(() => {
     return minTotalAccordionHeight;
   }
 });
-
 // Share available height equally between open accordions. Avoid division by zero.
-const containerHeightPx = computed(() => openedAccordions.value.length ? (maxTotalAccordionHeight.value / openedAccordions.value.length) : 1);
-const chartHeightPx = computed(() => containerHeightPx.value - (2 * accordionBodyYPadding));
+const accordionHeight = computed(() => openedAccordions.value.length ? (maxTotalAccordionHeight.value / openedAccordions.value.length) : 1);
+const chartHeightPx = computed(() => Math.min(accordionHeight.value, maxAccordionHeight) - (2 * accordionBodyYPadding));
 
 const initializeAccordions = () => {
   openedAccordions.value = Object.keys(appStore.timeSeriesData || {});
