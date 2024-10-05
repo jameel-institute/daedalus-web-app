@@ -27,7 +27,9 @@ const plugins = [mockPinia(
 const props = {
   seriesId,
   index: 0,
-  openedAccordions: mockedMetadata.results.time_series.map(({ id }) => id),
+  open: true,
+  chartHeightPx: 100,
+  minChartHeightPx: 200,
   hideTooltips: false,
 };
 
@@ -59,6 +61,7 @@ describe("time series", () => {
 
     const chartContainer = component.find(`#${seriesId}-container`);
     expect(chartContainer.exists()).toBe(true);
+    expect(chartContainer.classes()).not.toContain("hide-tooltips");
 
     expect(chartContainer.classes()).not.toContain("hide-tooltips");
     await component.setProps({ hideTooltips: true });
@@ -78,20 +81,16 @@ describe("time series", () => {
   it("should resize the chart when accordions are opened or closed", async () => {
     const component = await mountSuspended(TimeSeries, { props, global: { stubs, plugins } });
 
-    // All other accordions are closed, outside this component, changing the 'openedAccordions' prop
-    await component.setProps({ openedAccordions: [seriesId] });
+    await component.setProps({ open: false });
+    // Allow enough time for debounce to finish
+    await new Promise(resolve => setTimeout(resolve, 100));
+    expect(mockSetSize).toHaveBeenCalled();
+    const newHeight = mockSetSize.mock.calls[0][1]; // The second argument to setSize is the new height
+    expect(newHeight).toBe(props.minChartHeightPx); // Since props.chartHeightPx is less than props.minChartHeightPx
 
+    await component.setProps({ open: true });
     await component.vm.$nextTick();
     expect(mockSetSize).toHaveBeenCalled();
-    const secondHeight = mockSetSize.mock.calls[0][1]; // The second argument to setSize is the new height
-
-    await component.setProps({ openedAccordions: props.openedAccordions });
-
-    await component.vm.$nextTick();
-    expect(mockSetSize).toHaveBeenCalled();
-    const thirdHeight = mockSetSize.mock.calls[1][1];
-
-    expect(secondHeight).toBeGreaterThan(thirdHeight);
   });
 
   it("should destroy the chart when the component is unmounted", async () => {
@@ -99,6 +98,17 @@ describe("time series", () => {
 
     component.unmount();
     expect(mockDestroy).toHaveBeenCalled();
+  });
+
+  it("should determined its collapsed state using the 'open' prop", async () => {
+    const component = await mountSuspended(TimeSeries, { props: { ...props, open: false }, global: { stubs, plugins } });
+
+    const accordionButton = component.find(".accordion-button");
+    expect(accordionButton.classes()).toContain("collapsed");
+
+    await component.setProps({ open: true });
+    await component.vm.$nextTick();
+    expect(accordionButton.classes()).not.toContain("collapsed");
   });
 
   afterAll(() => {
