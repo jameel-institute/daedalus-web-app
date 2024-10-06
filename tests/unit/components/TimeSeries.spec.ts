@@ -100,7 +100,7 @@ describe("time series", () => {
     expect(mockDestroy).toHaveBeenCalled();
   });
 
-  it("should determined its collapsed state using the 'open' prop", async () => {
+  it("should determine its collapsed state using the 'open' prop", async () => {
     const component = await mountSuspended(TimeSeries, { props: { ...props, open: false }, global: { stubs, plugins } });
 
     const accordionButton = component.find(".accordion-button");
