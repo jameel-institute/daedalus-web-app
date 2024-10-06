@@ -103,13 +103,27 @@
         </CRow>
       </div>
     </div>
+    <CSpinner v-show="showSpinner" class="ms-3 mb-3 mt-3" />
     <CAlert v-if="appStore.currentScenario.status.data?.runSuccess === false" color="danger">
       The analysis run failed. Please
       <NuxtLink prefetch-on="interaction" to="/scenarios/new">
-        try again.
-      </NuxtLink>
+        <span>try again</span>
+      </NuxtLink>.
       <p v-for="(errorMsg, index) in appStore.currentScenario.status.data.runErrors" :key="index">
         {{ errorMsg }}
+      </p>
+    </CAlert>
+    <CAlert v-else-if="stoppedPolling" color="danger">
+      <p class="mb-0">
+        The analysis is taking longer than expected. Please
+        <NuxtLink prefetch-on="interaction" to="/scenarios/new">
+          <span>try again</span>
+        </NuxtLink>.
+      </p>
+    </CAlert>
+    <CAlert v-else-if="jobTakingLongTime" color="info">
+      <p class="mb-0">
+        Analysis status: {{ appStore.currentScenario.status.data?.runStatus }}
       </p>
     </CAlert>
     <CRow v-else-if="appStore.timeSeriesData">
@@ -148,15 +162,23 @@
 
 <script lang="ts" setup>
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
+import { runStatus } from "~/types/apiResponseTypes";
 import type { Parameter } from "~/types/parameterTypes";
 
 // TODO: Use the runId from the route rather than getting it out of the store. Use a single source of truth for the runId.
 const appStore = useAppStore();
 
 const parameterModalVisible = ref(false);
+const jobTakingLongTime = ref(false);
+const stoppedPolling = ref(false);
+const showSpinner = computed(() => {
+  return (!appStore.currentScenario.result.data
+    && appStore.currentScenario.result.fetchStatus !== "error"
+    && !stoppedPolling.value);
+});
 
 const paramDisplayText = (param: Parameter) => {
-  if (appStore.currentScenario.parameters && appStore.currentScenario.parameters[param.id]) {
+  if (appStore.currentScenario?.parameters && appStore.currentScenario?.parameters[param.id]) {
     const rawVal = appStore.currentScenario.parameters[param.id].toString();
     return param.options ? param.options.find(({ id }) => id === rawVal)!.label : rawVal;
   }
@@ -183,8 +205,19 @@ onMounted(() => {
   if (!appStore.currentScenario.status.data?.done || appStore.currentScenario.result.data) {
     statusInterval = setInterval(loadScenarioStatus, 200); // Poll for status every N ms
     setTimeout(() => {
-      clearInterval(statusInterval); // Terminate polling for status after several seconds
+      // If the job isn't completed within five seconds, give user the information about the run status.
+      if (appStore.currentScenario.status.data?.runStatus !== runStatus.Complete) {
+        jobTakingLongTime.value = true;
+      }
     }, 5000);
+    setTimeout(() => {
+      // If the job isn't completed within 10 seconds, terminate polling for status.
+      if (!appStore.currentScenario.status.data?.done) {
+        jobTakingLongTime.value = false;
+        stoppedPolling.value = true;
+      }
+      clearInterval(statusInterval);
+    }, 15000);
   }
 });
 
