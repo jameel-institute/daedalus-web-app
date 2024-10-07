@@ -20,6 +20,10 @@ To configure the responses, you can either directly edit the mockoon.json file (
 
 To save time writing mock responses, Mockoon is able to record responses from another service, if you follow the steps in [this GitHub comment](https://github.com/mockoon/mockoon/issues/21#issuecomment-1900049410). These recorded responses can then be played back in tests, and edited.
 
+## Miscellaneous context
+
+As I couldn't find a way to expose all of the error details in the response in unit tests using registerEndpoint, we are testing for all these details in the integration tests, ensuring that the error details are passed on in the implementation.
+
 ### To run the mock server
 
 #### From CLI:
