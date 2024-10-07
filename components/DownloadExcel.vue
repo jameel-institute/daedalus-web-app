@@ -3,7 +3,14 @@
     <CSpinner v-if="appStore.downloading" size="sm" class="ms-2" />
     <CTooltip v-else content="Download as Excel file" placement="top">
       <template #toggler="{ togglerId, on }">
-        <CButton color="light" :aria-describedby="togglerId" class="btn-download float-end" v-on="on" @click="appStore.downloadExcel()">
+        <CButton
+          id="btn-download-excel"
+          color="light"
+          :aria-describedby="togglerId"
+          class="btn-download float-end"
+          v-on="on"
+          @click="appStore.downloadExcel()"
+        >
           <CIcon icon="cilCloudDownload" size="lg" class="text-secondary" />
         </CButton>
       </template>
