@@ -3,7 +3,9 @@ import type { Metadata, ScenarioResultData, ScenarioStatusData, VersionData } fr
 import type { AppState } from "@/types/storeTypes";
 import type { FetchError } from "ofetch";
 import { type Parameter, TypeOfParameter } from "@/types/parameterTypes";
+import { debounce } from "perfect-debounce";
 import { defineStore } from "pinia";
+import { ExcelScenarioDownload } from "~/download/excelScenarioDownload";
 import type { ScenarioCapacity, ScenarioIntervention } from "~/types/resultTypes";
 
 const emptyScenario = {
