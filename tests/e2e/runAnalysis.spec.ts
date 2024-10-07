@@ -1,5 +1,4 @@
 import { expect, test } from "@playwright/test";
-import { waitFor } from "@testing-library/vue";
 import checkRApiServer from "./helpers/checkRApiServer";
 
 const parameterLabels = {
@@ -53,6 +52,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   // 2. Run the test with this flag: `npm run test:e2e -- --update-snapshots`
   // Alternatively, simply delete the screenshots directory and run the test as normal - it will 'fail' the first time.
   if (headless) {
+    await page.waitForTimeout(1000); // Reduce flakeyness by waiting longer for charts to have finished rendering.
     await expect(page.locator(".highcharts-background").first()).toHaveScreenshot("first-time-series.png", { maxDiffPixelRatio: 0.04 });
     await expect(page.locator(".highcharts-background").nth(1)).toHaveScreenshot("second-time-series.png", { maxDiffPixelRatio: 0.04 });
     await expect(page.locator(".highcharts-background").nth(2)).toHaveScreenshot("third-time-series.png", { maxDiffPixelRatio: 0.04 });
@@ -78,14 +78,13 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue("305000");
 
   await page.click(`div[aria-label="${parameterLabels.vaccine}"] label[for="high"]`);
-
+  await page.waitForSelector('button:has-text("Run"):not([disabled])');
   await page.click('button:has-text("Run")');
 
-  waitFor(() => {
-    const urlOfSecondAnalysis = page.url();
-    expect(urlOfSecondAnalysis).not.toEqual(urlOfFirstAnalysis);
-    expect(urlOfSecondAnalysis).toMatch(new RegExp(`${baseURL}/scenarios/[a-f0-9]{32}`));
-  });
+  await page.waitForTimeout(1000);
 
+  const urlOfSecondAnalysis = page.url();
+  expect(urlOfSecondAnalysis).not.toEqual(urlOfFirstAnalysis);
+  expect(urlOfSecondAnalysis).toMatch(new RegExp(`${baseURL}/scenarios/[a-f0-9]{32}`));
   await expect(page.getByText("High").first()).toBeVisible();
 });

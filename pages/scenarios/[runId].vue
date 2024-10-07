@@ -268,10 +268,4 @@ onUnmounted(() => {
 .chart-header {
   height: fit-content;
 }
-
-.help {
-  &:not(:hover) {
-    filter: opacity(0.5);
-  }
-}
 </style>
