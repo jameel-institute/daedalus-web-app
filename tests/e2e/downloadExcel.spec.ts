@@ -1,0 +1,26 @@
+import { expect, test } from "@playwright/test";
+import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
+
+test("can download Excel file for scenario results", async ({ page, baseURL }) => {
+  await waitForNewScenarioPage(page, baseURL);
+  // Run scenario with default parameters
+  await page.click('button:has-text("Run")');
+  await page.waitForURL(new RegExp(`${baseURL}/scenarios/[a-f0-9]{32}`));
+  const downloadBtn = await page.locator("#btn-download-excel");
+  await expect(downloadBtn).toBeVisible();
+  await expect(page.getByText("Community infections").first()).toBeVisible(); // Wait for data
+
+  const [download] = await Promise.all([
+    // Start waiting for the download
+    page.waitForEvent("download"),
+    // Perform the action that initiates download
+    downloadBtn.click(),
+  ]);
+
+  // Wait for the download process to complete
+  await download.path();
+
+  // Filename is derived from parameter values, in this case the defaults
+  const expectedFilename = "daedalus_United Kingdom_sars_cov_1_none_none_26200.xlsx";
+  expect(download.suggestedFilename()).toBe(expectedFilename);
+});
