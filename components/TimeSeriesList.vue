@@ -67,6 +67,9 @@ const syncTooltipsAndCrosshairs = throttle((seriesId) => {
   const triggeringChart = charts.value[seriesId];
   if (triggeringChart?.hoverPoint) {
     Object.values(charts.value).forEach((chart) => {
+      if (!chart.series) {
+        return;
+      }
       // Get the point with the same x as the hovered point
       const point = chart.series[0].getValidPoints().find(({ x }) => x === triggeringChart.hoverPoint!.x);
 
