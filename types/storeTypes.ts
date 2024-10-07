@@ -1,10 +1,21 @@
 import type { FetchError } from "ofetch";
 import type { AsyncDataRequestStatus } from "#app";
-import type { Metadata, VersionData } from "@/types/apiResponseTypes";
+import type { Metadata, ScenarioResultData, ScenarioStatusData, VersionData } from "@/types/apiResponseTypes";
 import type { ParameterSet } from "@/types/parameterTypes";
 
 interface Scenario {
-  parameters: ParameterSet
+  runId: string | undefined
+  parameters: ParameterSet | undefined
+  result: {
+    data: ScenarioResultData | undefined
+    fetchError: FetchError | undefined
+    fetchStatus: AsyncDataRequestStatus | undefined
+  }
+  status: {
+    data: ScenarioStatusData | undefined
+    fetchError: FetchError | undefined
+    fetchStatus: AsyncDataRequestStatus | undefined
+  }
 }
 export interface AppState {
   globe: {
@@ -15,5 +26,5 @@ export interface AppState {
   metadata: Metadata | undefined
   metadataFetchError: FetchError | undefined
   metadataFetchStatus: AsyncDataRequestStatus | undefined
-  currentScenario: Scenario | undefined
+  currentScenario: Scenario // Represents the scenario currently being viewed
 };

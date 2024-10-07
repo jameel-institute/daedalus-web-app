@@ -163,7 +163,7 @@ const initialiseFormDataFromDefaults = () => {
 const formData = ref(
   // Initialize formData as a dictionary of parameters with values set to defaults if available,
   // or to the previous scenario's values if any.
-  appStore.currentScenario ? { ...appStore.currentScenario.parameters } : initialiseFormDataFromDefaults(),
+  appStore.currentScenario.parameters ? { ...appStore.currentScenario.parameters } : initialiseFormDataFromDefaults(),
 );
 const pulsingParameters = ref([] as string[]);
 const dependentParameters = computed((): Record<string, Array<string>> => {
@@ -311,7 +311,11 @@ const submitForm = async () => {
 
   if (response) {
     const { runId } = response;
-    appStore.setCurrentScenario(formData.value as ParameterSet);
+    if (runId) {
+      appStore.clearScenario();
+      appStore.currentScenario.runId = runId;
+      appStore.currentScenario.parameters = formData.value as ParameterSet;
+    }
     await navigateTo(`/scenarios/${runId}`);
   };
 };

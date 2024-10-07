@@ -13,7 +13,7 @@ test.beforeAll(async () => {
   checkRApiServer();
 });
 
-test("Can request a scenario analysis run", async ({ page, baseURL, isMobile }) => {
+test("Can request a scenario analysis run", async ({ page, baseURL, isMobile, headless }) => {
   await page.goto(`${baseURL}/`);
   await page.waitForURL(`${baseURL}/scenarios/new`);
 
@@ -22,7 +22,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, isMobile }) 
   // Reduce flakeyness of tests by waiting for evidence that the page has mounted.
   await expect(page.getByTitle(/Web app version: 0.0.2/)).toHaveCount(1);
 
-  await page.selectOption(`select[aria-label="${parameterLabels.pathogen}"]`, { label: "Influenza 1957" });
+  await page.selectOption(`select[aria-label="${parameterLabels.pathogen}"]`, { label: "SARS 2004" });
   await page.selectOption(`select[aria-label="${parameterLabels.response}"]`, { label: "Elimination" });
 
   const initialCountryValue = await page.inputValue(`input[aria-label="${parameterLabels.hospital_capacity}"][type="number"]`);
@@ -31,7 +31,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, isMobile }) 
   await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).not.toHaveValue(initialCountryValue);
 
   await page.click(`div[aria-label="${parameterLabels.vaccine}"] label[for="medium"]`);
-  await page.fill(`input[aria-label="${parameterLabels.hospital_capacity}"][type="number"]`, "200000");
+  await page.fill(`input[aria-label="${parameterLabels.hospital_capacity}"][type="number"]`, "305000");
 
   await page.click('button:has-text("Run")');
 
@@ -47,11 +47,31 @@ test("Can request a scenario analysis run", async ({ page, baseURL, isMobile }) 
   } else {
     await expect(page.getByText("Rotate your mobile device").first()).not.toBeVisible();
   }
-  await expect(page.getByText("Influenza 1957").nth(parameterLocatorIndex)).toBeVisible();
+  await expect(page.getByText("SARS 2004").nth(parameterLocatorIndex)).toBeVisible();
   await expect(page.getByText("Elimination").nth(parameterLocatorIndex)).toBeVisible();
   await expect(page.getByText("United States").nth(parameterLocatorIndex)).toBeVisible();
   await expect(page.getByText("Medium").nth(parameterLocatorIndex)).toBeVisible();
-  await expect(page.getByText("200000").nth(parameterLocatorIndex)).toBeVisible();
+  await expect(page.getByText("305000").nth(parameterLocatorIndex)).toBeVisible();
+
+  // To regenerate these screenshots:
+  // 1. Insert a generous timeout so that screenshots are of the final chart, not the chart half-way through
+  //    its initialization animation: `await page.waitForTimeout(15000);`
+  // 2. Run the test with this flag: `npm run test:e2e -- --update-snapshots`
+  // Alternatively, simply delete the screenshots directory and run the test as normal - it will 'fail' the first time.
+  if (headless) {
+    await expect(page.locator(".highcharts-background").first()).toHaveScreenshot("first-time-series.png", { maxDiffPixelRatio: 0.04 });
+    await expect(page.locator(".highcharts-background").nth(1)).toHaveScreenshot("second-time-series.png", { maxDiffPixelRatio: 0.04 });
+    await expect(page.locator(".highcharts-background").nth(2)).toHaveScreenshot("third-time-series.png", { maxDiffPixelRatio: 0.04 });
+
+    // Test re-sizing of the charts
+    await page.getByRole("button", { name: "Community infections" }).click();
+    await expect(page.locator(".highcharts-background").nth(2)).toHaveScreenshot("third-time-series-taller.png", { maxDiffPixelRatio: 0.04 });
+    await page.getByRole("button", { name: "Hospital demand" }).click();
+    await expect(page.locator(".highcharts-background").nth(2)).toHaveScreenshot("third-time-series-tallest.png", { maxDiffPixelRatio: 0.04 });
+  } else {
+    // eslint-disable-next-line no-console
+    console.log("Running in Headed mode, no screenshot comparison");
+  }
 
   if (isMobile) {
     await page.getByRole("link", { name: "Edit parameters" }).click();
@@ -61,9 +81,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL, isMobile }) 
   await expect(page.getByText("Simulate a new scenario")).toBeVisible();
 
   await expect(page.getByLabel(parameterLabels.country)).toHaveValue("United States");
-  await expect(page.getByLabel(parameterLabels.pathogen)).toHaveValue("influenza_1957");
+  await expect(page.getByLabel(parameterLabels.pathogen)).toHaveValue("sars_cov_1");
   await expect(page.getByLabel(parameterLabels.response)).toHaveValue("elimination");
   await expect(page.getByLabel("Medium")).toBeChecked();
-  await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue("200000");
-  await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue("200000");
+  await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue("305000");
+  await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue("305000");
 });
