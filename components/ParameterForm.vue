@@ -28,12 +28,11 @@
               :class="`${pulsingParameters.includes(parameter.id) ? 'pulse' : ''}`"
               @change="handleChange(parameter)"
             >
-              <!-- This component's "v-model" prop type signature dictates we can't pass it a number. -->
               <CFormCheck
                 v-for="(option) in parameter.options"
                 :id="option.id"
                 :key="option.id"
-                v-model="formData[parameter.id] as string"
+                v-model="formData[parameter.id]"
                 type="radio"
                 :button="{ color: 'primary', variant: 'outline' }"
                 :name="parameter.id"
@@ -75,7 +74,7 @@
             <div class="flex-grow-1">
               <CFormInput
                 :id="parameter.id"
-                v-model="formData[parameter.id] as string"
+                v-model="formData[parameter.id]"
                 :aria-label="parameter.label"
                 type="number"
                 :class="`${pulsingParameters.includes(parameter.id) ? 'pulse' : ''}`"
@@ -92,7 +91,7 @@
               />
               <CFormRange
                 :id="parameter.id"
-                v-model="formData[parameter.id] as string"
+                v-model="formData[parameter.id]"
                 :aria-label="parameter.label"
                 :step="parameter.step"
                 :min="min(parameter)"
