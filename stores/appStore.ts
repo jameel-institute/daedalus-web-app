@@ -1,3 +1,6 @@
+import { defineStore } from "pinia";
+import { debounce } from "perfect-debounce";
+import type { FetchError } from "ofetch";
 import type { AsyncDataRequestStatus } from "#app";
 import type { Metadata, ScenarioResultData, ScenarioStatusData, VersionData } from "@/types/apiResponseTypes";
 import type { AppState } from "@/types/storeTypes";
@@ -7,6 +10,7 @@ import { debounce } from "perfect-debounce";
 import { defineStore } from "pinia";
 import { ExcelScenarioDownload } from "~/download/excelScenarioDownload";
 import type { ScenarioCapacity, ScenarioIntervention } from "~/types/resultTypes";
+import { ExcelScenarioDownload } from "~/download/excelScenarioDownload";
 
 const emptyScenario = {
   runId: undefined,
