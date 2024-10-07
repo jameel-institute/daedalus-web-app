@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import checkRApiServer from "./helpers/checkRApiServer";
+import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 
 const parameterLabels = {
   country: "Country",
@@ -14,13 +15,7 @@ test.beforeAll(async () => {
 });
 
 test("Can request a scenario analysis run", async ({ page, baseURL, isMobile, headless }) => {
-  await page.goto(`${baseURL}/`);
-  await page.waitForURL(`${baseURL}/scenarios/new`);
-
-  await expect(page.getByText("Simulate a new scenario")).toBeVisible();
-
-  // Reduce flakeyness of tests by waiting for evidence that the page has mounted.
-  await expect(page.getByTitle(/Web app version: 0.0.2/)).toHaveCount(1);
+  await waitForNewScenarioPage(page, baseURL);
 
   await page.selectOption(`select[aria-label="${parameterLabels.pathogen}"]`, { label: "SARS 2004" });
   await page.selectOption(`select[aria-label="${parameterLabels.response}"]`, { label: "Elimination" });

@@ -1,9 +1,10 @@
 <template>
   <div>
     <div class="container-fluid d-flex flex-wrap gap-3">
-      <h1 class="fs-1">
+      <h1 class="fs-2 mb-0 pt-1">
         Results
       </h1>
+      <DownloadExcel />
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
         <CIconSvg size="xxl">
           <img src="/icons/rotate-device.svg">
@@ -13,7 +14,7 @@
           Rotate your mobile device to landscape for the best experience.
         </p>
       </CAlert>
-      <div v-show="appStore.largeScreen && appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="card horizontal-card ms-auto">
+      <div v-show="appStore.largeScreen && appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="card horizontal-card">
         <CRow>
           <CCol class="col-sm">
             <div class="card-body py-2">
