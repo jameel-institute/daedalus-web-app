@@ -47,7 +47,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
 
   // To regenerate these screenshots:
   // 1. Insert a generous timeout so that screenshots are of the final chart, not the chart half-way through
-  //    its initialization animation: `await page.waitForTimeout(30000);`
+  //    its initialization animation: `await page.waitForTimeout(15000);`
   // 2. Run the test with this flag: `npm run test:e2e -- --update-snapshots`
   if (headless) {
     await expect(page.locator(".highcharts-background").first()).toHaveScreenshot("first-time-series.png", { maxDiffPixelRatio: 0.02 });
