@@ -3,7 +3,7 @@ import type { Metadata, ScenarioResultData, ScenarioStatusData, VersionData } fr
 import type { ParameterSet } from "@/types/parameterTypes";
 import type { FetchError } from "ofetch";
 
-interface Scenario {
+export interface Scenario {
   runId: string | undefined
   parameters: ParameterSet | undefined
   result: {
@@ -26,5 +26,7 @@ export interface AppState {
   metadata: Metadata | undefined
   metadataFetchError: FetchError | undefined
   metadataFetchStatus: AsyncDataRequestStatus | undefined
+  downloading: boolean
+  downloadError: string | undefined
   currentScenario: Scenario // Represents the scenario currently being viewed
 };
