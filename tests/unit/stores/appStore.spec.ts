@@ -4,6 +4,7 @@ import { createPinia, setActivePinia } from "pinia";
 import { registerEndpoint } from "@nuxt/test-utils/runtime";
 import { emptyScenario, mockResultData } from "@/tests/unit/mocks/mockPinia";
 import { useAppStore } from "@/stores/appStore";
+import * as ExcelDownload from "@/download/excelScenarioDownload";
 import { runStatus } from "~/types/apiResponseTypes";
 
 const sampleUnloadedScenario = {
