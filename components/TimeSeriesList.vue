@@ -14,8 +14,8 @@
       :min-chart-height-px="minChartHeightPx"
       @hide-all-tooltips="hideAllTooltips"
       @show-all-tooltips="showAllTooltips"
-      @store-chart="storeChart"
-      @unstore-chart="unstoreChart"
+      @chart-created="chartCreated"
+      @chart-destroyed="chartDestroyed"
       @sync-tooltips-and-crosshairs="syncTooltipsAndCrosshairs(seriesId)"
       @toggle-open="toggleOpen(seriesId)"
     />
@@ -46,14 +46,14 @@ const maxTotalAccordionHeight = computed(() => {
 const accordionHeight = computed(() => openedAccordions.value.length ? (maxTotalAccordionHeight.value / openedAccordions.value.length) : 1);
 const chartHeightPx = computed(() => Math.min(accordionHeight.value, maxAccordionHeight) - (2 * accordionBodyYPadding));
 
-const storeChart = (seriesId: string, chart: Highcharts.Chart) => {
+const chartCreated = (seriesId: string, chart: Highcharts.Chart) => {
   charts.value = {
     ...charts.value,
     [seriesId]: chart,
   };
 };
 
-const unstoreChart = (seriesId: string) => {
+const chartDestroyed = (seriesId: string) => {
   const newCharts = { ...charts.value };
   delete newCharts[seriesId];
   charts.value = newCharts;
