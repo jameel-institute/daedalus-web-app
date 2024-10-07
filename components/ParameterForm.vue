@@ -13,7 +13,7 @@
         :key="parameter.id"
         class="field-container"
       >
-        <CCol v-if="renderAsRadios(parameter)" class="button-group-container">
+        <div v-if="renderAsRadios(parameter)" class="button-group-container">
           <CRow>
             <ParameterIcon :parameter="parameter" />
             <CFormLabel :for="parameter.id">
@@ -43,7 +43,7 @@
               />
             </CButtonGroup>
           </CRow>
-        </CCol>
+        </div>
         <div v-else-if="renderAsSelect(parameter)">
           <ParameterIcon :parameter="parameter" />
           <CFormLabel :for="parameter.id">
