@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { waitFor } from "@testing-library/vue";
 import { createPinia, setActivePinia } from "pinia";
 import { registerEndpoint } from "@nuxt/test-utils/runtime";
