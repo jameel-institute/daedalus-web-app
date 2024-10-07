@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="container-fluid d-flex flex-wrap gap-3">
-      <h1 class="fs-2 mb-0 pt-1">
+      <h1 class="fs-2 pt-1">
         Results
       </h1>
       <DownloadExcel />
