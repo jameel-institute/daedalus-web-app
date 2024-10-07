@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { waitFor } from "@testing-library/vue";
 import checkRApiServer from "./helpers/checkRApiServer";
 
 const parameterLabels = {
@@ -13,7 +14,7 @@ test.beforeAll(async () => {
   checkRApiServer();
 });
 
-test("Can request a scenario analysis run", async ({ page, baseURL, isMobile, headless }) => {
+test("Can request a scenario analysis run", async ({ page, baseURL, headless }) => {
   await page.goto(`${baseURL}/`);
   await page.waitForURL(`${baseURL}/scenarios/new`);
 
@@ -36,22 +37,15 @@ test("Can request a scenario analysis run", async ({ page, baseURL, isMobile, he
   await page.click('button:has-text("Run")');
 
   await page.waitForURL(new RegExp(`${baseURL}/scenarios/[a-f0-9]{32}`));
+  const urlOfFirstAnalysis = page.url();
   expect(page.url()).toMatch(new RegExp(`${baseURL}/scenarios/[a-f0-9]{32}`));
   await expect(page.getByText("Simulate a new scenario")).not.toBeVisible();
 
-  let parameterLocatorIndex = 0;
-  if (isMobile) {
-    await expect(page.getByText("Rotate your mobile device").first()).toBeVisible();
-    await page.getByRole("button", { name: "Parameters" }).click();
-    parameterLocatorIndex = 1;
-  } else {
-    await expect(page.getByText("Rotate your mobile device").first()).not.toBeVisible();
-  }
-  await expect(page.getByText("SARS 2004").nth(parameterLocatorIndex)).toBeVisible();
-  await expect(page.getByText("Elimination").nth(parameterLocatorIndex)).toBeVisible();
-  await expect(page.getByText("United States").nth(parameterLocatorIndex)).toBeVisible();
-  await expect(page.getByText("Medium").nth(parameterLocatorIndex)).toBeVisible();
-  await expect(page.getByText("305000").nth(parameterLocatorIndex)).toBeVisible();
+  await expect(page.getByText("SARS 2004").first()).toBeVisible();
+  await expect(page.getByText("Elimination").first()).toBeVisible();
+  await expect(page.getByText("United States").first()).toBeVisible();
+  await expect(page.getByText("Medium").first()).toBeVisible();
+  await expect(page.getByText("305000").first()).toBeVisible();
 
   // To regenerate these screenshots:
   // 1. Insert a generous timeout so that screenshots are of the final chart, not the chart half-way through
@@ -73,12 +67,8 @@ test("Can request a scenario analysis run", async ({ page, baseURL, isMobile, he
     console.log("Running in Headed mode, no screenshot comparison");
   }
 
-  if (isMobile) {
-    await page.getByRole("link", { name: "Edit parameters" }).click();
-  } else {
-    await page.getByRole("button", { name: "Parameters" }).click();
-  };
-  await expect(page.getByText("Simulate a new scenario")).toBeVisible();
+  await page.getByRole("button", { name: "Parameters" }).first().click();
+  await expect(page.getByRole("heading", { name: "Edit parameters" })).toBeVisible();
 
   await expect(page.getByLabel(parameterLabels.country)).toHaveValue("United States");
   await expect(page.getByLabel(parameterLabels.pathogen)).toHaveValue("sars_cov_1");
@@ -86,4 +76,16 @@ test("Can request a scenario analysis run", async ({ page, baseURL, isMobile, he
   await expect(page.getByLabel("Medium")).toBeChecked();
   await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue("305000");
   await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue("305000");
+
+  await page.click(`div[aria-label="${parameterLabels.vaccine}"] label[for="high"]`);
+
+  await page.click('button:has-text("Run")');
+
+  waitFor(() => {
+    const urlOfSecondAnalysis = page.url();
+    expect(urlOfSecondAnalysis).not.toEqual(urlOfFirstAnalysis);
+    expect(urlOfSecondAnalysis).toMatch(new RegExp(`${baseURL}/scenarios/[a-f0-9]{32}`));
+  });
+
+  await expect(page.getByText("High").first()).toBeVisible();
 });

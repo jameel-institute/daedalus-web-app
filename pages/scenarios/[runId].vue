@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="container-fluid d-flex flex-wrap gap-3">
-      <h1 class="fs-1">
+    <div class="d-flex flex-wrap mb-3 gap-3">
+      <h1 class="fs-2 mb-0">
         Results
       </h1>
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
@@ -13,8 +13,42 @@
           Rotate your mobile device to landscape for the best experience.
         </p>
       </CAlert>
-      <div v-show="appStore.largeScreen && appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="card horizontal-card ms-auto">
+      <CModal
+        :visible="parameterModalVisible"
+        aria-labelledby="modalTitle"
+        @close="() => { parameterModalVisible = false }"
+      >
+        <CModalHeader>
+          <CModalTitle id="modalTitle">
+            Edit parameters
+          </CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <ParameterForm :in-modal="true" />
+        </CModalBody>
+      </CModal>
+      <div v-show="appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="card horizontal-card ms-auto parameters-card">
         <CRow>
+          <div
+            v-show="!appStore.largeScreen"
+            class="card-header h-100 align-content-center"
+            role="button"
+            @click="() => { parameterModalVisible = true }"
+          >
+            <CTooltip
+              content="Edit parameters"
+              placement="top"
+            >
+              <template #toggler="{ togglerId, on }">
+                <span :aria-describedby="togglerId" v-on="on">
+                  <CButton color="light">
+                    Parameters
+                  </CButton>
+                  <CIcon icon="cilPencil" class="form-icon link-secondary" />
+                </span>
+              </template>
+            </CTooltip>
+          </div>
           <CCol class="col-sm">
             <div class="card-body py-2">
               <p class="card-text d-flex gap-3 flex-wrap">
@@ -41,51 +75,29 @@
               </p>
             </div>
           </CCol>
-          <CCol class="col-auto">
-            <div class="card-footer h-100 align-content-center">
-              <CTooltip
-                content="Edit parameters"
-                placement="top"
-              >
-                <template #toggler="{ id, on }">
-                  <NuxtLink
-                    to="/scenarios/new"
-                    class="ms-2 link-secondary"
-                    :aria-describedby="id"
-                    v-on="on"
-                  >
-                    <CButton color="light">
-                      Parameters
-                    </CButton>
-                    <CIcon icon="cilPencil" class="form-icon" />
-                  </NuxtLink>
-                </template>
-              </CTooltip>
-            </div>
+          <CCol v-show="appStore.largeScreen" class="col-auto">
+            <CTooltip
+              content="Edit parameters"
+              placement="top"
+            >
+              <template #toggler="{ togglerId, on }">
+                <div
+                  class="card-footer h-100 align-content-center"
+                  role="button"
+                  :aria-describedby="togglerId"
+                  @click="() => { parameterModalVisible = true }"
+                  v-on="on"
+                >
+                  <CButton color="light">
+                    Parameters
+                  </CButton>
+                  <CIcon icon="cilPencil" class="form-icon link-secondary" />
+                </div>
+              </template>
+            </CTooltip>
           </CCol>
         </CRow>
       </div>
-      <CAccordion v-show="!appStore.largeScreen && appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="ms-auto">
-        <CAccordionItem :item-key="1">
-          <CAccordionHeader>
-            Parameters
-          </CAccordionHeader>
-          <CAccordionBody>
-            <p v-for="(parameter) in appStore.metadata?.parameters" :key="parameter.id" class="card-text">
-              <ParameterIcon :parameter="parameter" />
-              <span v-show="appStore.currentScenario" class="ms-2">
-                {{ paramDisplayText(parameter) }}
-              </span>
-              <!-- Todo: once metadata uses real country ISOs, get a mapping from 3-letter ISOs to 2-letter ISOs, and look up the correct country flag. -->
-              <CIcon v-if="parameter.id === appStore.globeParameter?.id" icon="cifZw" class="parameter-icon text-secondary ms-1" size="sm" />
-            </p>
-            <CIcon icon="cilPencil" class="form-icon" />
-            <NuxtLink to="/scenarios/new" class="ms-2 link-secondary">
-              <span>Edit parameters</span>
-            </NuxtLink>
-          </CAccordionBody>
-        </CAccordionItem>
-      </CAccordion>
     </div>
     <CSpinner v-show="showSpinner" class="ms-3 mb-3 mt-3" />
     <CAlert v-if="appStore.currentScenario.status.data?.runSuccess === false" color="danger">
@@ -110,7 +122,7 @@
         Analysis status: {{ appStore.currentScenario.status.data?.runStatus }}
       </p>
     </CAlert>
-    <CRow v-else-if="appStore.timeSeriesData">
+    <CRow v-else-if="appStore.timeSeriesData" class="cards-container">
       <div class="col-md-6">
         <div class="card">
           <div class="card-header border-bottom-0 d-flex justify-content-between">
@@ -149,8 +161,10 @@ import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import { runStatus } from "~/types/apiResponseTypes";
 import type { Parameter } from "~/types/parameterTypes";
 
+// TODO: Use the runId from the route rather than getting it out of the store.
 const appStore = useAppStore();
 
+const parameterModalVisible = ref(false);
 const jobTakingLongTime = ref(false);
 const stoppedPolling = ref(false);
 const showSpinner = computed(() => {
@@ -212,6 +226,10 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 @use "sass:map";
 
+.cards-container {
+  row-gap: 1rem;
+}
+
 .card {
   background: rgba(255, 255, 255, 0.7);
 
@@ -239,9 +257,21 @@ onUnmounted(() => {
       --cui-gutter-x: 0;
     }
   }
+
+  &.parameters-card {
+    .btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active, .btn.show {
+      background-color: unset; // Overrides a style in _theme.scss
+    }
+  }
 }
 
 .chart-header {
   height: fit-content;
+}
+
+.help {
+  &:not(:hover) {
+    filter: opacity(0.5);
+  }
 }
 </style>

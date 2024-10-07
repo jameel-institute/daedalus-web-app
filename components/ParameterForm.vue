@@ -120,7 +120,7 @@
         color="primary"
         :size="appStore.largeScreen ? 'lg' : undefined"
         type="submit"
-        :disabled="formSubmitting || appStore.metadataFetchStatus === 'error'"
+        :disabled="runButtonDisabled"
         @click="submitForm"
       >
         Run
@@ -141,6 +141,10 @@ import { CIcon } from "@coreui/icons-vue";
 import type { Parameter, ParameterSet, ValueData } from "@/types/parameterTypes";
 import { TypeOfParameter } from "@/types/parameterTypes";
 import type { NewScenarioData } from "@/types/apiResponseTypes";
+
+const props = defineProps<{
+  inModal?: boolean
+}>();
 
 const appStore = useAppStore();
 
@@ -165,7 +169,7 @@ const formData = ref(
   appStore.currentScenario.parameters ? { ...appStore.currentScenario.parameters } : initialiseFormDataFromDefaults(),
 );
 const pulsingParameters = ref([] as string[]);
-const dependentParameters = computed((): Record<string, Array<string>> => {
+const dependentParameters = computed((): Record<string, string[]> => {
   const dependentParameters = {} as { [key: string]: Array<string> };
   paramMetadata.value?.forEach((param) => {
     if (param.updateNumericFrom) {
@@ -177,6 +181,19 @@ const dependentParameters = computed((): Record<string, Array<string>> => {
     }
   });
   return dependentParameters;
+});
+
+const runButtonDisabled = computed(() => {
+  if (!formData.value || formSubmitting.value || appStore.metadataFetchStatus === "error") {
+    return true;
+  } else if (props.inModal && appStore.currentScenario.parameters) {
+    const parametersHaveChanged = Object.keys(formData.value).some((key) => {
+      return formData.value![key] !== appStore.currentScenario.parameters![key];
+    });
+    return !parametersHaveChanged; // Only enable the run button if there has been a change to the parameters in the form
+  } else {
+    return false;
+  }
 });
 
 const optionsAreTerse = (param: Parameter) => {

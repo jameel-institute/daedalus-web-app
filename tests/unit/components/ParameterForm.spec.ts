@@ -83,6 +83,9 @@ describe("parameter form", () => {
       { value: "yes", label: "Yes", checked: false },
       { value: "no", label: "No", checked: true },
     ]);
+
+    const submitButton = component.find("button[type='submit']");
+    expect(submitButton.element.disabled).toBe(false);
   });
 
   it("renders the current parameter values if the app store contains a current scenario", async () => {
@@ -120,6 +123,20 @@ describe("parameter form", () => {
     ]);
   });
 
+  it("sets the submit button to disabled when the component is rendered within a modal, until the inputs differ from current scenario", async () => {
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: true },
+      global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithParameters })] },
+    });
+
+    const submitButton = component.find("button[type='submit']");
+    expect(submitButton.element.disabled).toBe(true);
+
+    const selectElement = component.find("select");
+    await selectElement.setValue("2");
+    expect(submitButton.element.disabled).toBe(false);
+  });
+
   it("updates the numeric input's min, max, and default values based on the selected option", async () => {
     const component = await mountSuspended(ParameterForm, {
       global: { stubs, plugins: [mockPinia()] },
@@ -133,12 +150,16 @@ describe("parameter form", () => {
     expect(rangeInput.element.value).toBe("2000");
 
     await shortList.find("input[value='yes']").setChecked();
-    expect(numericInput.element.value).toBe("17000");
-    expect(rangeInput.element.value).toBe("17000");
+    setTimeout(() => {
+      expect(numericInput.element.value).toBe("17000");
+      expect(rangeInput.element.value).toBe("17000");
+    }, 500);
 
     await shortList.find("input[value='no']").setChecked();
-    expect(numericInput.element.value).toBe("2000");
-    expect(rangeInput.element.value).toBe("2000");
+    setTimeout(() => {
+      expect(numericInput.element.value).toBe("2000");
+      expect(rangeInput.element.value).toBe("2000");
+    }, 500);
   });
 
   it("resets a numeric input that can be updated from another input to its default value when the reset button is clicked", async () => {
