@@ -62,8 +62,8 @@ const emit = defineEmits([
   "showAllTooltips",
   "syncTooltipsAndCrosshairs",
   "toggleOpen",
-  "storeChart",
-  "unstoreChart",
+  "chartCreated",
+  "chartDestroyed",
 ]);
 accessibilityInitialize(Highcharts);
 exportingInitialize(Highcharts);
@@ -218,7 +218,7 @@ const chartInitialOptions = () => {
           symbolX: 12,
           symbolStrokeWidth: 2,
           // Omit 'printChart' and 'viewData' from menu items
-          menuItems: ["printChart", "downloadCSV", "downloadXLS", "separator", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG", "separator", "viewFullscreen"],
+          menuItems: ["downloadCSV", "downloadXLS", "separator", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG", "separator", "viewFullscreen"],
           useHTML: true,
         },
       },
@@ -277,11 +277,11 @@ const chartInitialOptions = () => {
 
 onMounted(() => {
   chart = Highcharts.chart(chartContainerId.value, chartInitialOptions());
-  emit("storeChart", props.seriesId, chart);
+  emit("chartCreated", props.seriesId, chart);
 });
 
 onUnmounted(() => {
-  emit("unstoreChart", props.seriesId);
+  emit("chartDestroyed", props.seriesId);
 
   // Destroy this chart, since every time we navigate away and back to this page, another set
   // of charts is created, burdening the browser if they aren't disposed of.
