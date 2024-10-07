@@ -22,18 +22,19 @@ describe("download Excel", () => {
 
   it("renders nothing if no scenario parameters", () => {
     const component = render({});
-    expect(component.findComponent(CTooltip).exists()).toBe(false);
-    expect(component.findComponent(CButton).exists()).toBe(false);
+    expect(component.findComponent(CTooltip).isVisible()).toBe(false);
+    expect(component.findComponent(CButton).isVisible()).toBe(false);
     expect(component.findComponent(CSpinner).exists()).toBe(false);
-    expect(component.findComponent(CAlert).exists()).toBe(false);
+    expect(component.findComponent(CAlert).isVisible()).toBe(false);
   });
 
   it("renders download button when not downloading", () => {
     const component = render({
       currentScenario: { parameters: {} } as any,
     });
+    expect(component.findComponent(CTooltip).isVisible()).toBe(true);
     expect(component.findComponent(CTooltip).props("content")).toBe("Download as Excel file");
-    expect(component.findComponent(CButton).exists()).toBe(true);
+    expect(component.findComponent(CButton).isVisible()).toBe(true);
     expect(component.findComponent(CSpinner).exists()).toBe(false);
     expect(component.findComponent(CAlert).props("visible")).toBe(false);
   });
@@ -45,6 +46,7 @@ describe("download Excel", () => {
     });
     expect(component.findComponent(CTooltip).exists()).toBe(false);
     expect(component.findComponent(CButton).exists()).toBe(false);
+    expect(component.findComponent(CSpinner).isVisible()).toBe(true);
     expect(component.findComponent(CSpinner).props("size")).toBe("sm");
     expect(component.findComponent(CAlert).props("visible")).toBe(false);
   });
