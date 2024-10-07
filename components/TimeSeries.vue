@@ -38,7 +38,6 @@
 </template>
 
 <script lang="ts" setup>
-import throttle from "lodash.throttle";
 import * as Highcharts from "highcharts";
 import accessibilityInitialize from "highcharts/modules/accessibility";
 import exportingInitialize from "highcharts/modules/exporting";
@@ -59,7 +58,14 @@ const props = defineProps<{
   minChartHeightPx: number
 }>();
 
-const emit = defineEmits(["toggleOpen", "showAllTooltips", "hideAllTooltips"]);
+const emit = defineEmits([
+  "hideAllTooltips",
+  "showAllTooltips",
+  "syncTooltipsAndCrosshairs",
+  "toggleOpen",
+  "storeChart",
+  "unstoreChart",
+]);
 accessibilityInitialize(Highcharts);
 exportingInitialize(Highcharts);
 exportDataInitialize(Highcharts);
@@ -70,7 +76,6 @@ const appStore = useAppStore();
 let chart: Highcharts.Chart;
 const chartBackgroundColor = "transparent";
 const chartBackgroundColorOnExporting = "white";
-const hideResetZoomButtonClassName = "hide-reset-zoom-button";
 const hideTooltipsClassName = "hide-tooltips";
 const accordionStyle = {
   "--cui-accordion-btn-focus-box-shadow": "none",
@@ -90,8 +95,9 @@ const seriesMetadata = computed((): DisplayInfo | undefined => {
 });
 const usePlotLines = props.seriesId === "hospitalised"; // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
 const usePlotBands = props.seriesId === "hospitalised" || props.seriesId === "infect"; // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
-// On zooming, the y-axis automatically rescales to the data (ignoring the plotLines). We want the plotLines
-// to remain visible, so we limit the y-axis' ability to rescale, by defining a minimum range.
+// The y-axis automatically rescales to the data (ignoring the plotLines). We want the plotLines
+// to remain visible, so we limit the y-axis' ability to rescale, by defining a minimum range. This way the
+// plotLines remain visible even when the maximum data value is less than the maximum plotline value.
 const minRange = computed(() => {
   if (usePlotLines) {
     return appStore.capacitiesData?.reduce((acc, { value }) => Math.max(acc, value), 0);
@@ -142,35 +148,9 @@ const interventionsPlotBands = computed(() => {
   return bands;
 });
 
-const allCharts = computed(() => {
-  // Excludes undefineds. When a chart is destroyed, Highcharts.charts retains its index, but the value is undefined.
-  return Array.from(Highcharts.charts).filter(chart => chart) as (Highcharts.Chart)[];
-});
-
 const handleAccordionToggle = () => {
   emit("toggleOpen");
 };
-
-/**
- * Synchronize tooltips and crosshairs between charts.
- * Demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
- */
-const syncTooltipsAndCrosshairs = throttle(() => {
-  const hoverPoint = chart.hoverPoint;
-  if (hoverPoint) {
-    allCharts.value.forEach(({ series }) => {
-      if (!series) {
-        return;
-      }
-      // Get the point with the same x as the hovered point
-      const point = series[0].getValidPoints()?.find(({ x }) => x === hoverPoint!.x);
-
-      if (point && point !== hoverPoint) {
-        point.onMouseOver();
-      }
-    });
-  };
-}, 100, { leading: true });
 
 const onMove = () => syncTooltipsAndCrosshairs();
 
@@ -186,23 +166,6 @@ const handleMouseOver = () => {
 // Seems to be required in order for tooltips to hang around more than about a second.
 Highcharts.Pointer.prototype.reset = () => {
   return undefined;
-};
-
-// Synchronize zooming through the setExtremes event handler.
-const syncExtremes = (event: { trigger: string, min: number | undefined, max: number | undefined }) => {
-  if (event.trigger !== "syncExtremes") {
-    allCharts.value.forEach((ch: Highcharts.Chart) => {
-      if (ch.xAxis[0].setExtremes) { // setExtremes is null while updating
-        ch.xAxis[0].setExtremes(event.min, event.max, undefined, { duration: 250 }, { trigger: "syncExtremes" });
-        if (event.min && event.max) {
-          // Prevent exporting while zoomed in since image export doesn't work well when zoomed in
-          ch.update({ chart: { className: undefined }, exporting: { enabled: false } });
-        } else {
-          ch.update({ chart: { className: hideResetZoomButtonClassName }, exporting: { enabled: true } });
-        }
-      }
-    });
-  }
 };
 
 const setChartHeight = debounce(async (height: number) => {
@@ -228,12 +191,8 @@ const chartInitialOptions = () => {
           this.update({ chart: { backgroundColor: chartBackgroundColor } });
         },
       },
-      className: hideResetZoomButtonClassName,
       style: {
         fontFamily: "ImperialSansText, sans-serif", // TODO: Make the font-family derive from a globally configurable constant
-      },
-      zooming: {
-        type: "x",
       },
     },
     exporting: {
@@ -259,7 +218,7 @@ const chartInitialOptions = () => {
           symbolX: 12,
           symbolStrokeWidth: 2,
           // Omit 'printChart' and 'viewData' from menu items
-          menuItems: ["downloadCSV", "downloadXLS", "separator", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG", "separator", "viewFullscreen"],
+          menuItems: ["printChart", "downloadCSV", "downloadXLS", "separator", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG", "separator", "viewFullscreen"],
           useHTML: true,
         },
       },
@@ -287,9 +246,6 @@ const chartInitialOptions = () => {
       valueDecimals: 0,
     },
     xAxis: { // Omit title to save vertical space on page
-      events: {
-        setExtremes: syncExtremes,
-      },
       crosshair: true,
       plotBands: interventionsPlotBands.value,
       minTickInterval: 1,
@@ -321,15 +277,14 @@ const chartInitialOptions = () => {
 
 onMounted(() => {
   chart = Highcharts.chart(chartContainerId.value, chartInitialOptions());
-
-  // Create the reset zoom button, initially hidden by the className "hide-reset-zoom-button".
-  // Using a CSS class to toggle visibility is much more performant than using this method each time.
-  chart.showResetZoom();
+  emit("storeChart", props.seriesId, chart);
 });
 
 onUnmounted(() => {
-  // Destroy this chart, otherwise every time we navigate away and back to this page, another set
-  // of charts is created, burdening the browser.
+  emit("unstoreChart", props.seriesId);
+
+  // Destroy this chart, since every time we navigate away and back to this page, another set
+  // of charts is created, burdening the browser if they aren't disposed of.
   chart.destroy();
 });
 </script>

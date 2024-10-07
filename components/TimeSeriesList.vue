@@ -5,22 +5,29 @@
     <TimeSeries
       v-for="(_, seriesId, index) in appStore.timeSeriesData"
       :key="seriesId"
+      :all-charts="charts"
       :series-id="seriesId"
       :index="index"
       :open="openedAccordions.includes(seriesId)"
       :hide-tooltips="hideTooltips"
       :chart-height-px="chartHeightPx"
       :min-chart-height-px="minChartHeightPx"
-      @toggle-open="toggleOpen(seriesId)"
       @hide-all-tooltips="hideAllTooltips"
       @show-all-tooltips="showAllTooltips"
+      @store-chart="storeChart"
+      @unstore-chart="unstoreChart"
+      @sync-tooltips-and-crosshairs="syncTooltipsAndCrosshairs(seriesId)"
+      @toggle-open="toggleOpen(seriesId)"
     />
   </div>
 </template>
 
 <script setup lang="ts">
+import throttle from "lodash.throttle";
+
 const appStore = useAppStore();
 
+const charts = ref<Record<string, Highcharts.Chart>>({});
 const openedAccordions = ref<string[]>([]);
 const hideTooltips = ref(false);
 const accordionBodyYPadding = 8;
@@ -38,6 +45,37 @@ const maxTotalAccordionHeight = computed(() => {
 // Share available height equally between open accordions. Avoid division by zero.
 const accordionHeight = computed(() => openedAccordions.value.length ? (maxTotalAccordionHeight.value / openedAccordions.value.length) : 1);
 const chartHeightPx = computed(() => Math.min(accordionHeight.value, maxAccordionHeight) - (2 * accordionBodyYPadding));
+
+const storeChart = (seriesId: string, chart: Highcharts.Chart) => {
+  charts.value = {
+    ...charts.value,
+    [seriesId]: chart,
+  };
+};
+
+const unstoreChart = (seriesId: string) => {
+  const newCharts = { ...charts.value };
+  delete newCharts[seriesId];
+  charts.value = newCharts;
+};
+
+/**
+ * Synchronize tooltips and crosshairs between charts.
+ * Demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
+ */
+const syncTooltipsAndCrosshairs = throttle((seriesId) => {
+  const triggeringChart = charts.value[seriesId];
+  if (triggeringChart?.hoverPoint) {
+    Object.values(charts.value).forEach((chart) => {
+      // Get the point with the same x as the hovered point
+      const point = chart.series[0].getValidPoints().find(({ x }) => x === triggeringChart.hoverPoint!.x);
+
+      if (point && point !== triggeringChart.hoverPoint) {
+        point.onMouseOver();
+      }
+    });
+  };
+}, 100, { leading: true });
 
 const initializeAccordions = () => {
   openedAccordions.value = Object.keys(appStore.timeSeriesData || {});
