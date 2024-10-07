@@ -1,7 +1,7 @@
 export interface ScenarioCost {
   id: string
   value: number
-  children: Array<ScenarioCost> | null
+  children?: Array<ScenarioCost>
 }
 
 export interface ScenarioCapacity {

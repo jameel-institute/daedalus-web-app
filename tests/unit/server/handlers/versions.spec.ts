@@ -25,7 +25,7 @@ describe("get version data", () => {
       expect(response.data).toEqual({
         daedalusApi: "0.1.999",
         daedalusModel: "0.1.0",
-        daedalusWebApp: "0.0.1",
+        daedalusWebApp: "0.0.2",
       });
       expect(response.errors).toBeNull();
       expect(response.statusCode).toBe(200);

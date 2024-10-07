@@ -3,6 +3,7 @@ import { createTestingPinia } from "@pinia/testing";
 import type { AppState } from "@/types/storeTypes";
 import sampleMetadataResponse from "@/mocks/responses/metadata.json";
 import type { Metadata, ResultsMetadata } from "~/types/apiResponseTypes";
+import { InterventionLevel } from "~/types/resultTypes";
 
 const globeParameter = {
   id: "region",
@@ -79,31 +80,150 @@ export const mockedMetadata = {
   parameters: [...selectParameters, globeParameter, updatableNumericParameter],
   results: resultsMetadata,
 } as Metadata;
+Object.freeze(mockedMetadata);
+
+export const mockResultData = {
+  runId: "successfulResponseRunId",
+  parameters: {
+    country: "United Kingdom",
+    pathogen: "sars_cov_1",
+    response: "none",
+    vaccine: "none",
+    hospital_capacity: "30500",
+  },
+  costs: [
+    {
+      id: "total",
+      value: 1086625.0137,
+      children: [
+        {
+          id: "gdp",
+          value: 52886.8372,
+          children: [
+            {
+              id: "gdp_closures",
+              value: 0,
+            },
+            {
+              id: "gdp_absences",
+              value: 52886.8372,
+            },
+          ],
+        },
+        {
+          id: "education",
+          value: 4154.9456,
+          children: [
+            {
+              id: "education_closures",
+              value: 0,
+            },
+            {
+              id: "education_absences",
+              value: 4154.9456,
+            },
+          ],
+        },
+        {
+          id: "life_years",
+          value: 1029583.2309,
+          children: [
+            {
+              id: "life_years_infants",
+              value: 882.054,
+            },
+            {
+              id: "life_years_adolescents",
+              value: 33273.6856,
+            },
+            {
+              id: "life_years_working_age",
+              value: 993899.3885,
+            },
+            {
+              id: "life_years_retirement_age",
+              value: 1528.1028,
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  capacities: [
+    {
+      id: "hospital_capacity",
+      value: 40000,
+    },
+    {
+      id: "icu_capacity",
+      value: 5000,
+    },
+  ],
+  interventions: [
+    {
+      id: "school_closures",
+      level: InterventionLevel.Light,
+      start: 1,
+      end: 4,
+    },
+    {
+      id: "business_closures",
+      level: InterventionLevel.Heavy,
+      start: 3,
+      end: 8,
+    },
+  ],
+  time_series: {
+    infect: [
+      67.886,
+      56.4939,
+      59.2434,
+      70.9342,
+    ],
+    hospitalised: [
+      0,
+      3.9626,
+      6.8824,
+      9.4865,
+    ],
+    dead: [
+      0,
+      0.0244,
+      0.0878,
+      0.1825,
+    ],
+  },
+};
+Object.freeze(mockResultData);
+
+export const emptyScenario = {
+  runId: undefined,
+  parameters: undefined,
+  result: {
+    data: undefined,
+    fetchError: undefined,
+    fetchStatus: undefined,
+  },
+  status: {
+    data: undefined,
+    fetchError: undefined,
+    fetchStatus: undefined,
+  },
+};
+Object.freeze(emptyScenario);
 
 export const mockPinia = (appState: Partial<AppState> = {}, includeMetadata: boolean = true) => {
   const initialState = {
     app: {
       largeScreen: true,
       versions: undefined,
-      metadata: includeMetadata ? mockedMetadata : undefined,
+
+      metadata: includeMetadata ? { ...mockedMetadata } : undefined,
       metadataFetchError: undefined,
       metadataFetchStatus: includeMetadata ? "success" : undefined,
+      currentScenario: emptyScenario,
       downloading: false,
       downloadError: undefined,
-      currentScenario: {
-        runId: undefined,
-        parameters: undefined,
-        result: {
-          data: undefined,
-          fetchError: undefined,
-          fetchStatus: undefined,
-        },
-        status: {
-          data: undefined,
-          fetchError: undefined,
-          fetchStatus: undefined,
-        },
-      },
       ...appState,
     },
   };

@@ -26,7 +26,7 @@ export interface VersionDataResponse extends ApiResponse<VersionData> { }
 export interface DisplayInfo {
   id: string
   label: string
-  description: string | null
+  description?: string
 }
 export type ResultsMetadata = Record<string, Array<DisplayInfo>>;
 export interface Metadata {
@@ -53,7 +53,7 @@ export enum runStatus {
 
 export interface ScenarioStatusData {
   done: boolean // whether the job is finished or not
-  runId: string
+  runId?: string
   runErrors: Array<string> | null
   runStatus: runStatus
   runSuccess: boolean | null // null if "done" is false, otherwise indicates whether the job finished successfully
@@ -62,7 +62,7 @@ export interface ScenarioStatusData {
 export interface ScenarioStatusResponse extends ApiResponse<ScenarioStatusData> { }
 
 export interface ScenarioResultData {
-  runId: string
+  runId?: string
   parameters: ParameterSet
   costs: Array<ScenarioCost>
   capacities: Array<ScenarioCapacity>

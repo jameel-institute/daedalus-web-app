@@ -54,31 +54,31 @@ export const useAppStore = defineStore("app", {
         data: scenarioStatusData,
         status: scenarioStatusFetchStatus,
         error: scenarioStatusFetchError,
-      } = await useFetch(`/api/scenarios/status/${this.currentScenario.runId}`) as {
+      } = await useFetch(`/api/scenarios/${this.currentScenario.runId}/status`) as {
         data: Ref<ScenarioStatusData>
         status: Ref<AsyncDataRequestStatus>
-        error: Ref<FetchError | undefined>
+        error: Ref<FetchError>
       };
+
       this.currentScenario.status = {
-        data: scenarioStatusData.value,
+        data: { ...scenarioStatusData.value, runId: undefined },
         fetchStatus: scenarioStatusFetchStatus.value,
-        fetchError: scenarioStatusFetchError.value,
+        fetchError: scenarioStatusFetchError.value || undefined,
       };
     },
-    async loadScenarioResults() {
+    async loadScenarioResult() {
       if (!this.currentScenario.runId) {
         return;
       }
-
-      const { data, status, error } = await useFetch(`/api/scenarios/result/${this.currentScenario.runId}`) as {
+      const { data, status, error } = await useFetch(`/api/scenarios/${this.currentScenario.runId}/result`) as {
         data: Ref<ScenarioResultData>
         status: Ref<AsyncDataRequestStatus>
         error: Ref<FetchError | undefined>
       };
       this.currentScenario.result = {
-        data: data.value,
+        data: { ...data.value, runId: undefined },
         fetchStatus: status.value,
-        fetchError: error.value,
+        fetchError: error.value || undefined,
       };
     },
     async loadMetadata() {

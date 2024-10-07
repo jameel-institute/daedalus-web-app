@@ -33,7 +33,7 @@ export const runScenario = async (parameters: ParameterDict, event?: H3Event<Eve
   } as NewScenarioResponse;
 };
 
-const rApiScenarioStatusEndpoint = "/scenario/status";
+const rApiScenarioStatusEndpoint = (runId: string) => `/scenario/status/${runId}`;
 export const getScenarioStatus = async (runId: string | undefined, event?: H3Event<EventHandlerRequest>): Promise<ScenarioStatusResponse> => {
   if (!runId) {
     const errors: Array<ApiError> = [{ error: "Bad request", detail: "Run ID not provided." }];
@@ -46,7 +46,7 @@ export const getScenarioStatus = async (runId: string | undefined, event?: H3Eve
   }
 
   const response = await fetchRApi<ScenarioStatusData>(
-    `${rApiScenarioStatusEndpoint}/${runId}`,
+    rApiScenarioStatusEndpoint(runId),
     {
       method: "GET",
     },
@@ -61,7 +61,7 @@ export const getScenarioStatus = async (runId: string | undefined, event?: H3Eve
   } as ScenarioStatusResponse;
 };
 
-const rApiScenarioResultEndpoint = "/scenario/results";
+const rApiScenarioResultEndpoint = (runId: string) => `/scenario/results/${runId}`;
 export const getScenarioResult = async (runId: string | undefined, event?: H3Event<EventHandlerRequest>): Promise<ScenarioResultResponse> => {
   if (!runId) {
     const errors: Array<ApiError> = [{ error: "Bad request", detail: "Run ID not provided." }];
@@ -74,7 +74,7 @@ export const getScenarioResult = async (runId: string | undefined, event?: H3Eve
   }
 
   const response = await fetchRApi<ScenarioResultData>(
-    `${rApiScenarioResultEndpoint}/${runId}`,
+    rApiScenarioResultEndpoint(runId),
     {
       method: "GET",
     },
