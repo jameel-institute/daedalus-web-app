@@ -18,12 +18,6 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss">
-.container-xxl {
-  max-width: unset;
-}
-</style>
-
 <style lang="scss" scoped>
 .overlay {
   z-index: 1;

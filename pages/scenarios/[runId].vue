@@ -117,7 +117,7 @@
         </NuxtLink>.
       </p>
     </CAlert>
-    <CAlert v-else-if="jobTakingLongTime" color="info">
+    <CAlert v-else-if="jobTakingLongTime && appStore.currentScenario.status.data?.runStatus" color="info">
       <p class="mb-0">
         Analysis status: {{ appStore.currentScenario.status.data?.runStatus }}
       </p>
@@ -191,6 +191,7 @@ const loadScenarioStatus = () => {
   appStore.loadScenarioStatus().then(() => {
     if (appStore.currentScenario.status.data?.runSuccess) {
       clearInterval(statusInterval);
+      jobTakingLongTime.value = false;
       appStore.loadScenarioResult();
     }
   });
@@ -199,7 +200,7 @@ const loadScenarioStatus = () => {
 onMounted(() => {
   appStore.globe.interactive = false;
 
-  if (!appStore.currentScenario.status.data?.done || appStore.currentScenario.result.data) {
+  if (!appStore.currentScenario.status.data?.done && appStore.currentScenario.runId) {
     statusInterval = setInterval(loadScenarioStatus, 200); // Poll for status every N ms
     setTimeout(() => {
       // If the job isn't completed within five seconds, give user the information about the run status.
