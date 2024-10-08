@@ -16,8 +16,15 @@ export class ExcelScenarioDownload {
     this._workbook = XLSX.utils.book_new();
   }
 
-  private _addDataAsSheet(data: any, sheetName: string) {
+  private _addJsonAsSheet(data: Array<object>, sheetName: string) {
+    // adds a worksheet with array-of-object data
     const worksheet = XLSX.utils.json_to_sheet(data);
+    XLSX.utils.book_append_sheet(this._workbook, worksheet, sheetName);
+  }
+
+  private _addAoaAsSheet(data: Array<any[]>, sheetName: string) {
+    // adds a worksheet with array-of-array data
+    const worksheet = XLSX.utils.aoa_to_sheet(data);
     XLSX.utils.book_append_sheet(this._workbook, worksheet, sheetName);
   }
 
@@ -27,7 +34,7 @@ export class ExcelScenarioDownload {
       id: key,
       value: params[key],
     }));
-    this._addDataAsSheet(paramData, "Parameters");
+    this._addJsonAsSheet(paramData, "Parameters");
   }
 
   private static _flattenCosts(costs: Array<ScenarioCost>, flattened: Array<FlatCost>) {
@@ -43,11 +50,19 @@ export class ExcelScenarioDownload {
     const costs = this._scenario.result.data!.costs;
     const flattenedCosts: Array<FlatCost> = [];
     ExcelScenarioDownload._flattenCosts(costs, flattenedCosts);
-    this._addDataAsSheet(flattenedCosts, "Costs");
+    this._addJsonAsSheet(flattenedCosts, "Costs");
   }
 
   private _addInterventions() {
-    this._addDataAsSheet(this._scenario.result.data!.interventions, "Interventions");
+    const sheetName = "Interventions";
+    if (this._scenario.result.data!.interventions.length > 0) {
+      this._addJsonAsSheet(this._scenario.result.data!.interventions, sheetName);
+    } else {
+      // There will be no interventions  in scenario if response is none - in this case, we output
+      // intervention type headers only
+      const headers = ["id", "level", "start", "end"];
+      this._addAoaAsSheet([headers], sheetName);
+    }
   }
 
   private _addTimeSeries() {
@@ -62,8 +77,7 @@ export class ExcelScenarioDownload {
       const row = headers.map((header: string) => timeSeries[header][timePoint]);
       sheetData.push(row);
     }
-    const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-    XLSX.utils.book_append_sheet(this._workbook, worksheet, "Time series");
+    this._addAoaAsSheet(sheetData, "Time series");
   }
 
   private _buildWorkbook() {
