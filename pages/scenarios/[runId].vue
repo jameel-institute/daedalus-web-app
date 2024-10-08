@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="d-flex flex-wrap mb-3 gap-3">
+    <div id="title-container" class="d-flex flex-wrap mb-3 gap-3">
       <h1 class="fs-2 mb-0 pt-1">
         Results
       </h1>
@@ -82,6 +82,7 @@
     <CRow v-else-if="appStore.currentScenario.result.data" class="cards-container">
       <div class="col-md-6">
         <div class="card costs-card">
+          <!-- Todo, make height dynamic. Matching header of time series. -->
           <div class="card-header border-bottom-0 d-flex justify-content-between">
             <div class="d-flex align-items-center">
               <CIcon icon="cilChartPie" size="xl" class="mb-1 text-secondary" />
@@ -89,33 +90,29 @@
                 Losses
               </h2>
             </div>
+            <CostsLegend />
           </div>
           <div class="card-body">
-            <CostsPie
-              :hide-tooltips="hideCostsPieTooltips"
-              @mouseleave="onMouseLeaveCostsPie"
-              @mouseover="() => { hideCostsPieTooltips = false }"
-            />
             <div id="totalCostContainer" style="display: inline-block;">
-              <p style="font-size: 1.5rem; margin-bottom: 0; height: fit-content;">
-                Total
+              <p class="mt-0 mb-0" style="height: fit-content; letter-spacing: 0.05rem;">
+                TOTAL
               </p>
               <div id="gdpTotalCostContainer" style="line-height: 1; display: flex;" class="gap-1">
-                <p style="font-size: 10rem; width: unset; font-weight: normal">
+                <p class="mt-0" style="font-size: 10rem; width: unset; font-weight: 200; margin-bottom: -2rem;">
                   X.YZ
                 </p>
-                <div style="align-self: center;">
+                <div style="align-self: end;">
                   <p style="font-size: 4.5rem; margin-bottom: 0">
                     %
                   </p>
-                  <p style="font-size: 1.5rem; margin-top: 0; font-weight: normal !important;">
+                  <p class="mt-0 mb-1" style="font-size: 1.5rem; font-weight: normal !important;">
                     of GDP
                   </p>
                 </div>
               </div>
               <div id="usdTotalCostContainer" style="line-height: 1;">
                 <div style="display: inline-block; text-align: right;">
-                  <p style="font-size: 2.5rem; margin-bottom: 0;">
+                  <p style="font-size: 2.5rem; margin-bottom: 0; text-align: center;">
                     $
                   </p>
                   <p style="font-size: 1rem; margin-top: 0; font-weight: normal !important;">
@@ -123,19 +120,23 @@
                   </p>
                 </div>
                 <p style="font-size: 5rem; display: inline-block; margin-bottom: 0;">
-                  <span id="usdTotalCost" class="spin-number">
+                  <span id="usdTotalCost" class="spin-number" style="font-weight: 300;">
                     <span>{{ totalCostAbbr?.amount }}</span>
-                    <span style="font-size: smaller;">
+                    <span style="font-size: smaller; font-weight: 300">
                       {{ totalCostAbbr?.unit }}
                     </span>
                   </span>
                 </p>
                 <p style="font-weight: normal !important; margin-top: 0;">
-                  based on 2023 GDP [tbc]
+                  [insert note about GDP basis]
                 </p>
               </div>
             </div>
-            <CostsLegend />
+            <CostsPie
+              :hide-tooltips="hideCostsPieTooltips"
+              @mouseleave="onMouseLeaveCostsPie"
+              @mouseover="() => { hideCostsPieTooltips = false }"
+            />
           </div>
         </div>
       </div>
@@ -181,6 +182,12 @@ const totalCostAbbr = computed(() => {
     return undefined;
   }
 });
+const usdTotalCostContainerMaxWidthPx = 295.641; // Measured by setting the text to the longest value it can have, 888.8M
+
+// Since we're dealing with a circle make the width and height the same variable
+const chartSize = computed(() => {
+
+})
 
 const paramDisplayText = (param: Parameter) => {
   if (appStore.currentScenario?.parameters && appStore.currentScenario?.parameters[param.id]) {
@@ -242,6 +249,11 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 @use "sass:map";
 
+$wrapper-width: calc(100dvw - $sidebar-narrow-width);
+$number-of-card-cols: 2;
+$col-padding: 1.5rem;
+$card-width: calc(($wrapper-width / $number-of-card-cols) - $col-padding);
+
 .cards-container {
   row-gap: 1rem;
 }
@@ -282,8 +294,10 @@ onUnmounted(() => {
 }
 
 .costs-card {
+  height: $card-container-height;
+
   #totalCostContainer {
-    font-weight: 500;
+    // font-weight: 500;
   }
   // color: $imperial-blue;
   // text-shadow: 0px 0px 4px rgba(0, 55, 138, 1);

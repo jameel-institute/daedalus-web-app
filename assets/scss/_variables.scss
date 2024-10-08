@@ -4,6 +4,9 @@ $min-wrapper-height: calc(100dvh - $app-header-height - $app-header-margin-botto
 $container-padding: 1.5rem;
 $sidebar-narrow-width: 4rem;
 
+$title-container-height: calc(38.391px + 1rem + 0.5rem); // 1rem bottom margin, 0.5rem top padding of h1
+$card-container-height: calc($min-wrapper-height - $title-container-height);
+
 // Imperial Brand
 // ==============
 // https://brand.imperial.ac.uk/document/25#/visual-identity/colour
