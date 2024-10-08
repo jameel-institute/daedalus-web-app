@@ -155,16 +155,16 @@ describe("parameter form", () => {
     expect(rangeInput.element.value).toBe("2000");
 
     await shortList.find("input[value='yes']").setChecked();
-    setTimeout(() => {
-      expect(numericInput.element.value).toBe("17000");
-      expect(rangeInput.element.value).toBe("17000");
-    }, 500);
+    await nextTick();
+
+    expect(numericInput.element.value).toBe("17000");
+    expect(rangeInput.element.value).toBe("17000");
 
     await shortList.find("input[value='no']").setChecked();
-    setTimeout(() => {
-      expect(numericInput.element.value).toBe("2000");
-      expect(rangeInput.element.value).toBe("2000");
-    }, 500);
+    await nextTick();
+
+    expect(numericInput.element.value).toBe("2000");
+    expect(rangeInput.element.value).toBe("2000");
   });
 
   it("resets a numeric input that can be updated from another input to its default value when the reset button is clicked", async () => {
