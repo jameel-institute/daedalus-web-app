@@ -4,11 +4,12 @@ import type { AppState } from "@/types/storeTypes";
 import sampleMetadataResponse from "@/mocks/responses/metadata.json";
 import type { Metadata, ResultsMetadata } from "~/types/apiResponseTypes";
 import { InterventionLevel } from "~/types/resultTypes";
+import { TypeOfParameter } from "~/types/parameterTypes";
 
 const globeParameter = {
   id: "region",
   label: "Region",
-  parameterType: "globeSelect",
+  parameterType: TypeOfParameter.GlobeSelect,
   defaultOption: "HVN",
   ordered: false,
   options: [
@@ -22,7 +23,7 @@ const selectParameters = [
   {
     id: "long_list",
     label: "Drop Down",
-    parameterType: "select",
+    parameterType: TypeOfParameter.Select,
     defaultOption: null,
     ordered: false,
     options: [
@@ -38,7 +39,7 @@ const selectParameters = [
   {
     id: "short_list",
     label: "Radio Buttons",
-    parameterType: "select",
+    parameterType: TypeOfParameter.Select,
     defaultOption: "no",
     ordered: false,
     options: [
@@ -49,10 +50,10 @@ const selectParameters = [
   },
 ];
 
-const updatableNumericParameter = {
+export const updatableNumericParameter = {
   id: "population",
   label: "Population",
-  parameterType: "numeric",
+  parameterType: TypeOfParameter.Numeric,
   ordered: false,
   step: 1000,
   defaultOption: null,

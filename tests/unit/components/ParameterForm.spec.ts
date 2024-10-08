@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FetchError } from "ofetch";
 import { flushPromises } from "@vue/test-utils";
 
-import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
+import { emptyScenario, mockPinia, mockedMetadata, updatableNumericParameter } from "@/tests/unit/mocks/mockPinia";
 import ParameterForm from "@/components/ParameterForm.vue";
 
 const stubs = {
@@ -142,29 +142,75 @@ describe("parameter form", () => {
   });
 
   it("updates the numeric input's min, max, and default values based on the selected option", async () => {
+    const maskStockpileParameter = {
+      ...updatableNumericParameter,
+      id: "mask_stockpile",
+      label: "Mask stockpile",
+      step: 1,
+      updateNumericFrom: {
+        parameterId: "long_list",
+        values: {
+          1: { min: 1, default: 2, max: 3 },
+          2: { min: 4, default: 5, max: 6 },
+          3: { min: 7, default: 8, max: 9 },
+          4: { min: 10, default: 11, max: 12 },
+          5: { min: 13, default: 14, max: 15 },
+          6: { min: 16, default: 17, max: 18 },
+        },
+      },
+    };
+
+    const metadata = {
+      ...mockedMetadata,
+      parameters: [...mockedMetadata.parameters, maskStockpileParameter],
+    };
+
     const component = await mountSuspended(ParameterForm, {
       props: { inModal: false },
-      global: { stubs, plugins: [mockPinia()] },
+      global: { stubs, plugins: [mockPinia({ metadata })] },
     });
 
-    const shortList = component.findComponent({ name: "CButtonGroup" });
+    const selectElement = component.find("select");
+    const stockpileNumericInput = component.find("input[type='number'][id='mask_stockpile']");
+    const stockpileRangeInput = component.find("input[type='range'][id='mask_stockpile']");
 
-    const numericInput = component.find("input[type='number']");
-    const rangeInput = component.find("input[type='range']");
-    expect(numericInput.element.value).toBe("2000");
-    expect(rangeInput.element.value).toBe("2000");
+    expect(stockpileNumericInput.element.value).toBe("2");
+    expect(stockpileRangeInput.element.value).toBe("2");
+    expect(stockpileNumericInput.element.min).toBe("1");
+    expect(stockpileNumericInput.element.max).toBe("3");
+
+    await selectElement.setValue("4");
+    await nextTick();
+
+    expect(stockpileNumericInput.element.value).toBe("11");
+    expect(stockpileRangeInput.element.value).toBe("11");
+    expect(stockpileNumericInput.element.min).toBe("10");
+    expect(stockpileNumericInput.element.max).toBe("12");
+
+    const shortList = component.findComponent({ name: "CButtonGroup" });
+    const populationNumericInput = component.find("input[type='number'][id='population']");
+    const populationRangeInput = component.find("input[type='range'][id='population']");
+
+    expect(populationNumericInput.element.value).toBe("2000");
+    expect(populationRangeInput.element.value).toBe("2000");
+    expect(populationRangeInput.element.min).toBe("1000");
+    expect(populationRangeInput.element.max).toBe("4000");
 
     await shortList.find("input[value='yes']").setChecked();
     await nextTick();
 
-    expect(numericInput.element.value).toBe("17000");
-    expect(rangeInput.element.value).toBe("17000");
+    expect(populationNumericInput.element.value).toBe("17000");
+    expect(populationRangeInput.element.value).toBe("17000");
+    expect(populationRangeInput.element.min).toBe("11000");
+    expect(populationRangeInput.element.max).toBe("50000");
 
     await shortList.find("input[value='no']").setChecked();
     await nextTick();
 
-    expect(numericInput.element.value).toBe("2000");
-    expect(rangeInput.element.value).toBe("2000");
+    expect(populationNumericInput.element.value).toBe("2000");
+    expect(populationRangeInput.element.value).toBe("2000");
+    expect(populationRangeInput.element.min).toBe("1000");
+    expect(populationRangeInput.element.max).toBe("4000");
   });
 
   it("resets a numeric input that can be updated from another input to its default value when the reset button is clicked", async () => {
@@ -173,8 +219,8 @@ describe("parameter form", () => {
       global: { stubs, plugins: [mockPinia()] },
     });
 
-    const numericInput = component.find("input[type='number']");
-    const rangeInput = component.find("input[type='range']");
+    const numericInput = component.find("input[type='number'][id='population']");
+    const rangeInput = component.find("input[type='range'][id='population']");
     expect(numericInput.element.value).toBe("2000");
     expect(rangeInput.element.value).toBe("2000");
 
@@ -194,7 +240,7 @@ describe("parameter form", () => {
       global: { stubs, plugins: [mockPinia()] },
     });
 
-    const numericInput = component.find("input[type='number']");
+    const numericInput = component.find("input[type='number'][id='population']");
     const feedbackElement = component.find(".invalid-tooltip");
     // Expect the classes of the input not to contain is-invalid - this is our test of whether the feedback is visible.
     expect(numericInput.classes()).not.toContain("is-invalid");
