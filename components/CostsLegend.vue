@@ -1,5 +1,5 @@
 <template>
-  <div class="legend-container ms-3 m-1">
+  <div class="legend-container">
     <div class="legend-element d-flex flex-column gap-1">
       <div v-for="item in items" :key="item.label" :class="`legend-item legend-item-${item.shape}`">
         <i :style="{ background: item.color }" />
@@ -10,36 +10,32 @@
 </template>
 
 <script setup lang="ts">
-import { plotBandsColor, plotLinesColor } from "./utils/charts";
+import { costsPieColors } from "./utils/charts";
 
 const appStore = useAppStore();
-
-const capacityLabel = computed(() => {
-  return appStore.metadata?.results.capacities[0].label; // At first, we expect there to be only one capacity, 'Hospital capacity'
+const costLabels = computed(() => {
+  return appStore.totalCost?.children?.map((cost) => {
+    return appStore.metadata?.results.costs.find(costMeta => costMeta.id === cost.id)?.label;
+  });
 });
-
 const items = computed(() => {
-  return [
-    { color: plotBandsColor, label: "Pandemic response", shape: "square" },
-    { color: plotLinesColor, label: capacityLabel.value, shape: "line" },
-  ];
+  return costLabels.value?.map((label, index) => {
+    return { color: costsPieColors[index + 1], label, shape: "square" };
+  });
 });
 </script>
 
 <style scoped lang="scss">
 $row-height: 1.2rem;
 $plot-line-height: 0.15rem;
-
 .legend-container {
   padding: 0.2rem;
   align-items: center;
   display: flex;
 }
-
 .legend-element {
   vertical-align: bottom;
 }
-
 .legend-item {
   height: $row-height;
   display: table-row;
@@ -51,7 +47,6 @@ $plot-line-height: 0.15rem;
     white-space: pre;
     font-size: smaller;
   }
-
   &.legend-item-square {
     i {
       width: 3rem;
@@ -59,7 +54,6 @@ $plot-line-height: 0.15rem;
       float: left;
     }
   }
-
   &.legend-item-line {
     i {
       width: 3rem;
