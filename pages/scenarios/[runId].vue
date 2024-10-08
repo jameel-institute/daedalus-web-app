@@ -13,41 +13,13 @@
           Rotate your mobile device to landscape for the best experience.
         </p>
       </CAlert>
-      <CModal
-        :visible="parameterModalVisible"
-        aria-labelledby="modalTitle"
-        @close="() => { parameterModalVisible = false }"
-      >
-        <CModalHeader>
-          <CModalTitle id="modalTitle">
-            Edit parameters
-          </CModalTitle>
-        </CModalHeader>
-        <CModalBody>
-          <ParameterForm :in-modal="true" />
-        </CModalBody>
-      </CModal>
       <div v-show="appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="card horizontal-card ms-auto parameters-card">
         <CRow>
           <div
             v-show="!appStore.largeScreen"
             class="card-header h-100 align-content-center"
-            role="button"
-            @click="() => { parameterModalVisible = true }"
           >
-            <CTooltip
-              content="Edit parameters"
-              placement="top"
-            >
-              <template #toggler="{ togglerId, on }">
-                <span :aria-describedby="togglerId" v-on="on">
-                  <CButton color="light">
-                    Parameters
-                  </CButton>
-                  <CIcon icon="cilPencil" class="form-icon link-secondary" />
-                </span>
-              </template>
-            </CTooltip>
+            <EditParameters />
           </div>
           <CCol class="col-sm">
             <div class="card-body py-2">
@@ -76,25 +48,9 @@
             </div>
           </CCol>
           <CCol v-show="appStore.largeScreen" class="col-auto">
-            <CTooltip
-              content="Edit parameters"
-              placement="top"
-            >
-              <template #toggler="{ togglerId, on }">
-                <div
-                  class="card-footer h-100 align-content-center"
-                  role="button"
-                  :aria-describedby="togglerId"
-                  @click="() => { parameterModalVisible = true }"
-                  v-on="on"
-                >
-                  <CButton color="light">
-                    Parameters
-                  </CButton>
-                  <CIcon icon="cilPencil" class="form-icon link-secondary" />
-                </div>
-              </template>
-            </CTooltip>
+            <div class="card-footer h-100 align-content-center">
+              <EditParameters />
+            </div>
           </CCol>
         </CRow>
       </div>
@@ -164,7 +120,6 @@ import type { Parameter } from "~/types/parameterTypes";
 // TODO: Use the runId from the route rather than getting it out of the store.
 const appStore = useAppStore();
 
-const parameterModalVisible = ref(false);
 const jobTakingLongTime = ref(false);
 const stoppedPolling = ref(false);
 const showSpinner = computed(() => {
