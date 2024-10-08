@@ -2,6 +2,7 @@
   <!-- Per each time series, use one accordion component with one item, so we can easily initialise them all as open with active-item-key -->
   <CAccordion
     :style="accordionStyle"
+    class="time-series"
     :active-item-key="props.open ? props.seriesId : undefined"
   >
     <CAccordionItem :item-key="seriesId" class="border-0">
@@ -23,7 +24,7 @@
       <CAccordionBody>
         <div
           :id="chartContainerId"
-          :class="`chart-container ${props.hideTooltips ? hideTooltipsClassName : ''}`"
+          :class="`chart-container time-series ${props.hideTooltips ? hideTooltipsClassName : ''}`"
           :style="{ zIndex, height: 'fit-content' }"
           @mousemove="onMove"
           @touchmove="onMove"
@@ -45,8 +46,8 @@ import exportingInitialize from "highcharts/modules/exporting";
 import offlineExportingInitialize from "highcharts/modules/offline-exporting";
 import { debounce } from "perfect-debounce";
 
+import { plotBandsColor, plotLinesColor, timeSeriesColors } from "./utils/charts";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
-import { highchartsColors, plotBandsColor, plotLinesColor } from "./utils/charts";
 
 const props = defineProps<{
   seriesId: string
@@ -164,6 +165,7 @@ const handleMouseOver = () => {
 };
 
 // Override the reset function as per synchronisation demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
+// Seems to be required in order for tooltips to hang around more than about a second.
 Highcharts.Pointer.prototype.reset = () => {
   return undefined;
 };
@@ -263,7 +265,7 @@ const chartInitialOptions = () => {
       data: data.value,
       name: seriesMetadata.value!.label,
       type: "area",
-      color: highchartsColors[props.index],
+      color: timeSeriesColors[props.index],
       fillOpacity: 0.3,
       tooltip: {
         valueSuffix: ` ${props.seriesId === "vaccination" ? "%" : ""}`, // TODO: Make this depend on a 'units' property in metadata. https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-117/
@@ -290,34 +292,36 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss">
-.hide-tooltips {
-  .highcharts-tooltip, .highcharts-tracker, .highcharts-crosshair {
-    filter: opacity(0);
-    transition: filter 0.2s;
-  }
-}
-
-.chart-container {
+.chart-container.time-series {
   width: 100%;
   position: relative; /* Required for z-index to work */
   left: -20px;
+
+  &.hide-tooltips {
+    .highcharts-tooltip, .highcharts-tracker, .highcharts-crosshair {
+      filter: opacity(0);
+      transition: filter 0.2s;
+    }
+  }
 }
 
-.collapsing {
-  transition: height .2s ease;
-}
+.accordion.time-series {
+  .collapsing {
+    transition: height .2s ease;
+  }
 
-.accordion-body { // These are the default values from CoreUI, but we need to pin them so that our const accordionBodyYPadding is correct.
-  padding-top: 8px !important;
-  padding-bottom: 8px !important;
-}
+  .accordion-body { // These are the default values from CoreUI, but we need to pin them so that our const accordionBodyYPadding is correct.
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
 
-.accordion-button {
-  color: var(--cui-black) !important;
-  background-color: var(--cui-light) !important;
-}
+  .accordion-button {
+    color: var(--cui-black) !important;
+    background-color: var(--cui-light) !important;
+  }
 
-.accordion-item {
-  background: rgba(255, 255, 255, 0.5);
+  .accordion-item {
+    background: rgba(255, 255, 255, 0.5);
+  }
 }
 </style>

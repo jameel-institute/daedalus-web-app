@@ -24,7 +24,7 @@
         @click="() => { modalVisible = true }"
         v-on="on"
       >
-        <CButton color="light">
+        <CButton color="light" class="parameters-button">
           Parameters
         </CButton>
         <CIcon icon="cilPencil" class="form-icon link-secondary" />
@@ -38,3 +38,10 @@ import { CIcon } from "@coreui/icons-vue";
 
 const modalVisible = ref(false);
 </script>
+
+<style lang="scss">
+.parameters-button:active {
+  background: transparent !important;
+  border: transparent !important;
+}
+</style>
