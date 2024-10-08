@@ -27,4 +27,5 @@ export interface AppState {
   metadataFetchError: FetchError | undefined
   metadataFetchStatus: AsyncDataRequestStatus | undefined
   currentScenario: Scenario // Represents the scenario currently being viewed
+  scenarios: Record<string, Scenario> // Stores data on all scenarios that have been run
 };

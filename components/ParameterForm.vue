@@ -136,11 +136,9 @@
 </template>
 
 <script lang="ts" setup>
-import type { FetchError } from "ofetch";
 import { CIcon } from "@coreui/icons-vue";
 import type { Parameter, ParameterSet, ValueData } from "@/types/parameterTypes";
 import { TypeOfParameter } from "@/types/parameterTypes";
-import type { NewScenarioData } from "@/types/apiResponseTypes";
 
 const props = defineProps<{
   inModal?: boolean
@@ -317,22 +315,10 @@ const submitForm = async () => {
   };
 
   formSubmitting.value = true;
+  const successfullyRun = await appStore.runScenario(formData.value as ParameterSet);
 
-  const response = await $fetch<NewScenarioData>("/api/scenarios", {
-    method: "POST",
-    body: { parameters: formData.value },
-  }).catch((error: FetchError) => {
-    console.error(error);
-  });
-
-  if (response) {
-    const { runId } = response;
-    if (runId) {
-      appStore.clearScenario();
-      appStore.currentScenario.runId = runId;
-      appStore.currentScenario.parameters = formData.value as ParameterSet;
-    }
-    await navigateTo(`/scenarios/${runId}`);
+  if (successfullyRun) {
+    await navigateTo(`/scenarios/${appStore.currentScenario.runId}`);
   };
 };
 

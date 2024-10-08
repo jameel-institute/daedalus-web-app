@@ -36,11 +36,11 @@ const setScreenSize = () => {
   }
 };
 
-appStore.loadMetadata();
+appStore.fetchMetadata();
 
 onMounted(() => {
   setScreenSize();
-  appStore.loadVersionData();
+  appStore.fetchVersionData();
   window.addEventListener("resize", setScreenSize);
 });
 onBeforeUnmount(() => {

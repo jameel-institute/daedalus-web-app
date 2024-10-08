@@ -100,7 +100,13 @@
       </div>
     </div>
     <CSpinner v-show="showSpinner" class="ms-3 mb-3 mt-3" />
-    <CAlert v-if="appStore.currentScenario.status.data?.runSuccess === false" color="danger">
+    <CAlert v-if="!appStore.currentScenario.runId" color="danger">
+      <p>There was a problem retrieving the analysis id. Please try again.</p>
+      <p class="mb-0">
+        Note that link sharing is not yet fully supported, and neither is the persisting of data between browser sessions.
+      </p>
+    </CAlert>
+    <CAlert v-else-if="appStore.currentScenario.status.data?.runSuccess === false" color="danger">
       The analysis run failed. Please
       <NuxtLink prefetch-on="interaction" to="/scenarios/new">
         <span>try again</span>
@@ -139,18 +145,20 @@
         </div>
       </div>
       <div class="col-md-6">
-        <div class="card">
-          <div class="card-header border-bottom-0 d-flex justify-content-between">
-            <div class="d-flex align-items-center">
-              <CIcon icon="cilChartLine" size="xl" class="mb-1 text-secondary" />
-              <h2 class="fs-5 m-0 ms-3 chart-header">
-                Time series
-              </h2>
+        <ClientOnly>
+          <div class="card">
+            <div class="card-header border-bottom-0 d-flex justify-content-between">
+              <div class="d-flex align-items-center">
+                <CIcon icon="cilChartLine" size="xl" class="mb-1 text-secondary" />
+                <h2 class="fs-5 m-0 ms-3 chart-header">
+                  Time series
+                </h2>
+              </div>
+              <TimeSeriesLegend />
             </div>
-            <TimeSeriesLegend />
+            <TimeSeriesList />
           </div>
-          <TimeSeriesList />
-        </div>
+        </ClientOnly>
       </div>
     </CRow>
   </div>
@@ -161,16 +169,22 @@ import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import { runStatus } from "~/types/apiResponseTypes";
 import type { Parameter } from "~/types/parameterTypes";
 
-// TODO: Use the runId from the route rather than getting it out of the store.
 const appStore = useAppStore();
 
 const parameterModalVisible = ref(false);
 const jobTakingLongTime = ref(false);
 const stoppedPolling = ref(false);
+
+appStore.clearCurrentScenario(); // Required so that e.g. old parameters aren't hanging around.
+const route = useRoute();
+const runIdFromRoute = route.params.runId as string;
+appStore.loadScenarioFromStore(runIdFromRoute);
+
 const showSpinner = computed(() => {
   return (!appStore.currentScenario.result.data
     && appStore.currentScenario.result.fetchStatus !== "error"
-    && !stoppedPolling.value);
+    && !stoppedPolling.value
+    && appStore.currentScenario.runId);
 });
 
 const paramDisplayText = (param: Parameter) => {
@@ -181,18 +195,18 @@ const paramDisplayText = (param: Parameter) => {
 };
 
 // Eagerly try to load the status and results, in case they are already available and can be used during server-side rendering.
-await appStore.loadScenarioStatus();
+await appStore.fetchScenarioStatus();
 if (appStore.currentScenario.status.data?.runSuccess) {
-  appStore.loadScenarioResult();
+  appStore.fetchScenarioResult();
 }
 
 let statusInterval: NodeJS.Timeout;
-const loadScenarioStatus = () => {
-  appStore.loadScenarioStatus().then(() => {
+const fetchScenarioStatus = () => {
+  appStore.fetchScenarioStatus().then(() => {
     if (appStore.currentScenario.status.data?.runSuccess) {
       clearInterval(statusInterval);
       jobTakingLongTime.value = false;
-      appStore.loadScenarioResult();
+      appStore.fetchScenarioResult();
     }
   });
 };
@@ -201,7 +215,7 @@ onMounted(() => {
   appStore.globe.interactive = false;
 
   if (!appStore.currentScenario.status.data?.done && appStore.currentScenario.runId) {
-    statusInterval = setInterval(loadScenarioStatus, 200); // Poll for status every N ms
+    statusInterval = setInterval(fetchScenarioStatus, 200); // Poll for status every N ms
     setTimeout(() => {
       // If the job isn't completed within five seconds, give user the information about the run status.
       if (appStore.currentScenario.status.data?.runStatus !== runStatus.Complete) {

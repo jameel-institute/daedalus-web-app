@@ -43,7 +43,7 @@
     "pinia": "^2.2.2",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
-    "vue": "latest"
+    "vue": "3.4.20"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.21.1",
@@ -69,7 +69,7 @@
     "vitest": "^2.0.4"
   },
   "overrides": {
-    "vue": "latest"
+    "vue": "3.4.20"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"

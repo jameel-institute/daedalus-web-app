@@ -9,6 +9,9 @@ const parameterLabels = {
   hospital_capacity: "Hospital surge capacity",
 };
 
+const philippinesMinimumHospitalCapacity = "16300";
+const scenarioPathMatcher = "scenarios/[a-f0-9]{32}";
+
 test.beforeAll(async () => {
   checkRApiServer();
 });
@@ -35,9 +38,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
 
   await page.click('button:has-text("Run")');
 
-  await page.waitForURL(new RegExp(`${baseURL}/scenarios/[a-f0-9]{32}`));
+  await page.waitForURL(new RegExp(`${baseURL}/${scenarioPathMatcher}`));
   const urlOfFirstAnalysis = page.url();
-  expect(page.url()).toMatch(new RegExp(`${baseURL}/scenarios/[a-f0-9]{32}`));
+  expect(page.url()).toMatch(new RegExp(`${baseURL}/${scenarioPathMatcher}`));
   await expect(page.getByText("Simulate a new scenario")).not.toBeVisible();
 
   await expect(page.getByText("SARS 2004").first()).toBeVisible();
@@ -67,6 +70,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
     console.log("Running in Headed mode, no screenshot comparison");
   }
 
+  // Run a second analysis with a different parameter.
   await page.getByRole("button", { name: "Parameters" }).first().click();
   await expect(page.getByRole("heading", { name: "Edit parameters" })).toBeVisible();
 
@@ -77,14 +81,55 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue("305000");
   await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue("305000");
 
-  await page.click(`div[aria-label="${parameterLabels.vaccine}"] label[for="high"]`);
+  await page.selectOption(`select[aria-label="${parameterLabels.country}"]`, { label: "Philippines" });
+  await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
+  await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
+
   await page.waitForSelector('button:has-text("Run"):not([disabled])');
   await page.click('button:has-text("Run")');
 
-  await page.waitForTimeout(1000);
+  // Test that the second analysis results page has a different run id, and hence URL, from the first analysis.
+  const pathOfFirstAnalysis = new URL(urlOfFirstAnalysis).pathname;
+  const matchAnyScenarioResultPathExceptTheFirst = new RegExp(`^${baseURL}(?!${pathOfFirstAnalysis}$).*${scenarioPathMatcher}$`);
+  await page.waitForURL(new RegExp(matchAnyScenarioResultPathExceptTheFirst));
 
-  const urlOfSecondAnalysis = page.url();
-  expect(urlOfSecondAnalysis).not.toEqual(urlOfFirstAnalysis);
-  expect(urlOfSecondAnalysis).toMatch(new RegExp(`${baseURL}/scenarios/[a-f0-9]{32}`));
-  await expect(page.getByText("High").first()).toBeVisible();
+  // Test that the second analysis results page shows the correct parameters.
+  await expect(page.getByText("SARS 2004").first()).toBeVisible();
+  await expect(page.getByText("Elimination").first()).toBeVisible();
+  await expect(page.getByText("Philippines").first()).toBeVisible();
+  await expect(page.getByText("Medium").first()).toBeVisible();
+  await expect(page.getByText(philippinesMinimumHospitalCapacity).first()).toBeVisible();
+
+  // Test that the second analysis results page has the correct parameters within the parameters form modal.
+  await page.getByRole("button", { name: "Parameters" }).first().click();
+  await expect(page.getByRole("heading", { name: "Edit parameters" })).toBeVisible();
+  await expect(page.getByLabel(parameterLabels.country)).toHaveValue("Philippines");
+  await expect(page.getByLabel(parameterLabels.pathogen)).toHaveValue("sars_cov_1");
+  await expect(page.getByLabel(parameterLabels.response)).toHaveValue("elimination");
+  await expect(page.getByLabel("Medium")).toBeChecked();
+  await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
+  await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
+  const closeButton = page.getByRole("button", { name: "Close" });
+  await closeButton.click();
+
+  if (headless) { // Test that a chart is different from the first run.
+    await page.waitForTimeout(1000);
+    await expect(page.locator(".highcharts-background").first()).toHaveScreenshot("philippines-infections.png", { maxDiffPixelRatio: 0.04 });
+  };
+
+  // Test that the user can navigate to previously-run analyses.
+  await page.goto(urlOfFirstAnalysis);
+  await page.waitForURL(urlOfFirstAnalysis);
+  await expect(page.getByLabel(parameterLabels.country)).toHaveValue("United States");
+  if (headless) {
+    await page.waitForTimeout(1000);
+    await expect(page.locator(".highcharts-background").first()).toHaveScreenshot("first-time-series.png", { maxDiffPixelRatio: 0.04 });
+  };
+
+  // Test that, after arriving to the web app from the /scenarios/:id URL, the user can still navigate
+  // to the home page: this has broken in the past.
+  await page.goto(urlOfFirstAnalysis);
+  await page.getByRole("button", { name: "DAEDALUS Explore" }).click();
+  await page.waitForURL(`${baseURL}/scenarios/new`);
+  await expect(page.getByText("Simulate a new scenario")).toBeVisible();
 });

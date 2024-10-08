@@ -65,6 +65,7 @@ const emit = defineEmits([
   "chartCreated",
   "chartDestroyed",
 ]);
+
 accessibilityInitialize(Highcharts);
 exportingInitialize(Highcharts);
 exportDataInitialize(Highcharts);
