@@ -33,6 +33,7 @@ describe("parameter form", () => {
 
   it("renders the correct parameter labels, inputs, options, and default values", async () => {
     const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
       global: { stubs, plugins: [mockPinia()] },
     });
 
@@ -89,7 +90,10 @@ describe("parameter form", () => {
   });
 
   it("renders the current parameter values if the app store contains a current scenario", async () => {
-    const component = await mountSuspended(ParameterForm, { global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithParameters })] } });
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
+      global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithParameters })] },
+    });
 
     const selectElements = component.findAll("select");
 
@@ -139,6 +143,7 @@ describe("parameter form", () => {
 
   it("updates the numeric input's min, max, and default values based on the selected option", async () => {
     const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
       global: { stubs, plugins: [mockPinia()] },
     });
 
@@ -164,6 +169,7 @@ describe("parameter form", () => {
 
   it("resets a numeric input that can be updated from another input to its default value when the reset button is clicked", async () => {
     const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
       global: { stubs, plugins: [mockPinia()] },
     });
 
@@ -184,6 +190,7 @@ describe("parameter form", () => {
 
   it("displays feedback when the form is submitted with invalid values", async () => {
     const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
       global: { stubs, plugins: [mockPinia()] },
     });
 
@@ -219,6 +226,7 @@ describe("parameter form", () => {
     });
 
     const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
       global: { stubs, plugins: [mockPinia()] },
     });
 
@@ -235,6 +243,7 @@ describe("parameter form", () => {
     const error = new FetchError("There was a bee-related issue.");
 
     const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
       global: {
         stubs,
         plugins: [mockPinia({
@@ -252,6 +261,7 @@ describe("parameter form", () => {
 
   it("displays CSpinner when metadata is not defined and there is no error", async () => {
     const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
       global: { stubs, plugins: [mockPinia({ metadata: undefined }, false)] },
     });
 

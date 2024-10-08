@@ -5,7 +5,7 @@
       <p>
         Select the parameters for your next scenario.
       </p>
-      <ParameterForm />
+      <ParameterForm :in-modal="false" />
     </div>
   </div>
 </template>

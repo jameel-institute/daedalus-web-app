@@ -143,7 +143,7 @@ import { TypeOfParameter } from "@/types/parameterTypes";
 import type { NewScenarioData } from "@/types/apiResponseTypes";
 
 const props = defineProps<{
-  inModal?: boolean
+  inModal: boolean
 }>();
 
 const appStore = useAppStore();
