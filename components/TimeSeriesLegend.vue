@@ -27,7 +27,7 @@ const items = computed(() => {
 </script>
 
 <style scoped lang="scss">
-$row-height: 1.2rem;
+$row-height: 1rem;
 $plot-line-height: 0.15rem;
 
 .legend-container {
