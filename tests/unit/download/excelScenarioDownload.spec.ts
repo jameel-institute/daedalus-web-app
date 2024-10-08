@@ -108,6 +108,27 @@ describe("excelScenarioDownload", () => {
     expect(mockWriteFile).toHaveBeenCalledWith(mockWorkbook, expectedFileName);
   });
 
+  it("writes headers when there are no interventions", () => {
+    const noInterventions = {
+      ...scenario,
+      result: {
+        ...scenario.result,
+        data: {
+          ...scenario.result.data,
+          interventions: [],
+        },
+      },
+    };
+    const sut = new ExcelScenarioDownload(noInterventions);
+    sut.download();
+
+    expect(mockJsonToSheet).toHaveBeenCalledTimes(2);
+    expect(mockAoaToSheet).toHaveBeenCalledTimes(2);
+    const expectedEmptyInterventionData = [["id", "level", "start", "end"]];
+    expect(mockAoaToSheet.mock.calls[0][0]).toStrictEqual(expectedEmptyInterventionData);
+    expectMockAppendSheet(2, { data: expectedEmptyInterventionData, type: "aoa" }, "Interventions");
+  });
+
   it("throws error if scenario has no parameters", () => {
     const noParams = { ...scenario, parameters: null };
     const sut = new ExcelScenarioDownload(noParams);
