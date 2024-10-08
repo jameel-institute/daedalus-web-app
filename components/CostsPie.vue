@@ -88,7 +88,8 @@ const chartInitialOptions = () => {
       options3d: {
         enabled: true,
       },
-      height: "650px",
+      height: "600",
+      width: "600",
       backgroundColor: chartBackgroundColor,
       events: {
         fullscreenOpen() {
@@ -195,7 +196,7 @@ onUnmounted(() => {
 #costsPieContainerId {
   font-weight: normal !important;
   position: absolute;
-  top: -220px;
+  top: calc($card-container-height / 3);
   left: 120px;
   z-index: 10; // Above timeseries
   .highcharts-tooltip {
@@ -208,6 +209,9 @@ onUnmounted(() => {
   }
   .highcharts-point { // Avoid transparency on hover over pie slices
     opacity: 1 !important;
+  }
+  .highcharts-container {
+    margin-left: auto;
   }
 }
 </style>
