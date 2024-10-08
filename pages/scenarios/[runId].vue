@@ -79,19 +79,63 @@
         Analysis status: {{ appStore.currentScenario.status.data?.runStatus }}
       </p>
     </CAlert>
-    <CRow v-else-if="appStore.timeSeriesData" class="cards-container">
+    <CRow v-else-if="appStore.currentScenario.result.data" class="cards-container">
       <div class="col-md-6">
-        <div class="card">
+        <div class="card costs-card">
           <div class="card-header border-bottom-0 d-flex justify-content-between">
             <div class="d-flex align-items-center">
               <CIcon icon="cilChartPie" size="xl" class="mb-1 text-secondary" />
               <h2 class="fs-5 m-0 ms-3 chart-header">
-                Costs
+                Losses
               </h2>
             </div>
           </div>
           <div class="card-body">
-            <p>Placeholder for costs chart</p>
+            <CostsPie
+              :hide-tooltips="hideCostsPieTooltips"
+              @mouseleave="onMouseLeaveCostsPie"
+              @mouseover="() => { hideCostsPieTooltips = false }"
+            />
+            <div id="totalCostContainer" style="display: inline-block;">
+              <p style="font-size: 1.5rem; margin-bottom: 0; height: fit-content;">
+                Total
+              </p>
+              <div id="gdpTotalCostContainer" style="line-height: 1; display: flex;" class="gap-1">
+                <p style="font-size: 10rem; width: unset; font-weight: normal">
+                  X.YZ
+                </p>
+                <div style="align-self: center;">
+                  <p style="font-size: 4.5rem; margin-bottom: 0">
+                    %
+                  </p>
+                  <p style="font-size: 1.5rem; margin-top: 0; font-weight: normal !important;">
+                    of GDP
+                  </p>
+                </div>
+              </div>
+              <div id="usdTotalCostContainer" style="line-height: 1;">
+                <div style="display: inline-block; text-align: right;">
+                  <p style="font-size: 2.5rem; margin-bottom: 0;">
+                    $
+                  </p>
+                  <p style="font-size: 1rem; margin-top: 0; font-weight: normal !important;">
+                    USD
+                  </p>
+                </div>
+                <p style="font-size: 5rem; display: inline-block; margin-bottom: 0;">
+                  <span id="usdTotalCost" class="spin-number">
+                    <span>{{ totalCostAbbr?.amount }}</span>
+                    <span style="font-size: smaller;">
+                      {{ totalCostAbbr?.unit }}
+                    </span>
+                  </span>
+                </p>
+                <p style="font-weight: normal !important; margin-top: 0;">
+                  based on 2023 GDP [tbc]
+                </p>
+              </div>
+            </div>
+            <CostsLegend />
           </div>
         </div>
       </div>
@@ -117,16 +161,25 @@
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import { runStatus } from "~/types/apiResponseTypes";
 import type { Parameter } from "~/types/parameterTypes";
+import { abbreviateMillionsDollars } from "~/utils/money";
 
 // TODO: Use the runId from the route rather than getting it out of the store.
 const appStore = useAppStore();
 
+const hideCostsPieTooltips = ref(false);
 const jobTakingLongTime = ref(false);
 const stoppedPolling = ref(false);
 const showSpinner = computed(() => {
   return (!appStore.currentScenario.result.data
     && appStore.currentScenario.result.fetchStatus !== "error"
     && !stoppedPolling.value);
+});
+const totalCostAbbr = computed(() => {
+  if (appStore.totalCost) {
+    return abbreviateMillionsDollars(appStore.totalCost?.value, 1, true);
+  } else {
+    return undefined;
+  }
 });
 
 const paramDisplayText = (param: Parameter) => {
@@ -151,6 +204,12 @@ const loadScenarioStatus = () => {
       appStore.loadScenarioResult();
     }
   });
+};
+
+const onMouseLeaveCostsPie = () => {
+  setTimeout(() => {
+    hideCostsPieTooltips.value = true;
+  }, 500);
 };
 
 onMounted(() => {
@@ -188,7 +247,7 @@ onUnmounted(() => {
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.5);
 
   &.horizontal-card {
     height: fit-content;
@@ -219,6 +278,19 @@ onUnmounted(() => {
     .btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active, .btn.show {
       background-color: unset; // Overrides a style in _theme.scss
     }
+  }
+}
+
+.costs-card {
+  #totalCostContainer {
+    font-weight: 500;
+  }
+  // color: $imperial-blue;
+  // text-shadow: 0px 0px 4px rgba(0, 55, 138, 1);
+
+  p {
+    margin: 0.75rem 0;
+    padding: 0;
   }
 }
 
