@@ -11,17 +11,20 @@
 
 <script setup lang="ts">
 import { costsPieColors } from "./utils/charts";
+import type { ScenarioCost } from "~/types/resultTypes";
 
 const appStore = useAppStore();
-const costLabels = computed(() => {
-  return appStore.totalCost?.children?.map((cost) => {
-    return appStore.metadata?.results.costs.find(costMeta => costMeta.id === cost.id)?.label;
-  });
-});
+
+const costLabel = (cost: ScenarioCost) => {
+  return appStore.metadata?.results.costs.find(costMeta => costMeta.id === cost.id)?.label;
+};
+
 const items = computed(() => {
-  return costLabels.value?.map((label, index) => {
-    return { color: costsPieColors[index + 1], label, shape: "square" };
+  const costsWithColors = appStore.totalCost?.children?.map((cost: ScenarioCost, index) => {
+    return { color: costsPieColors[index + 1], label: costLabel(cost), shape: "square", value: cost.value };
   });
+
+  return [...(costsWithColors || [])].sort((a, b) => b.value - a.value);
 });
 </script>
 
