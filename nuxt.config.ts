@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   build: {
-    transpile: ["tslib"],
+    transpile: ["tslib"], // https://github.com/nuxt/nuxt/discussions/21533
   },
 
   devtools: {
