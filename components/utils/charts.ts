@@ -6,4 +6,5 @@ const colorRgba = hexRgb(originalHighchartsColors[0]);
 colorRgba.alpha = 0.3;
 export const plotBandsColor = `rgba(${Object.values(colorRgba).join(",")})`;
 export const plotLinesColor = "#FF0000"; // red;
-export const highchartsColors = originalHighchartsColors!.slice(1);
+export const timeSeriesColors = originalHighchartsColors!.slice(1);
+export const costsPieColors = ["transparent"].concat(originalHighchartsColors); // Make the center circle be transparent

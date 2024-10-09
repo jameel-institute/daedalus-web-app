@@ -14,7 +14,7 @@
 const appStore = useAppStore();
 
 onMounted(() => {
-  appStore.globe.interactive = true;
+  appStore.globe.interactive = false;
 });
 </script>
 
