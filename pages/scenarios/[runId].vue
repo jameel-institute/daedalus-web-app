@@ -164,7 +164,7 @@
 
 <script lang="ts" setup>
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
-import { throttledWatch } from "@vueuse/core";
+import throttle from "lodash.throttle";
 import { runStatus } from "~/types/apiResponseTypes";
 import type { Parameter } from "~/types/parameterTypes";
 import { abbreviateMillionsDollars } from "~/utils/money";
@@ -338,26 +338,25 @@ const setPieSizeAndStyle = () => {
   }
 };
 
-throttledWatch(() => costsCardBody.value, () => {
+watch(() => costsCardBody.value, throttle(() => {
   observeResize(costsCardBody, costsCardBodyWidth, costsCardBodyHeight);
   observeResize(gdpTotalCostContainer, gdpTotalCostContainerWidth, gdpTotalCostContainerHeight);
   observeResize(usdTotalCostContainer, usdTotalCostContainerWidth, usdTotalCostContainerHeight);
   setPieSizeAndStyle();
-}, { throttle: 250 });
+}, 100));
 
-throttledWatch([
+watch([
   costsCardBodyWidth,
   costsCardBodyHeight,
   gdpTotalCostContainerWidth,
   gdpTotalCostContainerHeight,
   usdTotalCostContainerWidth,
   usdTotalCostContainerHeight,
-], () => {
-  console.log('watch effect')
+], throttle(() => {
   if (appStore.currentScenario.result.data) {
     setPieSizeAndStyle();
   };
-}, { throttle: 250 });
+}, 100));
 
 // watch(() => costsCardBodyWidth.value, () => {
 //   console.log('costsCardBodyWidth', costsCardBodyWidth.value);
