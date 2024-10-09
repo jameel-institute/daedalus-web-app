@@ -93,7 +93,7 @@
       }
     ],
     "time_series": {
-      "infect": [
+      "prevalence": [
         67.886,
         56.4939,
         59.2434,

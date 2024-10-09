@@ -6,9 +6,10 @@ test("can download Excel file for scenario results", async ({ page, baseURL }) =
   // Run scenario with default parameters
   await page.click('button:has-text("Run")');
   await page.waitForURL(new RegExp(`${baseURL}/scenarios/[a-f0-9]{32}`));
-  const downloadBtn = await page.locator("#btn-download-excel");
+  await page.waitForSelector("#btn-download-excel");
+  const downloadBtn = page.locator("#btn-download-excel");
   await expect(downloadBtn).toBeVisible();
-  await expect(page.getByText("Community infections").first()).toBeVisible(); // Wait for data
+  await expect(page.getByText("Prevalence").first()).toBeVisible(); // Wait for data
 
   const [download] = await Promise.all([
     // Start waiting for the download

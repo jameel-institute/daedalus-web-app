@@ -44,8 +44,8 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   // To regenerate these screenshots:
   // 1. Insert a generous timeout so that screenshots are of the final chart, not the chart half-way through
   //    its initialization animation: `await page.waitForTimeout(15000);`
-  // 2. Run the test with this flag: `npm run test:e2e -- --update-snapshots`
-  // Alternatively, simply delete the screenshots directory and run the test as normal - it will 'fail' the first time.
+  // 2. Delete the screenshots directory, ./<this-file-name>-snapshots
+  // 3. Run the tests with `npm run test:e2e` to regenerate the screenshots - tests will appear to fail the first time.
   if (headless) {
     await page.waitForTimeout(1000); // Reduce flakeyness by waiting longer for charts to have finished rendering.
     await expect(page.locator(".highcharts-background").first()).toHaveScreenshot("first-time-series.png", { maxDiffPixelRatio: 0.04 });
@@ -53,7 +53,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
     await expect(page.locator(".highcharts-background").nth(2)).toHaveScreenshot("third-time-series.png", { maxDiffPixelRatio: 0.04 });
 
     // Test re-sizing of the charts
-    await page.getByRole("button", { name: "Community infections" }).click();
+    await page.getByRole("button", { name: "Prevalence" }).click();
     await expect(page.locator(".highcharts-background").nth(2)).toHaveScreenshot("third-time-series-taller.png", { maxDiffPixelRatio: 0.04 });
     await page.getByRole("button", { name: "Hospital demand" }).click();
     await expect(page.locator(".highcharts-background").nth(2)).toHaveScreenshot("third-time-series-tallest.png", { maxDiffPixelRatio: 0.04 });
