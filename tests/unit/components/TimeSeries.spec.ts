@@ -56,8 +56,8 @@ describe("time series", () => {
   it("should render the correct label and description for the time series, and render the chart container", async () => {
     const component = await mountSuspended(TimeSeries, { props, global: { stubs, plugins } });
 
-    expect(component.text()).toContain("Community infections");
-    expect(component.text()).toContain("Infections not requiring hospitalisation");
+    expect(component.text()).toContain("Prevalence");
+    expect(component.text()).toContain("Number of infectious individuals");
 
     const chartContainer = component.find(`#${seriesId}-container`);
     expect(chartContainer.exists()).toBe(true);
