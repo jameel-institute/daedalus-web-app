@@ -165,14 +165,17 @@ const chartInitialOptions = () => {
           <b>${this.name}</b><br/>
           $${abbr.amount} ${abbr.unit}<br/>
           X.Y% of national GDP`;
+          X.YZ% of national GDP`;
       },
     },
   } as Highcharts.Options;
 };
+const appStore = useAppStore();
 const getCostLabel = (costId: string) => {
   const name = appStore.metadata?.results.costs.find(cost => cost.id === costId)?.label;
   return name || costId;
 };
+let chart: Highcharts.Chart;
 const populateCostsDataIntoPie = () => {
   if (!appStore.totalCost) {
     return;
