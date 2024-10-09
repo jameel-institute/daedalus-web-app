@@ -13,7 +13,7 @@
         :key="parameter.id"
         class="field-container"
       >
-        <CCol v-if="renderAsRadios(parameter)" class="button-group-container">
+        <div v-if="renderAsRadios(parameter)" class="button-group-container">
           <CRow>
             <ParameterIcon :parameter="parameter" />
             <CFormLabel :for="parameter.id">
@@ -28,12 +28,11 @@
               :class="`${pulsingParameters.includes(parameter.id) ? 'pulse' : ''}`"
               @change="handleChange(parameter)"
             >
-              <!-- This component's "v-model" prop type signature dictates we can't pass it a number. -->
               <CFormCheck
                 v-for="(option) in parameter.options"
                 :id="option.id"
                 :key="option.id"
-                v-model="formData[parameter.id] as string"
+                v-model="formData[parameter.id]"
                 type="radio"
                 :button="{ color: 'primary', variant: 'outline' }"
                 :name="parameter.id"
@@ -43,7 +42,7 @@
               />
             </CButtonGroup>
           </CRow>
-        </CCol>
+        </div>
         <div v-else-if="renderAsSelect(parameter)">
           <ParameterIcon :parameter="parameter" />
           <CFormLabel :for="parameter.id">
@@ -75,7 +74,7 @@
             <div class="flex-grow-1">
               <CFormInput
                 :id="parameter.id"
-                v-model="formData[parameter.id] as string"
+                v-model="formData[parameter.id]"
                 :aria-label="parameter.label"
                 type="number"
                 :class="`${pulsingParameters.includes(parameter.id) ? 'pulse' : ''}`"
@@ -92,7 +91,7 @@
               />
               <CFormRange
                 :id="parameter.id"
-                v-model="formData[parameter.id] as string"
+                v-model="formData[parameter.id]"
                 :aria-label="parameter.label"
                 :step="parameter.step"
                 :min="min(parameter)"
@@ -121,7 +120,7 @@
         color="primary"
         :size="appStore.largeScreen ? 'lg' : undefined"
         type="submit"
-        :disabled="formSubmitting || appStore.metadataFetchStatus === 'error'"
+        :disabled="runButtonDisabled"
         @click="submitForm"
       >
         Run
@@ -142,6 +141,10 @@ import { CIcon } from "@coreui/icons-vue";
 import type { Parameter, ParameterSet, ValueData } from "@/types/parameterTypes";
 import { TypeOfParameter } from "@/types/parameterTypes";
 import type { NewScenarioData } from "@/types/apiResponseTypes";
+
+const props = defineProps<{
+  inModal: boolean
+}>();
 
 const appStore = useAppStore();
 
@@ -166,7 +169,7 @@ const formData = ref(
   appStore.currentScenario.parameters ? { ...appStore.currentScenario.parameters } : initialiseFormDataFromDefaults(),
 );
 const pulsingParameters = ref([] as string[]);
-const dependentParameters = computed((): Record<string, Array<string>> => {
+const dependentParameters = computed((): Record<string, string[]> => {
   const dependentParameters = {} as { [key: string]: Array<string> };
   paramMetadata.value?.forEach((param) => {
     if (param.updateNumericFrom) {
@@ -178,6 +181,19 @@ const dependentParameters = computed((): Record<string, Array<string>> => {
     }
   });
   return dependentParameters;
+});
+
+const runButtonDisabled = computed(() => {
+  if (!formData.value || formSubmitting.value || appStore.metadataFetchStatus === "error") {
+    return true;
+  } else if (props.inModal && appStore.currentScenario.parameters) {
+    const parametersHaveChanged = Object.keys(formData.value).some((key) => {
+      return formData.value![key] !== appStore.currentScenario.parameters![key];
+    });
+    return !parametersHaveChanged; // Only enable the run button if there has been a change to the parameters in the form
+  } else {
+    return false;
+  }
 });
 
 const optionsAreTerse = (param: Parameter) => {

@@ -5,6 +5,7 @@ import DefaultLayout from "@/layouts/default.vue";
 
 const stubs = {
   CIcon: true,
+  Globe: true,
 };
 
 registerEndpoint("/api/versions", () => {

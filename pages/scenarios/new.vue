@@ -5,7 +5,7 @@
       <p>
         Select the parameters for your next scenario.
       </p>
-      <ParameterForm />
+      <ParameterForm :in-modal="false" />
     </div>
   </div>
 </template>
@@ -17,12 +17,6 @@ onMounted(() => {
   appStore.globe.interactive = true;
 });
 </script>
-
-<style lang="scss">
-.container-xxl {
-  max-width: unset;
-}
-</style>
 
 <style lang="scss" scoped>
 .overlay {

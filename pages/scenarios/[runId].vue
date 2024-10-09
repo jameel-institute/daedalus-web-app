@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="container-fluid d-flex flex-wrap gap-3">
-      <h1 class="fs-1">
+    <div class="d-flex flex-wrap mb-3 gap-3">
+      <h1 class="fs-2 mb-0">
         Results
       </h1>
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
@@ -13,8 +13,14 @@
           Rotate your mobile device to landscape for the best experience.
         </p>
       </CAlert>
-      <div v-show="appStore.largeScreen && appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="card horizontal-card ms-auto">
+      <div v-show="appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="card horizontal-card ms-auto parameters-card">
         <CRow>
+          <div
+            v-show="!appStore.largeScreen"
+            class="card-header h-100 align-content-center"
+          >
+            <EditParameters />
+          </div>
           <CCol class="col-sm">
             <div class="card-body py-2">
               <p class="card-text d-flex gap-3 flex-wrap">
@@ -41,51 +47,13 @@
               </p>
             </div>
           </CCol>
-          <CCol class="col-auto">
+          <CCol v-show="appStore.largeScreen" class="col-auto">
             <div class="card-footer h-100 align-content-center">
-              <CTooltip
-                content="Edit parameters"
-                placement="top"
-              >
-                <template #toggler="{ id, on }">
-                  <NuxtLink
-                    to="/scenarios/new"
-                    class="ms-2 link-secondary"
-                    :aria-describedby="id"
-                    v-on="on"
-                  >
-                    <CButton color="light">
-                      Parameters
-                    </CButton>
-                    <CIcon icon="cilPencil" class="form-icon" />
-                  </NuxtLink>
-                </template>
-              </CTooltip>
+              <EditParameters />
             </div>
           </CCol>
         </CRow>
       </div>
-      <CAccordion v-show="!appStore.largeScreen && appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="ms-auto">
-        <CAccordionItem :item-key="1">
-          <CAccordionHeader>
-            Parameters
-          </CAccordionHeader>
-          <CAccordionBody>
-            <p v-for="(parameter) in appStore.metadata?.parameters" :key="parameter.id" class="card-text">
-              <ParameterIcon :parameter="parameter" />
-              <span v-show="appStore.currentScenario" class="ms-2">
-                {{ paramDisplayText(parameter) }}
-              </span>
-              <!-- Todo: once metadata uses real country ISOs, get a mapping from 3-letter ISOs to 2-letter ISOs, and look up the correct country flag. -->
-              <CIcon v-if="parameter.id === appStore.globeParameter?.id" icon="cifZw" class="parameter-icon text-secondary ms-1" size="sm" />
-            </p>
-            <CIcon icon="cilPencil" class="form-icon" />
-            <NuxtLink to="/scenarios/new" class="ms-2 link-secondary">
-              <span>Edit parameters</span>
-            </NuxtLink>
-          </CAccordionBody>
-        </CAccordionItem>
-      </CAccordion>
     </div>
     <CSpinner v-show="showSpinner" class="ms-3 mb-3 mt-3" />
     <CAlert v-if="appStore.currentScenario.status.data?.runSuccess === false" color="danger">
@@ -105,12 +73,12 @@
         </NuxtLink>.
       </p>
     </CAlert>
-    <CAlert v-else-if="jobTakingLongTime" color="info">
+    <CAlert v-else-if="jobTakingLongTime && appStore.currentScenario.status.data?.runStatus" color="info">
       <p class="mb-0">
         Analysis status: {{ appStore.currentScenario.status.data?.runStatus }}
       </p>
     </CAlert>
-    <CRow v-else-if="appStore.timeSeriesData">
+    <CRow v-else-if="appStore.timeSeriesData" class="cards-container">
       <div class="col-md-6">
         <div class="card">
           <div class="card-header border-bottom-0 d-flex justify-content-between">
@@ -149,6 +117,7 @@ import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import { runStatus } from "~/types/apiResponseTypes";
 import type { Parameter } from "~/types/parameterTypes";
 
+// TODO: Use the runId from the route rather than getting it out of the store.
 const appStore = useAppStore();
 
 const jobTakingLongTime = ref(false);
@@ -177,6 +146,7 @@ const loadScenarioStatus = () => {
   appStore.loadScenarioStatus().then(() => {
     if (appStore.currentScenario.status.data?.runSuccess) {
       clearInterval(statusInterval);
+      jobTakingLongTime.value = false;
       appStore.loadScenarioResult();
     }
   });
@@ -185,7 +155,7 @@ const loadScenarioStatus = () => {
 onMounted(() => {
   appStore.globe.interactive = false;
 
-  if (!appStore.currentScenario.status.data?.done || appStore.currentScenario.result.data) {
+  if (!appStore.currentScenario.status.data?.done && appStore.currentScenario.runId) {
     statusInterval = setInterval(loadScenarioStatus, 200); // Poll for status every N ms
     setTimeout(() => {
       // If the job isn't completed within five seconds, give user the information about the run status.
@@ -212,6 +182,10 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 @use "sass:map";
 
+.cards-container {
+  row-gap: 1rem;
+}
+
 .card {
   background: rgba(255, 255, 255, 0.7);
 
@@ -237,6 +211,12 @@ onUnmounted(() => {
     .row {
       --cui-gutter-y: 0;
       --cui-gutter-x: 0;
+    }
+  }
+
+  &.parameters-card {
+    .btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active, .btn.show {
+      background-color: unset; // Overrides a style in _theme.scss
     }
   }
 }

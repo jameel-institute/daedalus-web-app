@@ -62,6 +62,7 @@ onBeforeUnmount(() => {
   .container-xxl {
     padding-left: $container-padding !important;
     padding-right: $container-padding !important;
+    max-width: unset;
   }
 }
 

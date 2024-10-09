@@ -84,6 +84,10 @@ body {
   border-radius: 0.75rem;
 }
 
+.btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active, .btn.show {
+  background-color: var(--cui-btn-color);
+}
+
 .btn-group-lg > label.btn {
   border-radius: 1rem;
 }
@@ -115,4 +119,9 @@ body {
 
 .btn:disabled, .btn.disabled, fieldset:disabled .btn {
   opacity: 0.5;
+}
+
+// Prevent body width changing when modal-open is applied to the body. https://github.com/jschr/bootstrap-modal/issues/64#issuecomment-55794181
+.modal-open {
+  overflow-y: auto !important;
 }
