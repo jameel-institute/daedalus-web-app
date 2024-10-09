@@ -121,6 +121,14 @@ body {
   opacity: 0.5;
 }
 
+// Override modal default max-width when screen would have been narrower than modal.
+// Media queries can't use dynamic variables, but the calculation to get 532px is: calc(var(--cui-modal-width) + 2 * var(--cui-modal-padding));
+@media (max-width: 532px) {
+  .modal-dialog {
+    max-width: calc(100dvw - (2 * var(--cui-modal-margin)));
+  }
+}
+
 // Prevent body width changing when modal-open is applied to the body. https://github.com/jschr/bootstrap-modal/issues/64#issuecomment-55794181
 .modal-open {
   overflow-y: auto !important;
