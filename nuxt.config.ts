@@ -40,6 +40,9 @@ export default defineNuxtConfig({
         },
       },
     },
+    resolve: {
+      dedupe: ["vue-router"], // https://github.com/nuxt/nuxt/issues/15434#issuecomment-1408651163
+    },
   },
 
   eslint: {

@@ -80,7 +80,7 @@
       </p>
     </CAlert>
     <CRow v-else-if="appStore.currentScenario.result.data" class="cards-container">
-      <div class="col-md-6">
+      <div class="col-12 col-xl-6">
         <div class="card costs-card">
           <!-- Todo, make height dynamic. Matching header of time series. -->
           <div class="card-header border-bottom-0 d-flex justify-content-between">
@@ -92,55 +92,59 @@
             </div>
             <CostsLegend />
           </div>
-          <div class="card-body">
-            <div id="totalCostContainer" style="display: inline-block;">
-              <p class="mt-0 mb-0" style="height: fit-content; letter-spacing: 0.05rem;">
+          <div ref="costsCardBody" class="card-body">
+            <div id="totalCostContainer">
+              <h3 id="totalHeading" class="mt-0 mb-0 fs-6">
                 TOTAL
-              </p>
-              <div id="gdpTotalCostContainer" style="line-height: 1; display: flex;" class="gap-1">
-                <p class="mt-0" style="font-size: 10rem; width: unset; font-weight: 200; margin-bottom: -2rem;">
-                  X.YZ
+              </h3>
+              <div id="gdpTotalCostContainer" ref="gdpTotalCostContainer" class="d-flex gap-1">
+                <p id="gdpTotalCostPercent" class="mt-0">
+                  X.Y
                 </p>
-                <div style="align-self: end;">
-                  <p style="font-size: 4.5rem; margin-bottom: 0">
+                <div class="align-self-end">
+                  <p id="gdpTotalCostPercentageSymbol" class="mb-0">
                     %
                   </p>
-                  <p class="mt-0 mb-1" style="font-size: 1.5rem; font-weight: normal !important;">
+                  <p id="gdpTotalCostPercentReferent" class="mt-0 mb-1">
                     of GDP
                   </p>
                 </div>
               </div>
-              <div id="usdTotalCostContainer" style="line-height: 1;">
-                <div style="display: inline-block; text-align: right;">
-                  <p style="font-size: 2.5rem; margin-bottom: 0; text-align: center;">
+              <div id="usdTotalCostContainer" ref="usdTotalCostContainer">
+                <div id="currency">
+                  <p id="usdSymbol">
                     $
                   </p>
-                  <p style="font-size: 1rem; margin-top: 0; font-weight: normal !important;">
+                  <p id="usdWord">
                     USD
                   </p>
                 </div>
-                <p style="font-size: 5rem; display: inline-block; margin-bottom: 0;">
-                  <span id="usdTotalCost" class="spin-number" style="font-weight: 300;">
+                <p id="totalCostPara" class="d-inline-block mb-0">
+                  <span id="usdTotalCost">
                     <span>{{ totalCostAbbr?.amount }}</span>
-                    <span style="font-size: smaller; font-weight: 300">
+                    <span id="totalCostUnit">
                       {{ totalCostAbbr?.unit }}
                     </span>
                   </span>
                 </p>
-                <p style="font-weight: normal !important; margin-top: 0;">
+                <p class="mt-0">
                   [insert note about GDP basis]
                 </p>
               </div>
             </div>
             <CostsPie
+              v-if="costsPieSize"
               :hide-tooltips="hideCostsPieTooltips"
+              :pie-class="costsPieClass"
+              :bottom-right-position="costsPieBottomRightPosition"
+              :pie-size="costsPieSize"
               @mouseleave="onMouseLeaveCostsPie"
               @mouseover="() => { hideCostsPieTooltips = false }"
             />
           </div>
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="col-12 col-xl-6">
         <div class="card">
           <div class="card-header border-bottom-0 d-flex justify-content-between">
             <div class="d-flex align-items-center">
@@ -160,6 +164,7 @@
 
 <script lang="ts" setup>
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
+import { throttledWatch } from "@vueuse/core";
 import { runStatus } from "~/types/apiResponseTypes";
 import type { Parameter } from "~/types/parameterTypes";
 import { abbreviateMillionsDollars } from "~/utils/money";
@@ -182,12 +187,186 @@ const totalCostAbbr = computed(() => {
     return undefined;
   }
 });
-const usdTotalCostContainerMaxWidthPx = 295.641; // Measured by setting the text to the longest value it can have, 888.8M
+// const usdTotalCostContainerMaxWidthPx = 295.641; // Measured by setting the text to the longest value it can have, 888.8M
 
 // Since we're dealing with a circle make the width and height the same variable
-const chartSize = computed(() => {
 
-})
+const costsCardBody = ref(null);
+const costsCardBodyWidth = ref(0);
+const costsCardBodyHeight = ref(0);
+
+const gdpTotalCostContainer = ref(null);
+const gdpTotalCostContainerWidth = ref(0);
+const gdpTotalCostContainerHeight = ref(0);
+
+const usdTotalCostContainer = ref(null);
+const usdTotalCostContainerWidth = ref(0);
+const usdTotalCostContainerHeight = ref(0);
+
+const costsPieSize = ref<number | undefined>(undefined);
+const costsPieClass = ref<string>("");
+
+const observeResize = (elementRef: Ref<null>, widthRef: Ref<number>, heightRef: Ref<number>) => {
+  console.log('observeResize')
+  if (elementRef.value) {
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        widthRef.value = entry.contentRect.width;
+        heightRef.value = entry.contentRect.height;
+      }
+    });
+    observer.observe(elementRef.value);
+  }
+};
+
+// const availableWidthInTopRightCorner = computed(() => {
+//   return costsCardBody.value && gdpTotalCostContainer.value
+//     ? (costsCardBodyWidth.value - gdpTotalCostContainerWidth.value)
+//     : undefined;
+// });
+// const availableHeightInTopRightCorner = computed(() => {
+//   return costsCardBody.value && gdpTotalCostContainer.value
+//     ? (costsCardBodyHeight.value - gdpTotalCostContainerHeight.value)
+//     : undefined;
+// });
+// const costsPieMaxSizeInTopRight = computed(() => {
+//   return availableWidthInTopRightCorner.value && availableHeightInTopRightCorner.value
+//     ? Math.min(availableWidthInTopRightCorner.value, availableHeightInTopRightCorner.value)
+//     : undefined;
+// });
+
+// const availableHeightBelowUsdTotalCost = computed(() => {
+//   return costsCardBody.value && usdTotalCostContainer.value
+//     ? costsCardBodyHeight.value - usdTotalCostContainerHeight.value
+//     : undefined;
+// });
+// const costsPieMaxSizeBelowUsdTotalCost = computed(() => {
+//   return costsCardBody.value && availableHeightBelowUsdTotalCost.value
+//     ? Math.min(costsCardBodyWidth.value, availableHeightBelowUsdTotalCost.value)
+//     : undefined;
+// });
+
+// watch(() => costsCardBodyWidth.value, () => {
+  // console.log('costsCardBodyHeight', costsCardBodyHeight.value);
+  // console.log(costsCardBody.value.clientHeight);
+  // console.log('gdpTotalCostContainerHeight', gdpTotalCostContainerHeight.value);
+  // console.log(gdpTotalCostContainer.value.clientHeight);
+
+  // console.log(gdpTotalCostContainer.value);
+  // console.log(costsCardBody.value);
+// });
+// const costsPieMaxSizeInBottomRight = computed(() => {
+//   // console.log(availableHeightInBottomRightCorner.value);
+//   return availableWidthInBottomRightCorner.value && availableHeightInBottomRightCorner.value
+//     ? Math.min(availableWidthInBottomRightCorner.value, availableHeightInBottomRightCorner.value)
+//     : undefined;
+// });
+
+// const costsPieStyle = computed((): StyleValue => {
+//   let attrs = {};
+//   if (!costsPieSize.value) {
+//     console.log("No size available for costs pie.");
+//     return attrs;
+//   }
+//   switch (costsPieSize.value) {
+//     case costsPieMaxSizeInTopRight.value:
+//       console.error("Top right corner, with size: ", costsPieMaxSizeInTopRight.value);
+//       attrs = {
+//         top: 0,
+//         right: 0,
+//         width: costsPieMaxSizeInTopRight.value,
+//         height: costsPieMaxSizeInTopRight.value,
+//       };
+//       break;
+//     case (costsPieMaxSizeBelowUsdTotalCost.value):
+//       console.error("Below USD total cost, with size: ", costsPieMaxSizeBelowUsdTotalCost.value);
+//       attrs = {
+//         top: usdTotalCostContainerHeight,
+//         right: 0,
+//         width: costsPieMaxSizeBelowUsdTotalCost.value,
+//         height: costsPieMaxSizeBelowUsdTotalCost.value,
+//       };
+//       break;
+//     case (costsPieMaxSizeInBottomRight.value):
+//       console.error("Bottom right corner, with size: ", costsPieMaxSizeInBottomRight.value);
+//       attrs = {
+//         bottom: 0,
+//         right: 0,
+//         width: costsPieMaxSizeInBottomRight.value,
+//         height: costsPieMaxSizeInBottomRight.value,
+//       };
+//   }
+
+//   return { ...attrs, position: "absolute" };
+// });
+
+const costsPieBottomRightPosition = ref<number | undefined>(undefined);
+
+const setPieSizeAndStyle = () => {
+  if (costsCardBodyWidth.value && costsCardBodyHeight.value
+    && gdpTotalCostContainerWidth.value && gdpTotalCostContainerHeight.value
+    && usdTotalCostContainerWidth.value && usdTotalCostContainerHeight.value) {
+    console.log("Calculating costs pie size...");
+
+    const availableWidthInTopRightCorner = costsCardBodyWidth.value - gdpTotalCostContainerWidth.value;
+    const availableHeightInTopRightCorner = costsCardBodyHeight.value;
+    const costsPieMaxSizeInTopRight = Math.min(availableWidthInTopRightCorner, availableHeightInTopRightCorner);
+
+    const availableHeightBelowUsdTotalCost = costsCardBodyHeight.value - (gdpTotalCostContainerHeight.value + usdTotalCostContainerHeight.value);
+    const costsPieMaxSizeBelowUsdTotalCost = Math.min(costsCardBodyWidth.value, availableHeightBelowUsdTotalCost);
+
+    const availableWidthInBottomRightCorner = costsCardBodyWidth.value - usdTotalCostContainerWidth.value;
+    const availableHeightInBottomRightCorner = costsCardBodyHeight.value - gdpTotalCostContainerHeight.value;
+    const costsPieMaxSizeInBottomRight = Math.min(availableWidthInBottomRightCorner, availableHeightInBottomRightCorner);
+    costsPieBottomRightPosition.value = (costsCardBodyWidth.value - costsPieMaxSizeInBottomRight) - usdTotalCostContainerWidth.value;
+
+    costsPieSize.value = Math.max(costsPieMaxSizeInTopRight, costsPieMaxSizeBelowUsdTotalCost, costsPieMaxSizeInBottomRight);
+
+    switch (costsPieSize.value) {
+      case costsPieMaxSizeInTopRight:
+        console.error("Top right corner, with size: ", costsPieSize.value);
+        costsPieClass.value = "top-right-corner";
+        break;
+      case (costsPieMaxSizeBelowUsdTotalCost):
+        console.error("Below USD total cost, with size: ", costsPieSize.value);
+        costsPieClass.value = "below-usd-total-cost";
+        break;
+      case (costsPieMaxSizeInBottomRight):
+        console.error("Bottom right corner, with size: ", costsPieSize.value);
+        costsPieClass.value = "bottom-right-corner";
+    }
+  }
+};
+
+throttledWatch(() => costsCardBody.value, () => {
+  observeResize(costsCardBody, costsCardBodyWidth, costsCardBodyHeight);
+  observeResize(gdpTotalCostContainer, gdpTotalCostContainerWidth, gdpTotalCostContainerHeight);
+  observeResize(usdTotalCostContainer, usdTotalCostContainerWidth, usdTotalCostContainerHeight);
+  setPieSizeAndStyle();
+}, { throttle: 250 });
+
+throttledWatch([
+  costsCardBodyWidth,
+  costsCardBodyHeight,
+  gdpTotalCostContainerWidth,
+  gdpTotalCostContainerHeight,
+  usdTotalCostContainerWidth,
+  usdTotalCostContainerHeight,
+], () => {
+  console.log('watch effect')
+  if (appStore.currentScenario.result.data) {
+    setPieSizeAndStyle();
+  };
+}, { throttle: 250 });
+
+// watch(() => costsCardBodyWidth.value, () => {
+//   console.log('costsCardBodyWidth', costsCardBodyWidth.value);
+// });
+
+
+// watch(() => costsPieMaxSizeBelowUsdTotalCost.value, () => {
+//   console.log('costsPieMaxSizeBelowUsdTotalCost', costsPieMaxSizeBelowUsdTotalCost.value);
+// });
 
 const paramDisplayText = (param: Parameter) => {
   if (appStore.currentScenario?.parameters && appStore.currentScenario?.parameters[param.id]) {
@@ -296,11 +475,105 @@ $card-width: calc(($wrapper-width / $number-of-card-cols) - $col-padding);
 .costs-card {
   height: $card-container-height;
 
-  #totalCostContainer {
-    // font-weight: 500;
+  .card-body {
+    position: relative; // For absolute positioning of costs pie
   }
-  // color: $imperial-blue;
-  // text-shadow: 0px 0px 4px rgba(0, 55, 138, 1);
+
+  #totalHeading {
+    height: fit-content;
+    letter-spacing: 0.08rem;
+    font-weight: normal;
+  }
+
+  #gdpTotalCostContainer, #usdTotalCostContainer {
+    width: fit-content;
+  }
+
+  #gdpTotalCostContainer {
+    line-height: 1;
+  }
+
+  #gdpTotalCostPercent {
+    width: unset;
+    font-weight: 200;
+    margin-bottom: -2rem;
+    font-size: 10rem;
+
+    @media (max-width: map.get($grid-breakpoints, 'md')) {
+      font-size: 5rem;
+    }
+
+    @media (min-width: map.get($grid-breakpoints, 'md')) {
+      text-shadow: 0px 0px 2px;
+    }
+  }
+
+  #gdpTotalCostPercentageSymbol {
+    font-size: 4.5rem;
+
+    @media (max-width: map.get($grid-breakpoints, 'md')) {
+      font-size: 2.25rem;
+    }
+
+    @media (min-width: map.get($grid-breakpoints, 'md')) {
+      text-shadow: 0px 0px 2px;
+    }
+  }
+
+  #gdpTotalCostPercentReferent {
+    font-weight: normal;
+
+    @media (min-width: map.get($grid-breakpoints, 'md')) {
+      font-size: 1.5rem;
+      text-shadow: 0px 0px 2px;
+    }
+  }
+
+  #usdTotalCostContainer {
+    line-height: 1;
+
+    #usdSymbol {
+      font-size: 2.5rem;
+      margin-bottom: 0;
+      text-align: center;
+
+      @media (max-width: map.get($grid-breakpoints, 'md')) {
+        font-size: 2rem;
+      }
+    }
+
+    #usdWord {
+      font-size: 1rem;
+      margin-top: 0;
+      font-weight: normal !important;
+
+      @media (max-width: map.get($grid-breakpoints, 'md')) {
+        font-size: 0.8rem;
+      }
+    }
+
+    #currency {
+      display: inline-block;
+      text-align: right;
+    }
+
+    #totalCostPara {
+      font-size: 5rem;
+
+      @media (max-width: map.get($grid-breakpoints, 'md')) {
+        font-size: 4rem;
+      }
+    }
+
+    #usdTotalCost {
+      font-weight: 300;
+    }
+
+    #totalCostUnit {
+      font-size: smaller;
+      font-weight: 300;
+    }
+  }
 
   p {
     margin: 0.75rem 0;

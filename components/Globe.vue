@@ -1,6 +1,6 @@
 <template>
   <div v-show="pageMounted && appStore.globeParameter && appStore.largeScreen">
-    <p v-if="appStore.currentScenario.parameters && appStore.currentScenario.parameters[appStore.globeParameter!.id]">
+    <p v-if="false && appStore.currentScenario.parameters && appStore.currentScenario.parameters[appStore.globeParameter!.id]">
       Globe should show the country of... {{ appStore.currentScenario.parameters[appStore.globeParameter!.id] }}
     </p>
     <div ref="globediv" :class="globeClass" />

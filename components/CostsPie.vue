@@ -1,5 +1,9 @@
 <template>
-  <div :id="chartContainerId" :class="`${props.hideTooltips ? hideTooltipsClassName : ''}`" />
+  <div
+    :id="chartContainerId"
+    :class="`${props.hideTooltips ? hideTooltipsClassName : ''} ${props.pieClass}`"
+    :style="`width: ${props.pieSize}px; height: ${props.pieSize}px; ${props.pieClass === 'bottom-right-corner' ? `right: ${props.bottomRightPosition}px` : ``};`"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -11,6 +15,9 @@ import { abbreviateMillionsDollars } from "#imports";
 
 const props = defineProps<{
   hideTooltips: boolean
+  pieSize?: number
+  pieClass: string
+  bottomRightPosition?: number
 }>();
 accessibilityInitialize(Highcharts);
 sunburstInitialize(Highcharts);
@@ -18,6 +25,10 @@ const chartContainerId = "costsPieContainerId";
 const hideTooltipsClassName = "hide-tooltips";
 const chartBackgroundColor = "transparent";
 const chartBackgroundColorOnExporting = "white";
+let chart: Highcharts.Chart;
+
+const appStore = useAppStore();
+
 interface pieCost {
   id: string
   parent: string
@@ -25,6 +36,50 @@ interface pieCost {
   value?: number // If value is not provided, Highcharts calculates the children's sum itself.
 }
 let costsData: pieCost[] = [];
+
+// Prioritise showing labels for larger slices over smaller slices, where labels would otherwise overlap.
+const lowerLevelsDataLabelFilter = {
+  property: "innerArcLength",
+  operator: ">",
+  value: 16,
+};
+
+const chartLevelsOptions = (isDrillingDown: boolean = false) => [{
+  level: 1,
+  levelIsConstant: false,
+  levelSize: {
+    unit: "weight",
+    value: 1,
+  },
+}, {
+  level: 2,
+  colorByPoint: true,
+  levelSize: {
+    unit: "weight",
+    value: 2,
+  },
+  dataLabels: {
+    filter: isDrillingDown ? undefined : lowerLevelsDataLabelFilter,
+  },
+}, {
+  level: 3,
+  colorVariation: {
+    key: "brightness",
+    to: -0.75,
+  },
+  dataLabels: {
+    enabled: isDrillingDown,
+    filter: lowerLevelsDataLabelFilter,
+    style: {
+      fontSize: "0.9rem",
+    },
+  },
+  levelSize: {
+    unit: "weight",
+    value: 2,
+  },
+}];
+
 const chartSeries = () => {
   return {
     type: "sunburst",
@@ -33,63 +88,45 @@ const chartSeries = () => {
     allowDrillToNode: true,
     borderRadius: 3,
     cursor: "pointer",
-    dataLabels: {
-      format: "{point.name}",
-      filter: {
-        property: "innerArcLength",
-        operator: ">",
-        value: 16,
-      },
-      style: {
-        fontSize: "1rem",
+    events: {
+      click(event) {
+        // When the clicked chart 'point' is in the second level of the sunburst,
+        // that means some drilling down or up (traversing up and down the chart) is triggered.
+        const isDrilling = event.point.node.level !== 1 && event.point.node.children.length > 0; // No drill-down if no children to drill down to;
+        if (!isDrilling) {
+          return;
+        }
+        const isDrillingUp = event.point.drillId === appStore.totalCost?.id;
+        const isDrillingDown = isDrilling && !isDrillingUp;
+        chart.update({ series: { levels: chartLevelsOptions(isDrillingDown) } });
       },
     },
-    levels: [{
-      level: 1,
-      levelIsConstant: false,
-      dataLabels: {
-        filter: {
-          property: "outerArcLength",
-          operator: ">",
-          value: 64,
-        },
+    dataLabels: {
+      rotation: 0,
+      rotationMode: "auto", // Without this, labels sometimes appear in the top left at random. https://github.com/highcharts/highcharts/issues/18953
+      format: "{point.name}",
+      style: {
+        fontSize: "1.1rem",
+        fontWeight: 500,
+        textOutline: "grey",
+        textShadow: "0px 0px 2.5px black",
+        color: "white",
       },
-      levelSize: {
-        unit: "weight",
-        value: 1,
-      },
-    }, {
-      level: 2,
-      colorByPoint: true,
-      levelSize: {
-        unit: "weight",
-        value: 2,
-      },
-    }, {
-      level: 3,
-      colorVariation: {
-        key: "brightness",
-        to: -0.5,
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      levelSize: {
-        unit: "weight",
-        value: 2,
-      },
-    }],
+      allowOverlap: false,
+    },
+    levels: chartLevelsOptions(),
     animation: false,
-  };
+  } as Highcharts.SeriesOptions;
 };
 const chartInitialOptions = () => {
   return {
     chart: {
+      spacing: [0, 0, 0, 0],
       options3d: {
         enabled: true,
       },
-      height: "600",
-      width: "600",
+      height: props.pieSize,
+      width: props.pieSize,
       backgroundColor: chartBackgroundColor,
       events: {
         fullscreenOpen() {
@@ -127,17 +164,15 @@ const chartInitialOptions = () => {
         return `
           <b>${this.name}</b><br/>
           $${abbr.amount} ${abbr.unit}<br/>
-          X.YZ% of national GDP`;
+          X.Y% of national GDP`;
       },
     },
   } as Highcharts.Options;
 };
-const appStore = useAppStore();
 const getCostLabel = (costId: string) => {
   const name = appStore.metadata?.results.costs.find(cost => cost.id === costId)?.label;
   return name || costId;
 };
-let chart: Highcharts.Chart;
 const populateCostsDataIntoPie = () => {
   if (!appStore.totalCost) {
     return;
@@ -151,7 +186,7 @@ const populateCostsDataIntoPie = () => {
   });
   // Iterate over first level of children before recursing into the next level,
   // so that earlier pieCostsColors are assigned to top-level children before
-  // the next level of children.
+  // the next level of children. (Using recursion changes the color assignment order.)
   appStore.totalCost.children?.forEach((cost) => {
     costsData.push({
       id: cost.id,
@@ -160,10 +195,12 @@ const populateCostsDataIntoPie = () => {
       value: cost.value,
     });
   });
+
   // Iterate over second level of children, for a total of 3 levels.
   // For now, we are hard-coding an expectation of 3 levels.
   appStore.totalCost.children?.forEach((cost) => {
-    cost.children?.forEach((subCost) => {
+    // Omit sub-costs with a value of zero
+    cost.children?.filter(subCost => subCost.value !== 0)?.forEach((subCost) => {
       costsData.push({
         id: subCost.id,
         parent: cost.id,
@@ -178,6 +215,14 @@ watch(() => appStore.costsData, () => {
   if (appStore.costsData) {
     populateCostsDataIntoPie();
   }
+});
+watch(() => props.pieSize, () => {
+  if (chart && props.pieSize) {
+    chart.setSize(props.pieSize, props.pieSize, { duration: 250 });
+  }
+});
+watch(() => props.pieClass, () => {
+  console.log("props.pieClass", props.pieClass);
 });
 onMounted(() => {
   chart = Highcharts.chart(chartContainerId, chartInitialOptions());
@@ -196,9 +241,22 @@ onUnmounted(() => {
 #costsPieContainerId {
   font-weight: normal !important;
   position: absolute;
-  top: calc($card-container-height / 3);
-  left: 120px;
   z-index: 10; // Above timeseries
+
+  &.top-right-corner {
+    top: 0;
+    right: 0;
+  }
+
+  &.below-usd-total-cost {
+    bottom: 0;
+    right: 0; // TODO: center this instead of right-aligning
+  }
+
+  &.bottom-right-corner {
+    bottom: 0; // Right is set by JS
+  }
+
   .highcharts-tooltip {
     transition: filter 0.2s;
   }
