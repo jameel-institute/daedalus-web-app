@@ -88,6 +88,7 @@
                 Costs
               </h2>
             </div>
+            <CostsLegend />
           </div>
           <div class="card-body">
             <p>Placeholder for costs chart</p>

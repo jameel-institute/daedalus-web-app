@@ -211,6 +211,23 @@ describe("app store", () => {
           expect(store.interventionsData).toEqual(mockResultData.interventions);
         });
       });
+
+      it("can get the costs data and 'total' cost data", async () => {
+        const store = useAppStore();
+        store.currentScenario = { ...sampleUnloadedScenario };
+
+        expect(store.costsData).toEqual(undefined);
+        expect(store.totalCost).toEqual(undefined);
+        await store.loadScenarioResult();
+
+        await waitFor(() => {
+          expect(store.costsData).toEqual(mockResultData.costs);
+        });
+
+        expect(store.totalCost?.id).toEqual("total");
+        expect(store.totalCost?.value).toEqual(1086625.0137);
+        expect(store.totalCost?.children?.length).toEqual(3);
+      });
     });
   });
 });
