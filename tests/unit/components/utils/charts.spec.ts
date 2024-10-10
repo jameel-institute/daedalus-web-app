@@ -1,4 +1,4 @@
-import { highchartsColors, plotBandsColor } from "@/components/utils/charts";
+import { plotBandsColor, timeSeriesColors } from "@/components/utils/charts";
 import { describe, expect, it } from "vitest";
 
 describe("plotBandsColor", () => {
@@ -10,6 +10,6 @@ describe("plotBandsColor", () => {
 
 describe("highchartsColors", () => {
   it("should be 9 colors long", () => {
-    expect(highchartsColors).toHaveLength(9);
+    expect(timeSeriesColors).toHaveLength(9);
   });
 });

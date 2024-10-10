@@ -536,7 +536,7 @@
       "capacities": [
         {
           "id": "hospital_capacity",
-          "label": "Hospital capacity",
+          "label": "Hospital surge capacity",
           "description": "Total hospital beds"
         },
         {
