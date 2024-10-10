@@ -44,7 +44,8 @@
     "pinia": "^2.2.4",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
-    "vue": "latest"
+    "vue": "latest",
+    "vue3-select-component": "^0.6.1"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "^4.24.0",

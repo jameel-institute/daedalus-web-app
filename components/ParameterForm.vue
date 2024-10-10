@@ -64,6 +64,17 @@
               {{ option.label }}
             </option>
           </select>
+          <hr>
+          <VueSelect
+            :id="parameter.id"
+            v-model="formData[parameter.id]"
+            :aria-label="parameter.label"
+            class="form-control "
+            :class="[appStore.largeScreen ? 'form-select-lg' : '', pulsingParameters.includes(parameter.id) ? 'pulse' : '']"
+            :options="parameter.options.map((o) => ({ value: o.id, label: o.label }))"
+            :is-clearable="false"
+            @option-selected="handleChange(parameter)"
+          />
         </div>
         <div v-else-if="parameter.parameterType === TypeOfParameter.Numeric">
           <ParameterIcon :parameter="parameter" />
@@ -141,6 +152,7 @@ import type { Parameter, ParameterSet, ValueData } from "@/types/parameterTypes"
 import type { FetchError } from "ofetch";
 import { TypeOfParameter } from "@/types/parameterTypes";
 import { CIcon } from "@coreui/icons-vue";
+import VueSelect from "vue3-select-component";
 
 const props = defineProps<{
   inModal: boolean
@@ -350,7 +362,7 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .inputs {
   display: flex;
   flex-wrap: wrap;
@@ -389,5 +401,19 @@ onMounted(() => {
   100% {
     box-shadow: 0 0 0 15px rgba(0, 0, 255, 0);
   }
+}
+
+.vue-select {
+  --vs-font-size: 1.25rem;
+  --vs-input-outline: transparent;
+  --vs-border-radius: 4px;
+}
+
+.vue-select {
+  border-radius: 1rem!important;
+}
+
+:deep(.vue-select .control) {
+  border-style: none;
 }
 </style>
