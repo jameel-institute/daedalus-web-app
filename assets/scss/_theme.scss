@@ -121,6 +121,10 @@ body {
   opacity: 0.5;
 }
 
+.tooltip {
+  max-width: $tooltip-max-width;
+}
+
 // Prevent body width changing when modal-open is applied to the body. https://github.com/jschr/bootstrap-modal/issues/64#issuecomment-55794181
 .modal-open {
   overflow-y: auto !important;
