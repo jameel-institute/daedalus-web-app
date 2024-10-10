@@ -83,7 +83,7 @@
         <div class="card">
           <div class="card-header border-bottom-0 d-flex justify-content-between">
             <div class="d-flex align-items-center">
-              <CIcon icon="cilChartPie" size="xl" class="mb-1 text-secondary" />
+              <CIcon icon="cilChartPie" size="xl" class="chart-header-icon mb-1 text-secondary" />
               <h2 class="fs-5 m-0 ms-3 chart-header">
                 Costs
               </h2>
@@ -99,7 +99,7 @@
         <div class="card">
           <div class="card-header border-bottom-0 d-flex justify-content-between">
             <div class="d-flex align-items-center">
-              <CIcon icon="cilChartLine" size="xl" class="mb-1 text-secondary" />
+              <CIcon icon="cilChartLine" size="xl" class="chart-header-icon mb-1 text-secondary" />
               <h2 class="fs-5 m-0 ms-3 chart-header">
                 Time series
               </h2>
@@ -185,6 +185,18 @@ onUnmounted(() => {
 
 .cards-container {
   row-gap: 1rem;
+}
+
+// Make room for legend
+@media screen and (max-width: 440px) {
+  .chart-header-icon {
+    display: none;
+  }
+
+  .chart-header {
+    margin-left: 0 !important;
+    width: 5rem;
+  }
 }
 
 .card {
