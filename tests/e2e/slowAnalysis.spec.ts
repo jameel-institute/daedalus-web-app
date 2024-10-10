@@ -13,7 +13,8 @@ test.beforeAll(async () => {
   checkRApiServer();
 });
 
-test("Can show relevant alerts for long-running analysis, e.g. Omicron in Singapore", async ({ page, baseURL }) => {
+test("Can show relevant alerts for long-running analysis, e.g. Omicron in Singapore", async ({ page, baseURL, browserName }) => {
+  test.skip(browserName !== "firefox", "Run in only one browser to save time");
   await page.goto(`${baseURL}/scenarios/new`);
 
   // Reduce flakeyness of tests by waiting for evidence that the page has mounted.
