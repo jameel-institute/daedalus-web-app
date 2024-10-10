@@ -1,7 +1,7 @@
-import type { FetchError } from "ofetch";
 import type { AsyncDataRequestStatus } from "#app";
 import type { Metadata, ScenarioResultData, ScenarioStatusData, VersionData } from "@/types/apiResponseTypes";
 import type { ParameterSet } from "@/types/parameterTypes";
+import type { FetchError } from "ofetch";
 
 interface Scenario {
   runId: string | undefined

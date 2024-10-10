@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { highchartsColors, plotBandsColor } from "@/components/utils/charts";
+import { describe, expect, it } from "vitest";
 
 describe("plotBandsColor", () => {
   it("should be in the correct rgba format", () => {

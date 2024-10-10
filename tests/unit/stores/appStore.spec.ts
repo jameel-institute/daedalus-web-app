@@ -1,9 +1,9 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { useAppStore } from "@/stores/appStore";
+import { emptyScenario, mockResultData } from "@/tests/unit/mocks/mockPinia";
+import { registerEndpoint } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 import { createPinia, setActivePinia } from "pinia";
-import { registerEndpoint } from "@nuxt/test-utils/runtime";
-import { emptyScenario, mockResultData } from "@/tests/unit/mocks/mockPinia";
-import { useAppStore } from "@/stores/appStore";
+import { beforeEach, describe, expect, it } from "vitest";
 import { runStatus } from "~/types/apiResponseTypes";
 
 const sampleUnloadedScenario = {

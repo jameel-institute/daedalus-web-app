@@ -136,11 +136,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { FetchError } from "ofetch";
-import { CIcon } from "@coreui/icons-vue";
-import type { Parameter, ParameterSet, ValueData } from "@/types/parameterTypes";
-import { TypeOfParameter } from "@/types/parameterTypes";
 import type { NewScenarioData } from "@/types/apiResponseTypes";
+import type { Parameter, ParameterSet, ValueData } from "@/types/parameterTypes";
+import type { FetchError } from "ofetch";
+import { TypeOfParameter } from "@/types/parameterTypes";
+import { CIcon } from "@coreui/icons-vue";
 
 const props = defineProps<{
   inModal: boolean
@@ -239,7 +239,7 @@ const invalidFields = computed(() => {
     return paramMetadata.value.map(param => param.id);
   }
 
-  const invalids = Array<string>();
+  const invalids = new Array<string>();
   paramMetadata.value?.forEach((param) => {
     if (formData.value![param.id] === "") {
       invalids.push(param.id);
@@ -286,7 +286,9 @@ const numericParameterFeedback = (param: Parameter) => {
   if (param.updateNumericFrom) {
     const dependedOnParamId = param.updateNumericFrom.parameterId;
     const dependedOnParamOptionLabel = paramMetadata.value!.find(param => param.id === dependedOnParamId)!
-      .options.find(option => option.id === formData.value![dependedOnParamId])?.label;
+      .options
+      .find(option => option.id === formData.value![dependedOnParamId])
+      ?.label;
     return `${min(param)} to ${max(param)} is the allowed ${param.label.toLowerCase()} range for ${dependedOnParamOptionLabel}.`;
   }
 };

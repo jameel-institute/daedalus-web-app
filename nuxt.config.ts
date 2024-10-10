@@ -31,6 +31,7 @@ export default defineNuxtConfig({
     css: {
       preprocessorOptions: {
         scss: {
+          api: "modern",
           additionalData: '@use "~/assets/scss/_variables.scss" as *;', // Enables variables to be accessible in SFC styles. https://nuxt.com/docs/getting-started/styling#using-preprocessors
           quietDeps: true,
         },

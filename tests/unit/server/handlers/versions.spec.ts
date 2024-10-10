@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
-import { registerEndpoint } from "@nuxt/test-utils/runtime";
 import { getVersionData } from "@/server/handlers/versions";
+import { registerEndpoint } from "@nuxt/test-utils/runtime";
+import { describe, expect, it, vi } from "vitest";
 
 const mockedVersionResponse = vi.fn();
 

@@ -8,8 +8,8 @@
 </template>
 
 <script setup>
-import "~/assets/scss/fonts.scss";
 import { iconsSet } from "@/assets/icons";
+import "~/assets/scss/fonts.scss";
 
 const nuxtApp = useNuxtApp();
 nuxtApp.vueApp.provide("icons", iconsSet);

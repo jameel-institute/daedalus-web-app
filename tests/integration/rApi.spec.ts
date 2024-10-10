@@ -6,8 +6,8 @@
 // Import the 'fetch' documented at the below URL as 'nuxtTestUtilsFetch' to avoid conflicts with Node's own 'fetch' function
 // https://nuxt.com/docs/getting-started/testing#fetchurl-1
 import { fetch as nuxtTestUtilsFetch, setup } from "@nuxt/test-utils/e2e";
-import { beforeAll, describe, expect, it } from "vitest";
 import dotenv from "dotenv";
+import { beforeAll, describe, expect, it } from "vitest";
 
 const nodeFetch = fetch; // Normal 'fetch' from Node
 
@@ -25,7 +25,7 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     let response;
     try {
       response = await nodeFetch(`${rApiBaseUrl}/mock-smoke`); // Use Node's fetch so that we can set a different base URL with port 8001.
-    } catch (error) {
+    } catch {
       if (response?.status !== 200) {
         process.stdout.write("The mock server couldn't be found. Please run `npx mockoon-cli start --data ./tests/unit/mocks/mockoon.json` or use the Mockoon desktop app.");
       }
