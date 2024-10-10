@@ -55,4 +55,5 @@ $warning: $imperial-tangerine;
 $info: $imperial-pool-blue;
 $breadcrumb-divider: '>';
 $accordion-button-padding-y: 0.5rem;
-$tooltip-max-width: calc($iphone-se-width - (2 * var(--cui-tooltip-padding-x)) - (2 * var(--cui-tooltip-margin)));
+$tooltip-margin: 0.5rem;
+$tooltip-max-width: calc($iphone-se-width - (2 * var(--cui-tooltip-padding-x)) - (2 * $tooltip-margin));
