@@ -3,8 +3,8 @@
 
 import type { NitroApp } from "nitropack";
 import { Server as Engine } from "engine.io";
-import { Server } from "socket.io";
 import { defineEventHandler } from "h3";
+import { Server } from "socket.io";
 
 export default defineNitroPlugin((nitroApp: NitroApp) => {
   const engine = new Engine();

@@ -1,7 +1,7 @@
+import { runScenario } from "@/server/handlers/scenarios";
+import { registerEndpoint } from "@nuxt/test-utils/runtime";
 import { readBody } from "h3";
 import { describe, expect, it, vi } from "vitest";
-import { registerEndpoint } from "@nuxt/test-utils/runtime";
-import { runScenario } from "@/server/handlers/scenarios";
 
 const mockedRunScenarioResponse = vi.fn();
 

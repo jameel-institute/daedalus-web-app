@@ -1,5 +1,4 @@
-import type { EventHandlerRequest, H3Event } from "h3";
-import { fetchRApi } from "@/server/utils/rApi";
+import type { ParameterDict } from "@/types/apiRequestTypes";
 import type {
   ApiError,
   NewScenarioData,
@@ -9,7 +8,8 @@ import type {
   ScenarioStatusData,
   ScenarioStatusResponse,
 } from "@/types/apiResponseTypes";
-import type { ParameterDict } from "@/types/apiRequestTypes";
+import type { EventHandlerRequest, H3Event } from "h3";
+import { fetchRApi } from "@/server/utils/rApi";
 
 const rApiNewScenarioEndpoint = "/scenario/run";
 export const runScenario = async (parameters: ParameterDict, event?: H3Event<EventHandlerRequest>): Promise<NewScenarioResponse> => {

@@ -1,6 +1,6 @@
+import type { ScenarioResultResponse } from "@/types/apiResponseTypes";
 import { getScenarioResult } from "@/server/handlers/scenarios";
 import { defineRApiEventHandler } from "@/server/utils/defineRApiEventHandler";
-import type { ScenarioResultResponse } from "@/types/apiResponseTypes";
 
 export default defineRApiEventHandler(
   async (event): Promise<ScenarioResultResponse> => {

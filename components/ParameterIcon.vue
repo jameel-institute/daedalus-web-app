@@ -8,8 +8,8 @@
 </template>
 
 <script lang="ts" setup>
-import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import type { Parameter } from "@/types/parameterTypes";
+import { CIcon, CIconSvg } from "@coreui/icons-vue";
 
 const props = defineProps<{
   parameter: Parameter

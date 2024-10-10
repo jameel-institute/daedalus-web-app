@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest";
-import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { mockPinia } from "@/tests/unit/mocks/mockPinia";
 import TimeSeriesLegend from "@/components/TimeSeriesLegend.vue";
+import { mockPinia } from "@/tests/unit/mocks/mockPinia";
+import { mountSuspended } from "@nuxt/test-utils/runtime";
+import { describe, expect, it } from "vitest";
 
 const stubs = {
   CIcon: true,

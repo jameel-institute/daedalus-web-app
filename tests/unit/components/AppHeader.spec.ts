@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
-import { mountSuspended } from "@nuxt/test-utils/runtime";
 import AppHeader from "@/components/AppHeader.vue";
+import { mountSuspended } from "@nuxt/test-utils/runtime";
+import { describe, expect, it, vi } from "vitest";
 
 const stubs = {
   CIcon: true,

@@ -19,6 +19,8 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@use "sass:color";
+
 .overlay {
   z-index: 1;
   position: relative;
@@ -34,7 +36,11 @@ onMounted(() => {
   right: 0;
   bottom: 0;
   border-radius: 0.5rem;
-  background-color: rgba(red($cui-tertiary-bg), green($cui-tertiary-bg), blue($cui-tertiary-bg), 0.8);
+  background-color: rgba(
+    color.channel($cui-tertiary-bg, "red", $space: rgb),
+    color.channel($cui-tertiary-bg, "green", $space: rgb),
+    color.channel($cui-tertiary-bg, "blue", $space: rgb),
+    0.8);
   mix-blend-mode: color-burn;
   pointer-events: none;
 }
