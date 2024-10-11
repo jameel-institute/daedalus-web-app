@@ -2,6 +2,8 @@ import ScenariosIdPage from "@/pages/scenarios/[runId].vue";
 import { mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
 
 import { describe, expect, it, vi } from "vitest";
+import { mockMetadataResponseData } from "~/tests/unit/mocks/mockResponseData";
+import type { Metadata } from "~/types/apiResponseTypes";
 import { emptyScenario, mockPinia, mockResultData } from "../mocks/mockPinia";
 
 const stubs = {
@@ -14,17 +16,10 @@ const plugins = [mockPinia({
     runId: "123",
     parameters: mockResultData.parameters,
   },
-}, true, {
+  metadata: mockMetadataResponseData as Metadata,
+}, false, {
   stubActions: false,
 })];
-
-registerEndpoint("/api/versions", () => {
-  return {
-    daedalusModel: "1.2.3",
-    daedalusApi: "4.5.6",
-    daedalusWebApp: "7.8.9",
-  };
-});
 
 registerEndpoint("/api/scenarios/123/status", () => {
   return {
@@ -42,7 +37,15 @@ registerEndpoint("/api/scenarios/123/status", () => {
 // Since we do need to test the situation where a job takes a long time, I've tested this in
 // tests/e2e/slowAnalysis.spec.ts instead.
 describe("scenario result page", () => {
-  it("show the parameters that were used to run the scenario", async () => {
+  it("shows the parameters that were used to run the scenario", async () => {
+    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
+
+    expect(component.text()).toContain("Parameters");
+    expect(component.text()).toContain("United Kingdom");
+    expect(component.text()).toContain("SARS 2004");
+    expect(component.text()).toContain("No closures");
+    expect(component.text()).toContain("None");
+    expect(component.text()).toContain("30,500");
   });
 
   it("shows alerts when analysis is taking a long time and when it is taking a really long time", async () => {

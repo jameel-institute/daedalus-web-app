@@ -134,6 +134,12 @@ const showSpinner = computed(() => {
 const paramDisplayText = (param: Parameter) => {
   if (appStore.currentScenario?.parameters && appStore.currentScenario?.parameters[param.id]) {
     const rawVal = appStore.currentScenario.parameters[param.id].toString();
+
+    const rawValIsNumberString = Number.parseInt(rawVal).toString() === rawVal;
+    if (rawValIsNumberString) {
+      // TODO: Localize number formatting.
+      return new Intl.NumberFormat().format(Number.parseInt(rawVal));
+    }
     return param.options ? param.options.find(({ id }) => id === rawVal)!.label : rawVal;
   }
 };

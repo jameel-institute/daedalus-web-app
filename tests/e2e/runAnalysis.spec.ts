@@ -44,7 +44,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   await expect(page.getByText("Elimination").first()).toBeVisible();
   await expect(page.getByText("United States").first()).toBeVisible();
   await expect(page.getByText("Medium").first()).toBeVisible();
-  await expect(page.getByText("305000").first()).toBeVisible();
+  await expect(page.getByText("305,000").first()).toBeVisible();
 
   // To regenerate these screenshots:
   // 1. Insert a generous timeout so that screenshots are of the final chart, not the chart half-way through
