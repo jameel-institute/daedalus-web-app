@@ -31,11 +31,6 @@ registerEndpoint("/api/scenarios/123/status", () => {
   };
 });
 
-// Skipping this test suite because I couldn't work out why createTestingPinia was failing to
-// affect the contents of the store. At the least, we need the store to contain a runId in order
-// for the component to poll for the scenario status.
-// Since we do need to test the situation where a job takes a long time, I've tested this in
-// tests/e2e/slowAnalysis.spec.ts instead.
 describe("scenario result page", () => {
   it("shows the parameters that were used to run the scenario", async () => {
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
@@ -48,6 +43,7 @@ describe("scenario result page", () => {
     expect(component.text()).toContain("30,500");
   });
 
+  // Also end-to-end tested in tests/e2e/slowAnalysis.spec.ts
   it("shows alerts when analysis is taking a long time and when it is taking a really long time", async () => {
     vi.useFakeTimers();
 

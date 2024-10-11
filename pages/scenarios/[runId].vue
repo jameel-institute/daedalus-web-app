@@ -144,7 +144,7 @@ const paramDisplayText = (param: Parameter) => {
   }
 };
 
-// Use useAsyncData to store the result once, during server-side rendering: avoids client render re-writing value.
+// Use useAsyncData to store the time once, during server-side rendering: avoids client render re-writing value.
 const { data: timeOfFirstStatusPoll } = await useAsyncData<number>("timeOfFirstStatusPoll", async () => {
   return new Promise<number>((resolve) => {
     resolve(new Date().getTime());
