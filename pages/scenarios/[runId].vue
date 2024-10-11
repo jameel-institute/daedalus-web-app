@@ -121,8 +121,11 @@ import type { Parameter } from "~/types/parameterTypes";
 // TODO: Use the runId from the route rather than getting it out of the store.
 const appStore = useAppStore();
 
+let statusInterval: NodeJS.Timeout;
 const jobSlow = ref(false);
 const jobReallySlow = ref(false);
+const secondsSinceFirstStatusPoll = ref("0");
+
 const showSpinner = computed(() => {
   return (!appStore.currentScenario.result.data
     && appStore.currentScenario.result.fetchStatus !== "error");
@@ -142,34 +145,40 @@ const { data: timeOfFirstStatusPoll } = await useAsyncData<number>("timeOfFirstS
   });
 });
 
-const secondsSinceFirstStatusPoll = ref("0");
-
 // Eagerly try to load the status and results, in case they are already available and can be used during server-side rendering.
 await appStore.loadScenarioStatus();
 if (appStore.currentScenario.status.data?.runSuccess) {
   appStore.loadScenarioResult();
 }
 
-let statusInterval: NodeJS.Timeout;
-const loadScenarioStatus = () => {
-  if (timeOfFirstStatusPoll.value) {
-    secondsSinceFirstStatusPoll.value = ((new Date().getTime() - timeOfFirstStatusPoll.value) / 1000).toFixed(0);
-  };
+watch(() => appStore.currentScenario.status.data?.runSuccess, (runSuccess) => {
+  if (runSuccess) {
+    appStore.loadScenarioResult();
+  }
+});
 
-  appStore.loadScenarioStatus().then(() => {
-    if (appStore.currentScenario.status.data?.runSuccess) {
-      clearInterval(statusInterval);
-      jobSlow.value = false;
-      appStore.loadScenarioResult();
-    }
-  });
+watch(() => appStore.currentScenario.status.data?.done, (done) => {
+  if (done) {
+    clearInterval(statusInterval);
+    jobSlow.value = false;
+    jobReallySlow.value = false;
+  }
+});
+
+const pollForStatusEveryNSeconds = (seconds: number) => {
+  statusInterval = setInterval(() => {
+    if (timeOfFirstStatusPoll.value) {
+      secondsSinceFirstStatusPoll.value = ((new Date().getTime() - timeOfFirstStatusPoll.value) / 1000).toFixed(0);
+    };
+    appStore.loadScenarioStatus();
+  }, seconds * 1000);
 };
 
 onMounted(() => {
   appStore.globe.interactive = false;
 
   if (!appStore.currentScenario.status.data?.done && appStore.currentScenario.runId) {
-    statusInterval = setInterval(loadScenarioStatus, 200); // Poll for status every N ms
+    pollForStatusEveryNSeconds(0.2);
     setTimeout(() => {
       // If the job isn't completed within M seconds, give user the information about the run status.
       if (appStore.currentScenario.status.data?.runStatus !== runStatus.Complete) {
