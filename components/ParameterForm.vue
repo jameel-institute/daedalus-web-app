@@ -43,38 +43,23 @@
             </CButtonGroup>
           </CRow>
         </div>
-        <div v-else-if="renderAsSelect(parameter)">
-          <ParameterIcon :parameter="parameter" />
-          <CFormLabel :for="parameter.id">
-            {{ parameter.label }}
-          </CFormLabel>
-          <select
-            :id="parameter.id"
-            v-model="formData[parameter.id]"
-            :aria-label="parameter.label"
-            class="form-select" :class="[appStore.largeScreen ? 'form-select-lg' : '', pulsingParameters.includes(parameter.id) ? 'pulse' : '']"
-            @change="handleChange(parameter)"
-          >
-            <option
-              v-for="(option) in parameter.options"
-              :key="option.id"
-              :value="option.id"
-              :selected="option.id === formData[parameter.id]"
-            >
-              {{ option.label }}
-            </option>
-          </select>
-          <hr>
-          <VueSelect
-            :id="parameter.id"
-            v-model="formData[parameter.id]"
-            :aria-label="parameter.label"
-            class="form-control "
-            :class="[appStore.largeScreen ? 'form-select-lg' : '', pulsingParameters.includes(parameter.id) ? 'pulse' : '']"
-            :options="parameter.options.map((o) => ({ value: o.id, label: o.label }))"
-            :is-clearable="false"
-            @option-selected="handleChange(parameter)"
-          />
+        <div v-else-if="renderAsSelect(parameter)" class="select-container">
+          <CRow>
+            <ParameterIcon :parameter="parameter" />
+            <CFormLabel :for="parameter.id">
+              {{ parameter.label }}
+            </CFormLabel>
+            <VueSelect
+              :id="parameter.id"
+              v-model="formData[parameter.id]"
+              :aria-label="parameter.label"
+              class="form-control"
+              :class="[pulsingParameters.includes(parameter.id) ? 'pulse' : '']"
+              :options="parameter.options.map((o) => ({ value: o.id, label: o.label }))"
+              :is-clearable="false"
+              @option-selected="handleChange(parameter)"
+            />
+          </CRow>
         </div>
         <div v-else-if="parameter.parameterType === TypeOfParameter.Numeric">
           <ParameterIcon :parameter="parameter" />
@@ -403,17 +388,39 @@ onMounted(() => {
   }
 }
 
+.select-container {
+   margin-left: 12px;
+   margin-right: 12px;
+}
+
 .vue-select {
   --vs-font-size: 1.25rem;
   --vs-input-outline: transparent;
   --vs-border-radius: 4px;
+  --vs-line-height: 0.8;
+  --vs-padding: 0;
+  --vs-text-color: rgba(37, 43, 54, 0.95);
+  --vs-option-font-size: var(--vs-font-size);
+  --vs-option-text-color: var(--vs-text-color);
+  --vs-option-hover-color: lightgray;
+  --vs-option-focused-color: var(--vs-option-hover-color);
+  --vs-option-selected-color: #93c5fd;
 }
 
-.vue-select {
+.vue-select  {
   border-radius: 1rem!important;
 }
 
 :deep(.vue-select .control) {
   border-style: none;
+}
+
+:deep(.vue-select .menu) {
+  border-radius: 0.5rem!important;
+}
+
+// This fixes an issue where the open select contracted in width because .single-value items had absolute positioj
+:deep(.open .single-value) {
+  position: relative!important;
 }
 </style>
