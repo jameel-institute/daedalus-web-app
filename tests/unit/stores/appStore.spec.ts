@@ -165,8 +165,7 @@ describe("app store", () => {
       });
     });
 
-    const mockExcelScenarioDownload = (mockDownload = () => {
-    }) => {
+        const mockExcelScenarioDownload = (mockDownload = () => { }) => {
       // Mock ExelScenarioDownload constructor and return mock
       // instance with given download mock implementation
       const mockExcelScenarioDownloadObj = {
