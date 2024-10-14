@@ -1,8 +1,7 @@
 <template>
   <div
     :id="chartContainerId"
-    :class="`${props.hideTooltips ? hideTooltipsClassName : ''} ${props.pieClass}`"
-    :style="`width: ${props.pieSize}px; height: ${props.pieSize}px; right: ${props.rightPosition}px;`"
+    :class="[props.hideTooltips ? hideTooltipsClassName : '']"
   />
 </template>
 
@@ -16,8 +15,6 @@ import { costsPieColors } from "./utils/charts";
 const props = defineProps<{
   hideTooltips: boolean
   pieSize?: number
-  pieClass: string
-  rightPosition?: number
 }>();
 accessibilityInitialize(Highcharts);
 sunburstInitialize(Highcharts);
@@ -243,18 +240,6 @@ onUnmounted(() => {
   font-weight: normal !important;
   position: absolute;
   z-index: 10; // Above timeseries
-
-  &.top-right-corner {
-    top: 0;
-  }
-
-  &.below-usd-total-cost {
-    bottom: 0;
-  }
-
-  &.bottom-right-corner {
-    bottom: 0;
-  }
 
   .highcharts-tooltip {
     transition: filter 0.2s;

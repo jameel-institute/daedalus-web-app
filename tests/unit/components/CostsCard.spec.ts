@@ -202,22 +202,19 @@ describe("costs card", () => {
     const costsPie = component.findComponent({ name: "CostsPie" });
 
     await waitFor(() => {
-      expect(costsContainer.classes()).toContain("top-right-corner");
-      expect(costsContainer.attributes("style")).toContain("width: 400px; height: 400px; right: 100px;");
+      expect(costsContainer.attributes("style")).toContain("height: 400px; right: 100px; top: 0px; width: 400px;");
       expect(costsPie.props().pieSize).toBe(400);
     });
 
     await setupResizeObserverMock("below-usd-total-cost", component, cardBodyEl, totalsContainerEl, gdpContainerEl, usdContainerEl);
     await waitFor(() => {
-      expect(costsContainer.classes()).toContain("below-usd-total-cost");
-      expect(costsContainer.attributes("style")).toContain("width: 200px; height: 200px; right: 100px;");
+      expect(costsContainer.attributes("style")).toContain("height: 200px; right: 100px; width: 200px; bottom: 0px;");
       expect(costsPie.props().pieSize).toBe(200);
     });
 
     await setupResizeObserverMock("bottom-right-corner", component, cardBodyEl, totalsContainerEl, gdpContainerEl, usdContainerEl);
     await waitFor(() => {
-      expect(costsContainer.classes()).toContain("bottom-right-corner");
-      expect(costsContainer.attributes("style")).toContain("width: 300px; height: 300px; right: 0px;");
+      expect(costsContainer.attributes("style")).toContain("height: 300px; right: 0px; width: 300px; bottom: 0px;");
       expect(costsPie.props().pieSize).toBe(300);
     });
   });
