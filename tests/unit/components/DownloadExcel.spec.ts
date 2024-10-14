@@ -8,6 +8,13 @@ const stubs = {
   CIcon: true,
 };
 
+const minimalScenario = {
+  parameters: {},
+  result: {
+    data: {},
+  },
+} as any;
+
 describe("download Excel", () => {
   const render = (appState: Partial<AppState>) => {
     return mount(DownloadExcel, {
@@ -21,7 +28,30 @@ describe("download Excel", () => {
   };
 
   it("renders nothing if no scenario parameters", () => {
-    const component = render({});
+    const component = render(
+      {
+        currentScenario: {
+          result: {
+            data: { },
+          },
+        } as any,
+      },
+    );
+    expect(component.findComponent(CTooltip).isVisible()).toBe(false);
+    expect(component.findComponent(CButton).isVisible()).toBe(false);
+    expect(component.findComponent(CSpinner).exists()).toBe(false);
+    expect(component.findComponent(CAlert).isVisible()).toBe(false);
+  });
+
+  it("renders nothing if no result data", () => {
+    const component = render({
+      currentScenario: {
+        parameters: {},
+        result: {
+          data: undefined,
+        },
+      } as any,
+    });
     expect(component.findComponent(CTooltip).isVisible()).toBe(false);
     expect(component.findComponent(CButton).isVisible()).toBe(false);
     expect(component.findComponent(CSpinner).exists()).toBe(false);
@@ -30,7 +60,7 @@ describe("download Excel", () => {
 
   it("renders download button when not downloading", () => {
     const component = render({
-      currentScenario: { parameters: {} } as any,
+      currentScenario: minimalScenario,
     });
     expect(component.findComponent(CTooltip).isVisible()).toBe(true);
     expect(component.findComponent(CTooltip).props("content")).toBe("Download as Excel file");
@@ -41,7 +71,7 @@ describe("download Excel", () => {
 
   it("renders spinner when downloading", () => {
     const component = render({
-      currentScenario: { parameters: {} } as any,
+      currentScenario: minimalScenario,
       downloading: true,
     });
     expect(component.findComponent(CTooltip).exists()).toBe(false);
@@ -53,7 +83,7 @@ describe("download Excel", () => {
 
   it("clicking download button invokes download action", async () => {
     const component = render({
-      currentScenario: { parameters: {} } as any,
+      currentScenario: minimalScenario,
     });
     const downloadButton = component.findComponent(CTooltip).findComponent(CButton);
     await downloadButton.trigger("click");
@@ -63,7 +93,7 @@ describe("download Excel", () => {
 
   it("shows alert when there is a download error", () => {
     const component = render({
-      currentScenario: { parameters: {} } as any,
+      currentScenario: minimalScenario,
       downloadError: "test error",
     });
     expect(component.findComponent(CTooltip).exists()).toBe(true);
@@ -76,7 +106,7 @@ describe("download Excel", () => {
 
   it("alert can be dismissed, and re-shown on new download", async () => {
     const component = render({
-      currentScenario: { parameters: {} } as any,
+      currentScenario: minimalScenario,
       downloadError: "test error",
     });
     const alert = component.findComponent(CAlert);
