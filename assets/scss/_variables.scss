@@ -3,7 +3,7 @@ $app-header-margin-bottom: 1.5rem;
 $min-wrapper-height: calc(100dvh - $app-header-height - $app-header-margin-bottom);
 $container-padding: 1.5rem;
 $sidebar-narrow-width: 4rem;
-$iphone-se-width: 375px;
+$narrowest-supported-screen-width: 360px; // We support screen widths down to 360px since 11% of global users have this
 
 // Imperial Brand
 // ==============
@@ -50,4 +50,4 @@ $info: $imperial-pool-blue;
 $breadcrumb-divider: '>';
 $accordion-button-padding-y: 0.5rem;
 $tooltip-margin: 0.5rem;
-$tooltip-max-width: calc($iphone-se-width - (2 * var(--cui-tooltip-padding-x)) - (2 * $tooltip-margin));
+$tooltip-max-width: calc($narrowest-supported-screen-width - (2 * var(--cui-tooltip-padding-x)) - (2 * $tooltip-margin));
