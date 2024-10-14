@@ -5,6 +5,9 @@ $container-padding: 1.5rem;
 $sidebar-narrow-width: 4rem;
 $narrowest-supported-screen-width: 360px; // We support screen widths down to 360px since 11% of global users have this
 
+$title-container-height: 40px;
+$card-container-height: calc($min-wrapper-height - $title-container-height);
+
 // Imperial Brand
 // ==============
 // https://brand.imperial.ac.uk/document/25#/visual-identity/colour
