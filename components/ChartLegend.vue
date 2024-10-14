@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import type { LegendItem } from "./utils/charts";
+import { type LegendItem, LegendShape } from "./utils/charts";
 
 const props = defineProps<{
   items: LegendItem[]
@@ -30,7 +30,7 @@ const props = defineProps<{
 const lineHeightRem = 0.15;
 
 const legendItemStyle = (item: LegendItem) => {
-  if (item.shape === "square") {
+  if (item.shape === LegendShape.Rectangle) {
     return {
       height: `${props.rowHeightRem}rem`,
     };
@@ -42,9 +42,9 @@ const legendItemStyle = (item: LegendItem) => {
 const iStyle = (item: LegendItem) => {
   const style = {
     background: item.color,
-    height: item.shape === "square" ? `${props.rowHeightRem}rem` : `${lineHeightRem}rem`,
+    height: item.shape === LegendShape.Rectangle ? `${props.rowHeightRem}rem` : `${lineHeightRem}rem`,
   };
-  if (item.shape === "line") {
+  if (item.shape === LegendShape.Line) {
     return {
       ...style,
       marginTop: `${(props.rowHeightRem / 2) - lineHeightRem}rem`,
@@ -73,15 +73,15 @@ const iStyle = (item: LegendItem) => {
     white-space: pre;
     font-size: smaller;
   }
-  &.legend-item-square {
+  &.legend-item-rectangle {
     i {
-      width: 3rem;
+      width: 2.5rem;
       float: left;
     }
   }
   &.legend-item-line {
     i {
-      width: 3rem;
+      width: 2.5rem;
       float: left;
     }
   }

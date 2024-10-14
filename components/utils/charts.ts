@@ -15,3 +15,8 @@ export interface LegendItem {
   label: string
   shape: string
 }
+
+export enum LegendShape {
+  Rectangle = "rectangle",
+  Line = "line",
+}

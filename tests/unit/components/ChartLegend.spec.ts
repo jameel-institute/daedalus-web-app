@@ -3,7 +3,7 @@ import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { describe, expect, it } from "vitest";
 
 const items = [
-  { label: "Item 1", shape: "square", color: "rgb(0, 0, 100)" },
+  { label: "Item 1", shape: "rectangle", color: "rgb(0, 0, 100)" },
   { label: "Item 2", shape: "line", color: "rgba(0, 0, 100, 0.4)" },
 ];
 
@@ -23,7 +23,7 @@ describe("chart legend", () => {
 
       const icon = legendItem?.find("i");
       expect(icon?.attributes("style")).toContain(`background: ${item.color}`);
-      if (item.shape === "square") {
+      if (item.shape === "rectangle") {
         expect(icon?.attributes("style")).toContain("height: 1rem");
         expect(icon?.attributes("style")).not.toContain("margin-top: 0.35rem");
       } else if (item.shape === "line") {
