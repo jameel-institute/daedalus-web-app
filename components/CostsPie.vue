@@ -10,21 +10,16 @@ import { abbreviateMillionsDollars } from "#imports";
 import * as Highcharts from "highcharts";
 import accessibilityInitialize from "highcharts/modules/accessibility";
 import sunburstInitialize from "highcharts/modules/sunburst";
+import throttle from "lodash.throttle";
 import { costsPieColors } from "./utils/charts";
 
 const props = defineProps<{
   hideTooltips: boolean
   pieSize?: number
 }>();
+
 accessibilityInitialize(Highcharts);
 sunburstInitialize(Highcharts);
-const chartContainerId = "costsPieContainerId";
-const hideTooltipsClassName = "hide-tooltips";
-const chartBackgroundColor = "transparent";
-const chartBackgroundColorOnExporting = "white";
-let chart: Highcharts.Chart;
-
-const appStore = useAppStore();
 
 interface pieCost {
   id: string
@@ -32,6 +27,13 @@ interface pieCost {
   name: string
   value?: number // If value is not provided, Highcharts calculates the children's sum itself.
 }
+
+const appStore = useAppStore();
+const chartContainerId = "costsPieContainerId";
+const hideTooltipsClassName = "hide-tooltips";
+const chartBackgroundColor = "transparent";
+const chartBackgroundColorOnExporting = "white";
+let chart: Highcharts.Chart;
 let costsData: pieCost[] = [];
 
 // Prioritise showing labels for larger slices over smaller slices, where labels would otherwise overlap.
@@ -115,6 +117,7 @@ const chartSeries = () => {
     animation: false,
   } as Highcharts.SeriesOptions;
 };
+
 const chartInitialOptions = () => {
   return {
     chart: {
@@ -166,21 +169,22 @@ const chartInitialOptions = () => {
     },
   } as Highcharts.Options;
 };
+
 const getCostLabel = (costId: string) => {
   const name = appStore.metadata?.results.costs.find(cost => cost.id === costId)?.label;
   return name || costId;
 };
+
 const populateCostsDataIntoPie = () => {
   if (!appStore.totalCost) {
     return;
   }
-  costsData = [];
-  costsData.push({
+  costsData = [{
     id: appStore.totalCost.id,
     parent: "",
     name: getCostLabel(appStore.totalCost.id),
     value: appStore.totalCost?.value,
-  });
+  }];
   // Iterate over first level of children before recursing into the next level,
   // so that earlier pieCostsColors are assigned to top-level children before
   // the next level of children. (Using recursion changes the color assignment order.)
@@ -215,11 +219,11 @@ watch(() => appStore.costsData, () => {
   }
 });
 
-watch(() => props.pieSize, () => {
+watch(() => props.pieSize, throttle(() => {
   if (chart && props.pieSize) {
     chart.setSize(props.pieSize, props.pieSize, { duration: 250 });
   }
-});
+}, 25));
 
 onMounted(() => {
   chart = Highcharts.chart(chartContainerId, chartInitialOptions());
@@ -244,14 +248,17 @@ onUnmounted(() => {
   .highcharts-tooltip {
     transition: filter 0.2s;
   }
+
   &.hide-tooltips {
     .highcharts-tooltip {
       filter: opacity(0);
     }
   }
+
   .highcharts-point { // Avoid transparency on hover over pie slices
     opacity: 1 !important;
   }
+
   .highcharts-container {
     margin-left: auto;
   }
