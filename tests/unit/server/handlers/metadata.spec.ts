@@ -1,6 +1,6 @@
+import { getMetadata } from "@/server/handlers/metadata";
 import { registerEndpoint } from "@nuxt/test-utils/runtime";
 import { describe, expect, it, vi } from "vitest";
-import { getMetadata } from "@/server/handlers/metadata";
 
 const mockedMetadataResponse = vi.fn();
 const exampleMetadata = {

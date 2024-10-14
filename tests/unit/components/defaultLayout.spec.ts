@@ -1,7 +1,7 @@
+import DefaultLayout from "@/layouts/default.vue";
 import { mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import DefaultLayout from "@/layouts/default.vue";
 
 const stubs = {
   CIcon: true,

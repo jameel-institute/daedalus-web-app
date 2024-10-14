@@ -1,5 +1,5 @@
-import type { EventHandlerRequest, H3Event } from "h3";
 import type { Metadata, MetadataResponse } from "@/types/apiResponseTypes";
+import type { EventHandlerRequest, H3Event } from "h3";
 import { fetchRApi } from "@/server/utils/rApi";
 
 const rApiMetadataEndpoint = "/metadata";

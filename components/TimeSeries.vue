@@ -45,8 +45,8 @@ import exportingInitialize from "highcharts/modules/exporting";
 import offlineExportingInitialize from "highcharts/modules/offline-exporting";
 import { debounce } from "perfect-debounce";
 
-import { highchartsColors, plotBandsColor, plotLinesColor } from "./utils/charts";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
+import { highchartsColors, plotBandsColor, plotLinesColor } from "./utils/charts";
 
 const props = defineProps<{
   seriesId: string

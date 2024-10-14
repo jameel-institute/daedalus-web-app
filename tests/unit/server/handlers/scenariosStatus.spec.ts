@@ -1,6 +1,6 @@
+import { getScenarioStatus } from "@/server/handlers/scenarios";
 import { registerEndpoint } from "@nuxt/test-utils/runtime";
 import { describe, expect, it, vi } from "vitest";
-import { getScenarioStatus } from "@/server/handlers/scenarios";
 
 const mockedScenarioStatusResponse = vi.fn();
 const runId = "abcd125f555a69b376cf08eba800289e4a133234";

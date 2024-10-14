@@ -1,8 +1,8 @@
+import { CAlert, CButton, CTooltip, DownloadExcel } from "#components";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
-import type { AppState } from "~/types/storeTypes";
-import { CAlert, CButton, CTooltip, DownloadExcel } from "#components";
 import { mockPinia } from "~/tests/unit/mocks/mockPinia";
+import type { AppState } from "~/types/storeTypes";
 
 const stubs = {
   CIcon: true,

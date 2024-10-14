@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import checkRApiServer from "./helpers/checkRApiServer";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
+import checkRApiServer from "./helpers/checkRApiServer";
 
 const parameterLabels = {
   country: "Country",

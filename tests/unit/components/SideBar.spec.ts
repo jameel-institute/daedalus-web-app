@@ -1,9 +1,9 @@
 import type { VueWrapper } from "@vue/test-utils";
+import SideBar from "@/components/SideBar.vue";
+import { mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 import { describe, expect, it } from "vitest";
-import { mockPinia } from "@/tests/unit/mocks/mockPinia";
-import SideBar from "@/components/SideBar.vue";
 
 const stubs = {
   CIcon: true,

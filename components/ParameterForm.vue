@@ -136,11 +136,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { FetchError } from "ofetch";
-import { CIcon } from "@coreui/icons-vue";
 import type { NewScenarioData } from "@/types/apiResponseTypes";
 import type { Parameter, ParameterSet, ValueData } from "@/types/parameterTypes";
+import type { FetchError } from "ofetch";
 import { TypeOfParameter } from "@/types/parameterTypes";
+import { CIcon } from "@coreui/icons-vue";
 
 const props = defineProps<{
   inModal: boolean

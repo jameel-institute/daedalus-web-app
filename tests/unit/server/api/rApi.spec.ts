@@ -1,6 +1,6 @@
+import { fetchRApi } from "@/server/utils/rApi";
 import { registerEndpoint } from "@nuxt/test-utils/runtime";
 import { describe, expect, it } from "vitest";
-import { fetchRApi } from "@/server/utils/rApi";
 
 describe("fetchRApi", () => {
   it("should make a request to the correct URL when given an endpoint", async () => {

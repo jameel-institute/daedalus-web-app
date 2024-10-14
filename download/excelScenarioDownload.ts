@@ -1,6 +1,6 @@
 import * as XLSX from "xlsx";
-import type { Scenario } from "~/types/storeTypes";
 import type { ScenarioCost } from "~/types/resultTypes";
+import type { Scenario } from "~/types/storeTypes";
 
 interface FlatCost {
   id: string

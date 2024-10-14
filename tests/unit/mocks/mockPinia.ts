@@ -1,7 +1,7 @@
-import { createTestingPinia } from "@pinia/testing";
-import { vi } from "vitest";
 import type { AppState } from "@/types/storeTypes";
 import sampleMetadataResponse from "@/mocks/responses/metadata.json";
+import { createTestingPinia } from "@pinia/testing";
+import { vi } from "vitest";
 import type { Metadata, ResultsMetadata } from "~/types/apiResponseTypes";
 import { TypeOfParameter } from "~/types/parameterTypes";
 import { InterventionLevel } from "~/types/resultTypes";
