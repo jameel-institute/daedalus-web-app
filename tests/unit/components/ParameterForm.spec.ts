@@ -1,8 +1,8 @@
 import { mockNuxtImport, mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { FetchError } from "ofetch";
 import { flushPromises } from "@vue/test-utils";
 
+import { FetchError } from "ofetch";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { emptyScenario, mockPinia, mockedMetadata, updatableNumericParameter } from "@/tests/unit/mocks/mockPinia";
 import ParameterForm from "@/components/ParameterForm.vue";
 

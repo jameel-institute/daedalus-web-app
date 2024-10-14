@@ -1,9 +1,9 @@
-import { defineStore } from "pinia";
 import { debounce } from "perfect-debounce";
 import type { FetchError } from "ofetch";
+import { defineStore } from "pinia";
 import type { AsyncDataRequestStatus } from "#app";
-import type { AppState } from "@/types/storeTypes";
 import type { Metadata, ScenarioResultData, ScenarioStatusData, VersionData } from "@/types/apiResponseTypes";
+import type { AppState } from "@/types/storeTypes";
 import { type Parameter, TypeOfParameter } from "@/types/parameterTypes";
 import type { ScenarioCapacity, ScenarioIntervention } from "~/types/resultTypes";
 import { ExcelScenarioDownload } from "~/download/excelScenarioDownload";

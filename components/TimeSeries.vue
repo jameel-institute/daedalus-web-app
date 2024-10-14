@@ -37,12 +37,12 @@
 </template>
 
 <script lang="ts" setup>
+import { CIconSvg } from "@coreui/icons-vue";
 import * as Highcharts from "highcharts";
 import accessibilityInitialize from "highcharts/modules/accessibility";
-import exportingInitialize from "highcharts/modules/exporting";
 import exportDataInitialize from "highcharts/modules/export-data";
+import exportingInitialize from "highcharts/modules/exporting";
 import offlineExportingInitialize from "highcharts/modules/offline-exporting";
-import { CIconSvg } from "@coreui/icons-vue";
 import { debounce } from "perfect-debounce";
 
 import { highchartsColors, plotBandsColor, plotLinesColor } from "./utils/charts";
@@ -105,7 +105,7 @@ const minRange = computed(() => {
   }
 });
 const capacitiesPlotLines = computed(() => {
-  const lines = Array<Highcharts.AxisPlotLinesOptions>();
+  const lines = new Array<Highcharts.AxisPlotLinesOptions>();
 
   if (!usePlotLines) {
     return lines;
@@ -132,7 +132,7 @@ const capacitiesPlotLines = computed(() => {
 });
 
 const interventionsPlotBands = computed(() => {
-  const bands = Array<Highcharts.AxisPlotBandsOptions>();
+  const bands = new Array<Highcharts.AxisPlotBandsOptions>();
 
   if (!usePlotBands) {
     return bands;

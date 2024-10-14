@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest";
+import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
-import type { VueWrapper } from "@vue/test-utils";
+import { describe, expect, it } from "vitest";
 import { mockPinia } from "@/tests/unit/mocks/mockPinia";
 import SideBar from "@/components/SideBar.vue";
 

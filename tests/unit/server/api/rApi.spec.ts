@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { registerEndpoint } from "@nuxt/test-utils/runtime";
+import { describe, expect, it } from "vitest";
 import { fetchRApi } from "@/server/utils/rApi";
 
 describe("fetchRApi", () => {

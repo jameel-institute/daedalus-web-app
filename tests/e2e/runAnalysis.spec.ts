@@ -47,8 +47,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   // 2. Delete the screenshots directory, ./<this-file-name>-snapshots
   // 3. Run the tests with `npm run test:e2e` to regenerate the screenshots - tests will appear to fail the first time.
   if (headless) {
-    await page.waitForTimeout(1000); // Reduce flakeyness by waiting longer for charts to have finished rendering.
-    await expect(page.locator(".highcharts-background").first()).toHaveScreenshot("first-time-series.png", { maxDiffPixelRatio: 0.04 });
+    await expect(page.locator(".highcharts-background").first()).toHaveScreenshot("first-time-series.png", { maxDiffPixelRatio: 0.04, timeout: 15000 });
     await expect(page.locator(".highcharts-background").nth(1)).toHaveScreenshot("second-time-series.png", { maxDiffPixelRatio: 0.04 });
     await expect(page.locator(".highcharts-background").nth(2)).toHaveScreenshot("third-time-series.png", { maxDiffPixelRatio: 0.04 });
 

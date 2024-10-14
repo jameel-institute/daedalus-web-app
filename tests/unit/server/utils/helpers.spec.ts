@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-
 import { formDataToObject } from "@/server/utils/helpers";
 
 describe("formDataToObject", () => {

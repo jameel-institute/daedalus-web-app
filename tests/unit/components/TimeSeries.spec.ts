@@ -1,8 +1,8 @@
-import { afterAll, describe, expect, it, vi } from "vitest";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { mockResultResponseData } from "@/tests/unit/mocks/mockResultResponseData";
-import { emptyScenario, mockPinia, mockedMetadata } from "@/tests/unit/mocks/mockPinia";
+import { afterAll, describe, expect, it, vi } from "vitest";
 import TimeSeries from "@/components/TimeSeries.vue";
+import { emptyScenario, mockPinia, mockedMetadata } from "@/tests/unit/mocks/mockPinia";
+import { mockResultResponseData } from "@/tests/unit/mocks/mockResultResponseData";
 import type { ScenarioResultData } from "~/types/apiResponseTypes";
 
 const seriesId = mockedMetadata.results.time_series[0].id;

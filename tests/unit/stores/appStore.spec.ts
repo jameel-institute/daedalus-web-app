@@ -1,11 +1,11 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { registerEndpoint } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 import { createPinia, setActivePinia } from "pinia";
-import { registerEndpoint } from "@nuxt/test-utils/runtime";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { emptyScenario, mockResultData } from "@/tests/unit/mocks/mockPinia";
 import { useAppStore } from "@/stores/appStore";
-import * as ExcelDownload from "@/download/excelScenarioDownload";
 import { runStatus } from "~/types/apiResponseTypes";
+import * as ExcelDownload from "@/download/excelScenarioDownload";
 
 const sampleUnloadedScenario = {
   ...emptyScenario,
