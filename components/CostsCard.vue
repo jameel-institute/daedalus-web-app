@@ -51,11 +51,10 @@
         </div>
       </div>
       <CostsPie
-        v-if="pieSize"
+        v-if="pieStyle.height"
         :hide-tooltips="hideTooltips"
-        :pie-class="pieClass"
-        :right-position="rightPosition"
-        :pie-size="pieSize"
+        :pie-size="styleWithLargestPie.height"
+        :style="pieStyle"
         @mouseleave="onMouseLeavePie"
         @mouseover="() => { hideTooltips = false }"
       />
@@ -66,7 +65,6 @@
 <script lang="ts" setup>
 import { abbreviateMillionsDollars } from "@/utils/money";
 import { CIcon } from "@coreui/icons-vue";
-import throttle from "lodash.throttle";
 
 const appStore = useAppStore();
 
@@ -86,117 +84,94 @@ const onMouseLeavePie = () => {
 };
 
 const cardBody = ref(null);
-const cardBodyWidth = ref(0);
-const cardBodyHeight = ref(0);
-
 const totalsContainer = ref(null);
-const totalsContainerWidth = ref(0);
-const totalsContainerHeight = ref(0);
-
 const gdpContainer = ref(null);
-const gdpContainerWidth = ref(0);
-const gdpContainerHeight = ref(0);
-
 const usdContainer = ref(null);
-const usdContainerWidth = ref(0);
-const usdContainerHeight = ref(0);
-
-// Since we're dealing with a circle, make the width and height the same variable
-const pieSize = ref<number | undefined>(undefined);
-const pieClass = ref<string>("");
-const rightPosition = ref<number | undefined>(undefined);
-const dimensionRefs = [
-  cardBodyWidth,
-  cardBodyHeight,
-  totalsContainerWidth,
-  totalsContainerHeight,
-  gdpContainerWidth,
-  gdpContainerHeight,
-  usdContainerWidth,
-  usdContainerHeight,
-];
-
-const observeResize = (elementRef: Ref<null>, widthRef: Ref<number>, heightRef: Ref<number>) => {
-  if (elementRef.value) {
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        widthRef.value = entry.contentRect.width;
-        heightRef.value = entry.contentRect.height;
-      }
-    });
-    observer.observe(elementRef.value);
-  }
+const containers = {
+  cardBody: { ref: cardBody, width: ref(0), height: ref(0) },
+  totals: { ref: totalsContainer, width: ref(0), height: ref(0) },
+  gdp: { ref: gdpContainer, width: ref(0), height: ref(0) },
+  usd: { ref: usdContainer, width: ref(0), height: ref(0) },
 };
 
-const maxSizeInTopRight = () => {
-  const availableWidthInTopRightCorner = cardBodyWidth.value - Math.max(gdpContainerWidth.value, usdContainerWidth.value);
-  const availableHeightInTopRightCorner = cardBodyHeight.value;
+// The first of three candidate styles that will be evaluated for how much space they can provide for the pie.
+const topRightStyle = computed(() => {
+  // What is the maximum size the pie can be if it is in the top right corner?
+  const availableWidthInTopRightCorner = containers.cardBody.width.value - Math.max(containers.gdp.width.value, containers.usd.width.value);
+  const availableHeightInTopRightCorner = containers.cardBody.height.value;
   const maxSizeInTopRight = Math.min(availableWidthInTopRightCorner, availableHeightInTopRightCorner);
   let rightPosition = 0;
   if (maxSizeInTopRight < availableWidthInTopRightCorner) {
+    // If spare horizontal space, calculate a value for the 'right' CSS property for centering.
     rightPosition = (availableWidthInTopRightCorner - maxSizeInTopRight) / 2;
   }
-  return [maxSizeInTopRight, rightPosition];
-};
-
-const maxSizeBelowUsdTotal = () => {
-  const availableHeightBelowUsdTotalCost = cardBodyHeight.value - totalsContainerHeight.value;
-  const maxSizeBelowUsd = Math.min(cardBodyWidth.value, availableHeightBelowUsdTotalCost);
-  let rightPosition = 0;
-  if (maxSizeBelowUsd < cardBodyWidth.value) {
-    rightPosition = (cardBodyWidth.value - maxSizeBelowUsd) / 2;
+  return {
+    height: maxSizeInTopRight,
+    right: rightPosition,
+    top: 0,
   };
-  return [maxSizeBelowUsd, rightPosition];
-};
+});
 
-const maxSizeInBottomRight = () => {
-  const availableWidthInBottomRightCorner = cardBodyWidth.value - usdContainerWidth.value;
-  const availableHeightInBottomRightCorner = cardBodyHeight.value - (totalsContainerHeight.value - usdContainerHeight.value);
+// The second of three candidate styles that will be evaluated for how much space they can provide for the pie.
+const belowUsdTotalStyle = computed(() => {
+  // What is the maximum size the pie can be if it is entirely below the USD total cost container?
+  const availableHeightBelowUsdTotalCost = containers.cardBody.height.value - containers.totals.height.value;
+  const maxSizeBelowUsd = Math.min(containers.cardBody.width.value, availableHeightBelowUsdTotalCost);
+  let rightPosition = 0;
+  if (maxSizeBelowUsd < containers.cardBody.width.value) {
+    // If spare horizontal space, calculate a value for the 'right' CSS property for centering.
+    rightPosition = (containers.cardBody.width.value - maxSizeBelowUsd) / 2;
+  };
+  return {
+    height: maxSizeBelowUsd,
+    right: rightPosition,
+    bottom: 0,
+  };
+});
+
+// The third of three candidate styles that will be evaluated for how much space they can provide for the pie.
+const bottomRightStyle = computed(() => {
+  // What is the maximum size the pie can be if it is in the bottom right, and able to expand into the cleft between the GDP total cost and USD total cost?
+  const availableWidthInBottomRightCorner = containers.cardBody.width.value - containers.usd.width.value;
+  const availableHeightInBottomRightCorner = containers.cardBody.height.value - (containers.totals.height.value - containers.usd.height.value);
   const maxSizeInBottomRight = Math.min(availableWidthInBottomRightCorner, availableHeightInBottomRightCorner);
   let rightPosition = 0;
   if (maxSizeInBottomRight < availableWidthInBottomRightCorner) {
-    rightPosition = (cardBodyWidth.value - maxSizeInBottomRight) - usdContainerWidth.value;
+    // If spare horizontal space, calculate a value for the 'right' CSS property for centering.
+    rightPosition = (containers.cardBody.width.value - maxSizeInBottomRight) - containers.usd.width.value;
   }
-  return [maxSizeInBottomRight, rightPosition];
-};
-
-const setPieSizeAndStyle = () => {
-  if (dimensionRefs.every(ref => ref.value)) {
-    const [topRightMaxSize, topRightPosition] = maxSizeInTopRight();
-    const [belowUsdMaxSize, belowUsdPosition] = maxSizeBelowUsdTotal();
-    const [bottomRightMaxSize, bottomRightPosition] = maxSizeInBottomRight();
-
-    pieSize.value = Math.max(topRightMaxSize, belowUsdMaxSize, bottomRightMaxSize);
-
-    switch (pieSize.value) {
-      case topRightMaxSize:
-        pieClass.value = "top-right-corner";
-        rightPosition.value = topRightPosition;
-        break;
-      case belowUsdMaxSize:
-        pieClass.value = "below-usd-total-cost";
-        rightPosition.value = belowUsdPosition;
-        break;
-      case bottomRightMaxSize:
-        pieClass.value = "bottom-right-corner";
-        rightPosition.value = bottomRightPosition;
-    }
-  }
-};
-
-watch(() => cardBody.value, () => {
-  observeResize(cardBody, cardBodyWidth, cardBodyHeight);
-  observeResize(totalsContainer, totalsContainerWidth, totalsContainerHeight);
-  observeResize(gdpContainer, gdpContainerWidth, gdpContainerHeight);
-  observeResize(usdContainer, usdContainerWidth, usdContainerHeight);
-  setPieSizeAndStyle();
+  return {
+    height: maxSizeInBottomRight,
+    right: rightPosition,
+    bottom: 0,
+  };
 });
 
-watch(dimensionRefs, throttle(() => {
-  if (appStore.currentScenario.result.data) {
-    setPieSizeAndStyle();
+const styleWithLargestPie = computed(() => [topRightStyle.value, belowUsdTotalStyle.value, bottomRightStyle.value].sort((a, b) => b.height - a.height)[0]);
+
+const pieStyle = computed(() => {
+  return {
+    ...styleWithLargestPie.value,
+    right: `${styleWithLargestPie.value.right}px`,
+    height: `${styleWithLargestPie.value.height}px`,
+    width: `${styleWithLargestPie.value.height}px`, // Since we are dealing with circles, the container's width and height are the same
   };
-}, 100));
+});
+
+// Once the card body is rendered, add observers to the sizes of the it and the containers within it.
+watch(() => containers.cardBody.ref.value, () => {
+  Object.values(containers).forEach((container) => {
+    if (container.ref.value) {
+      const observer = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          container.width.value = entry.contentRect.width;
+          container.height.value = entry.contentRect.height;
+        }
+      });
+      observer.observe(container.ref.value);
+    }
+  });
+});
 </script>
 
 <style lang="scss" scoped>
