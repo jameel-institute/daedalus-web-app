@@ -1,5 +1,5 @@
 <template>
-  <div v-show="appStore.currentScenario.parameters" class="d-inline-block ms-auto">
+  <div v-show="appStore.currentScenario.parameters && appStore.currentScenario.result.data" class="d-inline-block ms-auto">
     <CSpinner v-if="appStore.downloading" size="sm" class="me-3 mt-2" />
     <CTooltip v-else content="Download as Excel file" placement="top">
       <template #toggler="{ togglerId, on }">
