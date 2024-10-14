@@ -55,10 +55,19 @@
               :aria-label="parameter.label"
               class="form-control"
               :class="[pulsingParameters.includes(parameter.id) ? 'pulse' : '']"
-              :options="parameter.options.map((o) => ({ value: o.id, label: o.label }))"
+              :options="parameter.options.map((o) => ({ value: o.id, label: o.label, description: o.description }))"
               :is-clearable="false"
               @option-selected="handleChange(parameter)"
-            />
+            >
+              <template #option="{ option }">
+                <div>
+                  {{ option.label }}
+                  <div v-if="option.description" class="text-secondary">
+                    <small>{{ option.description }}</small>
+                  </div>
+                </div>
+              </template>
+            </VueSelect>
           </CRow>
         </div>
         <div v-else-if="parameter.parameterType === TypeOfParameter.Numeric">
@@ -419,7 +428,7 @@ onMounted(() => {
   border-radius: 0.5rem!important;
 }
 
-// This fixes an issue where the open select contracted in width because .single-value items had absolute positioj
+// This fixes an issue where the open select contracted in width because .single-value items had absolute position
 :deep(.open .single-value) {
   position: relative!important;
 }
