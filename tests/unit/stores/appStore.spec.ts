@@ -186,20 +186,19 @@ describe("app store", () => {
       return mockExcelScenarioDownloadObj;
     };
 
-    it("can download scenario", () => new Promise((done) => {
+    it("can download scenario", async () => {
       const mockDownloadObj = mockExcelScenarioDownload();
 
       const store = useAppStore();
       const downloadPromise = store.downloadExcel();
       // Should immediately set to downloading, then reset when download finishes
       expect(store.downloading).toBe(true);
-      downloadPromise.finally(() => {
-        expect(store.downloading).toBe(false);
-        expect(store.downloadError).toBe(undefined);
-        expect(mockDownloadObj.download).toHaveBeenCalled();
-        done();
-      });
-    }));
+      // wait for the promise to resolve
+      await expect(downloadPromise).resolves.toBe(undefined);
+      expect(store.downloading).toBe(false);
+      expect(store.downloadError).toBe(undefined);
+      expect(mockDownloadObj.download).toHaveBeenCalled();
+    });
 
     it("can set download error from string", async () => {
       mockExcelScenarioDownload(() => {
