@@ -1,13 +1,13 @@
 <template>
   <div v-show="appStore.currentScenario.parameters && appStore.currentScenario.result.data" class="d-inline-block ms-auto">
-    <CSpinner v-if="appStore.downloading" size="sm" class="me-3 mt-2" />
-    <CTooltip v-else content="Download as Excel file" placement="top">
+    <CTooltip content="Download as Excel file" placement="top">
       <template #toggler="{ togglerId, on }">
         <CButton
           id="btn-download-excel"
           color="light"
           :aria-describedby="togglerId"
           class="btn-download float-end"
+          :disabled="appStore.downloading"
           v-on="on"
           @click="appStore.downloadExcel()"
         >

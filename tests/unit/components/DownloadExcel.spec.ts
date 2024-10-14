@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import type { AppState } from "~/types/storeTypes";
-import { CAlert, CButton, CSpinner, CTooltip, DownloadExcel } from "#components";
+import { CAlert, CButton, CTooltip, DownloadExcel } from "#components";
 import { mockPinia } from "~/tests/unit/mocks/mockPinia";
 
 const stubs = {
@@ -39,7 +39,6 @@ describe("download Excel", () => {
     );
     expect(component.findComponent(CTooltip).isVisible()).toBe(false);
     expect(component.findComponent(CButton).isVisible()).toBe(false);
-    expect(component.findComponent(CSpinner).exists()).toBe(false);
     expect(component.findComponent(CAlert).isVisible()).toBe(false);
   });
 
@@ -54,30 +53,27 @@ describe("download Excel", () => {
     });
     expect(component.findComponent(CTooltip).isVisible()).toBe(false);
     expect(component.findComponent(CButton).isVisible()).toBe(false);
-    expect(component.findComponent(CSpinner).exists()).toBe(false);
     expect(component.findComponent(CAlert).isVisible()).toBe(false);
   });
 
-  it("renders download button when not downloading", () => {
+  it("download button is enabled when not downloading", () => {
     const component = render({
       currentScenario: minimalScenario,
     });
     expect(component.findComponent(CTooltip).isVisible()).toBe(true);
     expect(component.findComponent(CTooltip).props("content")).toBe("Download as Excel file");
     expect(component.findComponent(CButton).isVisible()).toBe(true);
-    expect(component.findComponent(CSpinner).exists()).toBe(false);
+    expect(component.findComponent(CButton).props("disabled")).toBe(false);
     expect(component.findComponent(CAlert).props("visible")).toBe(false);
   });
 
-  it("renders spinner when downloading", () => {
+  it("download button is disabled when not downloading", () => {
     const component = render({
       currentScenario: minimalScenario,
       downloading: true,
     });
-    expect(component.findComponent(CTooltip).exists()).toBe(false);
-    expect(component.findComponent(CButton).exists()).toBe(false);
-    expect(component.findComponent(CSpinner).isVisible()).toBe(true);
-    expect(component.findComponent(CSpinner).props("size")).toBe("sm");
+    expect(component.findComponent(CButton).isVisible()).toBe(true);
+    expect(component.findComponent(CButton).props("disabled")).toBe(true);
     expect(component.findComponent(CAlert).props("visible")).toBe(false);
   });
 
@@ -97,7 +93,6 @@ describe("download Excel", () => {
       downloadError: "test error",
     });
     expect(component.findComponent(CTooltip).exists()).toBe(true);
-    expect(component.findComponent(CSpinner).exists()).toBe(false);
     const alert = component.findComponent(CAlert);
     expect(alert.props("visible")).toBe(true);
     expect(alert.props("color")).toBe("danger");
