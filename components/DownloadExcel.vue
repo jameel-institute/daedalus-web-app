@@ -41,7 +41,7 @@ watch(() => appStore.downloading, () => {
   border-radius: 0.375rem; // copying from card
 
   &:not(:hover) {
-    background: rgba(255, 255, 255, 0.5);
+    background: $light-background;
   }
 }
 
