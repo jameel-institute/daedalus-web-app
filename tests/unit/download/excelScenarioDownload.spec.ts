@@ -43,6 +43,9 @@ const scenario = {
         { id: "school_closures", start: 10, end: 100, level: "light" },
         { id: "business_closures", start: 5, end: 50, level: "heavy" },
       ],
+      capacities: [
+        { id: "hospital_capacities", value: 25000 },
+      ],
       time_series: {
         prevalence: [10, 20, 30],
         deaths: [0, 1, 2],
@@ -89,10 +92,14 @@ describe("excelScenarioDownload", () => {
     expect(mockJsonToSheet.mock.calls[1]).toStrictEqual([expectedFlatCosts]);
     expectMockAppendSheet(1, { data: expectedFlatCosts, type: "json" }, "Costs");
 
+    // capacities
+    expect(mockJsonToSheet.mock.calls[2]).toStrictEqual([scenario.result.data.capacities]);
+    expectMockAppendSheet(2, { data: scenario.result.data.capacities, type: "json" }, "Capacities");
+
     // interventions
     const expectedInterventions = scenario.result.data.interventions;
-    expect(mockJsonToSheet.mock.calls[2]).toStrictEqual([expectedInterventions]);
-    expectMockAppendSheet(2, { data: expectedInterventions, type: "json" }, "Interventions");
+    expect(mockJsonToSheet.mock.calls[3]).toStrictEqual([expectedInterventions]);
+    expectMockAppendSheet(3, { data: expectedInterventions, type: "json" }, "Interventions");
 
     // time series
     const expectedTimeSeries = [
@@ -102,7 +109,7 @@ describe("excelScenarioDownload", () => {
       [30, 2],
     ];
     expect(mockAoaToSheet.mock.calls[0]).toStrictEqual([expectedTimeSeries]);
-    expectMockAppendSheet(3, { data: expectedTimeSeries, type: "aoa" }, "Time series");
+    expectMockAppendSheet(4, { data: expectedTimeSeries, type: "aoa" }, "Time series");
 
     const expectedFileName = "daedalus_value1_value2.xlsx";
     expect(mockWriteFile).toHaveBeenCalledWith(mockWorkbook, expectedFileName);
@@ -122,11 +129,11 @@ describe("excelScenarioDownload", () => {
     const sut = new ExcelScenarioDownload(noInterventions);
     sut.download();
 
-    expect(mockJsonToSheet).toHaveBeenCalledTimes(2);
+    expect(mockJsonToSheet).toHaveBeenCalledTimes(3);
     expect(mockAoaToSheet).toHaveBeenCalledTimes(2);
     const expectedEmptyInterventionData = [["id", "level", "start", "end"]];
     expect(mockAoaToSheet.mock.calls[0][0]).toStrictEqual(expectedEmptyInterventionData);
-    expectMockAppendSheet(2, { data: expectedEmptyInterventionData, type: "aoa" }, "Interventions");
+    expectMockAppendSheet(3, { data: expectedEmptyInterventionData, type: "aoa" }, "Interventions");
   });
 
   it("throws error if scenario has no parameters", () => {

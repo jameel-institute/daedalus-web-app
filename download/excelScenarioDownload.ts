@@ -53,6 +53,10 @@ export class ExcelScenarioDownload {
     this._addJsonAsSheet(flattenedCosts, "Costs");
   }
 
+  private _addCapacities() {
+    this._addJsonAsSheet(this._scenario.result.data!.capacities, "Capacities");
+  }
+
   private _addInterventions() {
     const sheetName = "Interventions";
     if (this._scenario.result.data!.interventions.length > 0) {
@@ -83,6 +87,7 @@ export class ExcelScenarioDownload {
   private _buildWorkbook() {
     this._addParameters();
     this._addCosts();
+    this._addCapacities();
     this._addInterventions();
     this._addTimeSeries();
   }
