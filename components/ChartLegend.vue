@@ -1,20 +1,17 @@
 <template>
-  <div class="legend-container m-1">
-    <div class="legend-element d-flex flex-column gap-1">
-      <div
-        v-for="item in items"
-        :key="item.label"
-        :class="`legend-item legend-item-${item.shape}`"
-        :style="legendItemStyle(item)"
+  <div class="legend-container m-1 d-flex flex-column gap-1">
+    <div
+      v-for="item in items"
+      :key="item.label"
+      :class="`legend-item legend-item-${item.shape}`"
+      :style="legendItemStyle(item)"
+    >
+      <i :style="iStyle(item)" />
+      <span
+        :style="{ lineHeight: `${props.rowHeightRem}rem` }"
       >
-        <i :style="iStyle(item)" />
-        <span
-          class="level"
-          :style="{ lineHeight: `${props.rowHeightRem}rem` }"
-        >
-          {{ item.label }}
-        </span>
-      </div>
+        {{ item.label }}
+      </span>
     </div>
   </div>
 </template>
@@ -58,14 +55,11 @@ const iStyle = (item: LegendItem) => {
 <style scoped lang="scss">
 .legend-container {
   padding: 0.2rem;
-  align-items: center;
-  display: flex;
 }
-.legend-element {
-  vertical-align: bottom;
-}
+
 .legend-item {
   display: table-row;
+
   span {
     display: table-cell;
     padding-left: 0.5rem;
@@ -73,17 +67,10 @@ const iStyle = (item: LegendItem) => {
     white-space: pre;
     font-size: smaller;
   }
-  &.legend-item-rectangle {
-    i {
-      width: 2.5rem;
-      float: left;
-    }
-  }
-  &.legend-item-line {
-    i {
-      width: 2.5rem;
-      float: left;
-    }
+
+  i {
+    width: 2.5rem;
+    float: left;
   }
 }
 </style>
