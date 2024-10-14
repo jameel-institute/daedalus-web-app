@@ -10,12 +10,12 @@
       </div>
       <CostsLegend />
     </div>
-    <div ref="costsCardBody" class="card-body">
-      <div id="totalCostContainer">
+    <div id="cardBody" ref="cardBody" class="card-body">
+      <div id="totalsContainer" ref="totalsContainer">
         <h3 id="totalHeading" class="mt-0 mb-0 fs-6">
           TOTAL
         </h3>
-        <div id="gdpTotalCostContainer" ref="gdpTotalCostContainer" class="d-flex gap-1">
+        <div id="gdpContainer" ref="gdpContainer" class="d-flex gap-1">
           <p id="gdpTotalCostPercent" class="mt-0">
             X.Y
           </p>
@@ -28,7 +28,7 @@
             </p>
           </div>
         </div>
-        <div id="usdTotalCostContainer" ref="usdTotalCostContainer">
+        <div id="usdContainer" ref="usdContainer">
           <div id="currency">
             <p id="usdSymbol">
               $
@@ -51,22 +51,22 @@
         </div>
       </div>
       <CostsPie
-        v-if="costsPieSize"
-        :hide-tooltips="hideCostsPieTooltips"
-        :pie-class="costsPieClass"
-        :bottom-right-position="costsPieBottomRightPosition"
-        :pie-size="costsPieSize"
-        @mouseleave="onMouseLeaveCostsPie"
-        @mouseover="() => { hideCostsPieTooltips = false }"
+        v-if="pieSize"
+        :hide-tooltips="hideTooltips"
+        :pie-class="pieClass"
+        :right-position="rightPosition"
+        :pie-size="pieSize"
+        @mouseleave="onMouseLeavePie"
+        @mouseover="() => { hideTooltips = false }"
       />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { abbreviateMillionsDollars } from "@/utils/money";
 import { CIcon } from "@coreui/icons-vue";
 import throttle from "lodash.throttle";
-import { abbreviateMillionsDollars } from "~/utils/money";
 
 const appStore = useAppStore();
 
@@ -78,28 +78,43 @@ const totalCostAbbr = computed(() => {
   }
 });
 
-const hideCostsPieTooltips = ref(false);
-const onMouseLeaveCostsPie = () => {
+const hideTooltips = ref(false);
+const onMouseLeavePie = () => {
   setTimeout(() => {
-    hideCostsPieTooltips.value = true;
+    hideTooltips.value = true;
   }, 500);
 };
 
-const costsCardBody = ref(null);
-const costsCardBodyWidth = ref(0);
-const costsCardBodyHeight = ref(0);
+const cardBody = ref(null);
+const cardBodyWidth = ref(0);
+const cardBodyHeight = ref(0);
 
-const gdpTotalCostContainer = ref(null);
-const gdpTotalCostContainerWidth = ref(0);
-const gdpTotalCostContainerHeight = ref(0);
+const totalsContainer = ref(null);
+const totalsContainerWidth = ref(0);
+const totalsContainerHeight = ref(0);
 
-const usdTotalCostContainer = ref(null);
-const usdTotalCostContainerWidth = ref(0);
-const usdTotalCostContainerHeight = ref(0);
+const gdpContainer = ref(null);
+const gdpContainerWidth = ref(0);
+const gdpContainerHeight = ref(0);
+
+const usdContainer = ref(null);
+const usdContainerWidth = ref(0);
+const usdContainerHeight = ref(0);
 
 // Since we're dealing with a circle, make the width and height the same variable
-const costsPieSize = ref<number | undefined>(undefined);
-const costsPieClass = ref<string>("");
+const pieSize = ref<number | undefined>(undefined);
+const pieClass = ref<string>("");
+const rightPosition = ref<number | undefined>(undefined);
+const dimensionRefs = [
+  cardBodyWidth,
+  cardBodyHeight,
+  totalsContainerWidth,
+  totalsContainerHeight,
+  gdpContainerWidth,
+  gdpContainerHeight,
+  usdContainerWidth,
+  usdContainerHeight,
+];
 
 const observeResize = (elementRef: Ref<null>, widthRef: Ref<number>, heightRef: Ref<number>) => {
   if (elementRef.value) {
@@ -113,54 +128,71 @@ const observeResize = (elementRef: Ref<null>, widthRef: Ref<number>, heightRef: 
   }
 };
 
-const costsPieBottomRightPosition = ref<number | undefined>(undefined);
+const maxSizeInTopRight = () => {
+  const availableWidthInTopRightCorner = cardBodyWidth.value - Math.max(gdpContainerWidth.value, usdContainerWidth.value);
+  const availableHeightInTopRightCorner = cardBodyHeight.value;
+  const maxSizeInTopRight = Math.min(availableWidthInTopRightCorner, availableHeightInTopRightCorner);
+  let rightPosition = 0;
+  if (maxSizeInTopRight < availableWidthInTopRightCorner) {
+    rightPosition = (availableWidthInTopRightCorner - maxSizeInTopRight) / 2;
+  }
+  return [maxSizeInTopRight, rightPosition];
+};
+
+const maxSizeBelowUsdTotal = () => {
+  const availableHeightBelowUsdTotalCost = cardBodyHeight.value - totalsContainerHeight.value;
+  const maxSizeBelowUsd = Math.min(cardBodyWidth.value, availableHeightBelowUsdTotalCost);
+  let rightPosition = 0;
+  if (maxSizeBelowUsd < cardBodyWidth.value) {
+    rightPosition = (cardBodyWidth.value - maxSizeBelowUsd) / 2;
+  };
+  return [maxSizeBelowUsd, rightPosition];
+};
+
+const maxSizeInBottomRight = () => {
+  const availableWidthInBottomRightCorner = cardBodyWidth.value - usdContainerWidth.value;
+  const availableHeightInBottomRightCorner = cardBodyHeight.value - (totalsContainerHeight.value - usdContainerHeight.value);
+  const maxSizeInBottomRight = Math.min(availableWidthInBottomRightCorner, availableHeightInBottomRightCorner);
+  let rightPosition = 0;
+  if (maxSizeInBottomRight < availableWidthInBottomRightCorner) {
+    rightPosition = (cardBodyWidth.value - maxSizeInBottomRight) - usdContainerWidth.value;
+  }
+  return [maxSizeInBottomRight, rightPosition];
+};
 
 const setPieSizeAndStyle = () => {
-  if (costsCardBodyWidth.value && costsCardBodyHeight.value
-    && gdpTotalCostContainerWidth.value && gdpTotalCostContainerHeight.value
-    && usdTotalCostContainerWidth.value && usdTotalCostContainerHeight.value) {
-    const availableWidthInTopRightCorner = costsCardBodyWidth.value - gdpTotalCostContainerWidth.value;
-    const availableHeightInTopRightCorner = costsCardBodyHeight.value;
-    const costsPieMaxSizeInTopRight = Math.min(availableWidthInTopRightCorner, availableHeightInTopRightCorner);
+  if (dimensionRefs.every(ref => ref.value)) {
+    const [topRightMaxSize, topRightPosition] = maxSizeInTopRight();
+    const [belowUsdMaxSize, belowUsdPosition] = maxSizeBelowUsdTotal();
+    const [bottomRightMaxSize, bottomRightPosition] = maxSizeInBottomRight();
 
-    const availableHeightBelowUsdTotalCost = costsCardBodyHeight.value - (gdpTotalCostContainerHeight.value + usdTotalCostContainerHeight.value);
-    const costsPieMaxSizeBelowUsdTotalCost = Math.min(costsCardBodyWidth.value, availableHeightBelowUsdTotalCost);
+    pieSize.value = Math.max(topRightMaxSize, belowUsdMaxSize, bottomRightMaxSize);
 
-    const availableWidthInBottomRightCorner = costsCardBodyWidth.value - usdTotalCostContainerWidth.value;
-    const availableHeightInBottomRightCorner = costsCardBodyHeight.value - gdpTotalCostContainerHeight.value;
-    const costsPieMaxSizeInBottomRight = Math.min(availableWidthInBottomRightCorner, availableHeightInBottomRightCorner);
-    costsPieBottomRightPosition.value = (costsCardBodyWidth.value - costsPieMaxSizeInBottomRight) - usdTotalCostContainerWidth.value;
-
-    costsPieSize.value = Math.max(costsPieMaxSizeInTopRight, costsPieMaxSizeBelowUsdTotalCost, costsPieMaxSizeInBottomRight);
-
-    switch (costsPieSize.value) {
-      case costsPieMaxSizeInTopRight:
-        costsPieClass.value = "top-right-corner";
+    switch (pieSize.value) {
+      case topRightMaxSize:
+        pieClass.value = "top-right-corner";
+        rightPosition.value = topRightPosition;
         break;
-      case (costsPieMaxSizeBelowUsdTotalCost):
-        costsPieClass.value = "below-usd-total-cost";
+      case belowUsdMaxSize:
+        pieClass.value = "below-usd-total-cost";
+        rightPosition.value = belowUsdPosition;
         break;
-      case (costsPieMaxSizeInBottomRight):
-        costsPieClass.value = "bottom-right-corner";
+      case bottomRightMaxSize:
+        pieClass.value = "bottom-right-corner";
+        rightPosition.value = bottomRightPosition;
     }
   }
 };
 
-watch(() => costsCardBody.value, throttle(() => {
-  observeResize(costsCardBody, costsCardBodyWidth, costsCardBodyHeight);
-  observeResize(gdpTotalCostContainer, gdpTotalCostContainerWidth, gdpTotalCostContainerHeight);
-  observeResize(usdTotalCostContainer, usdTotalCostContainerWidth, usdTotalCostContainerHeight);
+watch(() => cardBody.value, () => {
+  observeResize(cardBody, cardBodyWidth, cardBodyHeight);
+  observeResize(totalsContainer, totalsContainerWidth, totalsContainerHeight);
+  observeResize(gdpContainer, gdpContainerWidth, gdpContainerHeight);
+  observeResize(usdContainer, usdContainerWidth, usdContainerHeight);
   setPieSizeAndStyle();
-}, 100));
+});
 
-watch([
-  costsCardBodyWidth,
-  costsCardBodyHeight,
-  gdpTotalCostContainerWidth,
-  gdpTotalCostContainerHeight,
-  usdTotalCostContainerWidth,
-  usdTotalCostContainerHeight,
-], throttle(() => {
+watch(dimensionRefs, throttle(() => {
   if (appStore.currentScenario.result.data) {
     setPieSizeAndStyle();
   };
@@ -169,8 +201,13 @@ watch([
 
 <style lang="scss" scoped>
 @use "sass:map";
+$title-container-height: 40px;
+$card-container-height: calc($min-wrapper-height - $title-container-height);
+
 .costs-card {
-  height: $card-container-height;
+  @media (min-width: map.get($grid-breakpoints, 'lg')) {
+    height: $card-container-height;
+  }
 
   .card-body {
     position: relative; // For absolute positioning of costs pie
@@ -182,11 +219,11 @@ watch([
     font-weight: normal;
   }
 
-  #gdpTotalCostContainer, #usdTotalCostContainer {
+  #gdpContainer, #usdContainer {
     width: fit-content;
   }
 
-  #gdpTotalCostContainer {
+  #gdpContainer {
     line-height: 1;
   }
 
@@ -226,7 +263,7 @@ watch([
     }
   }
 
-  #usdTotalCostContainer {
+  #usdContainer {
     line-height: 1;
 
     #usdSymbol {
