@@ -2,7 +2,7 @@
   <div
     :id="chartContainerId"
     :class="`${props.hideTooltips ? hideTooltipsClassName : ''} ${props.pieClass}`"
-    :style="`width: ${props.pieSize}px; height: ${props.pieSize}px; ${props.pieClass === 'bottom-right-corner' ? `right: ${props.bottomRightPosition}px` : ``};`"
+    :style="`width: ${props.pieSize}px; height: ${props.pieSize}px; right: ${props.rightPosition}px;`"
   />
 </template>
 
@@ -17,7 +17,7 @@ const props = defineProps<{
   hideTooltips: boolean
   pieSize?: number
   pieClass: string
-  bottomRightPosition?: number
+  rightPosition?: number
 }>();
 accessibilityInitialize(Highcharts);
 sunburstInitialize(Highcharts);
@@ -106,7 +106,7 @@ const chartSeries = () => {
       rotationMode: "auto", // Without this, labels sometimes appear in the top left at random. https://github.com/highcharts/highcharts/issues/18953
       format: "{point.name}",
       style: {
-        fontSize: "1.1rem",
+        fontSize: "1.1rem", // TODO: Make font-size smaller on small screens
         fontWeight: 500,
         textOutline: "grey",
         textShadow: "0px 0px 2.5px black",
@@ -246,16 +246,14 @@ onUnmounted(() => {
 
   &.top-right-corner {
     top: 0;
-    right: 0;
   }
 
   &.below-usd-total-cost {
     bottom: 0;
-    right: 0; // TODO: center this instead of right-aligning
   }
 
   &.bottom-right-corner {
-    bottom: 0; // Right is set by JS
+    bottom: 0;
   }
 
   .highcharts-tooltip {
