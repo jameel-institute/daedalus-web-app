@@ -70,10 +70,10 @@ export class ExcelScenarioDownload {
     const timeSeries = this._scenario.result.data!.time_series;
     const headers = Object.keys(timeSeries);
     // We rely on there being the same number of time points for each time series!
-    const timePoints = timeSeries[headers[0]].length;
+    const numberOfTimePoints = timeSeries[headers[0]].length;
     const sheetData = [];
     sheetData.push(headers);
-    for (let timePoint = 0; timePoint < timePoints; timePoint++) {
+    for (let timePoint = 0; timePoint < numberOfTimePoints; timePoint++) {
       const row = headers.map((header: string) => timeSeries[header][timePoint]);
       sheetData.push(row);
     }
