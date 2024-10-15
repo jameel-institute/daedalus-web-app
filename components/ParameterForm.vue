@@ -15,11 +15,6 @@
       >
         <div v-if="renderAsRadios(parameter)" class="button-group-container">
           <CRow>
-            <!-- <ParameterIcon :parameter="parameter" />
-            <CFormLabel :for="parameter.id">
-              {{ parameter.label }}
-            </CFormLabel>
-            <TooltipHelp :help-text="parameter.description"></TooltipHelp> -->
             <ParameterHeader :parameter="parameter" />
           </CRow>
           <CRow>
@@ -47,11 +42,6 @@
         </div>
         <div v-else-if="renderAsSelect(parameter)" class="select-container">
           <CRow>
-            <!-- <ParameterIcon :parameter="parameter" />
-            <CFormLabel :for="parameter.id">
-              {{ parameter.label }}
-            </CFormLabel>
-            <TooltipHelp :help-text="parameter.description"></TooltipHelp> -->
             <ParameterHeader :parameter="parameter" />
             <VueSelect
               :id="parameter.id"
@@ -75,11 +65,6 @@
           </CRow>
         </div>
         <div v-else-if="parameter.parameterType === TypeOfParameter.Numeric">
-          <!-- <ParameterIcon :parameter="parameter" />
-          <CFormLabel :for="parameter.id">
-            {{ parameter.label }}
-          </CFormLabel>
-          <TooltipHelp :help-text="parameter.description"></TooltipHelp> -->
           <ParameterHeader :parameter="parameter" />
           <div class="d-flex flex-wrap">
             <div class="flex-grow-1">

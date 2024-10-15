@@ -1,16 +1,15 @@
 <template>
-  <!-- <CTooltip
+  <CTooltip
     v-if="helpText"
     :content="helpText"
     placement="top"
   >
-    <template #toggler="{ togglerId, on }"> -->
-  <CIconSvg class="icon opacity-50 ms-2">
-    <!-- <img src="~/assets/icons/circleQuestion.svg" :aria-describedby="togglerId" v-on="on"> -->
-    <img src="~/assets/icons/circleQuestion.svg">
-  </CIconSvg>
-  <!-- </template>
-  </CTooltip> -->
+    <template #toggler="{ togglerId, on }">
+      <CIconSvg class="icon opacity-50 ms-2 p-0">
+        <img src="~/assets/icons/circleQuestion.svg" :aria-describedby="togglerId" v-on="on">
+      </CIconSvg>
+    </template>
+  </CTooltip>
 </template>
 
 <script setup lang="ts">
