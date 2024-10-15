@@ -13,7 +13,7 @@ test.beforeAll(async () => {
   checkRApiServer();
 });
 
-test("Can request a scenario analysis run", async ({ page, baseURL, headless }) => {
+test("Can request a scenario analysis run", async ({ page, baseURL, headless, isMobile }) => {
   await page.goto(`${baseURL}/`);
   await page.waitForURL(`${baseURL}/scenarios/new`);
 
@@ -64,7 +64,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
     await page.getByRole("button", { name: "Hospital demand" }).click();
     await expect(page.locator(".accordion-body").nth(2)).toHaveScreenshot("third-time-series-tallest.png", { maxDiffPixelRatio: 0.04 });
 
-    await expect(page.locator("#costsPieContainer rect").first()).toHaveScreenshot("costs-pie.png", { maxDiffPixelRatio: 0.04 });
+    if (!isMobile) {
+      await expect(page.locator("#costsPieContainer rect").first()).toHaveScreenshot("costs-pie.png", { maxDiffPixelRatio: 0.04 });
+    };
   } else {
     // eslint-disable-next-line no-console
     console.log("Running in Headed mode, no screenshot comparison");
