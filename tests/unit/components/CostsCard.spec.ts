@@ -156,10 +156,10 @@ describe("costs card", () => {
     await setupResizeObserverMock("top-right-corner", component, cardBodyEl, totalsContainerEl, gdpContainerEl, usdContainerEl);
 
     await waitFor(() => {
-      expect(component.find(`#costsPieContainerId`)).not.toBeNull();
+      expect(component.find(`#costsPieContainer`)).not.toBeNull();
     });
 
-    const container = component.find(`#costsPieContainerId`);
+    const container = component.find(`#costsPieContainer`);
     expect(container.classes()).not.toContain("hide-tooltips");
 
     const totalCostPara = component.find(`p#totalCostPara`);
@@ -176,10 +176,10 @@ describe("costs card", () => {
     await setupResizeObserverMock("top-right-corner", component, cardBodyEl, totalsContainerEl, gdpContainerEl, usdContainerEl);
 
     await waitFor(() => {
-      expect(component.find(`#costsPieContainerId`)).not.toBeNull();
+      expect(component.find(`#costsPieContainer`)).not.toBeNull();
     });
 
-    const container = component.find(`#costsPieContainerId`);
+    const container = component.find(`#costsPieContainer`);
     container.trigger("mouseenter");
     expect(container.classes()).not.toContain("hide-tooltips");
     container.trigger("mouseleave");
@@ -197,7 +197,7 @@ describe("costs card", () => {
 
     await setupResizeObserverMock("top-right-corner", component, cardBodyEl, totalsContainerEl, gdpContainerEl, usdContainerEl);
 
-    const costsContainer = component.find(`#costsPieContainerId`);
+    const costsContainer = component.find(`#costsPieContainer`);
     const costsPie = component.findComponent({ name: "CostsPie" });
 
     await waitFor(() => {

@@ -28,7 +28,7 @@ interface pieCost {
 }
 
 const appStore = useAppStore();
-const chartContainerId = "costsPieContainerId";
+const chartContainerId = "costsPieContainer";
 const hideTooltipsClassName = "hide-tooltips";
 const chartBackgroundColor = "transparent";
 const chartBackgroundColorOnExporting = "white";
@@ -235,7 +235,7 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss">
-#costsPieContainerId {
+#costsPieContainer {
   font-weight: normal !important;
   position: absolute;
   z-index: 10; // Above timeseries
