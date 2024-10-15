@@ -94,6 +94,8 @@ const containers = {
   usd: { ref: usdContainer, width: ref(0), height: ref(0) },
 };
 
+// TODO: Find a good way to determine the pie size on smaller screens
+
 // The first of three candidate styles that will be evaluated for how much space they can provide for the pie.
 const topRightStyle = computed(() => {
   // What is the maximum size the pie can be if it is in the top right corner?
