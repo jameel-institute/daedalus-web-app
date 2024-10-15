@@ -1,5 +1,5 @@
 // Convert values expressed in millions of dollars to sensible human-readable precision with units
-// E.g. 1.234567e12 -> { amount: "1.2", unit: "trillion" }
+// E.g. 1.234567e6 -> { amount: "1.2", unit: "trillion" }
 export const abbreviateMillionsDollars = (
   amount: number,
   precision: number = 1,
