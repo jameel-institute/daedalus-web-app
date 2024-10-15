@@ -63,7 +63,7 @@ describe("costs card", () => {
       props: { hideTooltips: false, pieSize: 100 },
     });
 
-    const container = component.find(`#costsPieContainerId`);
+    const container = component.find(`#costsPieContainer`);
     expect(container.classes()).not.toContain("hide-tooltips");
 
     component.setProps({ hideTooltips: true });
@@ -107,7 +107,7 @@ describe("costs card", () => {
     });
 
     expect(chartSpy).toHaveBeenCalledWith(
-      "costsPieContainerId",
+      "costsPieContainer",
       expect.objectContaining({
         chart: expect.objectContaining({
           height: 100,
@@ -132,7 +132,7 @@ describe("costs card", () => {
     });
 
     expect(chartSpy).toHaveBeenCalledWith(
-      "costsPieContainerId",
+      "costsPieContainer",
       expect.objectContaining({
         chart: expect.objectContaining({
           height: 100,
