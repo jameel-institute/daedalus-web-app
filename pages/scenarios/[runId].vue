@@ -204,7 +204,7 @@ onUnmounted(() => {
 
     &.parameters-card {
       .btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active, .btn.show {
-        background-color: unset; // Overrides a style in _theme.scss
+        background-color: var(--cui-btn-color); // Overrides a style in _theme.scss
       }
     }
   }
