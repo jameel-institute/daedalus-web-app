@@ -1,7 +1,6 @@
 import TimeSeriesLegend from "@/components/TimeSeriesLegend.vue";
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { describe, expect, it } from "vitest";
 import type { ScenarioResultData } from "~/types/apiResponseTypes";
 import { mockResultResponseData } from "../mocks/mockResultResponseData";
 

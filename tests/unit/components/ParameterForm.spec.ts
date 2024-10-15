@@ -4,7 +4,6 @@ import { mockNuxtImport, mountSuspended, registerEndpoint } from "@nuxt/test-uti
 import { flushPromises } from "@vue/test-utils";
 
 import { FetchError } from "ofetch";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const stubs = {
   CIcon: true,

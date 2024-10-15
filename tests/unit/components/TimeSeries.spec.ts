@@ -3,7 +3,6 @@ import TimeSeries from "@/components/TimeSeries.vue";
 import { emptyScenario, mockedMetadata, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mockResultResponseData } from "@/tests/unit/mocks/mockResultResponseData";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { afterAll, describe, expect, it, vi } from "vitest";
 
 const seriesId = mockedMetadata.results.time_series[0].id;
 const stubs = {
