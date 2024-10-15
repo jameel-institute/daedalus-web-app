@@ -15,10 +15,12 @@
       >
         <div v-if="renderAsRadios(parameter)" class="button-group-container">
           <CRow>
-            <ParameterIcon :parameter="parameter" />
+            <!-- <ParameterIcon :parameter="parameter" />
             <CFormLabel :for="parameter.id">
               {{ parameter.label }}
             </CFormLabel>
+            <TooltipHelp :help-text="parameter.description"></TooltipHelp> -->
+            <ParameterHeader :parameter="parameter" />
           </CRow>
           <CRow>
             <CButtonGroup
@@ -45,10 +47,12 @@
         </div>
         <div v-else-if="renderAsSelect(parameter)" class="select-container">
           <CRow>
-            <ParameterIcon :parameter="parameter" />
+            <!-- <ParameterIcon :parameter="parameter" />
             <CFormLabel :for="parameter.id">
               {{ parameter.label }}
             </CFormLabel>
+            <TooltipHelp :help-text="parameter.description"></TooltipHelp> -->
+            <ParameterHeader :parameter="parameter" />
             <VueSelect
               :id="parameter.id"
               v-model="formData[parameter.id]"
@@ -71,10 +75,12 @@
           </CRow>
         </div>
         <div v-else-if="parameter.parameterType === TypeOfParameter.Numeric">
-          <ParameterIcon :parameter="parameter" />
+          <!-- <ParameterIcon :parameter="parameter" />
           <CFormLabel :for="parameter.id">
             {{ parameter.label }}
           </CFormLabel>
+          <TooltipHelp :help-text="parameter.description"></TooltipHelp> -->
+          <ParameterHeader :parameter="parameter" />
           <div class="d-flex flex-wrap">
             <div class="flex-grow-1">
               <CFormInput
@@ -147,6 +153,7 @@ import type { FetchError } from "ofetch";
 import { TypeOfParameter } from "@/types/parameterTypes";
 import { CIcon } from "@coreui/icons-vue";
 import VueSelect from "vue3-select-component";
+import ParameterHeader from "~/components/ParameterHeader.vue";
 
 const props = defineProps<{
   inModal: boolean

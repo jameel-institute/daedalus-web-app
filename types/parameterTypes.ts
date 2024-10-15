@@ -23,9 +23,7 @@ interface UpdateNumericFrom {
   values: Record<string, ValueData>
 }
 
-export interface Parameter {
-  id: string
-  label: string
+export interface Parameter extends DisplayInfo {
   parameterType: TypeOfParameter
   defaultOption: string | null
   ordered: boolean

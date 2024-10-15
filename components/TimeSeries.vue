@@ -8,17 +8,7 @@
       <CAccordionHeader class="border-top" @click="handleAccordionToggle">
         <span aria-describedby="labelDescriptor">{{ seriesMetadata?.label }}</span>
         <span id="labelDescriptor" class="visually-hidden">{{ seriesMetadata?.description }}</span>
-        <CTooltip
-          v-if="seriesMetadata?.description"
-          :content="seriesMetadata.description"
-          placement="top"
-        >
-          <template #toggler="{ togglerId, on }">
-            <CIconSvg class="icon opacity-50 ms-2">
-              <img src="~/assets/icons/circleQuestion.svg" :aria-describedby="togglerId" v-on="on">
-            </CIconSvg>
-          </template>
-        </CTooltip>
+        <TooltipHelp :help-text="seriesMetadata?.description" />
       </CAccordionHeader>
       <CAccordionBody>
         <div
@@ -37,7 +27,6 @@
 </template>
 
 <script lang="ts" setup>
-import { CIconSvg } from "@coreui/icons-vue";
 import * as Highcharts from "highcharts";
 import accessibilityInitialize from "highcharts/modules/accessibility";
 import exportDataInitialize from "highcharts/modules/export-data";
