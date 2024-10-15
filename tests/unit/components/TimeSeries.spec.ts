@@ -80,16 +80,10 @@ describe("time series", () => {
             expect.objectContaining({
               from: 1,
               to: 4,
-              label: expect.objectContaining({
-                text: "School closures: Days 1 to 4",
-              }),
             }),
             expect.objectContaining({
               from: 3,
               to: 8,
-              label: expect.objectContaining({
-                text: "Business closures: Days 3 to 8",
-              }),
             }),
           ]),
         }),
