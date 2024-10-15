@@ -25,18 +25,30 @@
               :class="`${pulsingParameters.includes(parameter.id) ? 'pulse' : ''}`"
               @change="handleChange(parameter)"
             >
-              <CFormCheck
+              <CTooltip
                 v-for="(option) in parameter.options"
-                :id="option.id"
                 :key="option.id"
-                v-model="formData[parameter.id]"
-                type="radio"
-                :button="{ color: 'primary', variant: 'outline' }"
-                :name="parameter.id"
-                autocomplete="off"
-                :label="option.label"
-                :value="option.id"
-              />
+                :content="option.description"
+                placement="top"
+              >
+                <template #toggler="{ togglerId, on }">
+                  <span
+                    :aria-describedby="togglerId"
+                    v-on="on"
+                  >
+                    <CFormCheck
+                      :id="option.id"
+                      v-model="formData[parameter.id]"
+                      type="radio"
+                      :button="{ color: 'primary', variant: 'outline' }"
+                      :name="parameter.id"
+                      autocomplete="off"
+                      :label="option.label"
+                      :value="option.id"
+                    />
+                  </span>
+                </template>
+              </CTooltip>
             </CButtonGroup>
           </CRow>
         </div>
