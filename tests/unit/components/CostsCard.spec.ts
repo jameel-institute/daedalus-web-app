@@ -148,7 +148,7 @@ const setupResizeObserverMock = async (
 describe("costs card", () => {
   it("should render the costs pie chart container and the total cost", async () => {
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
-    const cardBodyEl = component.find(`#cardBody`).element as HTMLElement;
+    const cardBodyEl = component.find(`#costsCardBody`).element as HTMLElement;
     const totalsContainerEl = component.find(`#totalsContainer`).element as HTMLElement;
     const gdpContainerEl = component.find(`#gdpContainer`).element as HTMLElement;
     const usdContainerEl = component.find(`#usdContainer`).element as HTMLElement;
@@ -168,7 +168,7 @@ describe("costs card", () => {
 
   it("should show the tooltips when the mouse is over the cost pie container, and not otherwise", async () => {
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
-    const cardBodyEl = component.find(`#cardBody`).element as HTMLElement;
+    const cardBodyEl = component.find(`#costsCardBody`).element as HTMLElement;
     const totalsContainerEl = component.find(`#totalsContainer`).element as HTMLElement;
     const gdpContainerEl = component.find(`#gdpContainer`).element as HTMLElement;
     const usdContainerEl = component.find(`#usdContainer`).element as HTMLElement;
@@ -190,7 +190,7 @@ describe("costs card", () => {
 
   it("should render the costs pie chart container with the correct class, size, and position, and resize it when elements are resized", async () => {
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
-    const cardBodyEl = component.find(`#cardBody`).element as HTMLElement;
+    const cardBodyEl = component.find(`#costsCardBody`).element as HTMLElement;
     const totalsContainerEl = component.find(`#totalsContainer`).element as HTMLElement;
     const gdpContainerEl = component.find(`#gdpContainer`).element as HTMLElement;
     const usdContainerEl = component.find(`#usdContainer`).element as HTMLElement;

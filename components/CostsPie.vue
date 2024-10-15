@@ -104,7 +104,7 @@ const chartSeries = () => {
       rotationMode: "auto", // Without this, labels sometimes appear in the top left at random. https://github.com/highcharts/highcharts/issues/18953
       format: "{point.name}",
       style: {
-        fontSize: "1.1rem", // TODO: Make font-size smaller on small screens
+        fontSize: "1.1rem", // TODO: Make font-size smaller on small screens (or disappear on very small)
         fontWeight: 500,
         textOutline: "grey",
         textShadow: "0px 0px 2.5px black",
