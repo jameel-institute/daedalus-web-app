@@ -51,9 +51,68 @@ vi.mock("highcharts", async (importOriginal) => {
   };
 });
 
-// TODO: Test the content of tooltips.
 describe("time series", () => {
   it("should render the correct label and description for the time series, and render the chart container", async () => {
+    it("should initialise the chart with the correct options", async () => {
+      const chartSpy = vi.spyOn(Highcharts, "chart");
+
+      await mountSuspended(TimeSeries, { props: { ...props, seriesId: mockedMetadata.results.time_series[1].id }, global: { stubs, plugins } });
+
+      expect(chartSpy).toHaveBeenCalledWith(
+        "hospitalised-container",
+        expect.objectContaining({
+          exporting: expect.objectContaining({
+            filename: "Hospital demand in USA",
+            chartOptions: expect.objectContaining({
+              title: {
+                text: "Hospital demand",
+              },
+              subtitle: {
+                text: "Infections requiring hospitalisation",
+              },
+            }),
+          }),
+          tooltip: expect.objectContaining({
+            pointFormat: expect.stringContaining("cases"),
+          }),
+          xAxis: expect.objectContaining({
+            plotBands: expect.arrayContaining([
+              expect.objectContaining({
+                from: 1,
+                to: 4,
+                label: expect.objectContaining({
+                  text: "School closures: Days 1 to 4",
+                }),
+              }),
+              expect.objectContaining({
+                from: 3,
+                to: 8,
+                label: expect.objectContaining({
+                  text: "Business closures: Days 3 to 8",
+                }),
+              }),
+            ]),
+          }),
+          yAxis: expect.objectContaining({
+            minRange: 40000,
+            plotLines: expect.arrayContaining([
+              expect.objectContaining({
+                value: 40000,
+              }),
+              expect.objectContaining({
+                value: 5000,
+              }),
+            ]),
+          }),
+          series: expect.arrayContaining([
+            expect.objectContaining({
+              data: expect.arrayContaining([[1, 0], [2, 3.9626], [3, 6.8824], [4, 9.4865]]),
+            }),
+          ]),
+        }),
+      );
+    });
+
     const component = await mountSuspended(TimeSeries, { props, global: { stubs, plugins } });
 
     expect(component.text()).toContain("Prevalence");
