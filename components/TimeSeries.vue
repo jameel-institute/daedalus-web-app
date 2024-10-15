@@ -141,7 +141,7 @@ const interventionsPlotBands = computed(() => {
 
   appStore.interventionsData?.forEach(({ id, start, end }) => {
     const interventionLabel = appStore.metadata?.results.interventions.find(({ id: interventionId }) => interventionId === id)?.label;
-    const text = `${interventionLabel ? `${interventionLabel} : ` : ""}Days ${start} to ${end}`;
+    const text = `${interventionLabel ? `${interventionLabel}: ` : ""}Days ${start} to ${end}`;
     bands.push({ from: start, to: end, color: plotBandsColor, label: { text } });
   });
 
