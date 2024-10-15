@@ -6,12 +6,11 @@
 </template>
 
 <script lang="ts" setup>
-import { abbreviateMillionsDollars } from "#imports";
 import * as Highcharts from "highcharts";
 import accessibilityInitialize from "highcharts/modules/accessibility";
 import sunburstInitialize from "highcharts/modules/sunburst";
 import throttle from "lodash.throttle";
-import { costsPieColors } from "./utils/charts";
+import { costsPieColors, costsPieTooltipText } from "./utils/charts";
 
 const props = defineProps<{
   hideTooltips: boolean
@@ -82,7 +81,7 @@ const chartLevelsOptions = (isDrillingDown: boolean = false) => [{
 const chartSeries = () => {
   return {
     type: "sunburst",
-    data: costsData,
+    data: costsData, // Empty at initialisation, populated later
     name: "Root",
     allowDrillToNode: true,
     borderRadius: 3,
@@ -160,11 +159,7 @@ const chartInitialOptions = () => {
     series: [chartSeries()],
     tooltip: {
       pointFormatter() {
-        const abbr = abbreviateMillionsDollars(this.value);
-        return `
-          <b>${this.name}</b><br/>
-          $${abbr.amount} ${abbr.unit}<br/>
-          X.Y% of national GDP`;
+        return costsPieTooltipText(this);
       },
     },
   } as Highcharts.Options;

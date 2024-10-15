@@ -1,3 +1,4 @@
+import { abbreviateMillionsDollars } from "#imports";
 import hexRgb from "hex-rgb";
 import * as Highcharts from "highcharts";
 
@@ -20,3 +21,10 @@ export enum LegendShape {
   Rectangle = "rectangle",
   Line = "line",
 }
+
+export const costsPieTooltipText = (point: Highcharts.Point) => {
+  const abbr = abbreviateMillionsDollars(point.value);
+  return `<b>${point.name}</b><br/>\n`
+    + `$${abbr.amount} ${abbr.unit}<br/>\n`
+    + `X.Y% of national GDP`;
+};
