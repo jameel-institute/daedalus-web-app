@@ -6,7 +6,6 @@ import { mockResultResponseData } from "@/tests/unit/mocks/mockResultResponseDat
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 import { mockResizeObserver } from "jsdom-testing-mocks";
-import { describe, expect, it, vi } from "vitest";
 
 const stubs = {
   CIcon: true,

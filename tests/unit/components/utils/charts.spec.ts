@@ -1,5 +1,4 @@
 import { plotBandsColor, timeSeriesColors } from "@/components/utils/charts";
-import { describe, expect, it } from "vitest";
 
 describe("plotBandsColor", () => {
   it("should be in the correct rgba format", () => {
