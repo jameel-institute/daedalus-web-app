@@ -10,7 +10,7 @@
       </div>
       <CostsLegend />
     </div>
-    <div id="cardBody" ref="cardBody" class="card-body">
+    <div id="costsCardBody" ref="cardBody" class="card-body">
       <div id="totalsContainer" ref="totalsContainer">
         <h3 id="totalHeading" class="mt-0 mb-0 fs-6">
           TOTAL
