@@ -131,16 +131,6 @@ describe("app store", () => {
       });
     });
 
-    it("loading a scenario's result from the R API resets the download error", async () => {
-      const store = useAppStore();
-      store.currentScenario = { ...sampleUnloadedScenario };
-      store.downloadError = "An old error";
-      await store.loadScenarioResult();
-      await waitFor(() => {
-        expect(store.downloadError).toBeUndefined();
-      });
-    });
-
     it("can clear the current scenario", async () => {
       const store = useAppStore();
       store.currentScenario = {

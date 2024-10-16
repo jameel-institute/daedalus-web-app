@@ -1,24 +1,26 @@
 <template>
-  <div v-show="appStore.currentScenario.parameters && appStore.currentScenario.result.data" class="d-inline-block ms-auto">
-    <CTooltip content="Download as Excel file" placement="top">
-      <template #toggler="{ togglerId, on }">
-        <CButton
-          id="btn-download-excel"
-          color="light"
-          :aria-describedby="togglerId"
-          class="btn-download float-end"
-          :disabled="appStore.downloading"
-          v-on="on"
-          @click="appStore.downloadExcel()"
-        >
-          <CIcon icon="cilCloudDownload" size="lg" class="text-secondary" />
-        </CButton>
-      </template>
-    </CTooltip>
-    <CAlert :visible="!!appStore.downloadError && !alertDismissed" class="download-error" color="danger">
-      <CButton class="btn btn-close float-end" aria-label="Close" @click="alertDismissed = true" />
-      <div>Download error: {{ appStore.downloadError }}</div>
-    </CAlert>
+  <div class="d-inline-block ms-auto">
+    <div v-if="appStore.currentScenario.parameters && appStore.currentScenario.result.data">
+      <CTooltip content="Download as Excel file" placement="top">
+        <template #toggler="{ togglerId, on }">
+          <CButton
+            id="btn-download-excel"
+            color="light"
+            :aria-describedby="togglerId"
+            class="btn-download float-end"
+            :disabled="appStore.downloading"
+            v-on="on"
+            @click="appStore.downloadExcel()"
+          >
+            <CIcon icon="cilCloudDownload" size="lg" class="text-secondary" />
+          </CButton>
+        </template>
+      </CTooltip>
+      <CAlert :visible="!!appStore.downloadError && !alertDismissed" class="download-error" color="danger">
+        <CButton class="btn btn-close float-end" aria-label="Close" @click="alertDismissed = true" />
+        <div>Download error: {{ appStore.downloadError }}</div>
+      </CAlert>
+    </div>
   </div>
 </template>
 

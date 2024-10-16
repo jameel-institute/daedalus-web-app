@@ -273,7 +273,9 @@ describe("parameter form", () => {
 
     const component = await mountSuspended(ParameterForm, {
       props: { inModal: false },
-      global: { stubs, plugins: [mockPinia()] },
+      global: { stubs, plugins: [mockPinia({
+        downloadError: "test error",
+      })] },
     });
 
     const buttonEl = component.find("button[type='submit']");
@@ -283,6 +285,10 @@ describe("parameter form", () => {
 
     await flushPromises();
     expect(mockNavigateTo).toBeCalledWith("/scenarios/randomId");
+
+    // submit should also reset download error
+    const store = (component.vm as any).appStore;
+    expect(store.downloadError).toBeUndefined();
   });
 
   it("displays CAlert with error message when metadataFetchStatus is 'error'", async () => {

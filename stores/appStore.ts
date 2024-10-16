@@ -81,7 +81,6 @@ export const useAppStore = defineStore("app", {
         fetchStatus: status.value,
         fetchError: error.value || undefined,
       };
-      this.downloadError = undefined;
     },
     async loadMetadata() {
       const { data: metadata, status: metadataFetchStatus, error: metadataFetchError } = await useFetch("/api/metadata") as {

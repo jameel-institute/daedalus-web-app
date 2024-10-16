@@ -37,9 +37,9 @@ describe("download Excel", () => {
         } as any,
       },
     );
-    expect(component.findComponent(CTooltip).isVisible()).toBe(false);
-    expect(component.findComponent(CButton).isVisible()).toBe(false);
-    expect(component.findComponent(CAlert).isVisible()).toBe(false);
+    expect(component.findComponent(CTooltip).exists()).toBe(false);
+    expect(component.findComponent(CButton).exists()).toBe(false);
+    expect(component.findComponent(CAlert).exists()).toBe(false);
   });
 
   it("renders nothing if no result data", () => {
@@ -51,9 +51,9 @@ describe("download Excel", () => {
         },
       } as any,
     });
-    expect(component.findComponent(CTooltip).isVisible()).toBe(false);
-    expect(component.findComponent(CButton).isVisible()).toBe(false);
-    expect(component.findComponent(CAlert).isVisible()).toBe(false);
+    expect(component.findComponent(CTooltip).exists()).toBe(false);
+    expect(component.findComponent(CButton).exists()).toBe(false);
+    expect(component.findComponent(CAlert).exists()).toBe(false);
   });
 
   it("download button is enabled when not downloading", () => {
