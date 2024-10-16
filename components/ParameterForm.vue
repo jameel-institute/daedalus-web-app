@@ -316,8 +316,9 @@ const submitForm = async () => {
   if (invalidFields.value?.length) {
     showValidations.value = true;
     return;
-  };
+  }
 
+  appStore.downloadError = undefined;
   formSubmitting.value = true;
 
   const response = await $fetch<NewScenarioData>("/api/scenarios", {
