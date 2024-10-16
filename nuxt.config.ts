@@ -1,5 +1,9 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  build: {
+    transpile: ["tslib"], // https://github.com/nuxt/nuxt/discussions/21533
+  },
+
   devtools: {
     enabled: true,
 
@@ -36,6 +40,9 @@ export default defineNuxtConfig({
           quietDeps: true,
         },
       },
+    },
+    resolve: {
+      dedupe: ["vue-router"], // https://github.com/nuxt/nuxt/issues/15434#issuecomment-1408651163
     },
   },
 
