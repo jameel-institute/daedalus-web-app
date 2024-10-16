@@ -22,9 +22,13 @@ export enum LegendShape {
   Line = "line",
 }
 
-export const costsPieTooltipText = (point: Highcharts.Point) => {
+export const costsPieTooltipText = (point: Highcharts.Point, nationalGdp: number | undefined) => {
   const abbr = abbreviateMillionsDollars(point.value);
-  return `<b>${point.name}</b><br/>\n`
-    + `$${abbr.amount} ${abbr.unit}<br/>\n`
-    + `X.Y% of national GDP`;
+  const base = `<b>${point.name}</b><br/>\n`
+    + `$${abbr.amount} ${abbr.unit}`;
+  if (nationalGdp) {
+    return `${base}<br/>\n${((point.value / nationalGdp) * 100).toFixed(1)}% of national GDP`;
+  } else {
+    return base;
+  }
 };

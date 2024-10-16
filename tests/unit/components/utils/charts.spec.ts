@@ -15,8 +15,8 @@ describe("highchartsColors", () => {
 
 describe("costs pie tooltip text", () => {
   it("should return the correct text", () => {
-    expect(costsPieTooltipText({ name: "Test", value: 1_211 })).toBe(
-      `<b>Test</b><br/>\n$1.2 billion<br/>\nX.Y% of national GDP`,
+    expect(costsPieTooltipText({ name: "Test", value: 1211 }, 121100)).toBe(
+      `<b>Test</b><br/>\n$1.2 billion<br/>\n1.0% of national GDP`,
     );
   });
 });
