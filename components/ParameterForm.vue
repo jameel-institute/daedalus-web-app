@@ -402,11 +402,6 @@ onMounted(() => {
   }
 }
 
-.btn-group > span.radio-btn-container:not(:last-child) > .btn {
-  border-bottom-right-radius: 0 !important;
-  border-top-right-radius: 0 !important;
-}
-
 .select-container {
    margin-left: 12px;
    margin-right: 12px;

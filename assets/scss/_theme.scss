@@ -127,22 +127,22 @@ body {
 }
 
 .btn-group > {
-  div.radio-btn-container {
+  .radio-btn-container {
     flex-grow: 1;
     .btn {
       width: 100%;
     }
-  }
-  div.radio-btn-container:not(:last-child) > {
-    .btn {
-      border-bottom-right-radius: 0 !important;
-      border-top-right-radius: 0 !important;
+    &:not(:last-child) > {
+      .btn {
+        border-bottom-right-radius: 0 !important;
+        border-top-right-radius: 0 !important;
+      }
     }
-  }
-  div.radio-btn-container:not(:first-child) > {
-    .btn {
-      border-bottom-left-radius: 0 !important;
-      border-top-left-radius: 0 !important;
+    &:not(:first-child) > {
+      .btn {
+        border-bottom-left-radius: 0 !important;
+        border-top-left-radius: 0 !important;
+      }
     }
   }
 }
@@ -158,5 +158,4 @@ body {
   }
 }
 
-// TODO: color!
 // TODO: comment
