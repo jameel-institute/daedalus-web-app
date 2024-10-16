@@ -15,7 +15,7 @@
           placement="top"
         >
           <template #toggler="{ togglerId, on }">
-            <CIconSvg class="icon opacity-50 ms-2">
+            <CIconSvg class="icon smaller-icon opacity-50 ms-2 mb-1">
               <img src="~/assets/icons/circleQuestion.svg" :aria-describedby="togglerId" v-on="on">
             </CIconSvg>
           </template>
@@ -84,7 +84,22 @@ const accordionStyle = {
 // We need each chart to have a higher z-index than the next one so that the exporting context menu is always on top and clickable.
 // Also, they should be at least 3 so that they are above .accordion-button:focus
 const zIndex = (Object.keys(appStore.timeSeriesData!).length - props.index) + 3;
-const yUnits = props.seriesId === "dead" ? "deaths" : "cases"; // TODO: Make this depend on a 'units' property in metadata. https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-117/
+
+let yUnits: string; // TODO: Make this depend on a 'units' property in metadata. https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-117/
+switch (props.seriesId) {
+  case "hospitalised":
+    yUnits = "in need of hospitalisation";
+    break;
+  case "dead":
+    yUnits = "deaths";
+    break;
+  case "vaccinated":
+    yUnits = "vaccinated";
+    break;
+  default:
+    yUnits = "cases";
+    break;
+}
 const chartContainerId = computed(() => `${props.seriesId}-container`);
 // Assign an x-position to y-values. Nth value corresponds to "N+1th day" of simulation.
 const data = computed(() => {
@@ -179,9 +194,13 @@ watch(() => [props.chartHeightPx, props.open], () => {
 
 const chartInitialOptions = () => {
   return {
+    credits: {
+      enabled: false, // Omit credits to allow us to reduce margin and save vertical space on page. We must credit Highcharts elsewhere.
+    },
     chart: {
       height: props.chartHeightPx,
       marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
+      marginBottom: 35,
       backgroundColor: chartBackgroundColor,
       events: {
         fullscreenOpen() {
@@ -314,6 +333,8 @@ onUnmounted(() => {
   }
 
   .accordion-button {
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
     color: var(--cui-black) !important;
     background-color: var(--cui-light) !important;
   }
