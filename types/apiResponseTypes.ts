@@ -68,6 +68,7 @@ export interface ScenarioResultData {
   capacities: Array<ScenarioCapacity>
   interventions: Array<ScenarioIntervention>
   time_series: Record<string, number[]>
+  gdp: number // The annual GDP of the country in question (as of 2018)
 }
 
 export interface ScenarioResultResponse extends ApiResponse<ScenarioResultData> { }

@@ -12,19 +12,19 @@
     </div>
     <div id="costsCardBody" ref="cardBody" class="card-body">
       <div id="totalsContainer" ref="totalsContainer">
-        <h3 id="totalHeading" class="mt-0 mb-0 fs-6">
-          TOTAL
+        <h3 id="totalHeading" class="mt-0 mb-0 ms-2 fs-6">
+          Total
         </h3>
         <div id="gdpContainer" ref="gdpContainer" class="d-flex gap-1">
           <p id="gdpTotalCostPercent" class="mt-0">
-            X.Y
+            {{ gdpTotalCostPercent }}
           </p>
           <div class="align-self-end">
             <p id="gdpTotalCostPercentageSymbol" class="mb-0">
-              %
+              <span>%</span>
             </p>
-            <p id="gdpTotalCostPercentReferent" class="mt-0 mb-1">
-              of GDP
+            <p id="gdpTotalCostPercentReferent" class="mt-0 mb-1 fs-5">
+              <span>of 2018 GDP</span>
             </p>
           </div>
         </div>
@@ -44,9 +44,6 @@
                 {{ totalCostAbbr?.unit }}
               </span>
             </span>
-          </p>
-          <p class="mt-0">
-            [insert note about GDP basis]
           </p>
         </div>
       </div>
@@ -87,6 +84,16 @@ const cardBody = ref(null);
 const totalsContainer = ref(null);
 const gdpContainer = ref(null);
 const usdContainer = ref(null);
+
+// Display the 'headline' total cost in terms of a percentage of annual national GDP
+const gdpTotalCostPercent = computed(() => {
+  if (appStore.currentScenario.result.data.gdp && appStore.totalCost) {
+    return ((appStore.totalCost.value / appStore.currentScenario.result.data.gdp) * 100).toFixed(1);
+  } else {
+    return undefined;
+  }
+});
+
 const containers = {
   cardBody: { ref: cardBody, width: ref(0), height: ref(0) },
   totals: { ref: totalsContainer, width: ref(0), height: ref(0) },
@@ -194,6 +201,12 @@ $card-container-height: calc($min-wrapper-height - $title-container-height);
     height: fit-content;
     letter-spacing: 0.08rem;
     font-weight: normal;
+    text-underline-offset: 0.25rem;
+    text-decoration-style: dotted;
+    text-decoration-color: gray;
+    text-decoration-thickness: from-font;
+    text-decoration-line: underline;
+    text-transform: uppercase;
   }
 
   #gdpContainer, #usdContainer {
@@ -220,10 +233,11 @@ $card-container-height: calc($min-wrapper-height - $title-container-height);
   }
 
   #gdpTotalCostPercentageSymbol {
-    font-size: 4.5rem;
+    font-size: 6rem;
+    line-height: 0.8;
 
     @media (max-width: map.get($grid-breakpoints, 'md')) {
-      font-size: 2.25rem;
+      font-size: 3rem;
     }
 
     @media (min-width: map.get($grid-breakpoints, 'md')) {
@@ -233,11 +247,6 @@ $card-container-height: calc($min-wrapper-height - $title-container-height);
 
   #gdpTotalCostPercentReferent {
     font-weight: normal;
-
-    @media (min-width: map.get($grid-breakpoints, 'md')) {
-      font-size: 1.5rem;
-      text-shadow: 0px 0px 2px;
-    }
   }
 
   #usdContainer {
