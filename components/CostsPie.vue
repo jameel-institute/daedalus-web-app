@@ -162,7 +162,7 @@ const chartInitialOptions = () => {
     series: [chartSeries()],
     tooltip: {
       pointFormatter() {
-        return costsPieTooltipText(this);
+        return costsPieTooltipText(this, appStore.currentScenario.result.data?.gdp);
       },
     },
   } as Highcharts.Options;
