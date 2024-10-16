@@ -80,7 +80,7 @@ body {
   border-bottom-right-radius: 0 !important;
 }
 
-.btn-group > label.btn {
+.btn-group label.btn {
   border-radius: 0.75rem;
 }
 
@@ -88,7 +88,7 @@ body {
   background-color: var(--cui-btn-color);
 }
 
-.btn-group-lg > label.btn {
+.btn-group-lg label.btn {
   border-radius: 1rem;
 }
 
@@ -125,3 +125,38 @@ body {
 .modal-open {
   overflow-y: auto !important;
 }
+
+.btn-group > {
+  div.radio-btn-container {
+    flex-grow: 1;
+    .btn {
+      width: 100%;
+    }
+  }
+  div.radio-btn-container:not(:last-child) > {
+    .btn {
+      border-bottom-right-radius: 0 !important;
+      border-top-right-radius: 0 !important;
+    }
+  }
+  div.radio-btn-container:not(:first-child) > {
+    .btn {
+      border-bottom-left-radius: 0 !important;
+      border-top-left-radius: 0 !important;
+    }
+  }
+}
+
+.btn-group-lg > {
+  .radio-btn-container > {
+    .btn {
+      --cui-btn-padding-y: .5rem;
+      --cui-btn-padding-x: 1rem;
+      --cui-btn-font-size: 1.25rem;
+      --cui-btn-border-radius: var(--cui-border-radius-lg);
+    }
+  }
+}
+
+// TODO: color!
+// TODO: comment

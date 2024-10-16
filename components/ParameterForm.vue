@@ -32,7 +32,8 @@
                 placement="top"
               >
                 <template #toggler="{ togglerId, on }">
-                  <span
+                  <div
+                    class="radio-btn-container"
                     :aria-describedby="togglerId"
                     v-on="on"
                   >
@@ -46,7 +47,7 @@
                       :label="option.label"
                       :value="option.id"
                     />
-                  </span>
+                  </div>
                 </template>
               </CTooltip>
             </CButtonGroup>
@@ -399,6 +400,11 @@ onMounted(() => {
   100% {
     box-shadow: 0 0 0 15px rgba(0, 0, 255, 0);
   }
+}
+
+.btn-group > span.radio-btn-container:not(:last-child) > .btn {
+  border-bottom-right-radius: 0 !important;
+  border-top-right-radius: 0 !important;
 }
 
 .select-container {
