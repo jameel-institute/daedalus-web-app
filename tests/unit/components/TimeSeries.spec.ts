@@ -73,7 +73,8 @@ describe("time series", () => {
           }),
         }),
         tooltip: expect.objectContaining({
-          pointFormat: expect.stringContaining("cases"),
+          // This test permits both "(in need of) hospitaliz/sation" and "hospitaliz/sed"
+          pointFormat: expect.stringContaining("hospital"),
         }),
         xAxis: expect.objectContaining({
           plotBands: expect.arrayContaining([
