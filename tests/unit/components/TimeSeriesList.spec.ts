@@ -1,7 +1,6 @@
 import TimeSeriesList from "@/components/TimeSeriesList.vue";
 import { emptyScenario, mockedMetadata, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { describe, expect, it, vi } from "vitest";
 import { mockResultResponseData } from "~/tests/unit/mocks/mockResponseData";
 import type { ScenarioResultData } from "~/types/apiResponseTypes";
 

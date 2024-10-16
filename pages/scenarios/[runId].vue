@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="resultsPage">
     <div class="d-flex flex-wrap mb-3 gap-3">
       <h1 class="fs-2 mb-0 pt-1">
         Results
@@ -80,28 +80,15 @@
         Time elapsed: {{ secondsSinceFirstStatusPoll }} seconds
       </p>
     </CAlert>
-    <CRow v-else-if="appStore.timeSeriesData" class="cards-container">
-      <div class="col-md-6">
-        <div class="card">
-          <div class="card-header border-bottom-0 d-flex justify-content-between">
-            <div class="d-flex align-items-center">
-              <CIcon icon="cilChartPie" size="xl" class="chart-header-icon mb-1 text-secondary" />
-              <h2 class="fs-5 m-0 ms-3 chart-header">
-                Costs
-              </h2>
-            </div>
-            <CostsLegend />
-          </div>
-          <div class="card-body">
-            <p>Placeholder for costs chart</p>
-          </div>
-        </div>
+    <CRow v-else-if="appStore.currentScenario.result.data" class="results-cards-container">
+      <div class="col-12 col-xl-6">
+        <CostsCard />
       </div>
-      <div class="col-md-6">
+      <div class="col-12 col-xl-6">
         <div class="card">
           <div class="card-header border-bottom-0 d-flex justify-content-between">
             <div class="d-flex align-items-center">
-              <CIcon icon="cilChartLine" size="xl" class="chart-header-icon mb-1 text-secondary" />
+              <CIcon icon="cilChartLine" size="xl" class="mb-1 text-secondary" />
               <h2 class="fs-5 m-0 ms-3 chart-header">
                 Time series
               </h2>
@@ -208,61 +195,49 @@ onUnmounted(() => {
 });
 </script>
 
-<style lang="scss" scoped>
-@use "sass:map";
-
-.cards-container {
+<style lang="scss">
+.results-cards-container {
   row-gap: 1rem;
 }
 
-// Make room for legend
-@media screen and (max-width: 440px) {
-  .chart-header-icon {
-    display: none;
+#resultsPage {
+  .card {
+    background: rgba(255, 255, 255, 0.5);
+
+    &.horizontal-card {
+      height: fit-content;
+
+      .card-header {
+        padding: 0;
+      }
+
+      .card-footer {
+        border-left: var(--cui-card-border-width) solid var(--cui-card-border-color); // copied from .card-header border-bottom
+        border-top: none;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: var(--cui-card-inner-border-radius) var(--cui-card-inner-border-radius) 0 0;
+
+        padding-bottom: 0;
+        padding-left: 0;
+        padding-top: 0;
+      }
+
+      .row {
+        --cui-gutter-y: 0;
+        --cui-gutter-x: 0;
+      }
+    }
+
+    &.parameters-card {
+      .btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active, .btn.show {
+        background-color: var(--cui-btn-color); // Overrides a style in _theme.scss
+      }
+    }
   }
 
   .chart-header {
-    margin-left: 0 !important;
-    width: 5rem;
-  }
-}
-
-.card {
-  background: rgba(255, 255, 255, 0.7);
-
-  &.horizontal-card {
     height: fit-content;
-
-    .card-header {
-      padding: 0;
-    }
-
-    .card-footer {
-      border-left: var(--cui-card-border-width) solid var(--cui-card-border-color); // copied from .card-header border-bottom
-      border-top: none;
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: var(--cui-card-inner-border-radius) var(--cui-card-inner-border-radius) 0 0;
-
-      padding-bottom: 0;
-      padding-left: 0;
-      padding-top: 0;
-    }
-
-    .row {
-      --cui-gutter-y: 0;
-      --cui-gutter-x: 0;
-    }
   }
-
-  &.parameters-card {
-    .btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active, .btn.show {
-      background-color: unset; // Overrides a style in _theme.scss
-    }
-  }
-}
-
-.chart-header {
-  height: fit-content;
 }
 </style>

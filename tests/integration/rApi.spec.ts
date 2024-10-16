@@ -7,7 +7,6 @@
 // https://nuxt.com/docs/getting-started/testing#fetchurl-1
 import { fetch as nuxtTestUtilsFetch, setup } from "@nuxt/test-utils/e2e";
 import dotenv from "dotenv";
-import { beforeAll, describe, expect, it } from "vitest";
 
 const nodeFetch = fetch; // Normal 'fetch' from Node
 
