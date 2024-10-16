@@ -11,6 +11,7 @@ import {
   cilCloudDownload,
   cilGlobeAlt,
   cilHistory,
+  cilInfo,
   cilLink,
   cilMedicalCross,
   cilMenu,
@@ -42,4 +43,5 @@ export const iconsSet = {
   cilPlus,
   cilShareAlt,
   cilShieldAlt,
+  cilInfo,
 };
