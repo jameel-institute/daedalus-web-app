@@ -119,6 +119,9 @@ const chartSeries = () => {
 
 const chartInitialOptions = () => {
   return {
+    credits: {
+      text: "All charts powered by Highcharts", // Since we omit credits from time series, we specify that this attribution applies generally.
+    },
     chart: {
       spacing: [0, 0, 0, 0],
       options3d: {
