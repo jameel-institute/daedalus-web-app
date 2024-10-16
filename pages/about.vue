@@ -26,13 +26,14 @@
       deaths compared to a response that does not mandate closures.
     </p>
     <p>
-      DAEDALUS Explore allows users to choose a country, a pandemic, and a
-      response amongst four options (no closures, school closures, business
-      closures, and elimination). Response is the mitigation that policy makers
-      can choose once the pandemic strikes. DAEDALUS Explore allows user to
-      explore the inherent trade-off between different response strategies. For
-      example, business closures may result in higher economic costs, but lower
-      deaths compared to a response that does not mandate closures.
+      The losses associated with pandemics can be influenced by investments into
+      global vaccine R&D and manufacturing and hospital capacity. Users can
+      explore the impact of such investments on health, education and economic
+      pandemic impacts by comparing the outcomes of scenarios with different
+      investments. The impact of all pandemic scenarios for the countries are
+      projected in terms of GDP loss (absolute, and in % of pre-pandemic GDP),
+      the long-term income loss in pupils whose education has been interrupted,
+      and in terms of lost life years, valued in monetary terms.
     </p>
 
     <h3>The DAEDALUS model</h3>
