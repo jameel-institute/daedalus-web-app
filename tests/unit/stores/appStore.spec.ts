@@ -1,9 +1,10 @@
+import * as ExcelDownload from "@/download/excelScenarioDownload";
 import { useAppStore } from "@/stores/appStore";
 import { emptyScenario, mockResultData } from "@/tests/unit/mocks/mockPinia";
 import { registerEndpoint } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 import { createPinia, setActivePinia } from "pinia";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { runStatus } from "~/types/apiResponseTypes";
 
 const sampleUnloadedScenario = {
@@ -162,6 +163,52 @@ describe("app store", () => {
           fetchStatus: undefined,
         },
       });
+    });
+
+    const mockExcelScenarioDownload = (mockDownload = () => { }) => {
+      // Mock ExelScenarioDownload constructor and return mock
+      // instance with given download mock implementation
+      const mockExcelScenarioDownloadObj = {
+        download: vi.fn().mockImplementation(mockDownload),
+      } as any;
+      const downloadConstructorSpy = vi.spyOn(ExcelDownload, "ExcelScenarioDownload");
+      downloadConstructorSpy.mockImplementation(() => mockExcelScenarioDownloadObj);
+      return mockExcelScenarioDownloadObj;
+    };
+
+    it("can download scenario", async () => {
+      const mockDownloadObj = mockExcelScenarioDownload();
+
+      const store = useAppStore();
+      const downloadPromise = store.downloadExcel();
+      // Should immediately set to downloading, then reset when download finishes
+      expect(store.downloading).toBe(true);
+      // wait for the promise to resolve
+      await expect(downloadPromise).resolves.toBe(undefined);
+      expect(store.downloading).toBe(false);
+      expect(store.downloadError).toBe(undefined);
+      expect(mockDownloadObj.download).toHaveBeenCalled();
+    });
+
+    it("can set download error from string", async () => {
+      mockExcelScenarioDownload(() => {
+        // eslint-disable-next-line no-throw-literal
+        throw "test error string";
+      });
+      const store = useAppStore();
+      await store.downloadExcel();
+      expect(store.downloadError).toBe("test error string");
+      expect(store.downloading).toBe(false);
+    });
+
+    it("can set download error from message", async () => {
+      mockExcelScenarioDownload(() => {
+        throw new Error("test error message");
+      });
+      const store = useAppStore();
+      await store.downloadExcel();
+      expect(store.downloadError).toBe("test error message");
+      expect(store.downloading).toBe(false);
     });
 
     describe("getters", () => {
