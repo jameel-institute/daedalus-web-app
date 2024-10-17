@@ -44,7 +44,8 @@
     "pinia": "^2.2.4",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
-    "vue": "latest"
+    "vue": "^3.5",
+    "xlsx": "^0.18.5"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "^4.24.0",
@@ -66,12 +67,12 @@
     "lint-staged": "^15.2.9",
     "playwright": "^1.45.2",
     "prisma": "^5.20.0",
-    "sass": "^1.77.8",
+    "sass": "^1.79.5",
     "simple-git-hooks": "^2.11.1",
     "vitest": "^2.1.2"
   },
   "overrides": {
-    "vue": "latest"
+    "vue": "^3.5"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"

@@ -221,6 +221,8 @@ export const mockPinia = (appState: Partial<AppState> = {}, includeMetadata: boo
       metadataFetchError: undefined,
       metadataFetchStatus: includeMetadata ? "success" : undefined,
       currentScenario: emptyScenario,
+      downloading: false,
+      downloadError: undefined,
       ...appState,
     },
   };

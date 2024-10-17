@@ -319,7 +319,7 @@ onUnmounted(() => {
   }
 
   .accordion-item {
-    background: rgba(255, 255, 255, 0.5);
+    background: $light-background;
   }
 }
 </style>
