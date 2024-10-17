@@ -436,4 +436,14 @@ onMounted(() => {
 :deep(.open .single-value) {
   position: relative!important;
 }
+
+// TODO: and is not selected
+//:deep(.vue-select .menu-option:has(+ .menu-option:hover)) {
+//  background-color: yellow!important;
+//}
+// select previous to hover then subsequent to hover
+//:deep(.vue-select .menu-option:has(~ :hover),
+//.vue-select .menu-option:hover ~ .menu-option)) {
+//  background-color: yellow!important;
+//}
 </style>

@@ -158,4 +158,11 @@ body {
   }
 }
 
+// TODO: and not selected
+.vue-select .menu-option:has(~ :hover), // select previous to hover
+.vue-select .menu-option:hover ~ .menu-option // select subsequent to hover
+{
+  background-color: white!important;
+}
+
 // TODO: comment
