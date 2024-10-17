@@ -4,7 +4,6 @@ import { emptyScenario, mockedMetadata, mockPinia, updatableNumericParameter } f
 import { mockNuxtImport, mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
 import { flushPromises } from "@vue/test-utils";
 import { FetchError } from "ofetch";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const stubs = {
   CIcon: true,

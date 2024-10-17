@@ -4,7 +4,6 @@ import { emptyScenario, mockResultData } from "@/tests/unit/mocks/mockPinia";
 import { registerEndpoint } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 import { createPinia, setActivePinia } from "pinia";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { runStatus } from "~/types/apiResponseTypes";
 
 const sampleUnloadedScenario = {

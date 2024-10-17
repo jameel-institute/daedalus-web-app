@@ -1,6 +1,5 @@
 import EditParameters from "@/components/EditParameters.vue";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { describe, expect, it } from "vitest";
 
 const stubs = {
   CIcon: true,

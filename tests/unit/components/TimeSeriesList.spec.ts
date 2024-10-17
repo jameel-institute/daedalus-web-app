@@ -2,7 +2,6 @@ import TimeSeriesList from "@/components/TimeSeriesList.vue";
 import { emptyScenario, mockedMetadata, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mockResultResponseData } from "@/tests/unit/mocks/mockResultResponseData";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { describe, expect, it, vi } from "vitest";
 import type { ScenarioResultData } from "~/types/apiResponseTypes";
 
 const seriesIds = mockedMetadata.results.time_series.map(series => series.id);
