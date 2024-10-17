@@ -1,10 +1,10 @@
 import About from "@/pages/about.vue";
-import { mount } from "@vue/test-utils";
+import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { describe, expect, it } from "vitest";
 
 describe("about page", () => {
-  it("should render about page", () => {
-    const component = mount(About);
+  it("should render about page", async () => {
+    const component = await mountSuspended(About);
 
     expect(component.text()).toContain("About");
   });
