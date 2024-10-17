@@ -14,7 +14,7 @@
           Rotate your mobile device to landscape for the best experience.
         </p>
       </CAlert>
-      <div v-show="appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="card horizontal-card ms-auto parameters-card">
+      <div v-show="appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="card horizontal-card parameters-card">
         <CRow>
           <div
             v-show="!appStore.largeScreen"

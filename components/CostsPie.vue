@@ -1,8 +1,11 @@
 <template>
-  <div
-    :id="chartContainerId"
-    :class="[props.hideTooltips ? hideTooltipsClassName : '']"
-  />
+  <div>
+    <CostsLegend />
+    <div
+      :id="chartContainerId"
+      :class="[props.hideTooltips ? hideTooltipsClassName : '']"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -28,7 +31,7 @@ interface pieCost {
 }
 
 const appStore = useAppStore();
-const chartContainerId = "costsPieContainer";
+const chartContainerId = "costsChartContainer";
 const hideTooltipsClassName = "hide-tooltips";
 const chartBackgroundColor = "transparent";
 const chartBackgroundColorOnExporting = "white";
@@ -104,10 +107,10 @@ const chartSeries = () => {
       rotationMode: "auto", // Without this, labels sometimes appear in the top left at random. https://github.com/highcharts/highcharts/issues/18953
       format: "{point.name}",
       style: {
-        fontSize: "1.1rem", // TODO: Make font-size smaller on small screens (or disappear on very small)
+        fontSize: "1rem", // TODO: Make font-size smaller on small screens (or disappear on very small)
         fontWeight: 500,
-        textOutline: "grey",
-        textShadow: "0px 0px 2.5px black",
+        textOutline: "none",
+        textShadow: "0px 0px 4.5px black",
         color: "white",
       },
       allowOverlap: false,
@@ -235,10 +238,9 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss">
-#costsPieContainer {
+#costsChartContainer {
   font-weight: normal !important;
-  position: absolute;
-  z-index: 10; // Above timeseries
+  z-index: 10; // Above timeseries, below costs pie legend
 
   .highcharts-tooltip {
     transition: filter 0.2s;
