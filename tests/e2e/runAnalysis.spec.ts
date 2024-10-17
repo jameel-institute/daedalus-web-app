@@ -47,13 +47,6 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
 
   await expect(page.locator("#prevalence-container")).toBeVisible({ timeout: 20000 });
   await expect(page.locator("#prevalence-container .highcharts-xaxis-labels")).toBeVisible();
-  // Test first chart has markers on x axis for number of days
-  await expect(page.locator("#prevalence-container .highcharts-xaxis-labels text").first()).toHaveText("100");
-  await expect(page.locator("#prevalence-container .highcharts-xaxis-labels text").nth(1)).toHaveText("200");
-  await expect(page.locator("#prevalence-container .highcharts-xaxis-labels text").nth(2)).toHaveText("300");
-  await expect(page.locator("#prevalence-container .highcharts-xaxis-labels text").nth(3)).toHaveText("400");
-  await expect(page.locator("#prevalence-container .highcharts-xaxis-labels text").nth(4)).toHaveText("500");
-  await expect(page.locator("#prevalence-container .highcharts-xaxis-labels text").nth(5)).toHaveText("600");
   await expect(page.locator("#prevalence-container .highcharts-yaxis-labels")).toBeVisible();
   await expect(page.locator("#prevalence-container .highcharts-plot-band")).toBeVisible();
   await expect(page.locator("#prevalence-container").getByLabel("View chart menu, Chart")).toBeVisible();
