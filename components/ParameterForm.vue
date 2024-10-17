@@ -413,10 +413,9 @@ onMounted(() => {
   --vs-border-radius: 4px;
   --vs-line-height: 0.8;
   --vs-padding: 0;
-  --vs-text-color: rgba(37, 43, 54, 0.95);
   --vs-option-font-size: var(--vs-font-size);
   --vs-option-text-color: var(--vs-text-color);
-  --vs-option-hover-color: lightgray;
+  --vs-option-hover-color: var($cui-tertiary-bg);
   --vs-option-focused-color: var(--vs-option-hover-color);
   --vs-option-selected-color: #93c5fd;
 }
