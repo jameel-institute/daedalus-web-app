@@ -1,5 +1,10 @@
 import { expect, test } from "@playwright/test";
-import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
+import checkRApiServer from "./helpers/checkRApiServer";
+import waitForNewScenarioPage from "./helpers/waitForNewScenarioPage";
+
+test.beforeAll(async () => {
+  checkRApiServer();
+});
 
 test("can download Excel file for scenario results", async ({ page, baseURL }) => {
   await waitForNewScenarioPage(page, baseURL);

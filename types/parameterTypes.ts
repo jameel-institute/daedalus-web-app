@@ -28,9 +28,9 @@ export interface Parameter {
   id: string
   label: string
   parameterType: TypeOfParameter
-  defaultOption: string | null
+  defaultOption: string | undefined
   ordered: boolean
-  options: Array<ParameterOption>
-  step: number | null
-  updateNumericFrom: UpdateNumericFrom | null
+  options: Array<ParameterOption> | undefined
+  step: number | undefined
+  updateNumericFrom: UpdateNumericFrom | undefined
 }

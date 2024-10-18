@@ -66,17 +66,21 @@
         {{ errorMsg }}
       </p>
     </CAlert>
-    <CAlert v-else-if="stoppedPolling" color="danger">
-      <p class="mb-0">
-        The analysis is taking longer than expected. Please
+    <CAlert
+      v-if="!appStore.timeSeriesData && jobSlow && appStore.currentScenario.status.data?.runStatus"
+      :color="jobReallySlow ? 'warning' : 'info'"
+    >
+      <p v-if="jobReallySlow">
+        Thank you for waiting. Some scenario analyses can take up to 60 seconds to run. You can carry on waiting or
         <NuxtLink prefetch-on="interaction" to="/scenarios/new">
-          <span>try again</span>
-        </NuxtLink>.
+          <span> try again</span>
+        </NuxtLink> with another run.
       </p>
-    </CAlert>
-    <CAlert v-else-if="jobTakingLongTime && appStore.currentScenario.status.data?.runStatus" color="info">
-      <p class="mb-0">
+      <p>
         Analysis status: {{ appStore.currentScenario.status.data?.runStatus }}
+      </p>
+      <p class="mb-0">
+        Waiting for {{ secondsSinceFirstStatusPoll }} seconds
       </p>
     </CAlert>
     <CRow v-else-if="appStore.timeSeriesData" class="cards-container">
@@ -116,26 +120,40 @@
 
 <script lang="ts" setup>
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
-import { runStatus } from "~/types/apiResponseTypes";
 import type { Parameter } from "~/types/parameterTypes";
 
 // TODO: Use the runId from the route rather than getting it out of the store.
 const appStore = useAppStore();
 
-const jobTakingLongTime = ref(false);
-const stoppedPolling = ref(false);
+let statusInterval: NodeJS.Timeout;
+const jobSlow = ref(false);
+const jobReallySlow = ref(false);
+const secondsSinceFirstStatusPoll = ref("0");
+
 const showSpinner = computed(() => {
   return (!appStore.currentScenario.result.data
-    && appStore.currentScenario.result.fetchStatus !== "error"
-    && !stoppedPolling.value);
+    && appStore.currentScenario.status.data?.runSuccess !== false);
 });
 
 const paramDisplayText = (param: Parameter) => {
   if (appStore.currentScenario?.parameters && appStore.currentScenario?.parameters[param.id]) {
     const rawVal = appStore.currentScenario.parameters[param.id].toString();
+
+    const rawValIsNumberString = Number.parseInt(rawVal).toString() === rawVal;
+    if (rawValIsNumberString) {
+      // TODO: Localize number formatting.
+      return new Intl.NumberFormat().format(Number.parseInt(rawVal));
+    }
     return param.options ? param.options.find(({ id }) => id === rawVal)!.label : rawVal;
   }
 };
+
+// Use useAsyncData to store the time once, during server-side rendering: avoids client render re-writing value.
+const { data: timeOfFirstStatusPoll } = await useAsyncData<number>("timeOfFirstStatusPoll", async () => {
+  return new Promise<number>((resolve) => {
+    resolve(new Date().getTime());
+  });
+});
 
 // Eagerly try to load the status and results, in case they are already available and can be used during server-side rendering.
 await appStore.loadScenarioStatus();
@@ -143,35 +161,45 @@ if (appStore.currentScenario.status.data?.runSuccess) {
   appStore.loadScenarioResult();
 }
 
-let statusInterval: NodeJS.Timeout;
-const loadScenarioStatus = () => {
-  appStore.loadScenarioStatus().then(() => {
-    if (appStore.currentScenario.status.data?.runSuccess) {
-      clearInterval(statusInterval);
-      jobTakingLongTime.value = false;
-      appStore.loadScenarioResult();
-    }
-  });
+watch(() => appStore.currentScenario.status.data?.runSuccess, (runSuccess) => {
+  if (runSuccess) {
+    appStore.loadScenarioResult();
+  }
+});
+
+watch(() => appStore.currentScenario.status.data?.done, (done) => {
+  if (done) {
+    clearInterval(statusInterval);
+    jobSlow.value = false;
+    jobReallySlow.value = false;
+  }
+});
+
+const pollForStatusEveryNSeconds = (seconds: number) => {
+  statusInterval = setInterval(() => {
+    if (timeOfFirstStatusPoll.value) {
+      secondsSinceFirstStatusPoll.value = ((new Date().getTime() - timeOfFirstStatusPoll.value) / 1000).toFixed(0);
+    };
+    appStore.loadScenarioStatus();
+  }, seconds * 1000);
 };
 
 onMounted(() => {
   appStore.globe.interactive = false;
 
   if (!appStore.currentScenario.status.data?.done && appStore.currentScenario.runId) {
-    statusInterval = setInterval(loadScenarioStatus, 200); // Poll for status every N ms
+    pollForStatusEveryNSeconds(0.2);
     setTimeout(() => {
-      // If the job isn't completed within five seconds, give user the information about the run status.
-      if (appStore.currentScenario.status.data?.runStatus !== runStatus.Complete) {
-        jobTakingLongTime.value = true;
+      // If the job isn't completed within a few seconds, give user the information about the run status.
+      if (!appStore.currentScenario.status.data?.done) {
+        jobSlow.value = true;
       }
     }, 5000);
+    // Some runs take an especially long time, e.g. Singapore + Omicron.
     setTimeout(() => {
-      // If the job isn't completed within 10 seconds, terminate polling for status.
       if (!appStore.currentScenario.status.data?.done) {
-        jobTakingLongTime.value = false;
-        stoppedPolling.value = true;
+        jobReallySlow.value = true;
       }
-      clearInterval(statusInterval);
     }, 15000);
   }
 });
