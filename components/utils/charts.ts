@@ -20,6 +20,7 @@ export interface LegendItem {
 export enum LegendShape {
   Rectangle = "rectangle",
   Line = "line",
+  Circle = "circle",
 }
 
 export const costsPieTooltipText = (point: Highcharts.Point) => {

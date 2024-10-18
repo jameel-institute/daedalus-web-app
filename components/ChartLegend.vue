@@ -4,7 +4,6 @@
       v-for="item in items"
       :key="item.label"
       :class="`legend-item legend-item-${item.shape}`"
-      :style="legendItemStyle(item)"
     >
       <i :style="iStyle(item)" />
       <span
@@ -26,28 +25,28 @@ const props = defineProps<{
 
 const lineHeightRem = 0.15;
 
-const legendItemStyle = (item: LegendItem) => {
-  if (item.shape === LegendShape.Rectangle) {
-    return {
-      height: `${props.rowHeightRem}rem`,
-    };
-  } else {
-    return {};
-  }
-};
-
 const iStyle = (item: LegendItem) => {
   const style = {
     background: item.color,
-    height: item.shape === LegendShape.Rectangle ? `${props.rowHeightRem}rem` : `${lineHeightRem}rem`,
   };
   if (item.shape === LegendShape.Line) {
     return {
       ...style,
+      height: `${lineHeightRem}rem`,
       marginTop: `${(props.rowHeightRem / 2) - lineHeightRem}rem`,
     };
-  } else {
-    return style;
+  } else if (item.shape === LegendShape.Circle) {
+    return {
+      ...style,
+      borderRadius: "50%",
+      height: `${props.rowHeightRem / 1.3}rem`,
+      width: `${props.rowHeightRem / 1.3}rem`,
+    };
+  } else if (item.shape === LegendShape.Rectangle) {
+    return {
+      ...style,
+      height: `${props.rowHeightRem}rem`,
+    };
   };
 };
 </script>
