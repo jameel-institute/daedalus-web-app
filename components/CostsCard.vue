@@ -51,7 +51,7 @@
         </div>
       </div>
       <div class="pie-table-container">
-        <div>
+        <div class="flex-grow-1">
           <CostsTable data-testid="costs-table" />
         </div>
         <CostsPie
