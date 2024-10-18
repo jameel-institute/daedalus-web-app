@@ -54,14 +54,13 @@ const setupResizeObserverMock = async (component: VueWrapper) => {
 };
 
 describe("costs card", () => {
-  it("should render the costs pie chart container and the total cost", async () => {
+  it("should render the costs pie chart container, the total cost, and total cost in terms of % of GDP", async () => {
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
     await setupResizeObserverMock(component);
     const container = component.find(`#costsPieContainer`);
     expect(container.classes()).not.toContain("hide-tooltips");
-
-    const totalCostPara = component.find(`p#totalCostPara`);
-    expect(totalCostPara.text()).toBe("1.1T");
+    expect(component.find(`p#totalCostPara`).text()).toBe("1.1T");
+    expect(component.find(`#gdpContainer`).text()).toContain("42.6%");
   });
 
   it("should show the tooltips when the mouse is over the cost pie container, and not otherwise", async () => {

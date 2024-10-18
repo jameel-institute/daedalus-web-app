@@ -10,20 +10,20 @@
       </div>
     </div>
     <div id="costsCardBody" class="card-body">
-      <h3 id="totalHeading" class="mt-0 mb-0 fs-6">
-        TOTAL
+      <h3 id="totalHeading" class="mt-0 mb-0 ms-2 fs-6">
+        Total
       </h3>
       <div id="totalsContainer" ref="totalsContainer" class="d-flex flex-wrap gap-3 row-gap-0">
         <div id="gdpContainer" class="d-flex gap-1">
           <p id="gdpTotalCostPercent" class="mt-0 mb-0">
-            X.Y
+            {{ gdpTotalCostPercent }}
           </p>
           <div id="gdpTotalCostPercentSymbolContainer">
             <p id="gdpTotalCostPercentageSymbol" class="mb-0">
-              %
+              <span>%</span>
             </p>
             <p id="gdpTotalCostPercentReferent" class="mt-0 mb-0">
-              of GDP
+              <span>of 2018 GDP</span>
             </p>
           </div>
         </div>
@@ -66,6 +66,15 @@ const appStore = useAppStore();
 
 const totalsContainer = ref(null);
 const totalsContainerWidth = ref(0);
+
+// Display the 'headline' total cost in terms of a percentage of annual national GDP
+const gdpTotalCostPercent = computed(() => {
+  if (appStore.currentScenario.result?.data?.gdp && appStore.totalCost) {
+    return ((appStore.totalCost.value / appStore.currentScenario.result.data.gdp) * 100).toFixed(1);
+  } else {
+    return undefined;
+  }
+});
 
 const totalCostAbbr = computed(() => {
   if (appStore.totalCost) {
