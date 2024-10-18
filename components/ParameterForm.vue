@@ -69,7 +69,10 @@
               <template #option="{ option }">
                 <div>
                   {{ option.label }}
-                  <div v-if="option.description" class="text-secondary">
+                  <div
+                    v-if="option.description"
+                    :class="option.value === formData[parameter.id] ? 'text-dark' : 'text-secondary'"
+                  >
                     <small>{{ option.description }}</small>
                   </div>
                 </div>
@@ -421,9 +424,9 @@ onMounted(() => {
   --vs-padding: 0;
   --vs-option-font-size: var(--vs-font-size);
   --vs-option-text-color: var(--vs-text-color);
-  --vs-option-hover-color: var($cui-tertiary-bg);
+  --vs-option-hover-color: var(--cui-tertiary-bg);
   --vs-option-focused-color: var(--vs-option-hover-color);
-  --vs-option-selected-color: #93c5fd;
+  --vs-option-selected-color: var(--cui-primary-bg-subtle);
 }
 
 .vue-select  {

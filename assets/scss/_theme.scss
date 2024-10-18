@@ -160,7 +160,7 @@ body {
 
 // In vue-select parameter dropdowns, avoid highlighting both focused (used when navigating with keyboard) and
 // hovered menu items, by forcing unhighlighted background colour on all menu items if they have a sibling which
-// is hovered, unless they are the unhovered item is currently selected (also highlighted, in a darker colour).
+// is hovered, unless they are the unhovered item is currently selected (also highlighted, in a different colour).
 .vue-select .menu-option:not(.selected):has(~ :hover), // select previous siblings to hovered, if not selected
 .vue-select .menu-option:hover ~ .menu-option:not(.selected) // select subsequent siblings to hovered, if not selected
 {
