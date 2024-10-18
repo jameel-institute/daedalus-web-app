@@ -46,12 +46,14 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   await expect(page.getByText("305000").first()).toBeVisible();
 
   await expect(page.locator("#prevalence-container")).toBeVisible({ timeout: 20000 });
+  await page.locator("#prevalence-container").scrollIntoViewIfNeeded();
   await expect(page.locator("#prevalence-container .highcharts-xaxis-labels")).toBeVisible();
   await expect(page.locator("#prevalence-container .highcharts-yaxis-labels")).toBeVisible();
   await expect(page.locator("#prevalence-container .highcharts-plot-band")).toBeVisible();
   await expect(page.locator("#prevalence-container").getByLabel("View chart menu, Chart")).toBeVisible();
 
   await expect(page.locator("#hospitalised-container")).toBeVisible();
+  await page.locator("#hospitalised-container").scrollIntoViewIfNeeded();
   await expect(page.locator("#hospitalised-container .highcharts-xaxis-labels")).toBeVisible();
   await expect(page.locator("#hospitalised-container .highcharts-yaxis-labels")).toBeVisible();
   await expect(page.locator("#hospitalised-container .highcharts-plot-band")).toBeVisible();
@@ -59,11 +61,13 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   await expect(page.locator("#hospitalised-container").getByLabel("View chart menu, Chart")).toBeVisible();
 
   await expect(page.locator("#dead-container")).toBeVisible();
+  await page.locator("#dead-container").scrollIntoViewIfNeeded();
   await expect(page.locator("#dead-container .highcharts-xaxis-labels")).toBeVisible();
   await expect(page.locator("#dead-container .highcharts-yaxis-labels")).toBeVisible();
   await expect(page.locator("#dead-container").getByLabel("View chart menu, Chart")).toBeVisible();
 
   await expect(page.locator("#vaccinated-container")).toBeVisible();
+  await page.locator("#vaccinated-container").scrollIntoViewIfNeeded();
   await expect(page.locator("#vaccinated-container .highcharts-xaxis-labels")).toBeVisible();
   await expect(page.locator("#vaccinated-container .highcharts-yaxis-labels")).toBeVisible();
   await expect(page.locator("#vaccinated-container").getByLabel("View chart menu, Chart")).toBeVisible();
