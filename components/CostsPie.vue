@@ -53,11 +53,10 @@ const defaultDataLabelStyle: Highcharts.CSSObject = {
   color: "white",
 };
 const topLevelDataLabelStyle: Highcharts.CSSObject = {
-  fontSize: "0.9rem",
-  fontWeight: "400",
+  fontSize: "0.8rem",
   textShadow: "none",
   textOutline: "none",
-  color: "black",
+  color: "var(--cui-card-color)",
   backgroundColor: "green",
 };
 
@@ -134,7 +133,13 @@ const chartSeries = () => {
     dataLabels: {
       rotation: 0,
       rotationMode: "auto", // Without this, labels sometimes appear in the top left at random. https://github.com/highcharts/highcharts/issues/18953
-      format: "{point.name}",
+      formatter() {
+        if (this.point.index === 0) {
+          return "Losses";
+        } else {
+          return this.point.name;
+        };
+      },
       style: defaultDataLabelStyle,
       allowOverlap: false,
     },
