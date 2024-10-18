@@ -14,7 +14,6 @@ import * as am5map from "@amcharts/amcharts5/map";
 // import am5geodata_worldHigh from "@amcharts/amcharts5-geodata/worldHigh";
 
 import simplified_WHO_adm0 from "@/assets/geodata/simplified_WHO_adm0";
-import simplified_WHO_map_disp_area from "@/assets/geodata/simplified_WHO_map_disp_area";
 import WHO_onlyThailand from "@/assets/geodata/WHO_onlyThailand";
 
 // Refer to old branch: 'globe-for-meeting'
@@ -35,11 +34,16 @@ const pageMounted = ref(false);
 let chart;
 let zoomControl: am5map.ZoomControl;
 let animation: { pause: () => void, stopped: boolean };
+// Disable zoom controls for now since there is a bug where the first click on the zoom in button
+// zooms in to a blank area of the map, such that the globe tends to disappear from view.
+const disabledZoomControl = true;
 
 const appStore = useAppStore();
 
 const applyGlobeSettings = () => {
-  zoomControl.set("visible", appStore.globe.interactive);
+  if (!disabledZoomControl) {
+    zoomControl.set("visible", appStore.globe.interactive);
+  }
 
   if (!appStore.globe.interactive && !animation.stopped) {
     animation.pause();
@@ -89,11 +93,11 @@ watchEffect(() => {
       am5map.MapPolygonSeries.new(root, {
         geoJSON: WHO_onlyThailand,
         reverseGeodata: true,
-        fill: am5.color("#379f9f") // "Imperial Seaglass"
+        fill: am5.color("#379f9f"), // "Imperial Seaglass"
       }),
     );
 
-    polygonSeries.mapPolygons.template.events.on("click", function(ev) {
+    polygonSeries.mapPolygons.template.events.on("click", (ev) => {
       polygonSeries.zoomToDataItem(ev.target.dataItem);
     });
 
@@ -105,8 +109,10 @@ watchEffect(() => {
       loops: Infinity,
     });
 
-    zoomControl = chart.set("zoomControl", am5map.ZoomControl.new(root, {}));
-    zoomControl.homeButton.set("visible", true);
+    if (!disabledZoomControl) {
+      zoomControl = chart.set("zoomControl", am5map.ZoomControl.new(root, {}));
+      zoomControl.homeButton.set("visible", true);
+    }
 
     applyGlobeSettings();
   }
