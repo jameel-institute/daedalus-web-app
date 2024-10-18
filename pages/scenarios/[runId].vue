@@ -120,7 +120,6 @@
 
 <script lang="ts" setup>
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
-import { runStatus } from "~/types/apiResponseTypes";
 import type { Parameter } from "~/types/parameterTypes";
 
 // TODO: Use the runId from the route rather than getting it out of the store.
@@ -133,7 +132,7 @@ const secondsSinceFirstStatusPoll = ref("0");
 
 const showSpinner = computed(() => {
   return (!appStore.currentScenario.result.data
-    && appStore.currentScenario.result.fetchStatus !== "error");
+    && appStore.currentScenario.status.data?.runSuccess !== false);
 });
 
 const paramDisplayText = (param: Parameter) => {
@@ -191,8 +190,8 @@ onMounted(() => {
   if (!appStore.currentScenario.status.data?.done && appStore.currentScenario.runId) {
     pollForStatusEveryNSeconds(0.2);
     setTimeout(() => {
-      // If the job isn't completed within M seconds, give user the information about the run status.
-      if (appStore.currentScenario.status.data?.runStatus !== runStatus.Complete) {
+      // If the job isn't completed within a few seconds, give user the information about the run status.
+      if (!appStore.currentScenario.status.data?.done) {
         jobSlow.value = true;
       }
     }, 5000);
