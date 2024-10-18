@@ -3,7 +3,7 @@
   <CFormLabel :for="parameter.id">
     {{ parameter.label }}
   </CFormLabel>
-  <TooltipHelp :help-text="parameter.description" />
+  <TooltipHelp :help-text="parameter.description" :classes="['ms-auto', 'me-3']" />
 </template>
 
 <script setup lang="ts">

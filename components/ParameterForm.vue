@@ -14,7 +14,7 @@
         class="field-container"
       >
         <div v-if="renderAsRadios(parameter)" class="button-group-container">
-          <CRow>
+          <CRow class="pe-2">
             <ParameterHeader :parameter="parameter" />
           </CRow>
           <CRow>
@@ -78,7 +78,9 @@
           </CRow>
         </div>
         <div v-else-if="parameter.parameterType === TypeOfParameter.Numeric">
-          <ParameterHeader :parameter="parameter" />
+          <div class="d-flex numeric-header">
+            <ParameterHeader :parameter="parameter" />
+          </div>
           <div class="d-flex flex-wrap">
             <div class="flex-grow-1">
               <CFormInput
@@ -403,8 +405,12 @@ onMounted(() => {
 }
 
 .select-container {
-   margin-left: 12px;
-   margin-right: 12px;
+   margin-left: 0.75rem;
+   margin-right: 0.55rem;
+}
+
+.numeric-header {
+  padding-right: 2.2rem;
 }
 
 .vue-select {

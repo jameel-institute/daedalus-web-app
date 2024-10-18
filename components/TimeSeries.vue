@@ -8,7 +8,7 @@
       <CAccordionHeader class="border-top" @click="handleAccordionToggle">
         <span aria-describedby="labelDescriptor">{{ seriesMetadata?.label }}</span>
         <span id="labelDescriptor" class="visually-hidden">{{ seriesMetadata?.description }}</span>
-        <TooltipHelp :help-text="seriesMetadata?.description" />
+        <TooltipHelp :help-text="seriesMetadata?.description" :classes="['ms-2']" />
       </CAccordionHeader>
       <CAccordionBody>
         <div
