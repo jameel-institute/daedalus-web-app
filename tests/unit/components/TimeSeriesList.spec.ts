@@ -1,4 +1,4 @@
-import TimeSeriesList from "@/components/TimeSeriesList.vue";
+import TimeSeriesList from "@/components/TimeSeriesList.client.vue";
 import { emptyScenario, mockedMetadata, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mockResultResponseData } from "@/tests/unit/mocks/mockResultResponseData";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
