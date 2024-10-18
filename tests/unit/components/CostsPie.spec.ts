@@ -56,7 +56,7 @@ vi.mock("highcharts", async (importOriginal) => {
   };
 });
 
-describe("costs card", () => {
+describe("costs pie", () => {
   it("should render the costs pie chart container", async () => {
     const component = await mountSuspended(CostsPie, {
       global: { stubs, plugins: [mockPinia()] },
