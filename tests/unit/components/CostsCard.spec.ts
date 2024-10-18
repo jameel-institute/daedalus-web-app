@@ -68,7 +68,7 @@ describe("costs card", () => {
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
     await setupResizeObserverMock(component);
 
-    const costsPieComponent = component.findComponent({ name: "CostsPie" });
+    const costsPieComponent = component.findComponent({ name: "CostsPie.client" });
     expect(costsPieComponent.props().hideTooltips).toBe(false);
 
     const container = component.find(`#costsPieContainer`);
@@ -90,7 +90,7 @@ describe("costs card", () => {
     await setupResizeObserverMock(component);
 
     const costsContainer = component.find(`#costsPieContainer`);
-    const costsPie = component.findComponent({ name: "CostsPie" });
+    const costsPie = component.findComponent({ name: "CostsPie.client" });
 
     await waitFor(() => {
       // 300px is 60% of 500px

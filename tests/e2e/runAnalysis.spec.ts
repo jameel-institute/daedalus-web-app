@@ -134,7 +134,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   await expect(page.getByLabel("Medium")).toBeChecked();
   await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
   await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
-  const closeButton = page.getByRole("button", { name: "Close" });
+  const closeButton = page.getByLabel("Edit parameters").getByLabel("Close");
   await closeButton.click();
 
   // Test that the second analysis results page has charts of both types.
