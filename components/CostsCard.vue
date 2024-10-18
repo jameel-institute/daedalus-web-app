@@ -106,6 +106,11 @@ const onMouseLeavePie = () => {
     flex-wrap: wrap;
     gap: 1rem;
   }
+  .pie-table-container > :nth-child(2) {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+  }
   #totalHeading {
     height: fit-content;
     letter-spacing: 0.08rem;
