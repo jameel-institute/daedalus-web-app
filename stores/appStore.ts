@@ -3,8 +3,10 @@ import type { Metadata, ScenarioResultData, ScenarioStatusData, VersionData } fr
 import type { AppState } from "@/types/storeTypes";
 import type { FetchError } from "ofetch";
 import { type Parameter, TypeOfParameter } from "@/types/parameterTypes";
+import { debounce } from "perfect-debounce";
 import { defineStore } from "pinia";
-import type { ScenarioCapacity, ScenarioIntervention } from "~/types/resultTypes";
+import { ExcelScenarioDownload } from "~/download/excelScenarioDownload";
+import type { ScenarioCapacity, ScenarioCost, ScenarioIntervention } from "~/types/resultTypes";
 
 const emptyScenario = {
   runId: undefined,
@@ -32,6 +34,8 @@ export const useAppStore = defineStore("app", {
     metadata: undefined,
     metadataFetchError: undefined,
     metadataFetchStatus: undefined,
+    downloading: false,
+    downloadError: undefined,
     currentScenario: { ...emptyScenario },
   }),
   getters: {
@@ -39,6 +43,13 @@ export const useAppStore = defineStore("app", {
     timeSeriesData: (state): Record<string, number[]> | undefined => state.currentScenario.result.data?.time_series,
     capacitiesData: (state): Array<ScenarioCapacity> | undefined => state.currentScenario.result.data?.capacities,
     interventionsData: (state): Array<ScenarioIntervention> | undefined => state.currentScenario.result.data?.interventions,
+    costsData: (state): Array<ScenarioCost> | undefined => state.currentScenario.result.data?.costs,
+    totalCost(): ScenarioCost | undefined {
+      if (this.costsData?.[0]?.id === "total") {
+        return this.costsData[0];
+      }
+      return undefined;
+    },
   },
   actions: {
     async loadScenarioStatus() {
@@ -105,6 +116,25 @@ export const useAppStore = defineStore("app", {
     },
     clearScenario() {
       this.currentScenario = { ...emptyScenario };
+    },
+    async downloadExcel() {
+      this.downloadError = undefined;
+      this.downloading = true;
+      await debounce(async () => {
+        try {
+          new ExcelScenarioDownload(this.currentScenario).download();
+        } catch (e) {
+          let downloadError = "Unexpected download error";
+          if (typeof e === "string") {
+            downloadError = e;
+          } else if ((e as any).message) {
+            downloadError = (e as any).message;
+          }
+          this.downloadError = downloadError;
+        } finally {
+          this.downloading = false;
+        }
+      })();
     },
   },
 });
