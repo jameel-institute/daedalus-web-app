@@ -1,11 +1,11 @@
 import ScenariosIdPage from "@/pages/scenarios/[runId].vue";
-import { mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
+import { emptyScenario, mockPinia, mockResultData } from "@/tests/unit/mocks/mockPinia";
 
+import { mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { mockMetadataResponseData } from "~/tests/unit/mocks/mockResponseData";
 import type { Metadata } from "~/types/apiResponseTypes";
-import { emptyScenario, mockPinia, mockResultData } from "../mocks/mockPinia";
 
 const stubs = {
   CIcon: true,
