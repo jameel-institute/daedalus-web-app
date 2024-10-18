@@ -17,5 +17,6 @@ export default defineVitestConfig({
       exclude: ["**/*.config.ts", "modules/coreui.ts", ...coverageConfigDefaults.exclude],
     },
     restoreMocks: true,
+    globals: true,
   },
 });
