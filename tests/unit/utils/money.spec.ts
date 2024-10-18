@@ -1,29 +1,51 @@
-import { abbreviateMillionsDollars } from "@/utils/money";
+import { abbreviateMillionsDollars, formatCurrency } from "@/utils/money";
 
-describe("abbreviateMillionsDollars", () => {
-  it("should convert million dollars to trillion with full unit name", () => {
-    expect(abbreviateMillionsDollars(1_234_567.01234)).toEqual({ amount: "1.2", unit: "trillion" });
+describe("money utils", () => {
+  describe("abbreviateMillionsDollars", () => {
+    it.each([
+      [1_234_567.01234, { amount: "1.2", unit: "trillion" }],
+      [1_234.01234, { amount: "1.2", unit: "billion" }],
+      [1.234567890123, { amount: "1.2", unit: "million" }],
+      [0.4567890123, { amount: "0.5", unit: "million" }],
+      [9_876_543_210.01234, { amount: "9876.54", unit: "trillion" }, 2],
+      [5_555_555.01234, { amount: "5.6", unit: "T" }, 1, true],
+      [3_333.01234, { amount: "3.3", unit: "B" }, undefined, true],
+      [9.01234, { amount: "9.012", unit: "M" }, 3, true],
+    ])(
+      "should convert %d to %o",
+      (amount, expected, precision = 1, abbreviateUnits = false) => {
+        expect(
+          abbreviateMillionsDollars(amount, precision, abbreviateUnits),
+        ).toEqual(expected);
+      },
+    );
   });
 
-  it("should convert million dollars to billion with full unit name", () => {
-    expect(abbreviateMillionsDollars(1_234.01234)).toEqual({ amount: "1.2", unit: "billion" });
-  });
-
-  it("should convert million dollars to million with full unit name", () => {
-    expect(abbreviateMillionsDollars(1.234567890123)).toEqual({ amount: "1.2", unit: "million" });
-  });
-
-  it("should handle amounts less than a million", () => {
-    expect(abbreviateMillionsDollars(0.4567890123)).toEqual({ amount: "0.5", unit: "million" });
-  });
-
-  it("should allow custom precision", () => {
-    expect(abbreviateMillionsDollars(9_876_543_210.01234, 2)).toEqual({ amount: "9876.54", unit: "trillion" });
-  });
-
-  it("should abbreviate units when requested", () => {
-    expect(abbreviateMillionsDollars(5_555_555.01234, 1, true)).toEqual({ amount: "5.6", unit: "T" });
-    expect(abbreviateMillionsDollars(3_333.01234, undefined, true)).toEqual({ amount: "3.3", unit: "B" });
-    expect(abbreviateMillionsDollars(9.01234, 3, true)).toEqual({ amount: "9.012", unit: "M" });
+  describe("formatCurrency", () => {
+    it.each([
+      [1234.56, "$1,235"],
+      [1234.56, "£1,234.6", "en-GB", "GBP", 1],
+      [1234.56, "1.234,56 €", "de-DE", "EUR", 2],
+      [1234.56, "￥1,235", "ja-JP", "JPY"],
+      [1234.56, "₹1,234.56", "hi-IN", "INR", 2],
+      [1234.56, "1 235 $US", "fr-FR", "USD", 0],
+      [-1234.56, "-$1,235"],
+      [0, "$0"],
+      [1234567890.12, "$1,234,567,890"],
+      [0.12, "$0.12", "en-US", "USD", 2],
+    ])(
+      "should format %d to %s",
+      (
+        value,
+        expected,
+        locales = "en-US",
+        currency = "USD",
+        maximumFractionDigits = 0,
+      ) => {
+        expect(
+          formatCurrency(value, locales, currency, maximumFractionDigits),
+        ).toBe(expected);
+      },
+    );
   });
 });

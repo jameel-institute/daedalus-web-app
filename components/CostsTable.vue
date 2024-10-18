@@ -11,8 +11,8 @@
         v-for="childCost in appStore.totalCost.children"
         :key="childCost.id"
       >
-        <tr class="nested-row">
-          <td class="ps-4">
+        <tr>
+          <td>
             {{ appStore.getCostLabel(childCost.id) }}
           </td>
           <td>{{ formatCurrency(childCost.value) }}</td>
@@ -21,9 +21,9 @@
           <tr
             v-for="grandChildCost in childCost.children"
             :key="grandChildCost.id"
-            class="nested-row-2"
+            class="nested-row"
           >
-            <td class="ps-5">
+            <td class="ps-4">
               {{ appStore.getCostLabel(grandChildCost.id) }}
             </td>
             <td>{{ formatCurrency(grandChildCost.value) }}</td>
@@ -40,9 +40,6 @@ const appStore = useAppStore();
 
 <style scoped>
 .nested-row {
-  background-color: #f8f9fa;
-}
-.nested-row-2 {
   background-color: #f1f3f5;
 }
 </style>

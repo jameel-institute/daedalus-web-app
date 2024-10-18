@@ -47,7 +47,7 @@ export const formatCurrency = (
   locales = "en-US",
   currency = "USD",
   maximumFractionDigits = 0,
-) => {
+): string => {
   return new Intl.NumberFormat(locales, {
     style: "currency",
     currency,

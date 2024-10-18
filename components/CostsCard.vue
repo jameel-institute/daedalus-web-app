@@ -52,12 +52,11 @@
       </div>
       <div class="pie-table-container">
         <div>
-          <CostsTable />
+          <CostsTable data-testid="costs-table" />
         </div>
         <CostsPie
           id="costsPieContainer"
           :hide-tooltips="hideTooltips"
-          :pie-size="appStore.largeScreen ? 450 : 350"
           @mouseleave="onMouseLeavePie"
           @mouseover="hideTooltips = false"
         />

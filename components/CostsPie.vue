@@ -17,7 +17,6 @@ import { costsPieColors, costsPieTooltipText } from "./utils/charts";
 
 const props = defineProps<{
   hideTooltips: boolean
-  pieSize?: number
 }>();
 
 accessibilityInitialize(Highcharts);
@@ -37,6 +36,7 @@ const chartBackgroundColor = "transparent";
 const chartBackgroundColorOnExporting = "white";
 let chart: Highcharts.Chart;
 let costsData: pieCost[] = [];
+const pieSize = computed(() => appStore.largeScreen ? 450 : 300);
 
 // Prioritise showing labels for larger slices over smaller slices, where labels would otherwise overlap.
 const lowerLevelsDataLabelFilter = {
@@ -127,8 +127,8 @@ const chartInitialOptions = () => {
       options3d: {
         enabled: true,
       },
-      height: props.pieSize,
-      width: props.pieSize,
+      height: pieSize.value,
+      width: pieSize.value,
       backgroundColor: chartBackgroundColor,
       events: {
         fullscreenOpen() {
@@ -212,9 +212,9 @@ watch(() => appStore.costsData, () => {
   }
 });
 
-watch(() => props.pieSize, throttle(() => {
-  if (chart && props.pieSize) {
-    chart.setSize(props.pieSize, props.pieSize, { duration: 250 });
+watch(() => appStore.largeScreen, throttle(() => {
+  if (chart) {
+    chart.setSize(pieSize.value, pieSize.value, { duration: 250 });
   }
 }, 25));
 
