@@ -73,7 +73,7 @@
       World Health Organization and Singapore’s Programme For Research In
       Epidemic Preparedness And Response (PREPARE), National Centre for
       Infectious Diseases (NCID) and Umeå University in Sweden. For more
-      information, visit the website of the EPPI Initiative.
+      information, visit the website of the <a href="https://new.express.adobe.com/webpage/TXLBkz1sN9FI5" target="_blank">EPPI Initiative</a>.
     </p>
     <p>
       The EPPI Initiative gratefully acknowledges research funding from
@@ -129,7 +129,9 @@
     <ol>
       <li>
         Haw, David J., Giovanni Forchini, Patrick Doohan, Paula Christen, Matteo Pianella, Robert Johnson, Sumali Bajaj, et al. 2022.
-        “Optimizing Social and Economic Activity While Containing SARS-CoV-2 Transmission Using DAEDALUS.”
+        <a href="https://www.nature.com/articles/s43588-022-00233-0" target="_blank">
+          Optimizing Social and Economic Activity While Containing SARS-CoV-2 Transmission Using DAEDALUS.
+        </a>
         <em>Nature Computational Science</em> 2 (4): 223–33.
       </li>
     </ol>
