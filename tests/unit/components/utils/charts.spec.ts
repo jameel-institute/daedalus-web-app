@@ -49,20 +49,20 @@ describe("costs pie tooltip text", () => {
   };
 
   it("should return the correct text for the top-level ('Total') tooltip", () => {
-    expect(costsPieTooltipText(totalNode)).toBe(
-      `<b>Total</b><br/>\n$1.2 billion<br/>\nX.Y% of national GDP`,
+    expect(costsPieTooltipText(totalNode, 121100)).toBe(
+      `<b>Total</b><br/>\n$1.2 billion<br/>\n1.0% of national GDP`,
     );
   });
 
   it("should return the correct text for the direct children of the top-level ('Total') tooltip", () => {
-    expect(costsPieTooltipText(lifeYearsNode)).toBe(
-      `<b>Life years</b><br/>\n$999.0 million<br/>\nX.Y% of national GDP`,
+    expect(costsPieTooltipText(lifeYearsNode, 9990)).toBe(
+      `<b>Life years</b><br/>\n$999.0 million<br/>\n10.0% of national GDP`,
     );
   });
 
   it("should return the correct text for the grand-children of the top-level ('Total') tooltip", () => {
-    expect(costsPieTooltipText(workingAgeAdultsNode)).toBe(
-      `<b>Life years: Working-age adults</b><br/>\n$222.2 million<br/>\nX.Y% of national GDP`,
+    expect(costsPieTooltipText(workingAgeAdultsNode, 222222)).toBe(
+      `<b>Life years: Working-age adults</b><br/>\n$222.2 million<br/>\n0.1% of national GDP`,
     );
   });
 });
