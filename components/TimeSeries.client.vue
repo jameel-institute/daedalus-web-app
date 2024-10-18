@@ -24,6 +24,7 @@
       <CAccordionBody>
         <div
           :id="chartContainerId"
+          ref="chartContainer"
           :class="`chart-container time-series ${props.hideTooltips ? hideTooltipsClassName : ''}`"
           :style="{ zIndex, height: 'fit-content' }"
           @mousemove="onMove"
@@ -74,6 +75,7 @@ offlineExportingInitialize(Highcharts);
 const appStore = useAppStore();
 
 let chart: Highcharts.Chart;
+const chartContainer = ref<HTMLDivElement | null>(null);
 const chartBackgroundColor = "transparent";
 const chartBackgroundColorOnExporting = "white";
 const hideTooltipsClassName = "hide-tooltips";
@@ -275,7 +277,7 @@ const chartInitialOptions = () => {
   } as Highcharts.Options;
 };
 
-onMounted(() => {
+watch(() => chartContainer.value, () => {
   chart = Highcharts.chart(chartContainerId.value, chartInitialOptions());
   emit("chartCreated", props.seriesId, chart);
 });

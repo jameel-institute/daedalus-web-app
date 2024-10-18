@@ -106,16 +106,15 @@ import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import { runStatus } from "~/types/apiResponseTypes";
 import type { Parameter } from "~/types/parameterTypes";
 
-// TODO: Use the runId from the route rather than getting it out of the store.
 const appStore = useAppStore();
 
 const jobTakingLongTime = ref(false);
 const stoppedPolling = ref(false);
-const showSpinner = computed(() => {
-  return (!appStore.currentScenario.result.data
-    && appStore.currentScenario.result.fetchStatus !== "error"
-    && !stoppedPolling.value);
-});
+const showSpinner = computed(() => !appStore.currentScenario.result.data
+  && appStore.currentScenario.result.fetchStatus !== "error"
+  && !stoppedPolling.value
+  && appStore.currentScenario.runId,
+);
 
 const paramDisplayText = (param: Parameter) => {
   if (appStore.currentScenario?.parameters && appStore.currentScenario?.parameters[param.id]) {
@@ -123,6 +122,13 @@ const paramDisplayText = (param: Parameter) => {
     return param.options ? param.options.find(({ id }) => id === rawVal)!.label : rawVal;
   }
 };
+
+const route = useRoute();
+const runIdFromRoute = route.params.runId as string;
+if (appStore.currentScenario.runId && runIdFromRoute !== appStore.currentScenario.runId) {
+  appStore.clearScenario(); // Required so that previous parameters aren't hanging around in the store.
+}
+appStore.currentScenario.runId = route.params.runId as string;
 
 // Eagerly try to load the status and results, in case they are already available and can be used during server-side rendering.
 await appStore.loadScenarioStatus();

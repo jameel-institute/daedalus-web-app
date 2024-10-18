@@ -3,7 +3,6 @@
     <TimeSeries
       v-for="(_, seriesId, index) in appStore.timeSeriesData"
       :key="seriesId"
-      :all-charts="charts"
       :series-id="seriesId"
       :index="index"
       :open="openedAccordions.includes(seriesId)"
