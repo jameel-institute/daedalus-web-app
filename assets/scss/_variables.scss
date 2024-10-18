@@ -3,6 +3,8 @@ $app-header-margin-bottom: 1.5rem;
 $min-wrapper-height: calc(100dvh - $app-header-height - $app-header-margin-bottom);
 $container-padding: 1.5rem;
 $sidebar-narrow-width: 4rem;
+$light-background: rgba(255, 255, 255, 0.5);
+$narrowest-supported-screen-width: 360px; // We support screen widths down to 360px since 11% of global users have this
 
 // Imperial Brand
 // ==============
@@ -25,15 +27,6 @@ $imperial-red: rgb(221, 37, 1);
 $imperial-tangerine: rgb(236, 115, 0);
 $imperial-lemon: rgb(255, 216, 1);
 
-// Variable overrides for (e.g.) CoreUI
-// ====================================
-$enable-deprecation-messages: false !default;
-$primary: $imperial-blue;
-$warning: $imperial-tangerine;
-$info: $imperial-pool-blue;
-$breadcrumb-divider: '>';
-$accordion-button-padding-y: 0.5rem;
-
 // Copy variables from CoreUI without changing them, for referring to them
 // =======================================================================
 // From node_modules/@coreui/coreui/scss/_variables.scss
@@ -48,3 +41,14 @@ $grid-breakpoints: (
 $cui-tertiary-bg: rgb(243, 244, 247);
 $input-border-width: 1px;
 $input-border-color: #dbdfe6;
+
+// Variable overrides for (e.g.) CoreUI
+// ====================================
+$enable-deprecation-messages: false !default;
+$primary: $imperial-blue;
+$warning: $imperial-tangerine;
+$info: $imperial-pool-blue;
+$breadcrumb-divider: '>';
+$accordion-button-padding-y: 0.5rem;
+$tooltip-margin: 0.5rem;
+$tooltip-max-width: calc($narrowest-supported-screen-width - (2 * var(--cui-tooltip-padding-x)) - (2 * $tooltip-margin));
