@@ -71,13 +71,16 @@
       :color="jobReallySlow ? 'warning' : 'info'"
     >
       <p v-if="jobReallySlow">
-        The analysis is taking longer than expected. Please wait or try again.
+        Thank you for waiting. Some scenario analyses can take up to 60 seconds to run. You can carry on waiting or
+        <NuxtLink prefetch-on="interaction" to="/scenarios/new">
+          <span> try again</span>
+        </NuxtLink> with another run.
       </p>
       <p>
         Analysis status: {{ appStore.currentScenario.status.data?.runStatus }}
       </p>
       <p class="mb-0">
-        Time elapsed: {{ secondsSinceFirstStatusPoll }} seconds
+        Waiting for {{ secondsSinceFirstStatusPoll }} seconds
       </p>
     </CAlert>
     <CRow v-else-if="appStore.timeSeriesData" class="cards-container">

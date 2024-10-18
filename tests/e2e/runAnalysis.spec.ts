@@ -64,6 +64,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   }
 
   await page.getByRole("button", { name: "Parameters" }).first().click();
+  // The following line has been known to fail locally on webkit, but pass on CI.
   await expect(page.getByRole("heading", { name: "Edit parameters" })).toBeVisible();
 
   await expect(page.getByLabel(parameterLabels.country)).toHaveValue("United States");
