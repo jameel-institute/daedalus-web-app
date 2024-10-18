@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="position-relative">
     <CostsLegend />
     <div
       :id="chartContainerId"
@@ -168,11 +168,6 @@ const chartInitialOptions = () => {
   } as Highcharts.Options;
 };
 
-const getCostLabel = (costId: string) => {
-  const name = appStore.metadata?.results.costs.find(cost => cost.id === costId)?.label;
-  return name || costId;
-};
-
 const populateCostsDataIntoPie = () => {
   if (!appStore.totalCost) {
     return;
@@ -180,7 +175,7 @@ const populateCostsDataIntoPie = () => {
   costsData = [{
     id: appStore.totalCost.id,
     parent: "",
-    name: getCostLabel(appStore.totalCost.id),
+    name: appStore.getCostLabel(appStore.totalCost.id),
     value: appStore.totalCost?.value,
   }];
   // Iterate over first level of children before recursing into the next level,
@@ -190,7 +185,7 @@ const populateCostsDataIntoPie = () => {
     costsData.push({
       id: cost.id,
       parent: appStore.totalCost!.id,
-      name: getCostLabel(cost.id),
+      name: appStore.getCostLabel(cost.id),
       value: cost.value,
     });
   });
@@ -203,7 +198,7 @@ const populateCostsDataIntoPie = () => {
       costsData.push({
         id: subCost.id,
         parent: cost.id,
-        name: getCostLabel(subCost.id),
+        name: appStore.getCostLabel(subCost.id),
         value: subCost.value,
       });
     });

@@ -25,3 +25,32 @@ export const abbreviateMillionsDollars = (
     unit,
   };
 };
+
+/**
+ * Formats a number as a currency string.
+ *
+ * @param value - The numeric value to format.
+ * @param locales - A string with a BCP 47 language tag, or an array of such strings. Defaults to "en-US".
+ * @param currency - A string with the currency code (ISO 4217 format). Defaults to "USD".
+ * @param maximumFractionDigits - The maximum number of fraction digits to display. Defaults to 0.
+ * @returns A string representing the formatted currency.
+ *
+ * @example
+ * ```typescript
+ * formatCurrency(1234.56); // "$1,235"
+ * formatCurrency(1234.56, "en-GB", "GBP", 1); // "£1,234.6"
+ * formatCurrency(1234.56, "de-DE", "EUR", 2); // "1.234,56€"
+ * ```
+ */
+export const formatCurrency = (
+  value: number,
+  locales = "en-US",
+  currency = "USD",
+  maximumFractionDigits = 0,
+) => {
+  return new Intl.NumberFormat(locales, {
+    style: "currency",
+    currency,
+    maximumFractionDigits,
+  }).format(value);
+};

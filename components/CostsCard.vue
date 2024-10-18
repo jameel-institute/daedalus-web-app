@@ -13,7 +13,11 @@
       <h3 id="totalHeading" class="mt-0 mb-0 fs-6">
         TOTAL
       </h3>
-      <div id="totalsContainer" ref="totalsContainer" class="d-flex flex-wrap gap-3 row-gap-0">
+      <div
+        id="totalsContainer"
+        ref="totalsContainer"
+        class="d-flex flex-wrap gap-3 row-gap-0"
+      >
         <div id="gdpContainer" class="d-flex gap-1">
           <p id="gdpTotalCostPercent" class="mt-0 mb-0">
             X.Y
@@ -46,14 +50,18 @@
           </p>
         </div>
       </div>
-      <CostsPie
-        id="costsPieContainer"
-        :hide-tooltips="hideTooltips"
-        :pie-size="pieSize"
-        :style="pieStyle"
-        @mouseleave="onMouseLeavePie"
-        @mouseover="() => { hideTooltips = false }"
-      />
+      <div class="pie-table-container">
+        <div>
+          <CostsTable />
+        </div>
+        <CostsPie
+          id="costsPieContainer"
+          :hide-tooltips="hideTooltips"
+          :pie-size="appStore.largeScreen ? 450 : 350"
+          @mouseleave="onMouseLeavePie"
+          @mouseover="hideTooltips = false"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -63,9 +71,8 @@ import { abbreviateMillionsDollars } from "@/utils/money";
 import { CIcon } from "@coreui/icons-vue";
 
 const appStore = useAppStore();
-
 const totalsContainer = ref(null);
-const totalsContainerWidth = ref(0);
+const hideTooltips = ref(false);
 
 const totalCostAbbr = computed(() => {
   if (appStore.totalCost) {
@@ -75,37 +82,11 @@ const totalCostAbbr = computed(() => {
   }
 });
 
-const hideTooltips = ref(false);
 const onMouseLeavePie = () => {
   setTimeout(() => {
     hideTooltips.value = true;
-  }, 500);
+  }, 300);
 };
-
-// Fit the pie into the available width
-const pieSize = computed(() => {
-  return totalsContainerWidth.value * 0.6;
-});
-
-const pieStyle = computed(() => {
-  return {
-    marginLeft: "auto",
-    height: `${pieSize.value}px`,
-    width: `${pieSize.value}px`, // Since we are dealing with circles, the container's width and height are the same
-  };
-});
-
-// Once the card body is rendered, add observers to the sizes of the it and the containers within it.
-watch(() => totalsContainer.value, () => {
-  if (totalsContainer.value) {
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        totalsContainerWidth.value = entry.contentRect.width;
-      }
-    });
-    observer.observe(totalsContainer.value);
-  }
-});
 </script>
 
 <style lang="scss" scoped>
@@ -115,13 +96,25 @@ watch(() => totalsContainer.value, () => {
 .costs-card {
   color: var(--cui-dark-text-emphasis);
 
+  .card-body {
+    display: flex;
+    flex-direction: column;
+  }
+  .pie-table-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
   #totalHeading {
     height: fit-content;
     letter-spacing: 0.08rem;
     font-weight: normal;
   }
 
-  #gdpContainer, #usdContainer {
+  #gdpContainer,
+  #usdContainer {
     width: fit-content;
   }
 
