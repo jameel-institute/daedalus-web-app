@@ -75,6 +75,7 @@ const totalCostAbbr = computed(() => {
   }
 });
 
+// Highcharts does not automatically remove tooltips when the mouse leaves the chart area.
 const hideTooltips = ref(false);
 const onMouseLeavePie = () => {
   setTimeout(() => {
