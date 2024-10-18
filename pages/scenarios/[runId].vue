@@ -67,7 +67,7 @@
       </p>
     </CAlert>
     <CAlert
-      v-if="!appStore.timeSeriesData && (jobSlow || jobReallySlow) && appStore.currentScenario.status.data?.runStatus"
+      v-if="!appStore.timeSeriesData && jobSlow && appStore.currentScenario.status.data?.runStatus"
       :color="jobReallySlow ? 'warning' : 'info'"
     >
       <p v-if="jobReallySlow">
@@ -198,7 +198,6 @@ onMounted(() => {
     // Some runs take an especially long time, e.g. Singapore + Omicron.
     setTimeout(() => {
       if (!appStore.currentScenario.status.data?.done) {
-        jobSlow.value = false;
         jobReallySlow.value = true;
       }
     }, 15000);
