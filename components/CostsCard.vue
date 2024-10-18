@@ -1,7 +1,7 @@
 <template>
   <div class="card costs-card">
     <!-- Todo: Make height dynamic. Matching header of time series. -->
-    <div class="card-header border-bottom-0 d-flex justify-content-between">
+    <div class="card-header d-flex justify-content-between">
       <div class="d-flex align-items-center">
         <CIcon icon="cilChartPie" size="xl" class="mb-1 text-secondary" />
         <h2 class="fs-5 m-0 ms-3 chart-header">
@@ -115,6 +115,11 @@ watch(() => totalsContainer.value, () => {
 // When adjusting or testing layout, use the widest possible values for the costs: 555.5% of GDP and 555.5 M USD.
 .costs-card {
   color: var(--cui-dark-text-emphasis);
+
+  .card-header {
+    height: 66.375px; // Hard-coded to match the height of the time series card header
+    border-bottom: var(--cui-border-width) solid var(--cui-border-color);
+  }
 
   #totalHeading {
     height: fit-content;
