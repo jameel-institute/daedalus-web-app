@@ -39,28 +39,54 @@ let chart: Highcharts.Chart;
 let costsData: pieCost[] = [];
 
 // Prioritise showing labels for larger slices over smaller slices, where labels would otherwise overlap.
-const lowerLevelsDataLabelFilter = {
+const lowerLevelsDataLabelFilter: Highcharts.DataLabelsFilterOptionsObject = {
   property: "innerArcLength",
   operator: ">",
   value: 16,
 };
 
-const chartLevelsOptions = (isDrillingDown: boolean = false) => [{
+const defaultDataLabelStyle: Highcharts.CSSObject = {
+  fontSize: "1rem",
+  fontWeight: "500",
+  textOutline: "none",
+  textShadow: "0px 0px 4px black",
+  color: "white",
+};
+const topLevelDataLabelStyle: Highcharts.CSSObject = {
+  fontSize: "0.9rem",
+  fontWeight: "400",
+  textShadow: "none",
+  textOutline: "none",
+  color: "black",
+  backgroundColor: "green",
+};
+
+const levelSizesWhen3Levels = {
+  inner: 1,
+  mid: 2,
+  outer: 1,
+};
+const levelSizesWhen2Levels = {
+  inner: 2,
+  outer: 1,
+};
+
+const chartLevelsOptions = (isDrillingDown: boolean = false): Array<Highcharts.PlotSunburstLevelsOptions> => [{
   level: 1,
   levelIsConstant: false,
   levelSize: {
     unit: "weight",
-    value: 1,
+    value: isDrillingDown ? 0 : levelSizesWhen3Levels.inner,
+  },
+  dataLabels: {
+    style: isDrillingDown ? defaultDataLabelStyle : topLevelDataLabelStyle,
   },
 }, {
   level: 2,
   colorByPoint: true,
   levelSize: {
     unit: "weight",
-    value: 2,
-  },
-  dataLabels: {
-    filter: isDrillingDown ? undefined : lowerLevelsDataLabelFilter,
+    value: isDrillingDown ? levelSizesWhen2Levels.inner : levelSizesWhen3Levels.mid,
   },
 }, {
   level: 3,
@@ -72,12 +98,13 @@ const chartLevelsOptions = (isDrillingDown: boolean = false) => [{
     enabled: isDrillingDown,
     filter: lowerLevelsDataLabelFilter,
     style: {
-      fontSize: "0.9rem",
+      fontWeight: "400",
+      fontSize: "0.8rem",
     },
   },
   levelSize: {
     unit: "weight",
-    value: 2,
+    value: isDrillingDown ? levelSizesWhen2Levels.outer : levelSizesWhen3Levels.outer,
   },
 }];
 
@@ -87,7 +114,9 @@ const chartSeries = () => {
     data: costsData, // Empty at initialisation, populated later
     name: "Root",
     allowDrillToNode: true,
-    borderRadius: 3,
+    borderRadius: 0,
+    borderWidth: 0.5,
+    borderColor: "white",
     cursor: "pointer",
     events: {
       click(event) {
@@ -106,18 +135,12 @@ const chartSeries = () => {
       rotation: 0,
       rotationMode: "auto", // Without this, labels sometimes appear in the top left at random. https://github.com/highcharts/highcharts/issues/18953
       format: "{point.name}",
-      style: {
-        fontSize: "1rem", // TODO: Make font-size smaller on small screens (or disappear on very small)
-        fontWeight: 500,
-        textOutline: "none",
-        textShadow: "0px 0px 4.5px black",
-        color: "white",
-      },
+      style: defaultDataLabelStyle,
       allowOverlap: false,
     },
     levels: chartLevelsOptions(),
     animation: false,
-  } as Highcharts.SeriesOptions;
+  } as Highcharts.SeriesSunburstOptions;
 };
 
 const chartInitialOptions = () => {
@@ -252,8 +275,8 @@ onUnmounted(() => {
     }
   }
 
-  .highcharts-point { // Avoid transparency on hover over pie slices
-    opacity: 1 !important;
+  .highcharts-point {
+    opacity: 1 !important; // Avoid transparency on hover over pie slices
   }
 
   .highcharts-container {
