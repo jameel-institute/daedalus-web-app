@@ -40,8 +40,7 @@
                       <span class="ms-1">
                         {{ paramDisplayText(parameter) }}
                       </span>
-                      <!-- Todo: once metadata uses real country ISOs, get a mapping from 3-letter ISOs to 2-letter ISOs, and look up the correct country flag. -->
-                      <CIcon v-if="parameter.id === appStore.globeParameter?.id" icon="cifGb" class="parameter-icon text-secondary ms-1" />
+                      <CIcon v-if="parameter.id === appStore.globeParameter?.id && countryFlagIcon" :icon="countryFlagIcon" class="parameter-icon text-secondary ms-1" />
                     </span>
                   </template>
                 </CTooltip>
@@ -116,6 +115,7 @@
 
 <script lang="ts" setup>
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
+import getCountryISO2 from "country-iso-3-to-2";
 import { runStatus } from "~/types/apiResponseTypes";
 import type { Parameter } from "~/types/parameterTypes";
 
@@ -136,6 +136,13 @@ const paramDisplayText = (param: Parameter) => {
     return param.options ? param.options.find(({ id }) => id === rawVal)!.label : rawVal;
   }
 };
+
+const countryFlagIcon = computed(() => {
+  const countryISO3 = appStore.currentScenario?.parameters?.country;
+  const countryISO2 = getCountryISO2(countryISO3);
+  const titleCaseISO2 = countryISO2?.toLowerCase().replace(/^(.)/, match => match.toUpperCase());
+  return countryISO2 ? `cif${titleCaseISO2}` : "";
+});
 
 // Eagerly try to load the status and results, in case they are already available and can be used during server-side rendering.
 await appStore.loadScenarioStatus();
