@@ -14,6 +14,10 @@ test.beforeAll(async () => {
   checkRApiServer();
 });
 
+// We are switching off visual testing until such a time as the underlying model code is stable enough that these
+// screenshots are not constantly changing, and are not so brittle.
+const useVisualScreenshotTesting = false;
+
 test("Can request a scenario analysis run", async ({ page, baseURL, headless }) => {
   await waitForNewScenarioPage(page, baseURL);
 
@@ -41,6 +45,33 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   await expect(page.getByText("Medium").first()).toBeVisible();
   await expect(page.getByText("305000").first()).toBeVisible();
 
+  await expect(page.locator("#prevalence-container")).toBeVisible({ timeout: 20000 });
+  await page.locator("#prevalence-container").scrollIntoViewIfNeeded();
+  await expect(page.locator("#prevalence-container .highcharts-xaxis-labels")).toBeVisible();
+  await expect(page.locator("#prevalence-container .highcharts-yaxis-labels")).toBeVisible();
+  await expect(page.locator("#prevalence-container .highcharts-plot-band")).toBeVisible();
+  await expect(page.locator("#prevalence-container").getByLabel("View chart menu, Chart")).toBeVisible();
+
+  await expect(page.locator("#hospitalised-container")).toBeVisible();
+  await page.locator("#hospitalised-container").scrollIntoViewIfNeeded();
+  await expect(page.locator("#hospitalised-container .highcharts-xaxis-labels")).toBeVisible();
+  await expect(page.locator("#hospitalised-container .highcharts-yaxis-labels")).toBeVisible();
+  await expect(page.locator("#hospitalised-container .highcharts-plot-band")).toBeVisible();
+  await expect(page.locator("#hospitalised-container .highcharts-plot-line")).toBeInViewport();
+  await expect(page.locator("#hospitalised-container").getByLabel("View chart menu, Chart")).toBeVisible();
+
+  await expect(page.locator("#dead-container")).toBeVisible();
+  await page.locator("#dead-container").scrollIntoViewIfNeeded();
+  await expect(page.locator("#dead-container .highcharts-xaxis-labels")).toBeVisible();
+  await expect(page.locator("#dead-container .highcharts-yaxis-labels")).toBeVisible();
+  await expect(page.locator("#dead-container").getByLabel("View chart menu, Chart")).toBeVisible();
+
+  await expect(page.locator("#vaccinated-container")).toBeVisible();
+  await page.locator("#vaccinated-container").scrollIntoViewIfNeeded();
+  await expect(page.locator("#vaccinated-container .highcharts-xaxis-labels")).toBeVisible();
+  await expect(page.locator("#vaccinated-container .highcharts-yaxis-labels")).toBeVisible();
+  await expect(page.locator("#vaccinated-container").getByLabel("View chart menu, Chart")).toBeVisible();
+
   // To regenerate these screenshots:
   // 1. Insert a generous timeout so that screenshots are of the final chart, not the chart half-way through
   //    its initialization animation: `await page.waitForTimeout(15000);`
@@ -48,7 +79,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   // 3. Run the tests with `npm run test:e2e` to regenerate the screenshots - tests will appear to fail the first time.
   // Make sure to stop any local development server first so that Playwright runs its own server, in production mode, so that the
   // Nuxt devtools are not present in the screenshots.
-  if (headless) {
+  if (headless && useVisualScreenshotTesting) {
     await expect(page.locator(".highcharts-background").first()).toHaveScreenshot("first-time-series.png", { maxDiffPixelRatio: 0.04, timeout: 15000 });
     await expect(page.locator(".highcharts-background").nth(1)).toHaveScreenshot("second-time-series.png", { maxDiffPixelRatio: 0.04 });
     await expect(page.locator(".highcharts-background").nth(2)).toHaveScreenshot("third-time-series.png", { maxDiffPixelRatio: 0.04 });
@@ -59,8 +90,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
     await page.getByRole("button", { name: "Hospital demand" }).click();
     await expect(page.locator(".highcharts-background").nth(2)).toHaveScreenshot("third-time-series-tallest.png", { maxDiffPixelRatio: 0.04 });
   } else {
-    // eslint-disable-next-line no-console
-    console.log("Running in Headed mode, no screenshot comparison");
+    console.warn("No screenshot comparison");
   }
 
   await page.getByRole("button", { name: "Parameters" }).first().click();
