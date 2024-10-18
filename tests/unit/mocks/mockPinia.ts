@@ -212,7 +212,7 @@ export const emptyScenario = {
 };
 Object.freeze(emptyScenario);
 
-export const mockPinia = (appState: Partial<AppState> = {}, includeMetadata: boolean = true) => {
+export const mockPinia = (appState: Partial<AppState> = {}, includeMetadata: boolean = true, stubActions = true) => {
   const initialState = {
     app: {
       largeScreen: true,
@@ -227,5 +227,5 @@ export const mockPinia = (appState: Partial<AppState> = {}, includeMetadata: boo
     },
   };
 
-  return createTestingPinia({ initialState, createSpy: vi.fn });
+  return createTestingPinia({ initialState, createSpy: vi.fn, stubActions });
 };
