@@ -3,7 +3,6 @@
     <TimeSeries
       v-for="(_, seriesId, index) in appStore.timeSeriesData"
       :key="seriesId"
-      :all-charts="charts"
       :series-id="seriesId"
       :index="index"
       :open="openedAccordions.includes(seriesId)"
@@ -29,7 +28,7 @@ const charts = ref<Record<string, Highcharts.Chart>>({});
 const openedAccordions = ref<string[]>([]);
 const hideTooltips = ref(false);
 const accordionBodyYPadding = 8;
-const minAccordionHeight = 150;
+const minAccordionHeight = 145;
 const maxAccordionHeight = 400;
 const minTotalAccordionHeight = 500;
 const minChartHeightPx = minAccordionHeight - (2 * accordionBodyYPadding);

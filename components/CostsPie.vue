@@ -150,6 +150,9 @@ const chartSeries = () => {
 
 const chartInitialOptions = () => {
   return {
+    credits: {
+      text: "Highcharts",
+    },
     chart: {
       spacing: [0, 0, 0, 0],
       options3d: {
