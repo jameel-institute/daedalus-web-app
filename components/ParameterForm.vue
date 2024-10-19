@@ -58,7 +58,7 @@
             <ParameterHeader :parameter="parameter" />
             <VueSelect
               :id="parameter.id"
-              v-model="formData[parameter.id]"
+              v-model="formData![parameter.id]"
               :aria-label="parameter.label"
               class="form-control"
               :class="[pulsingParameters.includes(parameter.id) ? 'pulse' : '']"
@@ -184,6 +184,19 @@ const formData = ref(
   // or to the previous scenario's values if any.
   appStore.currentScenario.parameters ? { ...appStore.currentScenario.parameters } : initialiseFormDataFromDefaults(),
 );
+
+// FOR PR: This is obviously quite gross. Potentially avoidable by allowing the select drop down to be unset and
+// using the invalids to show a validation error on submit - however that's not trivial since we're not using a core ui
+// input, which gives all the nice validation Ui and styling. Could also just not make the select searchable, but that
+// does seem useful for country because there are so many options.
+
+// Making the vue select searchable means that it's possible to unset a parameter value (to undefined) if you clear the search
+// input. In this case we just want to be able to revert to the previous value it had. However, this is tricky as we
+// don't get the previous value in any watch of formData since it's watching deep changes in an object, and we can't
+// use a computed setter for an array type. So here we keep a copy of the last full dictionary and reset in the watch
+// if required.
+const previousFullFormData = ref({ ...formData.value });
+
 const pulsingParameters = ref([] as string[]);
 const dependentParameters = computed((): Record<string, string[]> => {
   const dependentParameters = {} as { [key: string]: Array<string> };
@@ -354,6 +367,17 @@ const submitForm = async () => {
   };
 };
 
+watch(formData, (newVal) => {
+  if (newVal && paramMetadata.value && previousFullFormData.value) {
+    const invalid = paramMetadata.value.some(param => !newVal[param.id]);
+    if (invalid) {
+      formData.value = previousFullFormData.value;
+    } else {
+      previousFullFormData.value = { ...formData.value };
+    }
+  }
+}, { deep: 1 });
+
 onMounted(() => {
   mounted.value = true; // Use in v-show, otherwise there are up to several seconds during which the form shows with out of date values.
 
@@ -421,12 +445,14 @@ onMounted(() => {
   --vs-input-outline: transparent;
   --vs-border-radius: 4px;
   --vs-line-height: 0.8;
+  --vs-menu-height: 400px;
   --vs-padding: 0;
   --vs-option-font-size: var(--vs-font-size);
   --vs-option-text-color: var(--vs-text-color);
   --vs-option-hover-color: var(--cui-tertiary-bg);
   --vs-option-focused-color: var(--vs-option-hover-color);
   --vs-option-selected-color: var(--cui-primary-bg-subtle);
+  --vs-option-padding: 0 8px;
 }
 
 .vue-select  {
