@@ -185,11 +185,6 @@ const formData = ref(
   appStore.currentScenario.parameters ? { ...appStore.currentScenario.parameters } : initialiseFormDataFromDefaults(),
 );
 
-// FOR PR: This is obviously quite gross. Potentially avoidable by allowing the select drop down to be unset and
-// using the invalids to show a validation error on submit - however that's not trivial since we're not using a core ui
-// input, which gives all the nice validation Ui and styling. Could also just not make the select searchable, but that
-// does seem useful for country because there are so many options.
-
 // Making the vue select searchable means that it's possible to unset a parameter value (to undefined) if you clear the search
 // input. In this case we just want to be able to revert to the previous value it had. However, this is tricky as we
 // don't get the previous value in any watch of formData since it's watching deep changes in an object, and we can't
