@@ -97,7 +97,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   await page.getByRole("button", { name: "Parameters" }).first().click();
   await expect(page.getByRole("heading", { name: "Edit parameters" })).toBeVisible();
 
-  await expect(page.getByLabel(parameterLabels.country)).toHaveValue("United States");
+  await expect(page.getByLabel(parameterLabels.country)).toHaveValue("USA");
   await expect(page.getByLabel(parameterLabels.pathogen)).toHaveValue("sars_cov_1");
   await expect(page.getByLabel(parameterLabels.response)).toHaveValue("elimination");
   await expect(page.getByLabel("Medium")).toBeChecked();
