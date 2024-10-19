@@ -27,6 +27,6 @@ test("can download Excel file for scenario results", async ({ page, baseURL }) =
   await download.path();
 
   // Filename is derived from parameter values, in this case the defaults
-  const expectedFilename = "daedalus_United Kingdom_sars_cov_1_none_none_26200.xlsx";
+  const expectedFilename = "daedalus_Thailand_sars_cov_1_none_none_22000.xlsx";
   expect(download.suggestedFilename()).toBe(expectedFilename);
 });
