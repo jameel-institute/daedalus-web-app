@@ -432,7 +432,7 @@ onMounted(() => {
 }
 
 .select-container {
-   margin-left: 0.75rem;
+   margin-left: 0.7rem;
    margin-right: 0.55rem;
 }
 
@@ -444,7 +444,7 @@ onMounted(() => {
   --vs-font-size: 1.25rem;
   --vs-input-outline: transparent;
   --vs-border-radius: 4px;
-  --vs-line-height: 0.8;
+  --vs-line-height: 0.9;
   --vs-menu-height: 400px;
   --vs-padding: 0;
   --vs-option-font-size: var(--vs-font-size);

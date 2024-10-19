@@ -126,6 +126,8 @@ body {
   overflow-y: auto !important;
 }
 
+// Restore radio button group styling to allow for buttons no longer being direct children of button groups - which is
+// required for tooltips to display
 .btn-group > {
   .radio-btn-container {
     flex-grow: 1;
@@ -167,5 +169,3 @@ body {
 {
   background-color: var(--vs-option-bg)!important;
 }
-
-// TODO: comment
