@@ -471,7 +471,7 @@ onMounted(() => {
 :deep(.vue-select .search-input) {
   position: absolute;
   left: 0;
-  width: auto;
+  width: 100%;
 }
 
 // This fixes an issue where the open select contracted in width because .single-value items had absolute position
