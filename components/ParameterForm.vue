@@ -193,7 +193,7 @@ const formData = ref(
 // Making the vue select searchable means that it's possible to unset a parameter value (to undefined) if you clear the search
 // input. In this case we just want to be able to revert to the previous value it had. However, this is tricky as we
 // don't get the previous value in any watch of formData since it's watching deep changes in an object, and we can't
-// use a computed setter for an array type. So here we keep a copy of the last full dictionary and reset in the watch
+// use a computed setter for values in an object type. So here we keep a copy of the last full dictionary and reset in the watch
 // if required.
 const previousFullFormData = ref({ ...formData.value });
 
@@ -465,6 +465,13 @@ onMounted(() => {
 
 :deep(.vue-select .menu) {
   border-radius: 0.5rem!important;
+}
+
+// This prevents odd default styling where search text appears after width of current value
+:deep(.vue-select .search-input) {
+  position: absolute;
+  left: 0;
+  width: auto;
 }
 
 // This fixes an issue where the open select contracted in width because .single-value items had absolute position
