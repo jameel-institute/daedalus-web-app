@@ -57,9 +57,9 @@
           <CRow>
             <ParameterHeader :parameter="parameter" />
             <VueSelect
-              :id="parameter.id"
               v-model="formData![parameter.id]"
-              :aria-label="parameter.label"
+              :input-id="parameter.id"
+              :aria="{ labelledby: `${parameter.id}-label`, required: true }"
               class="form-control"
               :class="[pulsingParameters.includes(parameter.id) ? 'pulse' : '']"
               :options="parameter.options.map((o) => ({ value: o.id, label: o.label, description: o.description }))"

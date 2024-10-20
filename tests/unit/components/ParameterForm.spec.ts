@@ -5,6 +5,8 @@ import { mockNuxtImport, mountSuspended, registerEndpoint } from "@nuxt/test-uti
 import { flushPromises } from "@vue/test-utils";
 import { FetchError } from "ofetch";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import VueSelect from "vue3-select-component";
+import ParameterHeader from "~/components/ParameterHeader.vue";
 
 const stubs = {
   CIcon: true,
@@ -42,33 +44,36 @@ describe("parameter form", () => {
     expect(component.text()).toContain("Radio Buttons");
     expect(component.text()).toContain("Population");
 
-    const selectElements = component.findAll("select");
-    expect(selectElements.length).toBe(2);
-
-    selectElements.forEach((selectElement, index) => {
-      const correctLabel = ["Drop Down", "Region"][index];
-      const paramId = selectElement.element.attributes.getNamedItem("id")!.value;
-      expect(component.find(`label[for=${paramId}]`).element.textContent).toBe(correctLabel);
-      expect(selectElement.element.attributes.getNamedItem("aria-label")!.value).toBe(correctLabel);
+    const headers = component.findAllComponents(ParameterHeader);
+    headers.forEach((header, index) => {
+      expect(header.props("parameter")).toStrictEqual(mockedMetadata.parameters[index]);
     });
 
-    expect(selectElements[0].findAll("option").map((option) => {
-      return { value: option.element.value, label: option.text(), selected: option.element.selected };
-    })).toEqual([
-      { value: "1", label: "Option 1", selected: true },
-      { value: "2", label: "Option 2", selected: false },
-      { value: "3", label: "Option 3", selected: false },
-      { value: "4", label: "Option 4", selected: false },
-      { value: "5", label: "Option 5", selected: false },
-      { value: "6", label: "Option 6", selected: false },
-    ]);
+    const vueSelects = component.findAllComponents(VueSelect);
+    expect(vueSelects.length).toBe(2);
 
-    expect(selectElements[1].findAll("option").map((option) => {
-      return { value: option.element.value, label: option.text(), selected: option.element.selected };
-    })).toEqual([
-      { value: "CLD", label: "Cloud Nine", selected: false },
-      { value: "HVN", label: "Heaven", selected: true },
+    vueSelects.forEach((vueSelect, index) => {
+      const correctLabel = ["Drop Down", "Region"][index];
+      const paramId = vueSelect.props("inputId");
+      expect(component.find(`label[for=${paramId}]`).element.textContent).toBe(correctLabel);
+      expect(vueSelect.props("aria")).toStrictEqual({ labelledby: `${paramId}-label`, required: true });
+    });
+
+    expect(vueSelects[0].props("options")).toEqual([
+      { value: "1", label: "Option 1", description: "Option 1 description" },
+      { value: "2", label: "Option 2", description: "Option 2 description" },
+      { value: "3", label: "Option 3", description: "Option 3 description" },
+      { value: "4", label: "Option 4", description: "Option 4 description" },
+      { value: "5", label: "Option 5", description: "Option 5 description" },
+      { value: "6", label: "Option 6", description: undefined },
     ]);
+    expect(vueSelects[0].props("modelValue")).toBe("1");
+
+    expect(vueSelects[1].props("options")).toEqual([
+      { value: "CLD", label: "Cloud Nine", description: null },
+      { value: "HVN", label: "Heaven", description: null },
+    ]);
+    expect(vueSelects[1].props("modelValue")).toBe("HVN");
 
     const numericInput = component.find("input[type='number']");
     expect(numericInput.element.value).toBe("2000");
@@ -95,25 +100,23 @@ describe("parameter form", () => {
       global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithParameters })] },
     });
 
-    const selectElements = component.findAll("select");
+    const vueSelects = component.findAllComponents(VueSelect);
 
-    expect(selectElements[0].findAll("option").map((option) => {
-      return { value: option.element.value, label: option.text(), selected: option.element.selected };
-    })).toEqual([
-      { value: "1", label: "Option 1", selected: false },
-      { value: "2", label: "Option 2", selected: false },
-      { value: "3", label: "Option 3", selected: true },
-      { value: "4", label: "Option 4", selected: false },
-      { value: "5", label: "Option 5", selected: false },
-      { value: "6", label: "Option 6", selected: false },
+    expect(vueSelects[0].props("options")).toEqual([
+      { value: "1", label: "Option 1", description: "Option 1 description" },
+      { value: "2", label: "Option 2", description: "Option 2 description" },
+      { value: "3", label: "Option 3", description: "Option 3 description" },
+      { value: "4", label: "Option 4", description: "Option 4 description" },
+      { value: "5", label: "Option 5", description: "Option 5 description" },
+      { value: "6", label: "Option 6", description: undefined },
     ]);
+    expect(vueSelects[0].props("modelValue")).toBe("3");
 
-    expect(selectElements[1].findAll("option").map((option) => {
-      return { value: option.element.value, label: option.text(), selected: option.element.selected };
-    })).toEqual([
-      { value: "CLD", label: "Cloud Nine", selected: true },
-      { value: "HVN", label: "Heaven", selected: false },
+    expect(vueSelects[1].props("options")).toEqual([
+      { value: "CLD", label: "Cloud Nine", description: null },
+      { value: "HVN", label: "Heaven", description: null },
     ]);
+    expect(vueSelects[1].props("modelValue")).toBe("CLD");
 
     const numericInput = component.find("input[type='number']");
     expect(numericInput.element.value).toBe("25000");
@@ -136,8 +139,8 @@ describe("parameter form", () => {
     const submitButton = component.find("button[type='submit']");
     expect(submitButton.element.disabled).toBe(true);
 
-    const selectElement = component.find("select");
-    await selectElement.setValue("2");
+    const vueSelect = component.findComponent(VueSelect);
+    await vueSelect.vm.$emit("update:modelValue", "2");
     expect(submitButton.element.disabled).toBe(false);
   });
 
@@ -170,7 +173,7 @@ describe("parameter form", () => {
       global: { stubs, plugins: [mockPinia({ metadata })] },
     });
 
-    const selectElement = component.find("select");
+    const vueSelect = component.findComponent(VueSelect);
     const stockpileNumericInput = component.find("input[type='number'][id='mask_stockpile']");
     const stockpileRangeInput = component.find("input[type='range'][id='mask_stockpile']");
 
@@ -179,8 +182,8 @@ describe("parameter form", () => {
     expect(stockpileNumericInput.element.min).toBe("1");
     expect(stockpileNumericInput.element.max).toBe("3");
 
-    await selectElement.setValue("4");
-    await nextTick();
+    await vueSelect.vm.$emit("update:modelValue", "4");
+    await vueSelect.vm.$emit("option-selected");
 
     expect(stockpileNumericInput.element.value).toBe("11");
     expect(stockpileRangeInput.element.value).toBe("11");

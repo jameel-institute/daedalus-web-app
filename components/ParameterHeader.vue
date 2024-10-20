@@ -1,6 +1,6 @@
 <template>
   <ParameterIcon :parameter="parameter" />
-  <CFormLabel :for="parameter.id">
+  <CFormLabel :id="`${parameter.id}-label`" :for="parameter.id">
     {{ parameter.label }}
   </CFormLabel>
   <TooltipHelp :help-text="parameter.description" :classes="['ms-auto', 'me-3', 'mt-1']" />
