@@ -5,7 +5,7 @@
     placement="top"
   >
     <template #toggler="{ togglerId, on }">
-      <CIconSvg class="icon opacity-50 p-0" :class="classes">
+      <CIconSvg class="icon help-icon opacity-50 p-0" :class="classes">
         <img src="~/assets/icons/circleQuestion.svg" :aria-describedby="togglerId" v-on="on">
       </CIconSvg>
     </template>
