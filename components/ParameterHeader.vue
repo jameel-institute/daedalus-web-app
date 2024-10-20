@@ -13,7 +13,3 @@ defineProps<{
   parameter: Parameter
 }>();
 </script>
-
-<style scoped lang="scss">
-
-</style>

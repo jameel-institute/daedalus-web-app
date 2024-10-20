@@ -1,6 +1,7 @@
 import ParameterForm from "@/components/ParameterForm.vue";
 import { emptyScenario, mockedMetadata, mockPinia, updatableNumericParameter } from "@/tests/unit/mocks/mockPinia";
 
+import { CButtonGroup, CTooltip } from "@coreui/vue";
 import { mockNuxtImport, mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
 import { flushPromises } from "@vue/test-utils";
 import { FetchError } from "ofetch";
@@ -69,6 +70,16 @@ describe("parameter form", () => {
     ]);
     expect(vueSelects[0].props("modelValue")).toBe("1");
 
+    await vueSelects[0].find(".dropdown-icon").trigger("click");
+    const renderedOptions = vueSelects[0].findAll(".parameter-option");
+    expect(renderedOptions.length).toBe(6);
+    expect(renderedOptions[0].find("span").text()).toBe("Option 1");
+    expect(renderedOptions[0].find("div.text-dark").text()).toBe("Option 1 description");
+    expect(renderedOptions[1].find("span").text()).toBe("Option 2");
+    expect(renderedOptions[1].find("div.text-secondary").text()).toBe("Option 2 description");
+    expect(renderedOptions[5].find("span").text()).toBe("Option 6");
+    expect(renderedOptions[5].find("div.text-secondary").exists()).toBe(false);
+
     expect(vueSelects[1].props("options")).toEqual([
       { value: "CLD", label: "Cloud Nine", description: null },
       { value: "HVN", label: "Heaven", description: null },
@@ -92,6 +103,18 @@ describe("parameter form", () => {
 
     const submitButton = component.find("button[type='submit']");
     expect(submitButton.element.disabled).toBe(false);
+  });
+
+  it("renders Tooltips for radio buttons", async () => {
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
+      global: { stubs, plugins: [mockPinia()] },
+    });
+    const radioGroup = component.findComponent(CButtonGroup);
+    const tooltips = radioGroup.findAllComponents(CTooltip);
+    expect(tooltips.length).toBe(2);
+    expect(tooltips[0].props("content")).toBe("Yes description");
+    expect(tooltips[1].props("content")).toBe(undefined);
   });
 
   it("renders the current parameter values if the app store contains a current scenario", async () => {
@@ -321,5 +344,21 @@ describe("parameter form", () => {
     });
 
     expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(true);
+  });
+
+  it("form data reverts to previous id update includes falsy values", async () => {
+    // Do a valid update from default
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
+      global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithParameters })] },
+    });
+    const vueSelect = component.findComponent(VueSelect);
+    await vueSelect.vm.$emit("update:modelValue", "2");
+    const expectedFormData = { ...scenarioWithParameters.parameters, long_list: "2" };
+    expect(component.vm.formData.value).toStrictEqual(expectedFormData);
+
+    // Do an invalid update - should revert to the first update
+    await vueSelect.vm.$emit("update:modelValue", undefined);
+    expect(component.vm.formData.value).toStrictEqual(expectedFormData);
   });
 });

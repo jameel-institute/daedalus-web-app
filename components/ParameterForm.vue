@@ -67,8 +67,8 @@
               @option-selected="handleChange(parameter)"
             >
               <template #option="{ option }">
-                <div>
-                  {{ option.label }}
+                <div class="parameter-option">
+                  <span>{{ option.label }}</span>
                   <div
                     v-if="option.description"
                     :class="option.value === formData[parameter.id] ? 'text-dark' : 'text-secondary'"
