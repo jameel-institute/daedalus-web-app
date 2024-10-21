@@ -10,6 +10,8 @@
       "vaccine": "none",
       "hospital_capacity": "30500"
     },
+    "gdp": 2548586.4,
+    "average_vsl": 2032235.5505,
     "costs": [
       {
         "id": "total",

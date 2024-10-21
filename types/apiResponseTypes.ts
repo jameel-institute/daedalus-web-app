@@ -68,6 +68,8 @@ export interface ScenarioResultData {
   capacities: Array<ScenarioCapacity>
   interventions: Array<ScenarioIntervention>
   time_series: Record<string, number[]>
+  gdp: number
+  average_vsl: number
 }
 
 export interface ScenarioResultResponse extends ApiResponse<ScenarioResultData> { }

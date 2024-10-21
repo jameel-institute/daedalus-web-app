@@ -13,7 +13,7 @@
       >
         <tr>
           <td class="ps-2">
-            {{ appStore.getCostLabel(childCost.id) }}
+            {{ appStore.getCostLabel(childCost.id) }} <span v-if="childCost.id === 'life_years'">*</span>
           </td>
           <td>{{ formatCurrency(childCost.value) }}</td>
         </tr>

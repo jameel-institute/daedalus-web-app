@@ -26,7 +26,7 @@ const expectedCostData = [
   { id: "total", name: "Total", parent: "", value: 1086625.0137 },
   { id: "gdp", name: "GDP", parent: "total", value: 52886.8372 },
   { id: "education", name: "Education", parent: "total", value: 4154.9456 },
-  { id: "life_years", name: "Life years", parent: "total", value: 1029583.2309 },
+  { id: "life_years", name: "Life years*", parent: "total", value: 1029583.2309 },
   { id: "gdp_absences", name: "Absences", parent: "gdp", value: 52886.8372 },
   { id: "education_absences", name: "Absences", parent: "education", value: 4154.9456 },
   { id: "life_years_infants", name: "Infants", parent: "life_years", value: 882.054 },
