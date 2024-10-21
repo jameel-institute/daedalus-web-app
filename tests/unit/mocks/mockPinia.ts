@@ -215,7 +215,7 @@ Object.freeze(emptyScenario);
 export const mockPinia = (
   appState: Partial<AppState> = {},
   includeMetadata: boolean = true,
-  testingOpts: TestingOptions = {},
+  testingOpts: Partial<TestingOptions> = {},
 ) => {
   const initialState = {
     app: {

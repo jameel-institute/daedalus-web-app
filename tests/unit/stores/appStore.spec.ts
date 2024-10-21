@@ -127,6 +127,7 @@ describe("app store", () => {
         expect(store.currentScenario.result.data).toEqual(mockResultDataWithoutRunId);
         expect(store.currentScenario.result.fetchError).toEqual(undefined);
         expect(store.currentScenario.result.fetchStatus).toEqual("success");
+        expect(store.currentScenario.parameters).toEqual(mockResultData.parameters);
       });
     });
 

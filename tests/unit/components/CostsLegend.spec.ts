@@ -1,4 +1,4 @@
-import CostsLegend from "@/components/CostsLegend.vue";
+import CostsLegend from "@/components/CostsLegend.client.vue";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import type { ScenarioResultData } from "~/types/apiResponseTypes";
 import { emptyScenario, mockPinia } from "../mocks/mockPinia";
