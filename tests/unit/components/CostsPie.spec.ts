@@ -2,10 +2,11 @@ import type { AsyncDataRequestStatus } from "#app";
 import type { ScenarioResultData } from "@/types/apiResponseTypes";
 import CostsPie from "@/components/CostsPie.vue";
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
-import { mockResultResponseData } from "@/tests/unit/mocks/mockResponseData";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
+import { flushPromises } from "@vue/test-utils";
 import * as Highcharts from "highcharts";
+import { mockResultResponseData } from "../mocks/mockResponseData";
 
 const stubs = {
   CIcon: true,
@@ -60,7 +61,7 @@ describe("costs pie", () => {
   it("should render the costs pie chart container", async () => {
     const component = await mountSuspended(CostsPie, {
       global: { stubs, plugins: [mockPinia()] },
-      props: { hideTooltips: false, pieSize: 100 },
+      props: { hideTooltips: false },
     });
 
     const container = component.find(`#costsChartContainer`);
@@ -75,8 +76,8 @@ describe("costs pie", () => {
 
   it("should populate the cost data into the chart when the data is loaded after the component is mounted", async () => {
     await mountSuspended(CostsPie, {
-      global: { stubs, plugins: [mockPinia()] },
-      props: { hideTooltips: false, pieSize: 100 },
+      global: { stubs, plugins: [mockPinia({}, true, { stubActions: false })] },
+      props: { hideTooltips: false },
     });
 
     const store = useAppStore();
@@ -89,8 +90,8 @@ describe("costs pie", () => {
 
   it("should populate the cost data into the chart when the data is loaded before the component is mounted", async () => {
     await mountSuspended(CostsPie, {
-      global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithCostData })] },
-      props: { hideTooltips: false, pieSize: 100 },
+      global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithCostData }, true, { stubActions: false })] },
+      props: { hideTooltips: false },
     });
 
     await waitFor(() => {
@@ -98,29 +99,29 @@ describe("costs pie", () => {
     });
   });
 
-  it("should use the pieSize prop to determine the height and width of the pie", async () => {
+  it("should set pie size depending on screen size", async () => {
     const chartSpy = vi.spyOn(Highcharts, "chart");
-
-    const component = await mountSuspended(CostsPie, {
-      global: { stubs, plugins: [mockPinia()] },
-      props: { hideTooltips: false, pieSize: 100 },
+    const testPinia = mockPinia();
+    const appStore = useAppStore(testPinia);
+    await mountSuspended(CostsPie, {
+      global: { stubs, plugins: [testPinia] },
+      props: { hideTooltips: false },
     });
 
     expect(chartSpy).toHaveBeenCalledWith(
       "costsChartContainer",
       expect.objectContaining({
         chart: expect.objectContaining({
-          height: 100,
-          width: 100,
+          height: 450,
+          width: 450,
         }),
       }),
     );
+    appStore.largeScreen = false;
 
-    component.setProps({ pieSize: 2000 });
+    await flushPromises();
 
-    await nextTick();
-
-    expect(mockSetSize).toHaveBeenCalledWith(2000, 2000, expect.any(Object));
+    expect(mockSetSize).toHaveBeenCalledWith(300, 300, expect.any(Object));
   });
 
   it("should initialise the chart with the correct options", async () => {
@@ -128,15 +129,15 @@ describe("costs pie", () => {
 
     await mountSuspended(CostsPie, {
       global: { stubs, plugins: [mockPinia()] },
-      props: { hideTooltips: false, pieSize: 100 },
+      props: { hideTooltips: false },
     });
 
     expect(chartSpy).toHaveBeenCalledWith(
       "costsChartContainer",
       expect.objectContaining({
         chart: expect.objectContaining({
-          height: 100,
-          width: 100,
+          height: 450,
+          width: 450,
         }),
         colors: expect.arrayContaining([expect.stringContaining("rgba")]),
         series: expect.arrayContaining([

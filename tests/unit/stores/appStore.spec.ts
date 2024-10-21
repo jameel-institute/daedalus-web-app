@@ -1,6 +1,6 @@
 import * as ExcelDownload from "@/download/excelScenarioDownload";
 import { useAppStore } from "@/stores/appStore";
-import { emptyScenario, mockResultData } from "@/tests/unit/mocks/mockPinia";
+import { emptyScenario, mockedMetadata, mockResultData } from "@/tests/unit/mocks/mockPinia";
 import { registerEndpoint } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 import { createPinia, setActivePinia } from "pinia";
@@ -273,6 +273,23 @@ describe("app store", () => {
         expect(store.totalCost?.id).toEqual("total");
         expect(store.totalCost?.value).toEqual(1086625.0137);
         expect(store.totalCost?.children?.length).toEqual(3);
+      });
+
+      it("getCostLabel returns the label for cost id", async () => {
+        const store = useAppStore();
+        store.metadata = mockedMetadata;
+
+        const costLabel = store.getCostLabel("gdp_closures");
+
+        expect(costLabel).toEqual("Closures");
+      });
+      it("getCostLabel returns cost id if not found in metadata", async () => {
+        const store = useAppStore();
+        store.metadata = mockedMetadata;
+
+        const costLabel = store.getCostLabel("not_found");
+
+        expect(costLabel).toEqual("not_found");
       });
     });
   });
