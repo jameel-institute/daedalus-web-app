@@ -2,17 +2,17 @@
   <table v-if="appStore.totalCost" class="table rounded table-hover table-sm">
     <thead class="border-bottom-2 border-black">
       <tr>
-        <th>Loss</th>
-        <th>Total in M$</th>
+        <th />
+        <th>$ in millions</th>
       </tr>
     </thead>
     <tbody>
       <template
-        v-for="childCost in appStore.totalCost.children"
+        v-for="childCost in appStore.totalCost.children?.sort((a, b) => b.value - a.value)"
         :key="childCost.id"
       >
         <tr>
-          <td>
+          <td class="ps-2">
             {{ appStore.getCostLabel(childCost.id) }}
           </td>
           <td>{{ formatCurrency(childCost.value) }}</td>
@@ -23,7 +23,7 @@
             :key="grandChildCost.id"
             class="nested-row"
           >
-            <td class="ps-4">
+            <td class="ps-5">
               {{ appStore.getCostLabel(grandChildCost.id) }}
             </td>
             <td>{{ formatCurrency(grandChildCost.value) }}</td>

@@ -1,7 +1,7 @@
 <template>
   <div class="card costs-card">
     <!-- Todo: Make height dynamic. Matching header of time series. -->
-    <div class="card-header border-bottom-0 d-flex justify-content-between">
+    <div class="card-header d-flex justify-content-between">
       <div class="d-flex align-items-center">
         <CIcon icon="cilChartPie" size="xl" class="mb-1 text-secondary" />
         <h2 class="fs-5 m-0 ms-3 chart-header">
@@ -115,6 +115,12 @@ const onMouseLeavePie = () => {
     display: flex;
     justify-content: center;
   }
+
+  .card-header {
+    height: 66.375px; // Hard-coded to match the height of the time series card header
+    border-bottom: var(--cui-border-width) solid var(--cui-border-color);
+  }
+
   #totalHeading {
     height: fit-content;
     letter-spacing: 0.08rem;
