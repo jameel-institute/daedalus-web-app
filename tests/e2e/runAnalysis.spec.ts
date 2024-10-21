@@ -83,6 +83,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
     await expect(page.locator(".accordion-body").first()).toHaveScreenshot("first-time-series.png", { maxDiffPixelRatio: 0.04, timeout: 15000 });
     await expect(page.locator(".accordion-body").nth(1)).toHaveScreenshot("second-time-series.png", { maxDiffPixelRatio: 0.04 });
     await expect(page.locator(".accordion-body").nth(2)).toHaveScreenshot("third-time-series.png", { maxDiffPixelRatio: 0.04 });
+    await expect(page.locator(".accordion-body").nth(3)).toHaveScreenshot("fourth-time-series.png", { maxDiffPixelRatio: 0.04 });
     await expect(page.locator("#costsChartContainer rect").first()).toHaveScreenshot("costs-pie.png", { maxDiffPixelRatio: 0.04 });
 
     // Test re-sizing of the charts
