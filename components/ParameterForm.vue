@@ -14,11 +14,8 @@
         class="field-container"
       >
         <div v-if="renderAsRadios(parameter)" class="button-group-container">
-          <CRow>
-            <ParameterIcon :parameter="parameter" />
-            <CFormLabel :for="parameter.id">
-              {{ parameter.label }}
-            </CFormLabel>
+          <CRow class="pe-2">
+            <ParameterHeader :parameter="parameter" />
           </CRow>
           <CRow>
             <CButtonGroup
@@ -28,48 +25,65 @@
               :class="`${pulsingParameters.includes(parameter.id) ? 'pulse' : ''}`"
               @change="handleChange(parameter)"
             >
-              <CFormCheck
+              <CTooltip
                 v-for="(option) in parameter.options"
-                :id="option.id"
                 :key="option.id"
-                v-model="formData[parameter.id]"
-                type="radio"
-                :button="{ color: 'primary', variant: 'outline' }"
-                :name="parameter.id"
-                autocomplete="off"
-                :label="option.label"
-                :value="option.id"
-              />
+                :content="option.description"
+                placement="top"
+              >
+                <template #toggler="{ togglerId, on }">
+                  <div
+                    class="radio-btn-container"
+                    :aria-describedby="togglerId"
+                    v-on="on"
+                  >
+                    <CFormCheck
+                      :id="option.id"
+                      v-model="formData[parameter.id]"
+                      type="radio"
+                      :button="{ color: 'primary', variant: 'outline' }"
+                      :name="parameter.id"
+                      autocomplete="off"
+                      :label="option.label"
+                      :value="option.id"
+                    />
+                  </div>
+                </template>
+              </CTooltip>
             </CButtonGroup>
           </CRow>
         </div>
-        <div v-else-if="renderAsSelect(parameter)">
-          <ParameterIcon :parameter="parameter" />
-          <CFormLabel :for="parameter.id">
-            {{ parameter.label }}
-          </CFormLabel>
-          <select
-            :id="parameter.id"
-            v-model="formData[parameter.id]"
-            :aria-label="parameter.label"
-            class="form-select" :class="[appStore.largeScreen ? 'form-select-lg' : '', pulsingParameters.includes(parameter.id) ? 'pulse' : '']"
-            @change="handleChange(parameter)"
-          >
-            <option
-              v-for="(option) in parameter.options"
-              :key="option.id"
-              :value="option.id"
-              :selected="option.id === formData[parameter.id]"
+        <div v-else-if="renderAsSelect(parameter)" class="select-container">
+          <CRow>
+            <ParameterHeader :parameter="parameter" />
+            <VueSelect
+              v-model="formData![parameter.id]"
+              :input-id="parameter.id"
+              :aria="{ labelledby: `${parameter.id}-label`, required: true }"
+              class="form-control"
+              :class="[pulsingParameters.includes(parameter.id) ? 'pulse' : '']"
+              :options="parameter.options.map((o) => ({ value: o.id, label: o.label, description: o.description }))"
+              :is-clearable="false"
+              @option-selected="handleChange(parameter)"
             >
-              {{ option.label }}
-            </option>
-          </select>
+              <template #option="{ option }">
+                <div class="parameter-option">
+                  <span>{{ option.label }}</span>
+                  <div
+                    v-if="option.description"
+                    :class="option.value === formData[parameter.id] ? 'text-dark' : 'text-secondary'"
+                  >
+                    <small>{{ option.description }}</small>
+                  </div>
+                </div>
+              </template>
+            </VueSelect>
+          </CRow>
         </div>
         <div v-else-if="parameter.parameterType === TypeOfParameter.Numeric">
-          <ParameterIcon :parameter="parameter" />
-          <CFormLabel :for="parameter.id">
-            {{ parameter.label }}
-          </CFormLabel>
+          <div class="d-flex numeric-header">
+            <ParameterHeader :parameter="parameter" />
+          </div>
           <div class="d-flex flex-wrap">
             <div class="flex-grow-1">
               <CFormInput
@@ -141,6 +155,8 @@ import type { Parameter, ParameterSet, ValueData } from "@/types/parameterTypes"
 import type { FetchError } from "ofetch";
 import { TypeOfParameter } from "@/types/parameterTypes";
 import { CIcon } from "@coreui/icons-vue";
+import VueSelect from "vue3-select-component";
+import ParameterHeader from "~/components/ParameterHeader.vue";
 
 const props = defineProps<{
   inModal: boolean
@@ -168,6 +184,14 @@ const formData = ref(
   // or to the previous scenario's values if any.
   appStore.currentScenario.parameters ? { ...appStore.currentScenario.parameters } : initialiseFormDataFromDefaults(),
 );
+
+// Making the vue select searchable means that it's possible to unset a parameter value (to undefined) if you clear the search
+// input. In this case we just want to be able to revert to the previous value it had. However, this is tricky as we
+// don't get the previous value in any watch of formData since it's watching deep changes in an object, and we can't
+// use a computed setter for values in an object type. So here we keep a copy of the last full dictionary and reset in the watch
+// if required.
+const previousFullFormData = ref({ ...formData.value });
+
 const pulsingParameters = ref([] as string[]);
 const dependentParameters = computed((): Record<string, string[]> => {
   const dependentParameters = {} as { [key: string]: Array<string> };
@@ -339,6 +363,17 @@ const submitForm = async () => {
   };
 };
 
+watch(formData, (newVal) => {
+  if (newVal && paramMetadata.value && previousFullFormData.value) {
+    const invalid = paramMetadata.value.some(param => !newVal[param.id]);
+    if (invalid) {
+      formData.value = previousFullFormData.value;
+    } else {
+      previousFullFormData.value = { ...formData.value };
+    }
+  }
+}, { deep: 1 });
+
 onMounted(() => {
   mounted.value = true; // Use in v-show, otherwise there are up to several seconds during which the form shows with out of date values.
 
@@ -351,7 +386,7 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .inputs {
   display: flex;
   flex-wrap: wrap;
@@ -390,5 +425,53 @@ onMounted(() => {
   100% {
     box-shadow: 0 0 0 15px rgba(0, 0, 255, 0);
   }
+}
+
+.select-container {
+   margin-left: 0.7rem;
+   margin-right: 0.55rem;
+}
+
+.numeric-header {
+  padding-right: 2.2rem;
+}
+
+.vue-select {
+  --vs-font-size: 1.25rem;
+  --vs-input-outline: transparent;
+  --vs-border-radius: 4px;
+  --vs-line-height: 0.9;
+  --vs-menu-height: 400px;
+  --vs-padding: 0;
+  --vs-option-font-size: var(--vs-font-size);
+  --vs-option-text-color: var(--vs-text-color);
+  --vs-option-hover-color: var(--cui-tertiary-bg);
+  --vs-option-focused-color: var(--vs-option-hover-color);
+  --vs-option-selected-color: var(--cui-primary-bg-subtle);
+  --vs-option-padding: 0 8px;
+}
+
+.vue-select  {
+  border-radius: 1rem!important;
+}
+
+:deep(.vue-select .control) {
+  border-style: none;
+}
+
+:deep(.vue-select .menu) {
+  border-radius: 0.5rem!important;
+}
+
+// This prevents odd default styling where search text appears after width of current value
+:deep(.vue-select .search-input) {
+  position: absolute;
+  left: 0;
+  width: 100%;
+}
+
+// This fixes an issue where the open select contracted in width because .single-value items had absolute position
+:deep(.open .single-value) {
+  position: relative!important;
 }
 </style>

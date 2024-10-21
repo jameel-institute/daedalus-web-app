@@ -1,11 +1,10 @@
+import type { DisplayInfo } from "~/types/apiResponseTypes";
+
 export interface ParameterSet { [key: string]: string };
 
 // For metadata
 // ============
-export interface ParameterOption {
-  id: string
-  label: string
-}
+export type ParameterOption = DisplayInfo;
 
 export enum TypeOfParameter {
   Select = "select",
@@ -24,9 +23,7 @@ interface UpdateNumericFrom {
   values: Record<string, ValueData>
 }
 
-export interface Parameter {
-  id: string
-  label: string
+export interface Parameter extends DisplayInfo {
   parameterType: TypeOfParameter
   defaultOption: string | undefined
   ordered: boolean
