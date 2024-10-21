@@ -9,7 +9,8 @@ import type { Metadata } from "~/types/apiResponseTypes";
 
 const stubs = {
   CIcon: true,
-  TimeSeries: true,
+  TimeSeriesList: true,
+  CostsCard: true,
 };
 
 const longRunningRunId = "123";
