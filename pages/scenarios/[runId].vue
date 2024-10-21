@@ -138,7 +138,7 @@ const runIdFromRoute = route.params.runId as string;
 if (appStore.currentScenario.runId && runIdFromRoute !== appStore.currentScenario.runId) {
   appStore.clearScenario(); // Required so that previous parameters aren't hanging around in the store.
 }
-appStore.currentScenario.runId = route.params.runId as string;
+appStore.currentScenario.runId = runIdFromRoute;
 
 const countryFlagIcon = computed(() => {
   const countryISO3 = appStore.currentScenario?.parameters?.country;
