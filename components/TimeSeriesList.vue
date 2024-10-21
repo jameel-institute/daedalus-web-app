@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="card-body p-0"
-  >
+  <div class="card-body p-0">
     <TimeSeries
       v-for="(_, seriesId, index) in appStore.timeSeriesData"
       :key="seriesId"

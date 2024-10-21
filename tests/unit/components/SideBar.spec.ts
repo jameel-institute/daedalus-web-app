@@ -3,7 +3,6 @@ import SideBar from "@/components/SideBar.vue";
 import { mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
-import { describe, expect, it } from "vitest";
 
 const stubs = {
   CIcon: true,

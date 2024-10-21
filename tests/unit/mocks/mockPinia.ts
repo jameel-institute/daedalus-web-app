@@ -1,7 +1,6 @@
 import type { AppState } from "@/types/storeTypes";
 import sampleMetadataResponse from "@/mocks/responses/metadata.json";
-import { createTestingPinia } from "@pinia/testing";
-import { vi } from "vitest";
+import { createTestingPinia, type TestingOptions } from "@pinia/testing";
 import type { Metadata, ResultsMetadata } from "~/types/apiResponseTypes";
 import { TypeOfParameter } from "~/types/parameterTypes";
 import { InterventionLevel } from "~/types/resultTypes";
@@ -213,7 +212,11 @@ export const emptyScenario = {
 };
 Object.freeze(emptyScenario);
 
-export const mockPinia = (appState: Partial<AppState> = {}, includeMetadata: boolean = true) => {
+export const mockPinia = (
+  appState: Partial<AppState> = {},
+  includeMetadata: boolean = true,
+  testingOpts: TestingOptions = {},
+) => {
   const initialState = {
     app: {
       largeScreen: true,
@@ -228,5 +231,5 @@ export const mockPinia = (appState: Partial<AppState> = {}, includeMetadata: boo
     },
   };
 
-  return createTestingPinia({ initialState, createSpy: vi.fn });
+  return createTestingPinia({ initialState, createSpy: vi.fn, ...testingOpts });
 };
