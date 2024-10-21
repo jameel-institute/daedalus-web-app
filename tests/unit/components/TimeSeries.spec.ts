@@ -1,6 +1,7 @@
 import type { ScenarioResultData } from "@/types/apiResponseTypes";
 import TimeSeries from "@/components/TimeSeries.vue";
 import { emptyScenario, mockedMetadata, mockPinia } from "@/tests/unit/mocks/mockPinia";
+import { mockResultResponseData } from "@/tests/unit/mocks/mockResponseData";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import * as Highcharts from "highcharts";
 
