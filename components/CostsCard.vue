@@ -48,7 +48,7 @@
             </span>
           </p>
         </div>
-      </div>div
+      </div>
       <div class="pie-table-container">
         <div class="flex-grow-1">
           <CostsTable data-testid="costs-table" />
@@ -60,8 +60,8 @@
           @mouseover="hideTooltips = false"
         />
       </div>
-      <p class="text-end fw-lighter vsl-display">
-        Average value of life: {{ formatCurrency(appStore.currentScenario.result.data?.average_vsl || 0) }} USD
+      <p class="fw-lighter vsl-display">
+        * Value of statistical life: {{ formatCurrency(appStore.currentScenario.result.data?.average_vsl || 0) }} Int$
       </p>
     </div>
   </div>
