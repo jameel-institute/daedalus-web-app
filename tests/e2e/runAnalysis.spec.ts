@@ -61,34 +61,35 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   await expect(page.locator("#hospitalised-container").getByLabel("View chart menu, Chart")).toBeVisible();
 
   await expect(page.locator("#dead-container")).toBeVisible();
-  await page.locator("#dead-container").scrollIntoViewIfNeeded();
   await expect(page.locator("#dead-container .highcharts-xaxis-labels")).toBeVisible();
   await expect(page.locator("#dead-container .highcharts-yaxis-labels")).toBeVisible();
   await expect(page.locator("#dead-container").getByLabel("View chart menu, Chart")).toBeVisible();
 
   await expect(page.locator("#vaccinated-container")).toBeVisible();
-  await page.locator("#vaccinated-container").scrollIntoViewIfNeeded();
   await expect(page.locator("#vaccinated-container .highcharts-xaxis-labels")).toBeVisible();
   await expect(page.locator("#vaccinated-container .highcharts-yaxis-labels")).toBeVisible();
   await expect(page.locator("#vaccinated-container").getByLabel("View chart menu, Chart")).toBeVisible();
 
+  await expect(page.locator("#costsChartContainer rect").first()).toBeVisible();
+
   // To regenerate these screenshots:
   // 1. Insert a generous timeout so that screenshots are of the final chart, not the chart half-way through
-  //    its initialization animation: `await page.waitForTimeout(15000);`
+  //    its initialization animation: `await page.waitForTimeout(10000);`
   // 2. Delete the screenshots directory, ./<this-file-name>-snapshots
   // 3. Run the tests with `npm run test:e2e` to regenerate the screenshots - tests will appear to fail the first time.
   // Make sure to stop any local development server first so that Playwright runs its own server, in production mode, so that the
   // Nuxt devtools are not present in the screenshots.
   if (headless && useVisualScreenshotTesting) {
-    await expect(page.locator(".highcharts-background").first()).toHaveScreenshot("first-time-series.png", { maxDiffPixelRatio: 0.04, timeout: 15000 });
-    await expect(page.locator(".highcharts-background").nth(1)).toHaveScreenshot("second-time-series.png", { maxDiffPixelRatio: 0.04 });
-    await expect(page.locator(".highcharts-background").nth(2)).toHaveScreenshot("third-time-series.png", { maxDiffPixelRatio: 0.04 });
+    await expect(page.locator(".accordion-body").first()).toHaveScreenshot("first-time-series.png", { maxDiffPixelRatio: 0.04, timeout: 15000 });
+    await expect(page.locator(".accordion-body").nth(1)).toHaveScreenshot("second-time-series.png", { maxDiffPixelRatio: 0.04 });
+    await expect(page.locator(".accordion-body").nth(2)).toHaveScreenshot("third-time-series.png", { maxDiffPixelRatio: 0.04 });
+    await expect(page.locator("#costsChartContainer rect").first()).toHaveScreenshot("costs-pie.png", { maxDiffPixelRatio: 0.04 });
 
     // Test re-sizing of the charts
     await page.getByRole("button", { name: "Prevalence" }).click();
-    await expect(page.locator(".highcharts-background").nth(2)).toHaveScreenshot("third-time-series-taller.png", { maxDiffPixelRatio: 0.04 });
+    await expect(page.locator(".accordion-body").nth(2)).toHaveScreenshot("third-time-series-taller.png", { maxDiffPixelRatio: 0.04 });
     await page.getByRole("button", { name: "Hospital demand" }).click();
-    await expect(page.locator(".highcharts-background").nth(2)).toHaveScreenshot("third-time-series-tallest.png", { maxDiffPixelRatio: 0.04 });
+    await expect(page.locator(".accordion-body").nth(2)).toHaveScreenshot("third-time-series-tallest.png", { maxDiffPixelRatio: 0.04 });
   } else {
     console.warn("No screenshot comparison");
   }
