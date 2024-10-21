@@ -80,6 +80,7 @@
       Community Jameel and Kenneth C Griffin which enabled the development of
       the DAEDALUS model and DAEDALUS Explore dashboard.
     </p>
+    <img class="p-2 mb-3" title="Jameel community logo" style="width: 200px" src="~/assets/img/jameel-community-logo.svg" alt="Jameel community logo">
     <h2>Disclaimer and Licensing</h2>
     <h3>Model code license</h3>
     <p>
@@ -145,6 +146,6 @@
 
 <script setup lang="ts">
 const appStore = useAppStore();
-const numberOfPandemics = appStore.metadata?.parameters.find(p => p.id === "pathogen")?.options.length;
-const numberOfCountries = appStore.metadata?.parameters.find(p => p.id === "country")?.options.length;
+const numberOfPandemics = appStore.metadata?.parameters.find(p => p.id === "pathogen")?.options?.length;
+const numberOfCountries = appStore.metadata?.parameters.find(p => p.id === "country")?.options?.length;
 </script>
