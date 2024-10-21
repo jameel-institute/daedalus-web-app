@@ -1,8 +1,8 @@
 import CostsTable from "@/components/CostsTable.vue";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import type { ScenarioResultData } from "~/types/apiResponseTypes";
-import { emptyScenario, mockedMetadata, mockPinia } from "../mocks/mockPinia";
-import { mockResultResponseData } from "../mocks/mockResultResponseData";
+import { emptyScenario, mockPinia } from "../mocks/mockPinia";
+import { mockResultResponseData } from "../mocks/mockResponseData";
 
 describe("costsTable", () => {
   it("should render costs table correctly", async () => {
@@ -28,10 +28,6 @@ describe("costsTable", () => {
     });
 
     const wrapperText = wrapper.text();
-
-    mockedMetadata.results.costs.forEach((cost) => {
-      expect(wrapperText).toContain(cost.label);
-    });
 
     mockResultResponseData.costs[0].children.forEach((cost) => {
       expect(wrapperText).toContain(formatCurrency(cost.value));

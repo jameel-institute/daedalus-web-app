@@ -12,7 +12,7 @@
         :key="childCost.id"
       >
         <tr>
-          <td>
+          <td class="ps-2">
             {{ appStore.getCostLabel(childCost.id) }}
           </td>
           <td>{{ formatCurrency(childCost.value) }}</td>
@@ -23,7 +23,7 @@
             :key="grandChildCost.id"
             class="nested-row"
           >
-            <td class="ps-4">
+            <td class="ps-5">
               {{ appStore.getCostLabel(grandChildCost.id) }}
             </td>
             <td>{{ formatCurrency(grandChildCost.value) }}</td>
