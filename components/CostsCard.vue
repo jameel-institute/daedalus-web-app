@@ -15,7 +15,6 @@
       </h3>
       <div
         id="totalsContainer"
-        ref="totalsContainer"
         class="d-flex flex-wrap gap-3 row-gap-0"
       >
         <div id="gdpContainer" class="d-flex gap-1">
@@ -49,7 +48,7 @@
             </span>
           </p>
         </div>
-      </div>
+      </div>div
       <div class="pie-table-container">
         <div class="flex-grow-1">
           <CostsTable data-testid="costs-table" />
@@ -61,6 +60,9 @@
           @mouseover="hideTooltips = false"
         />
       </div>
+      <p class="text-sm-end fw-lighter">
+        Average value of life: {{ formatCurrency(appStore.currentScenario.result.data?.average_vsl || 0) }} USD
+      </p>
     </div>
   </div>
 </template>
@@ -70,7 +72,6 @@ import { abbreviateMillionsDollars } from "@/utils/money";
 import { CIcon } from "@coreui/icons-vue";
 
 const appStore = useAppStore();
-const totalsContainer = ref(null);
 const hideTooltips = ref(false);
 
 const totalCostAbbr = computed(() => {

@@ -40,7 +40,8 @@ vi.mock("highcharts", async (importOriginal) => {
 });
 
 describe("costs card", () => {
-  it("should render the costs pie chart container, costs table and the total cost", async () => {
+  it("should render the costs pie chart container, costs table, the total cost and vsl", async () => {
+    const averageVsl = formatCurrency(mockResultResponseData.average_vsl);
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
 
     const container = component.find(`#costsPieContainer`);
@@ -51,6 +52,8 @@ describe("costs card", () => {
 
     const costsTable = component.find('[data-testid="costsTable"]');
     expect(costsTable).toBeTruthy();
+
+    expect(component.text()).toContain(averageVsl);
   });
 
   it("should show the tooltips when the mouse is over the cost pie container, and not otherwise", async () => {
