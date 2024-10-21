@@ -1,7 +1,7 @@
 import type { ScenarioResultData } from "@/types/apiResponseTypes";
 import CostsCard from "@/components/CostsCard.vue";
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
-import { mockResultResponseData } from "@/tests/unit/mocks/mockResultResponseData";
+import { mockResultResponseData } from "@/tests/unit/mocks/mockResponseData";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 

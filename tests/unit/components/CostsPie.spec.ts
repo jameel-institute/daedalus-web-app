@@ -57,7 +57,7 @@ vi.mock("highcharts", async (importOriginal) => {
   };
 });
 
-describe("costs card", () => {
+describe("costs pie", () => {
   it("should render the costs pie chart container", async () => {
     const component = await mountSuspended(CostsPie, {
       global: { stubs, plugins: [mockPinia()] },
@@ -76,7 +76,7 @@ describe("costs card", () => {
 
   it("should populate the cost data into the chart when the data is loaded after the component is mounted", async () => {
     await mountSuspended(CostsPie, {
-      global: { stubs, plugins: [mockPinia({ metadata: mockedMetadata }, true, false)] },
+      global: { stubs, plugins: [mockPinia({ metadata: mockedMetadata }, true, { stubActions: false })] },
       props: { hideTooltips: false },
     });
 
@@ -90,7 +90,7 @@ describe("costs card", () => {
 
   it("should populate the cost data into the chart when the data is loaded before the component is mounted", async () => {
     await mountSuspended(CostsPie, {
-      global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithCostData }, true, false)] },
+      global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithCostData }, true, { stubActions: false })] },
       props: { hideTooltips: false },
     });
 
