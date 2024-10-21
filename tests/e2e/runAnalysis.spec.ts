@@ -45,7 +45,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   await expect(page.getByText("Elimination").first()).toBeVisible();
   await expect(page.getByText("United States").first()).toBeVisible();
   await expect(page.getByText("Medium").first()).toBeVisible();
-  await expect(page.getByText("305000").first()).toBeVisible();
+  await expect(page.getByText("305,000").first()).toBeVisible();
 
   await expect(page.locator("#prevalence-container")).toBeVisible({ timeout: 20000 });
   await expect(page.locator("#prevalence-container .highcharts-xaxis-labels")).toBeVisible();
@@ -97,6 +97,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
 
   // Run a second analysis with a different parameter, using the parameters form on the results page.
   await page.getByRole("button", { name: "Parameters" }).first().click();
+  // The following line has been known to fail locally on webkit, but pass on CI.
   await expect(page.getByRole("heading", { name: "Edit parameters" })).toBeVisible();
 
   await expect(page.getByLabel(parameterLabels.country)).toHaveValue("USA");
