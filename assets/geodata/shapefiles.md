@@ -14,7 +14,7 @@ Another option would be to merge the specific complaints of Morocco, China, and 
 
 ### Get the shapefiles from WHO
 
-https://github.com/whocov/whomapper is the package publicizing these shapefiles. It includes shapefiles of national borders and others of the borders of disputed regions. To get the shapefiles from there, after installation, you need to request the shapefiles *from the WHO server* (since the README says that the ones in the package may be outdated).
+https://github.com/whocov/whomapper is the package publicizing these shapefiles. It includes shapefiles of national borders and of the borders of disputed regions. To get the shapefiles from there, after installation, you need to request the shapefiles *from the WHO server* (since the README says that the ones in the package may be outdated).
 
 ```R
 install.packages("units")
@@ -28,7 +28,7 @@ who_adm0 <- pull_sfs(adm_level = 0)
 
 ### Adjust their resolution
 
-In development, it was found that the best performance (avoiding laggy or 'sticky' behaviour in the front end) resulted from using amCharts' lowest-resolution map of borders, called worldLow. WHO's shapefiles are at a much higher resolution than that. For example, in worldLow from amcharts, the number of points Indonesia has across all its polygons is 892. In whomapper this is 16421.
+In development, it was found that the best performance (avoiding laggy or 'sticky' behaviour in the front end) resulted from using amCharts' lowest-resolution map of borders, called worldLow. WHO's shapefiles are at a much higher resolution than that. For example, in worldLow from amcharts, the number of points Indonesia has across all its polygons is 446. In whomapper this is 16421.
 
 [This issue](https://github.com/whocov/whomapper/issues/3) suggests a way to conveniently downsample.
 
@@ -40,9 +40,13 @@ simplified_who_adm0$adm0 <- rmapshaper::ms_simplify(who_adm0$adm0, keep = 0.03, 
 simplified_who_adm0$disp_area <- rmapshaper::ms_simplify(who_adm0$disp_area, keep = 0.03, keep_shapes = FALSE)
 ```
 
-This reduces the count of coordinates in Indonesia from 16421 to 2372. (This is more than the 10% 'keep' target, presumably due to the option to 'keep shapes' which I think preserves all polygons, such as islands or lakes, including very small ones, which might have had fewer than 10 coordinates.)
+This reduces the count of coordinates in Indonesia from 16421 to 2372.
 
 Even downsampling to 'keep=0.03' isn't the limit, since a visual inspection shows that the map is still highly detailed relative to worldLow.
+
+When downsampling to keep=0.02, the map has about the same number of points per country as amCharts' 'worldLow' shapefiles (e.g. 455 for Indonesia).
+
+NB, when comparing numbers of points between shapefiles, make sure to flatten the arrays (perhaps several times) since the format is multipolygons: arrays of arrays of arrays to arbitrary levels of nesting.
 
 ### Convert the shapefiles from R to JSON data in JavaScript files
 
@@ -68,9 +72,8 @@ convert_to_js_map <- function(sf_object, id_col = "iso_3_code", name_col = "adm0
     # Parse the GeoJSON
     parsed_json <- jsonlite::fromJSON(geojson_string, simplifyVector = FALSE)
 
-    # Modify the features to match the desired format and reverse winding order
+    # Modify the features to match the desired format
     modified_features <- lapply(parsed_json$features, function(feature) {
-        feature$geometry <- reverse_winding(feature$geometry)
         list(
             type = "Feature",
             geometry = feature$geometry,
