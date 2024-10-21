@@ -15,6 +15,7 @@ const appStore = useAppStore();
 
 onMounted(() => {
   appStore.globe.interactive = true;
+  appStore.globe.tentativelySelectedCountry = null; // Reset the globe (not the form)
 });
 </script>
 

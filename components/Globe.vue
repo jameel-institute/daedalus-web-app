@@ -1,16 +1,13 @@
 <template>
   <div v-show="pageMounted && appStore.globeParameter && appStore.largeScreen">
-    <p v-if="false && appStore.currentScenario.parameters && appStore.currentScenario.parameters[appStore.globeParameter!.id]">
-      Globe should show the country of... {{ appStore.currentScenario.parameters[appStore.globeParameter!.id] }}
-    </p>
     <div ref="globediv" :class="globeClass" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import * as am5 from "@amcharts/amcharts5";
+import * as am5 from "@amcharts/amcharts5/index";
 import * as am5map from "@amcharts/amcharts5/map";
-import worldOutline from "@amcharts/amcharts5-geodata/worldOutlineLow";
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 // import am5geodata_worldLow from "@amcharts/amcharts5-geodata/worldLow";
 // import am5geodata_worldHigh from "@amcharts/amcharts5-geodata/worldHigh";
 
@@ -18,11 +15,16 @@ import worldOutline from "@amcharts/amcharts5-geodata/worldOutlineLow";
 
 import WHONationalBorders from "@/assets/geodata/0_point_02_try_again_who_adm0";
 import WHODisputedAreas from "@/assets/geodata/0_point_02_try_again_who_disputed_areas";
+import { rgba2hex } from "@amcharts/amcharts5/.internal/core/util/Color";
 
 // Refer to old branch: 'globe-for-meeting'
 
 let root: am5.Root;
-const imperialBlue = am5.color("#0000cd");
+const imperialSeaGlass = am5.color("#379f9f");
+const darkBlue = am5.color("#002e4e");
+const midPoint = am5.color("#1c6777");
+const lightGreyBackground = am5.color(rgba2hex("rgb(243, 244, 247)"));
+const maxZindex = 29; // 30 is reserved by amCharts
 
 // TODO: Make it zoom in slightly on load, for a fun animation
 
@@ -38,7 +40,22 @@ const pageMounted = ref(false);
 let chart: am5map.MapChart;
 
 let zoomControl: am5map.ZoomControl;
-let animation: { pause: () => void, stopped: boolean };
+let countrySeries: am5map.MapPolygonSeries;
+let disputedAreasLakesSeries: am5map.MapPolygonSeries;
+const disputedLandAreasAndDisputers: Record<string, {
+  disputers: string[]
+  mapSeries: am5map.MapPolygonSeries | null
+  displayed: boolean
+}> = {
+  "Western Sahara": { disputers: ["ESH", "MAR"], mapSeries: null, displayed: false },
+  "Abyei": { disputers: ["SSD", "SDN"], mapSeries: null, displayed: false },
+  "Aksai Chin": { disputers: ["CHN", "IND"], mapSeries: null, displayed: false },
+  "Jammu and Kashmir": { disputers: ["IND", "PAK", "CHN"], mapSeries: null, displayed: false },
+};
+interface Animation { pause: () => void, stopped: boolean, play: () => void }
+let gentleRotateAnimation: Animation;
+let graduallyResetYAxis: Animation;
+const rotatedToCountry = ref("");
 // Disable zoom controls for now since there is a bug where the first click on the zoom in button
 // zooms in to a blank area of the map, such that the globe tends to disappear from view.
 const disabledZoomControl = true;
@@ -50,20 +67,36 @@ const applyGlobeSettings = () => {
     zoomControl.set("visible", appStore.globe.interactive);
   }
 
-  if (!appStore.globe.interactive && !animation.stopped) {
-    animation.pause();
+  if (!appStore.globe.interactive && !gentleRotateAnimation.stopped) {
+    gentleRotateAnimation.pause();
   }
 };
 
+// https://www.amcharts.com/docs/v4/tutorials/dynamically-adding-and-removing-series/
 const removeSeries = (seriesToRemove: am5map.MapPolygonSeries) => {
   chart.series.removeIndex(
     chart.series.indexOf(seriesToRemove),
   ).dispose();
 };
 
-watchEffect(() => {
-  if (globediv.value !== null && !root) {
-    root = am5.Root.new(globediv.value);
+const tentativelySelectedCountrySeries = computed(() => {
+  if (!appStore.globe.tentativelySelectedCountry) {
+    return null;
+  };
+  return am5map.MapPolygonSeries.new(root, {
+    geoJSON: WHONationalBorders.features.find(f => f.id === appStore.globe.tentativelySelectedCountry),
+    reverseGeodata: false,
+    fill: darkBlue,
+    layer: maxZindex - 3,
+  });
+});
+
+watch(() => globediv.value, (globediv) => {
+  if (globediv !== null && !root) {
+    root = am5.Root.new(globediv);
+    root.setThemes([
+      am5themes_Animated.new(root),
+    ]);
 
     // Set button colors, affecting zoom controls
     // root.interfaceColors.set("primaryButton", am5.color("#0000cd")); // "Imperial Blue"
@@ -84,38 +117,43 @@ watchEffect(() => {
       }),
     );
 
-    // We only need to draw the boundaries of countries that are available in the model.
-    // So we start by painting a backdrop of the world's geographical outline.
-    const worldOutlineSeries = am5map.MapPolygonSeries.new(root, {
-      geoJSON: worldOutline,
-      fill: imperialBlue,
-    });
-    worldOutlineSeries.mapPolygons.template.setAll({
-      brightness: 0.2,
-    });
-    chart.series.push(worldOutlineSeries);
-    // Next, we paint over that outline, for each of the countries that are available in the model.
-    const countryOptionSeries = am5map.MapPolygonSeries.new(root, {
+    countrySeries = am5map.MapPolygonSeries.new(root, {
       geoJSON: WHONationalBorders,
+      fill: darkBlue,
       reverseGeodata: true,
-      include: appStore.globeParameter?.options?.map(o => o.id),
-      fill: imperialBlue,
+      layer: maxZindex - 4,
     });
-    countryOptionSeries.mapPolygons.template.setAll({
-      brightness: 0.4,
-    });
-    chart.series.push(countryOptionSeries);
+    chart.series.push(countrySeries);
 
-    const oneCountrySeries = am5map.MapPolygonSeries.new(root, {
-      geoJSON: WHONationalBorders.features.find(f => f.id === "THA"),
-      reverseGeodata: false,
-      fill: imperialBlue,
+    Object.keys(disputedLandAreasAndDisputers).forEach((disputedArea) => {
+      const disputedLandSeries = am5map.MapPolygonSeries.new(root, {
+        geoJSON: WHODisputedAreas,
+        fill: darkBlue,
+        reverseGeodata: true,
+        include: [disputedArea],
+        layer: maxZindex - 1, // Make sure disputed areas are always painted on top of country areas
+      });
+      disputedLandAreasAndDisputers[disputedArea].mapSeries = disputedLandSeries;
+      chart.series.push(disputedLandSeries);
     });
-    oneCountrySeries.mapPolygons.template.setAll({
-      brightness: 1,
-      strokeWidth: 2,
+
+    // disputedAreasLandSeries = am5map.MapPolygonSeries.new(root, {
+    //   geoJSON: WHODisputedAreas,
+    //   fill: darkBlue,
+    //   reverseGeodata: true,
+    //   include: Object.keys(disputedLandAreasAndDisputers),
+    //   layer: 28, // Make sure disputed areas are always painted on top of country in-fills
+    // });
+    // chart.series.push(disputedAreasLandSeries);
+
+    disputedAreasLakesSeries = am5map.MapPolygonSeries.new(root, {
+      geoJSON: WHODisputedAreas,
+      reverseGeodata: true,
+      fill: lightGreyBackground,
+      exclude: Object.keys(disputedLandAreasAndDisputers),
+      layer: maxZindex, // Make sure lakes are always on top of land
     });
-    chart.series.push(oneCountrySeries);
+    chart.series.push(disputedAreasLakesSeries);
 
     // const polygonSeries = chart.series.push(
     //   am5map.MapPolygonSeries.new(root, {
@@ -155,7 +193,7 @@ watchEffect(() => {
     //   polygonSeries.zoomToDataItem(ev.target.dataItem);
     // });
 
-    animation = chart.animate({
+    gentleRotateAnimation = chart.animate({
       key: "rotationX",
       from: -100, // Initialize map on SE Asia
       to: 260,
@@ -169,6 +207,145 @@ watchEffect(() => {
     }
 
     applyGlobeSettings();
+  }
+});
+
+const countryCentroid = (countryIso: string) => countrySeries.getDataItemById(countryIso)?.get("mapPolygon").geoCentroid();
+
+// const zoomToCountry = (countryIso: string) => {
+//   const dataItem = countryDataItem(countryIso);
+
+//   if (dataItem) {
+//     chart.goHome();
+//     countryOptionSeries.zoomToDataItem(dataItem, true);
+//   }
+// };
+
+const goHomeDuration = 500;
+const rotateDuration = 2000;
+const geoPointZoomDuration = 2000;
+const amountToTiltTheEarthUpwardsBy = 25;
+const easing = am5.ease.inOut(am5.ease.cubic);
+
+const animateSeriesColour = (series: am5map.MapPolygonSeries, colour: am5.Color) => {
+  series.animate({
+    key: "fill",
+    to: colour,
+    duration: geoPointZoomDuration,
+    easing,
+  });
+};
+
+const stopDisplayingAllDisputedAreas = () => {
+  Object.keys(disputedLandAreasAndDisputers).forEach((disputedArea) => {
+    if (disputedLandAreasAndDisputers[disputedArea].displayed && disputedLandAreasAndDisputers[disputedArea].mapSeries) {
+      disputedLandAreasAndDisputers[disputedArea].displayed = false;
+      animateSeriesColour(disputedLandAreasAndDisputers[disputedArea].mapSeries!, darkBlue);
+    }
+  });
+};
+
+const disputedAreas = (disputer: string) => {
+  return Object.keys(disputedLandAreasAndDisputers).filter((disputedArea) => {
+    return disputedLandAreasAndDisputers[disputedArea].disputers.includes(disputer);
+  });
+};
+
+const pauseAnimations = () => {
+  if (gentleRotateAnimation && !gentleRotateAnimation.stopped) {
+    gentleRotateAnimation.pause();
+  }
+  if (graduallyResetYAxis && !graduallyResetYAxis.stopped) {
+    graduallyResetYAxis.pause();
+  }
+};
+
+const rotateToCentroid = (centroid: am5.IGeoPoint, countryId: string) => {
+  chart.animate({
+    key: "rotationX",
+    to: -centroid.longitude,
+    duration: rotateDuration,
+    easing,
+  });
+  chart.animate({
+    key: "rotationY",
+    to: (amountToTiltTheEarthUpwardsBy - centroid.latitude),
+    duration: rotateDuration,
+    easing,
+  });
+  setTimeout(() => {
+    rotatedToCountry.value = countryId;
+  }, rotateDuration);
+};
+
+// When a country is tentatively selected in the form, re-colour the country area and rotate the globe to it.
+watch(() => tentativelySelectedCountrySeries.value, (newSeries, oldSeries) => {
+  if (!chart) {
+    return;
+  }
+  if (!appStore.globe.tentativelySelectedCountry) {
+    pauseAnimations();
+    // Probably the user has navigated back to the home page.
+    chart.goHome(goHomeDuration);
+    // Reset the globe to zoomed out and slowly spinning.
+    const currentRotationX = chart.get("rotationX") || -100;
+    rotatedToCountry.value = "";
+    // TODO: Make more memory efficient by not re-creating the animations every time
+    gentleRotateAnimation = chart.animate({
+      key: "rotationX",
+      to: currentRotationX + 360,
+      duration: 180000,
+      loops: Infinity,
+    });
+    graduallyResetYAxis = chart.animate({
+      key: "rotationY",
+      to: 0,
+      duration: 20000,
+    });
+  }
+  if (oldSeries) {
+    stopDisplayingAllDisputedAreas();
+    animateSeriesColour(oldSeries, darkBlue);
+    setTimeout(() => {
+      removeSeries(oldSeries);
+    }, geoPointZoomDuration);
+  }
+  if (newSeries && appStore.globe.tentativelySelectedCountry) {
+    pauseAnimations();
+    chart.series.push(newSeries);
+
+    const centroid = countryCentroid(appStore.globe.tentativelySelectedCountry);
+    if (centroid) {
+      if (rotatedToCountry.value !== appStore.globe.tentativelySelectedCountry) {
+        rotateToCentroid(centroid, appStore.globe.tentativelySelectedCountry);
+      };
+
+      setTimeout(() => {
+        disputedAreas(appStore.globe.tentativelySelectedCountry!).forEach((disputedArea) => {
+          disputedLandAreasAndDisputers[disputedArea].displayed = true;
+          animateSeriesColour(disputedLandAreasAndDisputers[disputedArea].mapSeries!, midPoint);
+        });
+        animateSeriesColour(newSeries, imperialSeaGlass);
+      }, rotateDuration / 2);
+    }
+  }
+});
+
+// When a country selection is actually submitted in a form (or a user navigates to
+// a results page for a different country), then zoom to that country.
+watch(() => [appStore.selectedCountry, rotatedToCountry.value], () => {
+  if (!chart || !appStore.selectedCountry) {
+    return;
+  }
+  const centroid = countryCentroid(appStore.selectedCountry);
+  if (!centroid) {
+    return;
+  }
+  if (rotatedToCountry.value === appStore.selectedCountry) {
+    // Don't zoom to the country until rotating to it is completed.
+    chart.zoomToGeoPoint(centroid, 3, true, geoPointZoomDuration);
+  } else if (appStore.selectedCountry === appStore.globe.tentativelySelectedCountry) {
+    rotateToCentroid(centroid, appStore.selectedCountry);
   }
 });
 

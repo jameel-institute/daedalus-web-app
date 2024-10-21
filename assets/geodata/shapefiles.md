@@ -126,4 +126,22 @@ To use this data you need to tell amCharts to reverse the polygons' points, sinc
 
 ### Customizations
 
-Depending on how the map looks, you might decide to remove the "Great Lakes of NA" feature from the eventual disputed regions data source file, as there is no great controversy between US and Canada.
+The disputed areas contains 8 bodies of water (lakes and seas) and 4 land areas. The bodies of water may be rendered as geographical features without risk of making a statement about their ownership.
+
+#### Bodies of water
+
+Lake Victoria
+Lake Tanganyika
+Lake Malawi
+Aral Sea
+Great Lakes of NA
+Great Lakes of NA (duplicated)
+Great Lakes of NA (triplicaed)
+Lake Titicaca
+
+#### Land areas
+
+Western Sahara
+Abyei
+Aksai Chin
+Jammu and Kashmir
