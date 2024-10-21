@@ -40,8 +40,7 @@
                       <span class="ms-1">
                         {{ paramDisplayText(parameter) }}
                       </span>
-                      <!-- Todo: once metadata uses real country ISOs, get a mapping from 3-letter ISOs to 2-letter ISOs, and look up the correct country flag. -->
-                      <CIcon v-if="parameter.id === appStore.globeParameter?.id" icon="cifGb" class="parameter-icon text-secondary ms-1" />
+                      <CIcon v-if="parameter.id === appStore.globeParameter?.id && countryFlagIcon" :icon="countryFlagIcon" class="parameter-icon text-secondary ms-1" />
                     </span>
                   </template>
                 </CTooltip>
@@ -120,6 +119,7 @@
 
 <script lang="ts" setup>
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
+import getCountryISO2 from "country-iso-3-to-2";
 import type { Parameter } from "~/types/parameterTypes";
 
 // TODO: Use the runId from the route rather than getting it out of the store.
@@ -147,6 +147,13 @@ const paramDisplayText = (param: Parameter) => {
     return param.options ? param.options.find(({ id }) => id === rawVal)!.label : rawVal;
   }
 };
+
+const countryFlagIcon = computed(() => {
+  const countryISO3 = appStore.currentScenario?.parameters?.country;
+  const countryISO2 = getCountryISO2(countryISO3);
+  const titleCaseISO2 = countryISO2?.toLowerCase().replace(/^(.)/, match => match.toUpperCase());
+  return countryISO2 ? `cif${titleCaseISO2}` : "";
+});
 
 // Use useAsyncData to store the time once, during server-side rendering: avoids client render re-writing value.
 const { data: timeOfFirstStatusPoll } = await useAsyncData<number>("timeOfFirstStatusPoll", async () => {
