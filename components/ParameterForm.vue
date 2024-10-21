@@ -310,12 +310,20 @@ const handleChange = (param: Parameter) => {
       formData.value![dependentParamId] = newValueForDependentParam;
     }
   });
+
+  if (param.parameterType === TypeOfParameter.GlobeSelect) {
+    appStore.globe.tentativelySelectedCountry = formData.value![param.id];
+  };
 };
 
 const submitForm = async () => {
   if (invalidFields.value?.length) {
     showValidations.value = true;
     return;
+  }
+
+  if (!appStore.globe.tentativelySelectedCountry && appStore.globeParameter?.id && formData.value) {
+    appStore.globe.tentativelySelectedCountry = formData.value[appStore.globeParameter.id];
   }
 
   appStore.downloadError = undefined;
