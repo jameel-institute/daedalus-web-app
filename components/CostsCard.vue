@@ -60,7 +60,7 @@
           @mouseover="hideTooltips = false"
         />
       </div>
-      <p class="text-sm-end fw-lighter">
+      <p class="text-end fw-lighter vsl-display">
         Average value of life: {{ formatCurrency(appStore.currentScenario.result.data?.average_vsl || 0) }} USD
       </p>
     </div>
@@ -96,6 +96,9 @@ const onMouseLeavePie = () => {
 .costs-card {
   color: var(--cui-dark-text-emphasis);
 
+  .vsl-display {
+    font-size: $font-size-sm;
+  }
   .card-body {
     display: flex;
     flex-direction: column;
