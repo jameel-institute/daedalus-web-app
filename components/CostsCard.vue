@@ -54,6 +54,9 @@
         @mouseleave="onMouseLeavePie"
         @mouseover="() => { hideTooltips = false }"
       />
+      <div class="d-flex flex-column">
+        <ReferenceLinks custom-classes="small" />
+      </div>
     </div>
   </div>
 </template>

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="newScenarioPage">
     <div :class="`overlay ${appStore.largeScreen ? 'large-screen' : ''}`">
       <h3>Simulate a new scenario</h3>
       <p>
@@ -7,6 +7,7 @@
       </p>
       <ParameterForm :in-modal="false" />
     </div>
+    <ReferenceLinks />
   </div>
 </template>
 
@@ -47,5 +48,11 @@ onMounted(() => {
 
 .overlay.large-screen::before {
   box-shadow: var(--cui-box-shadow);
+}
+
+#newScenarioPage {
+  height: $min-wrapper-height;
+  display: flex;
+  flex-direction: column;
 }
 </style>
