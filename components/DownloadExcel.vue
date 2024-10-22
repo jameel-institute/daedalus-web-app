@@ -7,7 +7,7 @@
             id="btn-download-excel"
             color="light"
             :aria-describedby="togglerId"
-            class="btn-download float-end"
+            class="btn-scenario-header"
             :disabled="appStore.downloading"
             v-on="on"
             @click="appStore.downloadExcel()"
@@ -36,17 +36,6 @@ watch(() => appStore.downloading, () => {
 </script>
 
 <style lang="scss" scoped>
-.btn-download {
-  padding-bottom: 0;
-  height: 2.6rem;
-  border: 1px solid rgba(8, 10, 12, 0.17); // copying from card
-  border-radius: 0.375rem; // copying from card
-
-  &:not(:hover) {
-    background: $light-background;
-  }
-}
-
 .download-error {
   margin-top: 3rem;
 }
