@@ -55,7 +55,7 @@
         @mouseover="() => { hideTooltips = false }"
       />
       <div class="d-flex flex-column">
-        <ReferenceLinks custom-classes="small" />
+        <ReferenceLinks custom-classes="small text-secondary" />
       </div>
     </div>
   </div>

@@ -1,4 +1,6 @@
 // Here you can add other styles
+@use "sass:color";
+
 .sidebar-brand {
   img {
     width: 80%;
@@ -8,4 +10,32 @@
 .smaller-icon {
   width: 0.9rem !important;
   height: 0.9rem !important;
+}
+
+.conditional-transparency::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(
+    color.channel($cui-tertiary-bg, "red", $space: rgb),
+    color.channel($cui-tertiary-bg, "green", $space: rgb),
+    color.channel($cui-tertiary-bg, "blue", $space: rgb),
+    0.8);
+  mix-blend-mode: color-burn;
+}
+
+.new-page-reference-links::before {
+  background-color: rgba(
+    color.channel($cui-tertiary-bg, "red", $space: rgb),
+    color.channel($cui-tertiary-bg, "green", $space: rgb),
+    color.channel($cui-tertiary-bg, "blue", $space: rgb),
+    0.7) !important;
+  border-top-left-radius: 0.75rem;
+}
+
+.new-page-reference-links {
+  backdrop-filter: blur(1px);
 }

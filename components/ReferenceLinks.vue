@@ -1,8 +1,8 @@
 <!-- This component expects to be placed within a container with 'display: flex' and 'flex-direction: column'
      so that it appears at the bottom right of the container. -->
 <template>
-  <div class="mt-auto align-self-end">
-    <p :class="`text-secondary mt-4 mb-0 ${props.customClasses}`">
+  <div class="mt-auto align-self-end rounded-top">
+    <p :class="`mt-4 mb-0 ${props.customClasses}`">
       For full details on the underlying DAEDALUS model, visit the
       <a href="https://github.com/jameel-institute/daedalus" target="_blank">GitHub</a>
       page and read
