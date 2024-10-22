@@ -27,6 +27,13 @@
         </CModalTitle>
       </CModalHeader>
       <CModalBody>
+        <p>
+          Use this R code snippet to run the model directly with the daedalus package for the current parameters.
+          See the <NuxtLink to="https://jameel-institute.github.io/daedalus/" target="_blank">
+            daedalus documentation
+          </NuxtLink>
+          for installation instructions and further details.
+        </p>
         <div class="code p-3">
           <pre>daedalus::daedalus(
   "{{ parameters!.country }}",
