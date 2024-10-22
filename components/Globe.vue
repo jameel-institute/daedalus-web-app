@@ -120,8 +120,8 @@ watch(() => globediv.value, (globediv) => {
 
     chart = root.container.children.push(
       am5map.MapChart.new(root, {
-        panX: "none", // Disable drag-to-rotate for v1 of app (was "rotateX")
-        panY: "none", // Disable drag-to-rotate for v1 of app (was "rotateY")
+        panX: "rotateX",
+        panY: "rotateY",
         projection: am5map.geoOrthographic(),
         paddingBottom: 20,
         paddingTop: 20,
