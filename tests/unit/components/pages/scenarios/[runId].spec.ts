@@ -1,52 +1,38 @@
 import ScenariosIdPage from "@/pages/scenarios/[runId].vue";
 import { emptyScenario, mockPinia, mockResultData } from "@/tests/unit/mocks/mockPinia";
 
-import { mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
+import { mockNuxtImport, mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { mockMetadataResponseData } from "~/tests/unit/mocks/mockResponseData";
 import type { Metadata } from "~/types/apiResponseTypes";
 
 const stubs = {
-  CIcon: true,
-  TimeSeriesList: true,
-  CostsCard: true,
+  "CIcon": true,
+  "TimeSeriesList.client": true,
+  "CostsCard": true,
 };
 
 const longRunningRunId = "123";
 const failedRunId = "456";
 const successfulRunId = "789";
-const piniaBaseData = {
+const plugins = [mockPinia({
   currentScenario: {
     ...emptyScenario,
     parameters: mockResultData.parameters,
   },
   metadata: mockMetadataResponseData as Metadata,
-};
-const piniaDataForLongRunningRun = {
-  ...piniaBaseData,
-  currentScenario: {
-    ...piniaBaseData.currentScenario,
-    runId: longRunningRunId,
-  },
-};
-const piniaDataForFailedRun = {
-  ...piniaBaseData,
-  currentScenario: {
-    ...piniaBaseData.currentScenario,
-    runId: failedRunId,
-  },
-};
-const piniaDataForSuccessfulRun = {
-  ...piniaBaseData,
-  currentScenario: {
-    ...piniaBaseData.currentScenario,
-    runId: successfulRunId,
-  },
-};
-const mockPiniaWithLongRunningAnalysis = mockPinia(piniaDataForLongRunningRun, false, { stubActions: false });
-const mockPiniaWithFailingAnalysis = mockPinia(piniaDataForFailedRun, false, { stubActions: false });
-const mockPiniaWithSuccessfulAnalysis = mockPinia(piniaDataForSuccessfulRun, false, { stubActions: false });
+}, false, { stubActions: false })];
+
+// https://developer.mamezou-tech.com/en/blogs/2024/02/12/nuxt3-unit-testing-mock/
+const { mockRoute } = vi.hoisted(() => ({
+  mockRoute: vi.fn(),
+}));
+
+mockNuxtImport("useRoute", () => mockRoute);
+
+afterEach(() => {
+  mockRoute.mockReset();
+});
 
 registerEndpoint(`/api/scenarios/${longRunningRunId}/status`, () => {
   return {
@@ -92,7 +78,13 @@ afterAll(() => {
 
 describe("scenario result page", () => {
   it("shows the parameters that were used to run the scenario", async () => {
-    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins: [mockPiniaWithLongRunningAnalysis] } });
+    mockRoute.mockReturnValue({
+      params: {
+        runId: longRunningRunId,
+      },
+    });
+
+    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
     expect(component.text()).toContain("Parameters");
     expect(component.text()).toContain("United Kingdom");
@@ -104,7 +96,13 @@ describe("scenario result page", () => {
 
   // Also end-to-end tested in tests/e2e/slowAnalysis.spec.ts
   it("shows alerts when analysis is taking a long time and when it is taking a really long time", async () => {
-    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins: [mockPiniaWithLongRunningAnalysis] } });
+    mockRoute.mockReturnValue({
+      params: {
+        runId: longRunningRunId,
+      },
+    });
+
+    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
     const spinner = component.findComponent({ name: "CSpinner" });
     expect(spinner.isVisible()).toBe(true);
@@ -129,7 +127,13 @@ describe("scenario result page", () => {
   });
 
   it("shows alerts when analysis fails", async () => {
-    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins: [mockPiniaWithFailingAnalysis] } });
+    mockRoute.mockReturnValue({
+      params: {
+        runId: failedRunId,
+      },
+    });
+
+    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
     const spinner = component.findComponent({ name: "CSpinner" });
     expect(spinner.isVisible()).toBe(false);
@@ -152,7 +156,13 @@ describe("scenario result page", () => {
   });
 
   it("shows no alerts when analysis succeeds", async () => {
-    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins: [mockPiniaWithSuccessfulAnalysis] } });
+    mockRoute.mockReturnValue({
+      params: {
+        runId: successfulRunId,
+      },
+    });
+
+    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
     const spinner = component.findComponent({ name: "CSpinner" });
     // Two nextTicks are needed to wait for the spinner to disappear: status fetch and result fetch.

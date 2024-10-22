@@ -56,7 +56,7 @@ describe("costs card", () => {
   it("should show the tooltips when the mouse is over the cost pie container, and not otherwise", async () => {
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
 
-    const costsPieComponent = component.findComponent({ name: "CostsPie" });
+    const costsPieComponent = component.findComponent({ name: "CostsPie.client" });
     expect(costsPieComponent.props().hideTooltips).toBe(false);
 
     const container = component.find(`#costsPieContainer`);
