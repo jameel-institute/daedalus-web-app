@@ -148,4 +148,12 @@
 const appStore = useAppStore();
 const numberOfPandemics = appStore.metadata?.parameters.find(p => p.id === "pathogen")?.options?.length;
 const numberOfCountries = appStore.metadata?.parameters.find(p => p.id === "country")?.options?.length;
+
+onMounted(() => {
+  appStore.globe.show = false;
+});
+
+onBeforeUnmount(() => {
+  appStore.globe.show = true;
+});
 </script>

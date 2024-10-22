@@ -14,7 +14,7 @@
         </CContainer>
       </div>
     </div>
-    <Globe />
+    <Globe v-show="appStore.globe.show" />
   </div>
 </template>
 

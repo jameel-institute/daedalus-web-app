@@ -29,6 +29,7 @@ export const useAppStore = defineStore("app", {
     globe: {
       interactive: false,
       tentativelySelectedCountry: null,
+      show: true,
     },
     largeScreen: true,
     versions: undefined,

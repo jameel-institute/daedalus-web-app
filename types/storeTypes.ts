@@ -21,6 +21,7 @@ export interface AppState {
   globe: {
     interactive: boolean
     tentativelySelectedCountry: string | null
+    show: boolean
   }
   largeScreen: boolean
   versions: VersionData | undefined
