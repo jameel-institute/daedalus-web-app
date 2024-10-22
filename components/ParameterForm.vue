@@ -357,6 +357,7 @@ watch(() => appStore.globe.tentativelySelectedCountry, (newValue, oldValue) => {
   }
   formData.value[appStore.globeParameter.id] = newValue;
   pulse(appStore.globeParameter.id);
+  handleChange(appStore.globeParameter);
 });
 
 onMounted(() => {
