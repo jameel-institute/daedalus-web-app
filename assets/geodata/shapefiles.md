@@ -4,7 +4,7 @@
 
 Displaying the in-built geojson supplied with amCharts is problematic for us since it takes positions on disputed territories, whereas we want to be seen to be politically neutral, and provide a product that can be uncomplicatedly used in any of the territories that the underlying model package might support.
 
-For this reason, we decided to use boundaries as defined by WHO: specifically, that we'd show national borders and the borders of disputed regions, and only register user interactions on undisputed regions. Any complaints we receive about our choices of boundaries can then be explained.
+For this reason, we decided to use boundaries as defined by WHO: specifically, that we'd show national borders and the borders of disputed regions. Any complaints we receive about our choices of boundaries can then be explained.
 
 ### Alternatives
 
@@ -128,22 +128,22 @@ The disputed areas contains 8 bodies of water (lakes and seas) and 4 land areas.
 
 #### Disputed bodies of water
 
-Lake Victoria
-Lake Albert
-Lake Tanganyika
-Lake Malawi
-Aral Sea
-Great Lakes of NA
-Great Lakes of NA (duplicated)
-Great Lakes of NA (triplicaed)
-Lake Titicaca
+* Lake Victoria
+* Lake Albert
+* Lake Tanganyika
+* Lake Malawi
+* Aral Sea
+* Great Lakes of NA (three different features with the same name)
+* Great Lakes of NA
+* Great Lakes of NA
+* Lake Titicaca
 
 #### Disputed land areas
 
-Western Sahara
-Abyei
-Aksai Chin
-Jammu and Kashmir
+* Western Sahara
+* Abyei
+* Aksai Chin
+* Jammu and Kashmir
 
 ## Discrepancies
 
