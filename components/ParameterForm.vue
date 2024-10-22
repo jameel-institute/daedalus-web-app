@@ -293,16 +293,20 @@ const numericParameterFeedback = (param: Parameter) => {
   }
 };
 
+const pulse = (parameterId) => {
+  pulsingParameters.value.push(parameterId);
+  setTimeout(() => {
+    pulsingParameters.value = pulsingParameters.value.filter(item => item !== parameterId); // Remove the pulse animation to allow it to be triggered again in the future.
+  }, 500);
+};
+
 const handleChange = (param: Parameter) => {
   if (dependentParameters.value[param.id] === undefined || dependentParameters.value[param.id]?.length === 0) {
     return;
   }
 
   dependentParameters.value[param.id].forEach((dependentParamId: string) => {
-    pulsingParameters.value.push(dependentParamId);
-    setTimeout(() => {
-      pulsingParameters.value = pulsingParameters.value.filter(item => item !== dependentParamId); // Remove the pulse animation to allow it to be triggered again in the future.
-    }, 500);
+    pulse(dependentParamId);
 
     const dependentParameter = paramMetadata.value!.find(param => param.id === dependentParamId)!;
     const newValueForDependentParam = defaultValue(dependentParameter);
@@ -346,6 +350,15 @@ const submitForm = async () => {
     await navigateTo(`/scenarios/${runId}`);
   };
 };
+
+watch(() => appStore.globe.tentativelySelectedCountry, (newValue, oldValue) => {
+  if (!formData.value || formSubmitting.value || !newValue || newValue === oldValue || !appStore.globeParameter?.id
+    || formData.value[appStore.globeParameter.id] === newValue) {
+    return;
+  }
+  formData.value[appStore.globeParameter.id] = newValue;
+  pulse(appStore.globeParameter.id);
+});
 
 onMounted(() => {
   mounted.value = true; // Use in v-show, otherwise there are up to several seconds during which the form shows with out of date values.
