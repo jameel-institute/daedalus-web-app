@@ -8,6 +8,41 @@ const map = {
         coordinates: [
           [
             [
+              -70.0533,
+              12.6297,
+            ],
+            [
+              -70.0561,
+              12.5345,
+            ],
+            [
+              -69.9469,
+              12.4367,
+            ],
+            [
+              -69.8969,
+              12.4809,
+            ],
+            [
+              -70.0533,
+              12.6297,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Aruba",
+        id: "ABW",
+      },
+      id: "ABW",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               74.9159,
               37.2373,
             ],
@@ -680,6 +715,37 @@ const map = {
         id: "AGO",
       },
       id: "AGO",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -63.1678,
+              18.1645,
+            ],
+            [
+              -62.993,
+              18.2273,
+            ],
+            [
+              -63.0575,
+              18.2565,
+            ],
+            [
+              -63.1678,
+              18.1645,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Anguilla",
+        id: "AIA",
+      },
+      id: "AIA",
     },
     {
       type: "Feature",
@@ -1476,6 +1542,76 @@ const map = {
         coordinates: [
           [
             [
+              -170.6967,
+              -14.3374,
+            ],
+            [
+              -170.6817,
+              -14.258,
+            ],
+            [
+              -170.795,
+              -14.2979,
+            ],
+            [
+              -170.7439,
+              -14.3755,
+            ],
+            [
+              -170.6967,
+              -14.3374,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "American Samoa",
+        id: "ASM",
+      },
+      id: "ASM",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -61.738,
+              16.9897,
+            ],
+            [
+              -61.6742,
+              17.0937,
+            ],
+            [
+              -61.7943,
+              17.1633,
+            ],
+            [
+              -61.8872,
+              17.0331,
+            ],
+            [
+              -61.738,
+              16.9897,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Antigua and Barbuda",
+        id: "ATG",
+      },
+      id: "ATG",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               30.5733,
               -2.3991,
             ],
@@ -1638,6 +1774,37 @@ const map = {
         id: "BEN",
       },
       id: "BEN",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -68.1952,
+              12.2211,
+            ],
+            [
+              -68.3639,
+              12.3053,
+            ],
+            [
+              -68.2853,
+              12.1023,
+            ],
+            [
+              -68.1952,
+              12.2211,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Bonaire, Sint Eustatius and Saba",
+        id: "BES",
+      },
+      id: "BES",
     },
     {
       type: "Feature",
@@ -2016,28 +2183,125 @@ const map = {
         coordinates: [
           [
             [
-              -78.1919,
-              25.2037,
+              50.5473,
+              26.2269,
             ],
             [
-              -78.1944,
-              24.6161,
+              50.4531,
+              26.2081,
             ],
             [
-              -78.0114,
-              24.2773,
+              50.4689,
+              25.9451,
             ],
             [
-              -77.7167,
-              24.5067,
+              50.6075,
+              25.8629,
             ],
             [
-              -77.9828,
-              25.1461,
+              50.6131,
+              26.1277,
             ],
             [
-              -78.1919,
-              25.2037,
+              50.5473,
+              26.2269,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Bahrain",
+        id: "BHR",
+      },
+      id: "BHR",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "MultiPolygon",
+        coordinates: [
+          [
+            [
+              [
+                -78.1919,
+                25.2037,
+              ],
+              [
+                -78.1944,
+                24.6161,
+              ],
+              [
+                -78.0114,
+                24.2773,
+              ],
+              [
+                -77.7167,
+                24.5067,
+              ],
+              [
+                -77.9828,
+                25.1461,
+              ],
+              [
+                -78.1919,
+                25.2037,
+              ],
+            ],
+          ],
+          [
+            [
+              [
+                -77.735,
+                26.9145,
+              ],
+              [
+                -77.5458,
+                26.8665,
+              ],
+              [
+                -77.3496,
+                26.6407,
+              ],
+              [
+                -77.1545,
+                26.5203,
+              ],
+              [
+                -77.2325,
+                26.4061,
+              ],
+              [
+                -77.2188,
+                26.1471,
+              ],
+              [
+                -77.398,
+                26.0265,
+              ],
+              [
+                -77.1883,
+                25.9295,
+              ],
+              [
+                -77.1513,
+                26.2553,
+              ],
+              [
+                -77.0396,
+                26.4979,
+              ],
+              [
+                -77.2777,
+                26.6235,
+              ],
+              [
+                -77.5008,
+                26.8629,
+              ],
+              [
+                -77.735,
+                26.9145,
+              ],
             ],
           ],
         ],
@@ -2047,6 +2311,41 @@ const map = {
         id: "BHS",
       },
       id: "BHS",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -62.8151,
+              17.8868,
+            ],
+            [
+              -62.7907,
+              17.9125,
+            ],
+            [
+              -62.8633,
+              17.9303,
+            ],
+            [
+              -62.8449,
+              17.8825,
+            ],
+            [
+              -62.8151,
+              17.8868,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Saint Barthélemy",
+        id: "BLM",
+      },
+      id: "BLM",
     },
     {
       type: "Feature",
@@ -2106,6 +2405,37 @@ const map = {
         id: "BLZ",
       },
       id: "BLZ",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -64.7833,
+              32.2707,
+            ],
+            [
+              -64.7214,
+              32.3203,
+            ],
+            [
+              -64.7882,
+              32.2967,
+            ],
+            [
+              -64.7833,
+              32.2707,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Bermuda",
+        id: "BMU",
+      },
+      id: "BMU",
     },
     {
       type: "Feature",
@@ -3770,6 +4100,41 @@ const map = {
         id: "BRA",
       },
       id: "BRA",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -59.5331,
+              13.0505,
+            ],
+            [
+              -59.4291,
+              13.1651,
+            ],
+            [
+              -59.6594,
+              13.2879,
+            ],
+            [
+              -59.6433,
+              13.1493,
+            ],
+            [
+              -59.5331,
+              13.0505,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Barbados",
+        id: "BRB",
+      },
+      id: "BRB",
     },
     {
       type: "Feature",
@@ -10364,6 +10729,41 @@ const map = {
         coordinates: [
           [
             [
+              -159.7411,
+              -21.2541,
+            ],
+            [
+              -159.7525,
+              -21.193,
+            ],
+            [
+              -159.8339,
+              -21.1958,
+            ],
+            [
+              -159.8302,
+              -21.2491,
+            ],
+            [
+              -159.7411,
+              -21.2541,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Cook Islands",
+        id: "COK",
+      },
+      id: "COK",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               -71.3247,
               11.8531,
             ],
@@ -11055,6 +11455,72 @@ const map = {
         coordinates: [
           [
             [
+              43.4597,
+              -11.9355,
+            ],
+            [
+              43.3739,
+              -11.6142,
+            ],
+            [
+              43.2693,
+              -11.8308,
+            ],
+            [
+              43.4597,
+              -11.9355,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Comoros",
+        id: "COM",
+      },
+      id: "COM",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -23.4486,
+              14.9781,
+            ],
+            [
+              -23.5125,
+              15.1161,
+            ],
+            [
+              -23.7666,
+              15.2531,
+            ],
+            [
+              -23.6814,
+              14.9355,
+            ],
+            [
+              -23.4486,
+              14.9781,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Cabo Verde",
+        id: "CPV",
+      },
+      id: "CPV",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               -83.6458,
               10.9253,
             ],
@@ -11158,6 +11624,80 @@ const map = {
         coordinates: [
           [
             [
+              -68.9656,
+              12.1989,
+            ],
+            [
+              -69.0778,
+              12.3487,
+            ],
+            [
+              -69.1583,
+              12.3115,
+            ],
+            [
+              -69.0625,
+              12.1885,
+            ],
+            [
+              -68.8322,
+              12.0495,
+            ],
+            [
+              -68.8241,
+              12.1603,
+            ],
+            [
+              -68.9656,
+              12.1989,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Curaçao",
+        id: "CUW",
+      },
+      id: "CUW",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -81.0972,
+              19.3089,
+            ],
+            [
+              -81.2544,
+              19.3539,
+            ],
+            [
+              -81.2603,
+              19.2653,
+            ],
+            [
+              -81.0972,
+              19.3089,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Cayman Islands",
+        id: "CYM",
+      },
+      id: "CYM",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               43.2493,
               11.4695,
             ],
@@ -11217,6 +11757,41 @@ const map = {
         id: "DJI",
       },
       id: "DJI",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -61.3444,
+              15.2072,
+            ],
+            [
+              -61.2552,
+              15.2851,
+            ],
+            [
+              -61.3041,
+              15.5737,
+            ],
+            [
+              -61.4746,
+              15.4865,
+            ],
+            [
+              -61.3444,
+              15.2072,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Dominica",
+        id: "DMA",
+      },
+      id: "DMA",
     },
     {
       type: "Feature",
@@ -12718,6 +13293,41 @@ const map = {
         coordinates: [
           [
             [
+              158.283,
+              6.7849,
+            ],
+            [
+              158.3225,
+              6.9269,
+            ],
+            [
+              158.1847,
+              6.9787,
+            ],
+            [
+              158.1553,
+              6.8195,
+            ],
+            [
+              158.283,
+              6.7849,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Micronesia (Federated States of)",
+        id: "FSM",
+      },
+      id: "FSM",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               13.2939,
               2.1637,
             ],
@@ -13219,6 +13829,49 @@ const map = {
         coordinates: [
           [
             [
+              -61.346,
+              16.3343,
+            ],
+            [
+              -61.4994,
+              16.3497,
+            ],
+            [
+              -61.7939,
+              16.2419,
+            ],
+            [
+              -61.695,
+              15.9493,
+            ],
+            [
+              -61.5528,
+              16.0545,
+            ],
+            [
+              -61.5811,
+              16.2047,
+            ],
+            [
+              -61.346,
+              16.3343,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Guadeloupe",
+        id: "GLP",
+      },
+      id: "GLP",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               -16.7508,
               13.0601,
             ],
@@ -13412,6 +14065,37 @@ const map = {
         coordinates: [
           [
             [
+              -61.7525,
+              11.9965,
+            ],
+            [
+              -61.5964,
+              12.1255,
+            ],
+            [
+              -61.7246,
+              12.1723,
+            ],
+            [
+              -61.7525,
+              11.9965,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Grenada",
+        id: "GRD",
+      },
+      id: "GRD",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               -89.1419,
               17.8189,
             ],
@@ -13590,6 +14274,37 @@ const map = {
         id: "GUF",
       },
       id: "GUF",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              144.7095,
+              13.2351,
+            ],
+            [
+              144.8067,
+              13.4403,
+            ],
+            [
+              144.6553,
+              13.4279,
+            ],
+            [
+              144.7095,
+              13.2351,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Guam",
+        id: "GUM",
+      },
+      id: "GUM",
     },
     {
       type: "Feature",
@@ -18382,6 +19097,68 @@ const map = {
         coordinates: [
           [
             [
+              -157.4184,
+              2.0301,
+            ],
+            [
+              -157.4276,
+              1.7843,
+            ],
+            [
+              -157.3095,
+              1.8167,
+            ],
+            [
+              -157.4184,
+              2.0301,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Kiribati",
+        id: "KIR",
+      },
+      id: "KIR",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -62.6225,
+              17.2419,
+            ],
+            [
+              -62.73,
+              17.3653,
+            ],
+            [
+              -62.7783,
+              17.2923,
+            ],
+            [
+              -62.6225,
+              17.2419,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Saint Kitts and Nevis",
+        id: "KNA",
+      },
+      id: "KNA",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               126.6885,
               37.8339,
             ],
@@ -19228,6 +20005,41 @@ const map = {
         coordinates: [
           [
             [
+              -60.9009,
+              13.7772,
+            ],
+            [
+              -60.878,
+              13.9567,
+            ],
+            [
+              -60.9458,
+              14.1047,
+            ],
+            [
+              -61.075,
+              13.8971,
+            ],
+            [
+              -60.9009,
+              13.7772,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Saint Lucia",
+        id: "LCA",
+      },
+      id: "LCA",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               80.2747,
               9.7751,
             ],
@@ -19358,6 +20170,37 @@ const map = {
         id: "LSO",
       },
       id: "LSO",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -63.0115,
+              18.0673,
+            ],
+            [
+              -63.045,
+              18.1215,
+            ],
+            [
+              -63.1397,
+              18.0587,
+            ],
+            [
+              -63.0115,
+              18.0673,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Saint Martin",
+        id: "MAF",
+      },
+      id: "MAF",
     },
     {
       type: "Feature",
@@ -20443,6 +21286,37 @@ const map = {
         id: "MEX",
       },
       id: "MEX",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              166.3534,
+              9.4859,
+            ],
+            [
+              166.263,
+              9.4648,
+            ],
+            [
+              166.3191,
+              9.4251,
+            ],
+            [
+              166.3534,
+              9.4859,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Marshall Islands",
+        id: "MHL",
+      },
+      id: "MHL",
     },
     {
       type: "Feature",
@@ -21592,6 +22466,37 @@ const map = {
         coordinates: [
           [
             [
+              145.7361,
+              15.1337,
+            ],
+            [
+              145.7937,
+              15.2367,
+            ],
+            [
+              145.7311,
+              15.2389,
+            ],
+            [
+              145.7361,
+              15.1337,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Northern Mariana Islands (Commonwealth of the)",
+        id: "MNP",
+      },
+      id: "MNP",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               32.8905,
               -26.8471,
             ],
@@ -22130,6 +23035,76 @@ const map = {
         id: "MRT",
       },
       id: "MRT",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -62.1655,
+              16.6717,
+            ],
+            [
+              -62.1375,
+              16.6927,
+            ],
+            [
+              -62.1764,
+              16.8087,
+            ],
+            [
+              -62.2367,
+              16.7119,
+            ],
+            [
+              -62.1655,
+              16.6717,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Montserrat",
+        id: "MSR",
+      },
+      id: "MSR",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -60.8172,
+              14.4761,
+            ],
+            [
+              -61.0344,
+              14.8293,
+            ],
+            [
+              -61.2317,
+              14.8095,
+            ],
+            [
+              -61.0339,
+              14.4659,
+            ],
+            [
+              -60.8172,
+              14.4761,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Martinique",
+        id: "MTQ",
+      },
+      id: "MTQ",
     },
     {
       type: "Feature",
@@ -23596,6 +24571,41 @@ const map = {
         coordinates: [
           [
             [
+              -169.8938,
+              -19.1455,
+            ],
+            [
+              -169.7817,
+              -19.0628,
+            ],
+            [
+              -169.8847,
+              -18.9633,
+            ],
+            [
+              -169.953,
+              -19.0702,
+            ],
+            [
+              -169.8938,
+              -19.1455,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Niue",
+        id: "NIU",
+      },
+      id: "NIU",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               88.1429,
               27.8661,
             ],
@@ -24729,6 +25739,37 @@ const map = {
         id: "PAN",
       },
       id: "PAN",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -128.2909,
+              -24.4112,
+            ],
+            [
+              -128.3075,
+              -24.3266,
+            ],
+            [
+              -128.342,
+              -24.3697,
+            ],
+            [
+              -128.2909,
+              -24.4112,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Pitcairn Islands",
+        id: "PCN",
+      },
+      id: "PCN",
     },
     {
       type: "Feature",
@@ -26223,6 +27264,41 @@ const map = {
         id: "PSE",
       },
       id: "PSE",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -149.2114,
+              -17.7339,
+            ],
+            [
+              -149.347,
+              -17.5436,
+            ],
+            [
+              -149.6325,
+              -17.55,
+            ],
+            [
+              -149.4905,
+              -17.765,
+            ],
+            [
+              -149.2114,
+              -17.7339,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "French Polynesia",
+        id: "PYF",
+      },
+      id: "PYF",
     },
     {
       type: "Feature",
@@ -27919,6 +28995,41 @@ const map = {
         coordinates: [
           [
             [
+              6.6771,
+              0.4077,
+            ],
+            [
+              6.4619,
+              0.2437,
+            ],
+            [
+              6.6131,
+              0.0817,
+            ],
+            [
+              6.7489,
+              0.2417,
+            ],
+            [
+              6.6771,
+              0.4077,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Sao Tome and Principe",
+        id: "STP",
+      },
+      id: "STP",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               -54.1667,
               5.3473,
             ],
@@ -28093,6 +29204,99 @@ const map = {
         id: "SWZ",
       },
       id: "SWZ",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -63.1397,
+              18.0587,
+            ],
+            [
+              -63.0333,
+              18.0157,
+            ],
+            [
+              -63.0115,
+              18.0673,
+            ],
+            [
+              -63.1397,
+              18.0587,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Sint Maarten",
+        id: "SXM",
+      },
+      id: "SXM",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              55.5325,
+              -4.7892,
+            ],
+            [
+              55.4751,
+              -4.5594,
+            ],
+            [
+              55.3761,
+              -4.6272,
+            ],
+            [
+              55.5325,
+              -4.7892,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Seychelles",
+        id: "SYC",
+      },
+      id: "SYC",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -71.6578,
+              21.8233,
+            ],
+            [
+              -71.8478,
+              21.8547,
+            ],
+            [
+              -71.8275,
+              21.7765,
+            ],
+            [
+              -71.6578,
+              21.8233,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Turks and Caicos Islands",
+        id: "TCA",
+      },
+      id: "TCA",
     },
     {
       type: "Feature",
@@ -29043,6 +30247,37 @@ const map = {
         id: "TUN",
       },
       id: "TUN",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              179.2225,
+              -8.5541,
+            ],
+            [
+              179.2311,
+              -8.5049,
+            ],
+            [
+              179.1983,
+              -8.4699,
+            ],
+            [
+              179.2225,
+              -8.5541,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Tuvalu",
+        id: "TUV",
+      },
+      id: "TUV",
     },
     {
       type: "Feature",
@@ -31301,6 +32536,41 @@ const map = {
         coordinates: [
           [
             [
+              -61.1844,
+              13.1303,
+            ],
+            [
+              -61.1233,
+              13.2489,
+            ],
+            [
+              -61.2088,
+              13.3679,
+            ],
+            [
+              -61.2781,
+              13.2503,
+            ],
+            [
+              -61.1844,
+              13.1303,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Saint Vincent and the Grenadines",
+        id: "VCT",
+      },
+      id: "VCT",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               -59.9903,
               8.5353,
             ],
@@ -31696,6 +32966,72 @@ const map = {
         coordinates: [
           [
             [
+              -64.6099,
+              18.3183,
+            ],
+            [
+              -64.5685,
+              18.336,
+            ],
+            [
+              -64.606,
+              18.3583,
+            ],
+            [
+              -64.6099,
+              18.3183,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "British Virgin Islands",
+        id: "VGB",
+      },
+      id: "VGB",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -64.7619,
+              17.7743,
+            ],
+            [
+              -64.8708,
+              17.7747,
+            ],
+            [
+              -64.8889,
+              17.6871,
+            ],
+            [
+              -64.7389,
+              17.7081,
+            ],
+            [
+              -64.7619,
+              17.7743,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "United States Virgin Islands",
+        id: "VIR",
+      },
+      id: "VIR",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               107.9891,
               21.5431,
             ],
@@ -32054,6 +33390,76 @@ const map = {
         id: "VUT",
       },
       id: "VUT",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -178.0608,
+              -14.3239,
+            ],
+            [
+              -178.1299,
+              -14.2469,
+            ],
+            [
+              -178.1809,
+              -14.2727,
+            ],
+            [
+              -178.1342,
+              -14.3177,
+            ],
+            [
+              -178.0608,
+              -14.3239,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Wallis and Futuna",
+        id: "WLF",
+      },
+      id: "WLF",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -172.2859,
+              -13.4864,
+            ],
+            [
+              -172.7797,
+              -13.5396,
+            ],
+            [
+              -172.5324,
+              -13.8008,
+            ],
+            [
+              -172.2105,
+              -13.8053,
+            ],
+            [
+              -172.2859,
+              -13.4864,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Samoa",
+        id: "WSM",
+      },
+      id: "WSM",
     },
     {
       type: "Feature",
@@ -34645,6 +36051,37 @@ const map = {
         coordinates: [
           [
             [
+              1.7237,
+              42.5095,
+            ],
+            [
+              1.4459,
+              42.6019,
+            ],
+            [
+              1.5417,
+              42.4373,
+            ],
+            [
+              1.7237,
+              42.5095,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Andorra",
+        id: "AND",
+      },
+      id: "AND",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               46.5403,
               38.8757,
             ],
@@ -35556,6 +36993,10 @@ const map = {
               47.0639,
             ],
             [
+              9.5103,
+              47.0925,
+            ],
+            [
               9.5337,
               47.2745,
             ],
@@ -36342,6 +37783,10 @@ const map = {
                 42.5095,
               ],
               [
+                1.5417,
+                42.4373,
+              ],
+              [
                 1.4459,
                 42.6019,
               ],
@@ -36873,6 +38318,10 @@ const map = {
               [
                 7.3917,
                 43.7275,
+              ],
+              [
+                7.3879,
+                43.7487,
               ],
               [
                 7.4393,
@@ -38519,6 +39968,54 @@ const map = {
               ],
             ],
           ],
+          [
+            [
+              [
+                12.4593,
+                43.8961,
+              ],
+              [
+                12.5117,
+                43.9433,
+              ],
+              [
+                12.4539,
+                43.9817,
+              ],
+              [
+                12.4051,
+                43.9483,
+              ],
+              [
+                12.4593,
+                43.8961,
+              ],
+            ],
+          ],
+          [
+            [
+              [
+                12.4687,
+                41.8799,
+              ],
+              [
+                12.4959,
+                41.8799,
+              ],
+              [
+                12.5035,
+                41.9099,
+              ],
+              [
+                12.4661,
+                41.8969,
+              ],
+              [
+                12.4687,
+                41.8799,
+              ],
+            ],
+          ],
         ],
       },
       properties: {
@@ -39141,6 +40638,37 @@ const map = {
         coordinates: [
           [
             [
+              9.5987,
+              47.0639,
+            ],
+            [
+              9.5337,
+              47.2745,
+            ],
+            [
+              9.5103,
+              47.0925,
+            ],
+            [
+              9.5987,
+              47.0639,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Liechtenstein",
+        id: "LIE",
+      },
+      id: "LIE",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               26.6133,
               55.6749,
             ],
@@ -39374,6 +40902,37 @@ const map = {
         coordinates: [
           [
             [
+              7.3917,
+              43.7275,
+            ],
+            [
+              7.4393,
+              43.7575,
+            ],
+            [
+              7.3879,
+              43.7487,
+            ],
+            [
+              7.3917,
+              43.7275,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Monaco",
+        id: "MCO",
+      },
+      id: "MCO",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               28.2149,
               45.4487,
             ],
@@ -39524,6 +41083,45 @@ const map = {
         id: "MKD",
       },
       id: "MKD",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              14.5524,
+              35.8156,
+            ],
+            [
+              14.5103,
+              35.9253,
+            ],
+            [
+              14.3751,
+              35.9909,
+            ],
+            [
+              14.3331,
+              35.8951,
+            ],
+            [
+              14.4239,
+              35.8187,
+            ],
+            [
+              14.5524,
+              35.8156,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Malta",
+        id: "MLT",
+      },
+      id: "MLT",
     },
     {
       type: "Feature",
@@ -43857,6 +45455,41 @@ const map = {
         coordinates: [
           [
             [
+              12.4593,
+              43.8961,
+            ],
+            [
+              12.5117,
+              43.9433,
+            ],
+            [
+              12.4539,
+              43.9817,
+            ],
+            [
+              12.4051,
+              43.9483,
+            ],
+            [
+              12.4593,
+              43.8961,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "San Marino",
+        id: "SMR",
+      },
+      id: "SMR",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               20.2627,
               46.1225,
             ],
@@ -45416,6 +47049,41 @@ const map = {
         coordinates: [
           [
             [
+              12.4687,
+              41.8799,
+            ],
+            [
+              12.4959,
+              41.8799,
+            ],
+            [
+              12.5035,
+              41.9099,
+            ],
+            [
+              12.4661,
+              41.8969,
+            ],
+            [
+              12.4687,
+              41.8799,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Holy See",
+        id: "VAT",
+      },
+      id: "VAT",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               80.2341,
               42.1963,
             ],
@@ -46093,6 +47761,119 @@ const map = {
         id: "UZB",
       },
       id: "UZB",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              166.9262,
+              -0.4963,
+            ],
+            [
+              166.9077,
+              -0.5119,
+            ],
+            [
+              166.9154,
+              -0.5496,
+            ],
+            [
+              166.9366,
+              -0.5402,
+            ],
+            [
+              166.9436,
+              -0.5065,
+            ],
+            [
+              166.9262,
+              -0.4963,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Nauru",
+        id: "NRU",
+      },
+      id: "NRU",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -171.731,
+              -9.2434,
+            ],
+            [
+              -171.76,
+              -9.2512,
+            ],
+            [
+              -171.8073,
+              -9.2347,
+            ],
+            [
+              -171.7906,
+              -9.2625,
+            ],
+            [
+              -171.7573,
+              -9.2625,
+            ],
+            [
+              -171.731,
+              -9.2434,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Tokelau",
+        id: "TKL",
+      },
+      id: "TKL",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              134.5615,
+              7.3719,
+            ],
+            [
+              134.6547,
+              7.6003,
+            ],
+            [
+              134.5451,
+              7.5961,
+            ],
+            [
+              134.4853,
+              7.4381,
+            ],
+            [
+              134.5615,
+              7.3719,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Palau",
+        id: "PLW",
+      },
+      id: "PLW",
     },
     {
       type: "Feature",
@@ -47210,6 +48991,76 @@ const map = {
     {
       type: "Feature",
       geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              96.8525,
+              -12.1994,
+            ],
+            [
+              96.8669,
+              -12.188,
+            ],
+            [
+              96.8265,
+              -12.1283,
+            ],
+            [
+              96.8195,
+              -12.178,
+            ],
+            [
+              96.8525,
+              -12.1994,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Cocos (Keeling) Islands",
+        id: "CCK",
+      },
+      id: "CCK",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              105.7015,
+              -10.511,
+            ],
+            [
+              105.7519,
+              -10.4837,
+            ],
+            [
+              105.7509,
+              -10.3941,
+            ],
+            [
+              105.6847,
+              -10.4189,
+            ],
+            [
+              105.7015,
+              -10.511,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Christmas Island",
+        id: "CXR",
+      },
+      id: "CXR",
+    },
+    {
+      type: "Feature",
+      geometry: {
         type: "MultiPolygon",
         coordinates: [
           [
@@ -47275,6 +49126,499 @@ const map = {
         id: "FLK",
       },
       id: "FLK",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              73.1369,
+              6.7265,
+            ],
+            [
+              73.1515,
+              6.7449,
+            ],
+            [
+              73.1619,
+              6.7843,
+            ],
+            [
+              73.1291,
+              6.7339,
+            ],
+            [
+              73.1369,
+              6.7265,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Maldives",
+        id: "MDV",
+      },
+      id: "MDV",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              45.1365,
+              -12.9925,
+            ],
+            [
+              45.2303,
+              -12.7522,
+            ],
+            [
+              45.0419,
+              -12.7408,
+            ],
+            [
+              45.1365,
+              -12.9925,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Mayotte",
+        id: "MYT",
+      },
+      id: "MYT",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              167.9651,
+              -29.0811,
+            ],
+            [
+              168.0001,
+              -29.03,
+            ],
+            [
+              167.9305,
+              -29.0005,
+            ],
+            [
+              167.9237,
+              -29.0566,
+            ],
+            [
+              167.9651,
+              -29.0811,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Norfolk Island",
+        id: "NFK",
+      },
+      id: "NFK",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              55.7101,
+              -20.998,
+            ],
+            [
+              55.4489,
+              -20.8564,
+            ],
+            [
+              55.3433,
+              -21.2686,
+            ],
+            [
+              55.6743,
+              -21.3739,
+            ],
+            [
+              55.7101,
+              -20.998,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Réunion",
+        id: "REU",
+      },
+      id: "REU",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              103.9905,
+              1.3833,
+            ],
+            [
+              103.6949,
+              1.4211,
+            ],
+            [
+              103.6423,
+              1.3101,
+            ],
+            [
+              103.8451,
+              1.2593,
+            ],
+            [
+              103.9905,
+              1.3833,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Singapore",
+        id: "SGP",
+      },
+      id: "SGP",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -5.7129,
+              -15.9928,
+            ],
+            [
+              -5.6452,
+              -15.94,
+            ],
+            [
+              -5.7163,
+              -15.9052,
+            ],
+            [
+              -5.7129,
+              -15.9928,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Saint Helena",
+        id: "SHN",
+      },
+      id: "SHN",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -56.2464,
+              47.0397,
+            ],
+            [
+              -56.3977,
+              47.1067,
+            ],
+            [
+              -56.3308,
+              46.9483,
+            ],
+            [
+              -56.2464,
+              47.0397,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Saint Pierre and Miquelon",
+        id: "SPM",
+      },
+      id: "SPM",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -169.5389,
+              16.7243,
+            ],
+            [
+              -169.5226,
+              16.729,
+            ],
+            [
+              -169.5317,
+              16.7325,
+            ],
+            [
+              -169.5389,
+              16.7243,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Johnston Atoll",
+        id: "JTN",
+      },
+      id: "JTN",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -177.3933,
+              28.1841,
+            ],
+            [
+              -177.3626,
+              28.2059,
+            ],
+            [
+              -177.3873,
+              28.2153,
+            ],
+            [
+              -177.3933,
+              28.1841,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Midway Islands",
+        id: "MID",
+      },
+      id: "MID",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              166.6075,
+              19.3051,
+            ],
+            [
+              166.6663,
+              19.2713,
+            ],
+            [
+              166.6603,
+              19.3095,
+            ],
+            [
+              166.6075,
+              19.3051,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Wake Island",
+        id: "WAK",
+      },
+      id: "WAK",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -6.7253,
+              61.9345,
+            ],
+            [
+              -6.7188,
+              62.0287,
+            ],
+            [
+              -6.9908,
+              62.1931,
+            ],
+            [
+              -7.0346,
+              62.1121,
+            ],
+            [
+              -6.7253,
+              61.9345,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Faroe Islands",
+        id: "FRO",
+      },
+      id: "FRO",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -2.6657,
+              49.4281,
+            ],
+            [
+              -2.5266,
+              49.4275,
+            ],
+            [
+              -2.5392,
+              49.5075,
+            ],
+            [
+              -2.6657,
+              49.4281,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Guernsey",
+        id: "GGY",
+      },
+      id: "GGY",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -5.3344,
+              36.1625,
+            ],
+            [
+              -5.3557,
+              36.1633,
+            ],
+            [
+              -5.3562,
+              36.1269,
+            ],
+            [
+              -5.3382,
+              36.1123,
+            ],
+            [
+              -5.3344,
+              36.1625,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Gibraltar",
+        id: "GIB",
+      },
+      id: "GIB",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -4.7875,
+              54.0595,
+            ],
+            [
+              -4.3075,
+              54.2969,
+            ],
+            [
+              -4.5414,
+              54.3561,
+            ],
+            [
+              -4.7875,
+              54.0595,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Isle of Man",
+        id: "IMN",
+      },
+      id: "IMN",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -2.0669,
+              49.1679,
+            ],
+            [
+              -2.0161,
+              49.2325,
+            ],
+            [
+              -2.2405,
+              49.2581,
+            ],
+            [
+              -2.2264,
+              49.1897,
+            ],
+            [
+              -2.0669,
+              49.1679,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Jersey",
+        id: "JEY",
+      },
+      id: "JEY",
     },
     {
       type: "Feature",
@@ -48286,6 +50630,41 @@ const map = {
         id: "CUB",
       },
       id: "CUB",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
+              -175.2933,
+              -21.1226,
+            ],
+            [
+              -175.2736,
+              -21.1992,
+            ],
+            [
+              -175.125,
+              -21.273,
+            ],
+            [
+              -175.1148,
+              -21.1718,
+            ],
+            [
+              -175.2933,
+              -21.1226,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Tonga",
+        id: "TON",
+      },
+      id: "TON",
     },
     {
       type: "Feature",
