@@ -5,7 +5,11 @@
     @touchstart="deselectText"
     @mousemove="avoidSelectingText"
   >
-    <div ref="globediv" :class="globeClass" />
+    <div
+      ref="globediv"
+      class="globe"
+      :class="[(appStore.largeScreen ? 'large-screen' : null), (appStore.globe.interactive ? 'interactive' : null)]"
+    />
   </div>
 </template>
 
@@ -51,6 +55,17 @@ let root: am5.Root;
 let chart: am5map.MapChart;
 let selectableCountriesSeries: am5map.MapPolygonSeries;
 let backgroundSeries: am5map.MapPolygonSeries;
+
+const disputedLands: Record<string, {
+  disputers: string[]
+  mapSeries: am5map.MapPolygonSeries | null
+  displayed: boolean
+}> = {
+  "Western Sahara": { disputers: ["ESH", "MAR"], mapSeries: null, displayed: false },
+  "Abyei": { disputers: ["SSD", "SDN"], mapSeries: null, displayed: false },
+  "Aksai Chin": { disputers: ["CHN", "IND"], mapSeries: null, displayed: false },
+  "Jammu and Kashmir": { disputers: ["IND", "PAK", "CHN"], mapSeries: null, displayed: false },
+};
 const chartDefaultSettings: am5map.IMapChartSettings = {
   panX: "rotateX",
   panY: "rotateY",
@@ -77,15 +92,22 @@ const selectableCountriesSeriesSettings: am5map.IMapPolygonSeriesSettings = {
   include: appStore.globeParameter?.options?.map(option => option.id),
   layer: maxZindex - 4,
 };
-const disputedLands: Record<string, {
-  disputers: string[]
-  mapSeries: am5map.MapPolygonSeries | null
-  displayed: boolean
-}> = {
-  "Western Sahara": { disputers: ["ESH", "MAR"], mapSeries: null, displayed: false },
-  "Abyei": { disputers: ["SSD", "SDN"], mapSeries: null, displayed: false },
-  "Aksai Chin": { disputers: ["CHN", "IND"], mapSeries: null, displayed: false },
-  "Jammu and Kashmir": { disputers: ["IND", "PAK", "CHN"], mapSeries: null, displayed: false },
+const tentativelySelectedCountrySeriesSettings: am5map.IMapPolygonSeriesSettings = {
+  layer: maxZindex - 3,
+};
+const disputedAreaSeriesSettings: am5map.IMapPolygonSeriesSettings = {
+  geoJSON: WHODisputedAreas,
+};
+const disputedLandSeriesSettings: am5map.IMapPolygonSeriesSettings = {
+  ...disputedAreaSeriesSettings,
+  fill: defaultLandColour,
+  layer: maxZindex - 1, // Make sure disputed areas are always painted on top of country areas
+};
+const disputedBodiesOfWaterSeriesSettings: am5map.IMapPolygonSeriesSettings = {
+  ...disputedAreaSeriesSettings,
+  fill: lightGreyBackground,
+  exclude: Object.keys(disputedLands),
+  layer: maxZindex, // Make sure lakes are always on top of land
 };
 
 // You cannot use `ref` with amCharts objects. Instead, you must use `shallowRef`. https://www.amcharts.com/docs/v5/getting-started/integrations/vue/#Important_note
@@ -93,8 +115,6 @@ const globediv = shallowRef(null);
 const rotatedToCountry = ref("");
 const prevBackgroundPolygon = ref<am5map.MapPolygon | undefined>(undefined);
 const prevSelectablePolygon = ref<am5map.MapPolygon | undefined>(undefined);
-
-const globeClass = computed(() => `globe ${appStore.largeScreen ? "large-screen" : ""} ${appStore.globe.interactive ? "interactive" : ""}`);
 
 const tentativelySelectedCountrySeries = computed(() => {
   if (!appStore.globe.tentativelySelectedCountry) {
@@ -106,10 +126,10 @@ const tentativelySelectedCountrySeries = computed(() => {
   const tentativeSelectionIsHovered = selectableCountriesSeries.getDataItemById(appStore.globe.tentativelySelectedCountry)?.get("mapPolygon").isHover();
   const startingColor = tentativeSelectionIsHovered ? hoverLandColour : defaultLandColour;
   return am5map.MapPolygonSeries.new(root, {
+    ...tentativelySelectedCountrySeriesSettings,
     geoJSON: WHONationalBorders.features.find(f => f.id === appStore.globe.tentativelySelectedCountry),
     reverseGeodata: false,
     fill: startingColor,
-    layer: maxZindex - 3,
   });
 });
 
@@ -269,22 +289,13 @@ const setUpSelectableCountriesSeries = () => {
 const setUpDisputedAreasSeries = () => {
   Object.keys(disputedLands).forEach((disputedArea) => {
     disputedLands[disputedArea].mapSeries = initializeSeries({
-      geoJSON: WHODisputedAreas,
-      fill: defaultLandColour,
+      ...disputedLandSeriesSettings,
       reverseGeodata: true,
       include: [disputedArea],
-      layer: maxZindex - 1, // Make sure disputed areas are always painted on top of country areas
     });
   });
 
-  // Disputed bodies of water
-  initializeSeries({
-    geoJSON: WHODisputedAreas,
-    fill: lightGreyBackground,
-    reverseGeodata: true,
-    exclude: Object.keys(disputedLands),
-    layer: maxZindex, // Make sure lakes are always on top of land
-  });
+  initializeSeries({ ...disputedBodiesOfWaterSeriesSettings, reverseGeodata: true });
 };
 
 const setUpChart = () => {
