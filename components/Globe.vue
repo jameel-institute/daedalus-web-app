@@ -1,5 +1,10 @@
 <template>
-  <div v-show="pageMounted && appStore.globeParameter && appStore.largeScreen">
+  <div
+    v-show="pageMounted && appStore.globeParameter && appStore.largeScreen"
+    @mousedown="deselectText"
+    @touchstart="deselectText"
+    @mousemove="avoidSelectingText"
+  >
     <div ref="globediv" :class="globeClass" />
   </div>
 </template>
@@ -16,6 +21,7 @@ import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import WHONationalBorders from "@/assets/geodata/0_point_02_try_again_who_adm0";
 import WHODisputedAreas from "@/assets/geodata/0_point_02_try_again_who_disputed_areas";
 import { rgba2hex } from "@amcharts/amcharts5/.internal/core/util/Color";
+import throttle from "lodash.throttle";
 
 // Refer to old branch: 'globe-for-meeting'
 
@@ -69,6 +75,20 @@ const rotatedToCountry = ref("");
 const disabledZoomControl = true;
 
 const appStore = useAppStore();
+
+// If the user has any text selected, this plays havoc with any ensuing attempts to drag the globe
+// around. So when they restart dragging, we should unselect any selections for them.
+const deselectText = () => {
+  window.getSelection()?.removeAllRanges();
+};
+
+// If the user is dragging the globe around, they may accidentally select text on the page.
+const avoidSelectingText = throttle((event) => {
+  const primaryMouseButtonIsDown = (event.buttons === 1);
+  if (primaryMouseButtonIsDown) {
+    deselectText();
+  };
+}, 25);
 
 const applyGlobeSettings = () => {
   if (!disabledZoomControl) {
