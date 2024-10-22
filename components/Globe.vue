@@ -25,6 +25,11 @@ const darkBlue = am5.color("#002e4e");
 const midPoint = am5.color("#1c6777");
 const lightGreyBackground = am5.color(rgba2hex("rgb(243, 244, 247)"));
 const maxZindex = 29; // 30 is reserved by amCharts
+const goHomeDuration = 500;
+const rotateDuration = 2000;
+const geoPointZoomDuration = 2000;
+const amountToTiltTheEarthUpwardsBy = 25;
+const easing = am5.ease.inOut(am5.ease.cubic);
 
 // TODO: Make it zoom in slightly on load, for a fun animation
 
@@ -41,6 +46,7 @@ let chart: am5map.MapChart;
 
 let zoomControl: am5map.ZoomControl;
 let countrySeries: am5map.MapPolygonSeries;
+let backgroundSeries: am5map.MapPolygonSeries;
 let disputedAreasLakesSeries: am5map.MapPolygonSeries;
 const disputedLandAreasAndDisputers: Record<string, {
   disputers: string[]
@@ -55,6 +61,8 @@ const disputedLandAreasAndDisputers: Record<string, {
 interface Animation { pause: () => void, stopped: boolean, play: () => void }
 let gentleRotateAnimation: Animation;
 let graduallyResetYAxis: Animation;
+let previousBackgroundPolygon: am5map.MapPolygon | null; ;
+let previousPolygon: am5map.MapPolygon | null;
 const rotatedToCountry = ref("");
 // Disable zoom controls for now since there is a bug where the first click on the zoom in button
 // zooms in to a blank area of the map, such that the globe tends to disappear from view.
@@ -86,10 +94,19 @@ const tentativelySelectedCountrySeries = computed(() => {
   return am5map.MapPolygonSeries.new(root, {
     geoJSON: WHONationalBorders.features.find(f => f.id === appStore.globe.tentativelySelectedCountry),
     reverseGeodata: false,
-    fill: darkBlue,
+    fill: midPoint,
     layer: maxZindex - 3,
   });
 });
+
+const animateSeriesColour = (series: am5map.MapPolygonSeries, colour: am5.Color) => {
+  series.animate({
+    key: "fill",
+    to: colour,
+    duration: geoPointZoomDuration,
+    easing,
+  });
+};
 
 watch(() => globediv.value, (globediv) => {
   if (globediv !== null && !root) {
@@ -117,11 +134,20 @@ watch(() => globediv.value, (globediv) => {
       }),
     );
 
-    countrySeries = am5map.MapPolygonSeries.new(root, {
+    backgroundSeries = am5map.MapPolygonSeries.new(root, {
       geoJSON: WHONationalBorders,
       fill: darkBlue,
       reverseGeodata: true,
+      layer: maxZindex - 5,
+    });
+    chart.series.push(backgroundSeries);
+
+    countrySeries = am5map.MapPolygonSeries.new(root, {
+      geoJSON: WHONationalBorders,
+      fill: darkBlue,
+      reverseGeodata: false,
       layer: maxZindex - 4,
+      include: appStore.globeParameter?.options?.map(option => option.id),
     });
     chart.series.push(countrySeries);
 
@@ -154,6 +180,43 @@ watch(() => globediv.value, (globediv) => {
       layer: maxZindex, // Make sure lakes are always on top of land
     });
     chart.series.push(disputedAreasLakesSeries);
+
+    backgroundSeries.mapPolygons.template.setAll({
+      tooltipText: "{name} is not available",
+      toggleKey: "active",
+      interactive: true,
+    });
+    backgroundSeries.mapPolygons.template.on("active", (active, target) => {
+      if (previousBackgroundPolygon && previousBackgroundPolygon !== target) {
+        previousBackgroundPolygon.set("active", false);
+      }
+      previousBackgroundPolygon = target;
+    });
+
+    countrySeries.mapPolygons.template.setAll({
+      tooltipText: "{name}",
+      toggleKey: "active",
+      interactive: true,
+      cursorOverStyle: "pointer",
+    });
+    countrySeries.mapPolygons.template.on("active", (active, target) => {
+      if (previousPolygon && previousPolygon !== target) {
+        previousPolygon.set("active", false);
+        animateSeriesColour(countrySeries, darkBlue);
+      }
+      previousPolygon = target;
+      if (typeof target?.dataItem?.get("id") === "string") {
+        appStore.globe.tentativelySelectedCountry = target.dataItem.get("id");
+      }
+    });
+
+    countrySeries.mapPolygons.template.states.create("hover", {
+      fill: midPoint,
+    });
+
+    countrySeries.mapPolygons.template.states.create("active", {
+      fill: midPoint,
+    });
 
     // const polygonSeries = chart.series.push(
     //   am5map.MapPolygonSeries.new(root, {
@@ -221,21 +284,6 @@ const countryCentroid = (countryIso: string) => countrySeries.getDataItemById(co
 //   }
 // };
 
-const goHomeDuration = 500;
-const rotateDuration = 2000;
-const geoPointZoomDuration = 2000;
-const amountToTiltTheEarthUpwardsBy = 25;
-const easing = am5.ease.inOut(am5.ease.cubic);
-
-const animateSeriesColour = (series: am5map.MapPolygonSeries, colour: am5.Color) => {
-  series.animate({
-    key: "fill",
-    to: colour,
-    duration: geoPointZoomDuration,
-    easing,
-  });
-};
-
 const stopDisplayingAllDisputedAreas = () => {
   Object.keys(disputedLandAreasAndDisputers).forEach((disputedArea) => {
     if (disputedLandAreasAndDisputers[disputedArea].displayed && disputedLandAreasAndDisputers[disputedArea].mapSeries) {
@@ -283,6 +331,7 @@ watch(() => tentativelySelectedCountrySeries.value, (newSeries, oldSeries) => {
   if (!chart) {
     return;
   }
+  previousPolygon.set("active", false);
   if (!appStore.globe.tentativelySelectedCountry) {
     pauseAnimations();
     // Probably the user has navigated back to the home page.
@@ -320,13 +369,11 @@ watch(() => tentativelySelectedCountrySeries.value, (newSeries, oldSeries) => {
         rotateToCentroid(centroid, appStore.globe.tentativelySelectedCountry);
       };
 
-      setTimeout(() => {
-        disputedAreas(appStore.globe.tentativelySelectedCountry!).forEach((disputedArea) => {
-          disputedLandAreasAndDisputers[disputedArea].displayed = true;
-          animateSeriesColour(disputedLandAreasAndDisputers[disputedArea].mapSeries!, midPoint);
-        });
-        animateSeriesColour(newSeries, imperialSeaGlass);
-      }, rotateDuration / 2);
+      disputedAreas(appStore.globe.tentativelySelectedCountry!).forEach((disputedArea) => {
+        disputedLandAreasAndDisputers[disputedArea].displayed = true;
+        animateSeriesColour(disputedLandAreasAndDisputers[disputedArea].mapSeries!, midPoint);
+      });
+      animateSeriesColour(newSeries, imperialSeaGlass);
     }
   }
 });
