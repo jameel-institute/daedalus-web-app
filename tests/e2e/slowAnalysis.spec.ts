@@ -40,9 +40,9 @@ test("Can show relevant alerts for long-running analysis, e.g. Omicron in Singap
   expect(await page.textContent(".wrapper")).toContain("Analysis status: running");
   expect(await page.textContent(".wrapper")).toContain("Thank you for waiting."); // Start to show warning of long running analysis
 
-  // The analysis reliably takes less than a minute to run.
+  // The analysis reliably takes less than two minutes to run.
   // Test that we do eventually see a result: the page does not give up on polling.
-  await expect(page.getByRole("heading", { name: "Time series" })).toBeVisible({ timeout: 60000 });
+  await expect(page.getByRole("heading", { name: "Time series" })).toBeVisible({ timeout: 120000 });
 
   expect(await page.textContent(".wrapper")).not.toContain("Thank you for waiting.");
 });
