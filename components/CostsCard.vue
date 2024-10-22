@@ -61,7 +61,7 @@
         />
       </div>
       <p class="fw-lighter vsl-display">
-        * Value of statistical life: {{ formatCurrency(appStore.currentScenario.result.data?.average_vsl || 0) }} Int'l$
+        * Value of statistical life: ${{ formatCurrency(appStore.currentScenario.result.data?.average_vsl || 0) }} Int'l$
       </p>
     </div>
   </div>
