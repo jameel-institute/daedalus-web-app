@@ -331,7 +331,9 @@ watch(() => tentativelySelectedCountrySeries.value, (newSeries, oldSeries) => {
   if (!chart) {
     return;
   }
-  previousPolygon.set("active", false);
+  if (previousPolygon) {
+    previousPolygon.set("active", false);
+  }
   if (!appStore.globe.tentativelySelectedCountry) {
     pauseAnimations();
     // Probably the user has navigated back to the home page.
