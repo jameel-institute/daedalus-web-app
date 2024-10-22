@@ -37,7 +37,7 @@
         <div class="code p-3">
           <button
             id="btn-copy-code"
-            class="btn btn-clipboard btn-sm"
+            class="btn btn-clipboard"
             :class="copied ? 'btn-copied' : ''"
             aria-label="Copy code snippet"
             @click="copySnippet"
@@ -63,7 +63,7 @@ const copied = ref(false);
 
 const parameters = computed(() => appStore.currentScenario.parameters);
 const codeSnippet = computed(() => {
-  return `daedalus::daedalus(
+  return `model_result <- daedalus::daedalus(
   "${parameters.value!.country}",
   "${parameters.value!.pathogen}",
   response_strategy = "${parameters.value!.response}",
@@ -92,7 +92,9 @@ const resetCopied = () => {
       position: absolute;
       top: 0.5rem;
       right: 0.5rem;
+      font-size: 0.8rem;
       border-radius: 0.25rem;
+      padding: 0.25rem;
     &:hover {
       color: var(--cui-light);
       background-color: var(--cui-primary);
