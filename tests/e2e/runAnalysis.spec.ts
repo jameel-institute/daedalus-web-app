@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
 
@@ -21,12 +22,12 @@ const useVisualScreenshotTesting = false;
 test("Can request a scenario analysis run", async ({ page, baseURL, headless }) => {
   await waitForNewScenarioPage(page, baseURL);
 
-  await page.selectOption(`select[aria-label="${parameterLabels.pathogen}"]`, { label: "SARS 2004" });
-  await page.selectOption(`select[aria-label="${parameterLabels.response}"]`, { label: "Elimination" });
+  await selectParameterOption(page, "pathogen", "SARS 2004");
+  await selectParameterOption(page, "response", "Elimination");
 
   const initialCountryValue = await page.inputValue(`input[aria-label="${parameterLabels.hospital_capacity}"][type="number"]`);
   await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue(initialCountryValue);
-  await page.selectOption(`select[aria-label="${parameterLabels.country}"]`, { label: "United States" });
+  await selectParameterOption(page, "country", "United States");
   await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).not.toHaveValue(initialCountryValue);
 
   await page.click(`div[aria-label="${parameterLabels.vaccine}"] label[for="medium"]`);
@@ -99,9 +100,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   // The following line has been known to fail locally on webkit, but pass on CI.
   await expect(page.getByRole("heading", { name: "Edit parameters" })).toBeVisible();
 
-  await expect(page.getByLabel(parameterLabels.country)).toHaveValue("USA");
-  await expect(page.getByLabel(parameterLabels.pathogen)).toHaveValue("sars_cov_1");
-  await expect(page.getByLabel(parameterLabels.response)).toHaveValue("elimination");
+  await expect(page.getByRole("combobox", { name: parameterLabels.country }).locator(".single-value")).toHaveText("United States");
+  await expect(page.getByRole("combobox", { name: parameterLabels.pathogen }).locator(".single-value")).toHaveText("SARS 2004");
+  await expect(page.getByRole("combobox", { name: parameterLabels.response }).locator(".single-value")).toHaveText("Elimination");
   await expect(page.getByLabel("Medium")).toBeChecked();
   await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue("305000");
   await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue("305000");

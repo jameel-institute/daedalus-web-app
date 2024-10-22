@@ -80,7 +80,7 @@ body {
   border-bottom-right-radius: 0 !important;
 }
 
-.btn-group > label.btn {
+.btn-group label.btn {
   border-radius: 0.75rem;
 }
 
@@ -88,7 +88,7 @@ body {
   background-color: var(--cui-btn-color);
 }
 
-.btn-group-lg > label.btn {
+.btn-group-lg label.btn {
   border-radius: 1rem;
 }
 
@@ -136,4 +136,48 @@ body {
 // Prevent body width changing when modal-open is applied to the body. https://github.com/jschr/bootstrap-modal/issues/64#issuecomment-55794181
 .modal-open {
   overflow-y: auto !important;
+}
+
+// Restore radio button group styling to allow for buttons no longer being direct children of button groups - which is
+// required for tooltips to display
+.btn-group > {
+  .radio-btn-container {
+    flex-grow: 1;
+    .btn {
+      width: 100%;
+    }
+    &:not(:last-child) > {
+      .btn {
+        border-bottom-right-radius: 0 !important;
+        border-top-right-radius: 0 !important;
+        border-right-width: 0 !important;
+      }
+    }
+    &:not(:first-child) > {
+      .btn {
+        border-bottom-left-radius: 0 !important;
+        border-top-left-radius: 0 !important;
+      }
+    }
+  }
+}
+
+.btn-group-lg > {
+  .radio-btn-container > {
+    .btn {
+      --cui-btn-padding-y: .5rem;
+      --cui-btn-padding-x: 1rem;
+      --cui-btn-font-size: 1.25rem;
+      --cui-btn-border-radius: var(--cui-border-radius-lg);
+    }
+  }
+}
+
+// In vue-select parameter dropdowns, avoid highlighting both focused (used when navigating with keyboard) and
+// hovered menu items, by forcing unhighlighted background colour on all menu items if they have a sibling which
+// is hovered, unless they are the unhovered item is currently selected (also highlighted, in a different colour).
+.vue-select .menu-option:not(.selected):has(~ :hover), // select previous siblings to hovered, if not selected
+.vue-select .menu-option:hover ~ .menu-option:not(.selected) // select subsequent siblings to hovered, if not selected
+{
+  background-color: var(--vs-option-bg)!important;
 }
