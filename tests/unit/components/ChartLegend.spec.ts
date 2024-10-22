@@ -1,4 +1,4 @@
-import ChartLegend from "@/components/ChartLegend.vue";
+import ChartLegend from "@/components/ChartLegend.client.vue";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 
 const items = [

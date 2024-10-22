@@ -9,6 +9,8 @@ const parameterLabels = {
   vaccine: "Global vaccine investment",
   hospital_capacity: "Hospital surge capacity",
 };
+const philippinesMinimumHospitalCapacity = "16300";
+const scenarioPathMatcher = "scenarios/[a-f0-9]{32}";
 
 test.beforeAll(async () => {
   checkRApiServer();
@@ -34,9 +36,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
 
   await page.click('button:has-text("Run")');
 
-  await page.waitForURL(new RegExp(`${baseURL}/scenarios/[a-f0-9]{32}`));
+  await page.waitForURL(new RegExp(`${baseURL}/${scenarioPathMatcher}`));
   const urlOfFirstAnalysis = page.url();
-  expect(page.url()).toMatch(new RegExp(`${baseURL}/scenarios/[a-f0-9]{32}`));
+  expect(page.url()).toMatch(new RegExp(`${baseURL}/${scenarioPathMatcher}`));
   await expect(page.getByText("Simulate a new scenario")).not.toBeVisible();
 
   await expect(page.getByText("SARS 2004").first()).toBeVisible();
@@ -46,7 +48,6 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   await expect(page.getByText("305,000").first()).toBeVisible();
 
   await expect(page.locator("#prevalence-container")).toBeVisible({ timeout: 20000 });
-  await page.locator("#prevalence-container").scrollIntoViewIfNeeded();
   await expect(page.locator("#prevalence-container .highcharts-xaxis-labels")).toBeVisible();
   await expect(page.locator("#prevalence-container .highcharts-yaxis-labels")).toBeVisible();
   await expect(page.locator("#prevalence-container .highcharts-plot-band")).toBeVisible();
@@ -95,6 +96,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
     console.warn("No screenshot comparison");
   }
 
+  // Run a second analysis with a different parameter, using the parameters form on the results page.
   await page.getByRole("button", { name: "Parameters" }).first().click();
   // The following line has been known to fail locally on webkit, but pass on CI.
   await expect(page.getByRole("heading", { name: "Edit parameters" })).toBeVisible();
@@ -106,14 +108,52 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue("305000");
   await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue("305000");
 
-  await page.click(`div[aria-label="${parameterLabels.vaccine}"] label[for="high"]`);
+  await page.selectOption(`select[aria-label="${parameterLabels.country}"]`, { label: "Philippines" });
+  await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
+  await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
+
   await page.waitForSelector('button:has-text("Run"):not([disabled])');
   await page.click('button:has-text("Run")');
 
-  await page.waitForTimeout(1000);
+  // Test that the second analysis results page has a different run id, and hence URL, from the first analysis.
+  const pathOfFirstAnalysis = new URL(urlOfFirstAnalysis).pathname;
+  const matchAnyScenarioResultPathExceptTheFirst = new RegExp(`^${baseURL}(?!${pathOfFirstAnalysis}$).*${scenarioPathMatcher}$`);
+  await page.waitForURL(new RegExp(matchAnyScenarioResultPathExceptTheFirst));
 
-  const urlOfSecondAnalysis = page.url();
-  expect(urlOfSecondAnalysis).not.toEqual(urlOfFirstAnalysis);
-  expect(urlOfSecondAnalysis).toMatch(new RegExp(`${baseURL}/scenarios/[a-f0-9]{32}`));
-  await expect(page.getByText("High").first()).toBeVisible();
+  // Test that the second analysis results page shows the correct parameters.
+  await expect(page.getByText("SARS 2004").first()).toBeVisible();
+  await expect(page.getByText("Elimination").first()).toBeVisible();
+  await expect(page.getByText("Philippines").first()).toBeVisible();
+  await expect(page.getByText("Medium").first()).toBeVisible();
+  await expect(page.getByText(philippinesMinimumHospitalCapacity).first()).toBeVisible();
+
+  // Test that the second analysis results page has the correct parameters within the parameters form modal.
+  await page.getByRole("button", { name: "Parameters" }).first().click();
+  await expect(page.getByRole("heading", { name: "Edit parameters" })).toBeVisible();
+  await expect(page.getByLabel(parameterLabels.country)).toHaveValue("PHL");
+  await expect(page.getByLabel(parameterLabels.pathogen)).toHaveValue("sars_cov_1");
+  await expect(page.getByLabel(parameterLabels.response)).toHaveValue("elimination");
+  await expect(page.getByLabel("Medium")).toBeChecked();
+  await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
+  await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
+  const closeButton = page.getByLabel("Edit parameters").getByLabel("Close");
+  await closeButton.click();
+
+  // Test that the second analysis results page has charts of both types.
+  await expect(page.locator("#prevalence-container")).toBeVisible({ timeout: 20000 });
+  await expect(page.locator("#prevalence-container .highcharts-xaxis-labels")).toBeVisible();
+  await expect(page.locator("#costsChartContainer rect").first()).toBeVisible();
+
+  // Test that the user can navigate to previously-run analyses, including when the page is initially rendered server-side.
+  await page.goto(urlOfFirstAnalysis);
+  await page.waitForURL(urlOfFirstAnalysis);
+  await expect(page.getByText("United States").first()).toBeVisible();
+  await expect(page.locator("#prevalence-container")).toBeVisible(); // Should be visible fairly instantaneously since the analysis has already been run
+
+  // Test that, after arriving to the web app from the /scenarios/:id URL, the user can still navigate
+  // to the home page: this has broken in the past.
+  await page.goto(urlOfFirstAnalysis);
+  await page.getByRole("link", { name: "DAEDALUS Explore" }).click();
+  await page.waitForURL(`${baseURL}/scenarios/new`);
+  await expect(page.getByText("Simulate a new scenario")).toBeVisible();
 });
