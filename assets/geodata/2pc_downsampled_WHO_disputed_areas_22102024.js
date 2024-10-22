@@ -139,6 +139,41 @@ const map = {
         coordinates: [
           [
             [
+              31.3736,
+              2.1922,
+            ],
+            [
+              30.4989,
+              1.5069,
+            ],
+            [
+              30.9578,
+              1.5233,
+            ],
+            [
+              31.4142,
+              1.9164,
+            ],
+            [
+              31.3736,
+              2.1922,
+            ],
+          ],
+        ],
+      },
+      properties: {
+        name: "Lake Albert",
+        id: "Lake Albert",
+      },
+      id: "Lake Albert",
+    },
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [
               33.1876,
               0.4263,
             ],

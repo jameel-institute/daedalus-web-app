@@ -35,18 +35,16 @@ In development, it was found that the best performance (avoiding laggy or 'stick
 ```R
 install.packages("rmapshaper")
 simplified_who_adm0 <- who_adm0
-simplified_who_adm0$adm0 <- rmapshaper::ms_simplify(who_adm0$adm0, keep = 0.03, keep_shapes = FALSE)
+simplified_who_adm0$adm0 <- rmapshaper::ms_simplify(who_adm0$adm0, keep = 0.02, keep_shapes = TRUE)
 # disputed areas:
-simplified_who_adm0$disp_area <- rmapshaper::ms_simplify(who_adm0$disp_area, keep = 0.03, keep_shapes = FALSE)
+simplified_who_adm0$disp_area <- rmapshaper::ms_simplify(who_adm0$disp_area, keep = 0.02, keep_shapes = TRUE)
 ```
 
-This reduces the count of coordinates in Indonesia from 16421 to 2372.
+The option keep_shapes = TRUE is very important: without it, smaller countries such as Malta and Singapore are totally removed, since all of their boundary points are dropped.
 
-Even downsampling to 'keep=0.03' isn't the limit, since a visual inspection shows that the map is still highly detailed relative to worldLow.
+When downsampling to keep=0.02, the map has around the same number of points per country as amCharts' 'worldLow' shapefiles.
 
-When downsampling to keep=0.02, the map has about the same number of points per country as amCharts' 'worldLow' shapefiles (e.g. 455 for Indonesia).
-
-NB, when comparing numbers of points between shapefiles, make sure to flatten the arrays (perhaps several times) since the format is multipolygons: arrays of arrays of arrays to arbitrary levels of nesting.
+NB, when comparing numbers of points between shapefiles, make sure to flatten the arrays (perhaps several times) since the format is multipolygons: arrays of arrays to arbitrary levels of nesting.
 
 ### Convert the shapefiles from R to JSON data in JavaScript files
 
@@ -112,12 +110,12 @@ convert_to_js_map <- function(sf_object, id_col = "iso_3_code", name_col = "adm0
 
 Converting the country polygons:
 ```R
-convert_to_js_map(simplified_who_adm0$adm0, id_col = "iso_3_code", name_col = "adm0_viz_name", output_file = "simplified_world_map_adm0.js")
+convert_to_js_map(simplified_who_adm0$adm0, id_col = "iso_3_code", name_col = "adm0_viz_name", output_file = "simplified_WHO_adm0_22102024.js")
 ```
 
 Converting the disputed regions (make sure you remembered to downsample first):
 ```R
-convert_to_js_map(simplified_who_adm0$disp_area, id_col = "name", name_col = "name", output_file = "simplified_WHO_map_disp_area.js")
+convert_to_js_map(simplified_who_adm0$disp_area, id_col = "name", name_col = "name", output_file = "simplified_WHO_disputed_areas_22102024.js")
 ```
 
 You'll need to add the line `export default map;` to the end of the new js file so it can be imported.
@@ -126,11 +124,12 @@ To use this data you need to tell amCharts to reverse the polygons' points, sinc
 
 ### Customizations
 
-The disputed areas contains 8 bodies of water (lakes and seas) and 4 land areas. The bodies of water may be rendered as geographical features without risk of making a statement about their ownership.
+The disputed areas contains 8 bodies of water (lakes and seas) and 4 land areas. The bodies of water, if rendered as geographical features that are not coloured as land areas, may be rendered without risk of making a statement about their ownership.
 
-#### Bodies of water
+#### Disputed bodies of water
 
 Lake Victoria
+Lake Albert
 Lake Tanganyika
 Lake Malawi
 Aral Sea
@@ -139,9 +138,19 @@ Great Lakes of NA (duplicated)
 Great Lakes of NA (triplicaed)
 Lake Titicaca
 
-#### Land areas
+#### Disputed land areas
 
 Western Sahara
 Abyei
 Aksai Chin
 Jammu and Kashmir
+
+## Discrepancies
+
+There are 249 officially assigned ISO codes in use by ISO.
+
+amCharts5, at least in the worldLow.js file (world in low resolution), has 257 features, all with distinct ids (most have a two-letter ISO code, and some have UM- preceding it, which designates a United States Minor OUtlying Island).
+
+The WHO source has just 241 features.
+
+It is conceivable that the model package will one day support a country whose borders are not supplied by WHO, in which case we can always collate it from another source, or pass it in as a separate amCharts Series object at runtime.
