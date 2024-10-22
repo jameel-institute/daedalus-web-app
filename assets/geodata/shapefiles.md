@@ -120,7 +120,7 @@ convert_to_js_map(simplified_who_adm0$disp_area, id_col = "name", name_col = "na
 
 You'll need to add the line `export default map;` to the end of the new js file so it can be imported.
 
-To use this data you need to tell amCharts to reverse the polygons' points, since otherwise the borders will be inside out, and each country will be rendered as covering most of the globe except for itself! That's because the WHO data uses the opposite 'winding order' for polygons, compared to amCharts. Use amCharts' `reverseGeodata: true` option.
+To use this data you need to tell amCharts to reverse the polygons' points, since otherwise the borders will be inside out, and each country will be rendered as covering most of the globe except for itself! That's because the WHO data uses the opposite 'winding order' for polygons, compared to amCharts. Use amCharts' `reverseGeodata: true` option. Note that this operation seems to mutate some variable, since any immediately subsequent call does not require the same option to be passed.
 
 ### Customizations
 
