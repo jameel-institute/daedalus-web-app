@@ -1,9 +1,9 @@
-import TimeSeries from "@/components/TimeSeries.vue";
+import type { ScenarioResultData } from "@/types/apiResponseTypes";
+import TimeSeries from "@/components/TimeSeries.client.vue";
 import { emptyScenario, mockedMetadata, mockPinia } from "@/tests/unit/mocks/mockPinia";
-import { mockResultResponseData } from "@/tests/unit/mocks/mockResultResponseData";
+import { mockResultResponseData } from "@/tests/unit/mocks/mockResponseData";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { afterAll, describe, expect, it, vi } from "vitest";
-import type { ScenarioResultData } from "~/types/apiResponseTypes";
+import * as Highcharts from "highcharts";
 
 const seriesId = mockedMetadata.results.time_series[0].id;
 const stubs = {
@@ -53,6 +53,61 @@ vi.mock("highcharts", async (importOriginal) => {
 });
 
 describe("time series", () => {
+  it("should initialise the chart with the correct options", async () => {
+    const chartSpy = vi.spyOn(Highcharts, "chart");
+
+    await mountSuspended(TimeSeries, { props: { ...props, seriesId: mockedMetadata.results.time_series[1].id }, global: { stubs, plugins } });
+
+    expect(chartSpy).toHaveBeenCalledWith(
+      "hospitalised-container",
+      expect.objectContaining({
+        exporting: expect.objectContaining({
+          filename: "Hospital demand in USA",
+          chartOptions: expect.objectContaining({
+            title: {
+              text: "Hospital demand",
+            },
+            subtitle: {
+              text: "Infections requiring hospitalisation",
+            },
+          }),
+        }),
+        tooltip: expect.objectContaining({
+          // This test permits both "(in need of) hospitaliz/sation" and "hospitaliz/sed"
+          pointFormat: expect.stringContaining("hospital"),
+        }),
+        xAxis: expect.objectContaining({
+          plotBands: expect.arrayContaining([
+            expect.objectContaining({
+              from: 1,
+              to: 4,
+            }),
+            expect.objectContaining({
+              from: 3,
+              to: 8,
+            }),
+          ]),
+        }),
+        yAxis: expect.objectContaining({
+          minRange: 40000,
+          plotLines: expect.arrayContaining([
+            expect.objectContaining({
+              value: 40000,
+            }),
+            expect.objectContaining({
+              value: 5000,
+            }),
+          ]),
+        }),
+        series: expect.arrayContaining([
+          expect.objectContaining({
+            data: expect.arrayContaining([[1, 0], [2, 3.9626], [3, 6.8824], [4, 9.4865]]),
+          }),
+        ]),
+      }),
+    );
+  });
+
   it("should render the correct label and description for the time series, and render the chart container", async () => {
     const component = await mountSuspended(TimeSeries, { props, global: { stubs, plugins } });
 

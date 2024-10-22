@@ -1,6 +1,5 @@
-import ChartLegend from "@/components/ChartLegend.vue";
+import ChartLegend from "@/components/ChartLegend.client.vue";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { describe, expect, it } from "vitest";
 
 const items = [
   { label: "Item 1", shape: "rectangle", color: "rgb(0, 0, 100)" },

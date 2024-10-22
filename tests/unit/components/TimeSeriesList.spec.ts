@@ -1,8 +1,7 @@
-import TimeSeriesList from "@/components/TimeSeriesList.vue";
+import TimeSeriesList from "@/components/TimeSeriesList.client.vue";
 import { emptyScenario, mockedMetadata, mockPinia } from "@/tests/unit/mocks/mockPinia";
-import { mockResultResponseData } from "@/tests/unit/mocks/mockResultResponseData";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { describe, expect, it, vi } from "vitest";
+import { mockResultResponseData } from "~/tests/unit/mocks/mockResponseData";
 import type { ScenarioResultData } from "~/types/apiResponseTypes";
 
 const seriesIds = mockedMetadata.results.time_series.map(series => series.id);
@@ -56,7 +55,7 @@ describe("time series", () => {
   it("when an accordion's open state is toggled, it should switch state without affecting other accordions' states", async () => {
     const component = await mountSuspended(TimeSeriesList, { global: { stubs, plugins } });
 
-    const timeSeriesComponents = component.findAllComponents({ name: "TimeSeries" });
+    const timeSeriesComponents = component.findAllComponents({ name: "TimeSeries.client" });
     expect(timeSeriesComponents.length).toBe(3);
     timeSeriesComponents.forEach((timeSeriesComponent) => {
       expect(timeSeriesComponent.props().open).toBe(true);

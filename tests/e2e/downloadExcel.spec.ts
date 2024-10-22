@@ -1,5 +1,10 @@
 import { expect, test } from "@playwright/test";
-import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
+import checkRApiServer from "./helpers/checkRApiServer";
+import waitForNewScenarioPage from "./helpers/waitForNewScenarioPage";
+
+test.beforeAll(async () => {
+  checkRApiServer();
+});
 
 test("can download Excel file for scenario results", async ({ page, baseURL }) => {
   await waitForNewScenarioPage(page, baseURL);
@@ -22,6 +27,6 @@ test("can download Excel file for scenario results", async ({ page, baseURL }) =
   await download.path();
 
   // Filename is derived from parameter values, in this case the defaults
-  const expectedFilename = "daedalus_Thailand_sars_cov_1_none_none_22000.xlsx";
+  const expectedFilename = "daedalus_THA_sars_cov_1_none_none_22000.xlsx";
   expect(download.suggestedFilename()).toBe(expectedFilename);
 });

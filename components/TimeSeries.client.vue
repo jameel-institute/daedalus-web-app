@@ -9,11 +9,12 @@
       <CAccordionHeader class="border-top" @click="handleAccordionToggle">
         <span aria-describedby="labelDescriptor">{{ seriesMetadata?.label }}</span>
         <span id="labelDescriptor" class="visually-hidden">{{ seriesMetadata?.description }}</span>
-        <TooltipHelp :help-text="seriesMetadata?.description" :classes="['ms-2']" />
+        <TooltipHelp :help-text="seriesMetadata?.description" :classes="['ms-2', 'mb-1', 'smaller-icon']" />
       </CAccordionHeader>
       <CAccordionBody>
         <div
           :id="chartContainerId"
+          ref="chartContainer"
           :class="`chart-container time-series ${props.hideTooltips ? hideTooltipsClassName : ''}`"
           :style="{ zIndex, height: 'fit-content' }"
           @mousemove="onMove"
@@ -63,6 +64,7 @@ offlineExportingInitialize(Highcharts);
 const appStore = useAppStore();
 
 let chart: Highcharts.Chart;
+const chartContainer = ref<HTMLDivElement | null>(null);
 const chartBackgroundColor = "transparent";
 const chartBackgroundColorOnExporting = "white";
 const hideTooltipsClassName = "hide-tooltips";
@@ -73,7 +75,22 @@ const accordionStyle = {
 // We need each chart to have a higher z-index than the next one so that the exporting context menu is always on top and clickable.
 // Also, they should be at least 3 so that they are above .accordion-button:focus
 const zIndex = (Object.keys(appStore.timeSeriesData!).length - props.index) + 3;
-const yUnits = props.seriesId === "dead" ? "deaths" : "cases"; // TODO: Make this depend on a 'units' property in metadata. https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-117/
+
+let yUnits: string; // TODO: Make this depend on a 'units' property in metadata. https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-117/
+switch (props.seriesId) {
+  case "hospitalised":
+    yUnits = "in need of hospitalisation";
+    break;
+  case "dead":
+    yUnits = "deaths";
+    break;
+  case "vaccinated":
+    yUnits = "vaccinated";
+    break;
+  default:
+    yUnits = "cases";
+    break;
+}
 const chartContainerId = computed(() => `${props.seriesId}-container`);
 // Assign an x-position to y-values. Nth value corresponds to "N+1th day" of simulation.
 const data = computed(() => {
@@ -128,10 +145,8 @@ const interventionsPlotBands = computed(() => {
     return bands;
   }
 
-  appStore.interventionsData?.forEach(({ id, start, end }) => {
-    const interventionLabel = appStore.metadata?.results.interventions.find(({ id: interventionId }) => interventionId === id)?.label;
-    const text = `${interventionLabel ? `${interventionLabel} : ` : ""}Days ${start} to ${end}`;
-    bands.push({ from: start, to: end, color: plotBandsColor, label: { text } });
+  appStore.interventionsData?.forEach(({ start, end }) => {
+    bands.push({ from: start, to: end, color: plotBandsColor });
   });
 
   return bands;
@@ -170,9 +185,13 @@ watch(() => [props.chartHeightPx, props.open], () => {
 
 const chartInitialOptions = () => {
   return {
+    credits: {
+      enabled: false, // Omit credits to allow us to reduce margin and save vertical space on page. We must credit Highcharts elsewhere.
+    },
     chart: {
       height: props.chartHeightPx,
       marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
+      marginBottom: 35,
       backgroundColor: chartBackgroundColor,
       events: {
         fullscreenOpen() {
@@ -266,7 +285,7 @@ const chartInitialOptions = () => {
   } as Highcharts.Options;
 };
 
-onMounted(() => {
+watch(() => chartContainer.value, () => {
   chart = Highcharts.chart(chartContainerId.value, chartInitialOptions());
   emit("chartCreated", props.seriesId, chart);
 });
@@ -305,6 +324,8 @@ onUnmounted(() => {
   }
 
   .accordion-button {
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
     color: var(--cui-black) !important;
     background-color: var(--cui-light) !important;
   }

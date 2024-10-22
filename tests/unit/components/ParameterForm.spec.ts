@@ -1,6 +1,5 @@
 import ParameterForm from "@/components/ParameterForm.vue";
 import { emptyScenario, mockedMetadata, mockPinia, updatableNumericParameter } from "@/tests/unit/mocks/mockPinia";
-
 import { CButtonGroup, CTooltip } from "@coreui/vue";
 import { mockNuxtImport, mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
 import { flushPromises } from "@vue/test-utils";
