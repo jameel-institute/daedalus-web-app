@@ -12,14 +12,6 @@
           <span id="appTitle">DAEDALUS Explore</span>
         </NuxtLink>
       </div>
-      <CHeaderNav class="ms-auto">
-        <CNavItem class="py-1">
-          <div class="vr h-100 mx-1 text-body text-opacity-75" />
-        </CNavItem>
-        <CNavItem id="helpNavLink" href="#">
-          <img id="help" src="~/assets/icons/circleQuestion.svg">
-        </CNavItem>
-      </CHeaderNav>
     </CContainer>
   </CHeader>
 </template>
