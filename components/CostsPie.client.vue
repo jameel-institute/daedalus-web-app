@@ -3,6 +3,7 @@
     <CostsLegend />
     <div
       :id="chartContainerId"
+      ref="chartContainer"
       :class="[props.hideTooltips ? hideTooltipsClassName : '']"
     />
   </div>
@@ -37,6 +38,7 @@ const chartBackgroundColorOnExporting = "white";
 let chart: Highcharts.Chart;
 let costsData: pieCost[] = [];
 const pieSize = computed(() => appStore.largeScreen ? 450 : 300);
+const chartContainer = ref<HTMLElement | null>(null);
 
 // Prioritise showing labels for larger slices over smaller slices, where labels would otherwise overlap.
 const lowerLevelsDataLabelFilter: Highcharts.DataLabelsFilterOptionsObject = {
@@ -150,6 +152,9 @@ const chartSeries = () => {
 
 const chartInitialOptions = () => {
   return {
+    credits: {
+      text: "Highcharts",
+    },
     chart: {
       spacing: [0, 0, 0, 0],
       options3d: {
@@ -246,7 +251,7 @@ watch(() => appStore.largeScreen, throttle(() => {
   }
 }, 25));
 
-onMounted(() => {
+watch(() => chartContainer.value, () => {
   chart = Highcharts.chart(chartContainerId, chartInitialOptions());
   if (appStore.costsData) {
     populateCostsDataIntoPie();

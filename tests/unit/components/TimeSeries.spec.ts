@@ -1,5 +1,5 @@
 import type { ScenarioResultData } from "@/types/apiResponseTypes";
-import TimeSeries from "@/components/TimeSeries.vue";
+import TimeSeries from "@/components/TimeSeries.client.vue";
 import { emptyScenario, mockedMetadata, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mockResultResponseData } from "@/tests/unit/mocks/mockResponseData";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
@@ -73,7 +73,8 @@ describe("time series", () => {
           }),
         }),
         tooltip: expect.objectContaining({
-          pointFormat: expect.stringContaining("cases"),
+          // This test permits both "(in need of) hospitaliz/sation" and "hospitaliz/sed"
+          pointFormat: expect.stringContaining("hospital"),
         }),
         xAxis: expect.objectContaining({
           plotBands: expect.arrayContaining([

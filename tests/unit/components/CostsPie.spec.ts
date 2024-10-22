@@ -1,6 +1,6 @@
 import type { AsyncDataRequestStatus } from "#app";
 import type { ScenarioResultData } from "@/types/apiResponseTypes";
-import CostsPie from "@/components/CostsPie.vue";
+import CostsPie from "@/components/CostsPie.client.vue";
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";

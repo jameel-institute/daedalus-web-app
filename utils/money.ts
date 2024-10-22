@@ -44,13 +44,12 @@ export const abbreviateMillionsDollars = (
  */
 export const formatCurrency = (
   value: number,
+  currency?: string,
   locales = "en-US",
-  currency = "USD",
   maximumFractionDigits = 0,
 ): string => {
   return new Intl.NumberFormat(locales, {
-    style: "currency",
-    currency,
+    ...(currency && { style: "currency", currency }),
     maximumFractionDigits,
   }).format(value);
 };

@@ -13,6 +13,10 @@ import "~/assets/scss/fonts.scss";
 
 const nuxtApp = useNuxtApp();
 nuxtApp.vueApp.provide("icons", iconsSet);
+
+useHead({
+  title: "DAEDALUS Explore",
+});
 </script>
 
 <style lang="scss">

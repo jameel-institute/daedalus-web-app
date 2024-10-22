@@ -23,27 +23,27 @@ describe("money utils", () => {
 
   describe("formatCurrency", () => {
     it.each([
-      [1234.56, "$1,235"],
-      [1234.56, "£1,234.6", "en-GB", "GBP", 1],
-      [1234.56, "1.234,56 €", "de-DE", "EUR", 2],
-      [1234.56, "￥1,235", "ja-JP", "JPY"],
-      [1234.56, "₹1,234.56", "hi-IN", "INR", 2],
-      [1234.56, "1 235 $US", "fr-FR", "USD", 0],
-      [-1234.56, "-$1,235"],
-      [0, "$0"],
-      [1234567890.12, "$1,234,567,890"],
-      [0.12, "$0.12", "en-US", "USD", 2],
+      [1234.56, "1,235"],
+      [1234.56, "£1,234.6", "GBP", "en-GB", 1],
+      [1234.56, "1.234,56 €", "EUR", "de-DE", 2],
+      [1234.56, "￥1,235", "JPY", "ja-JP"],
+      [1234.56, "₹1,234.56", "INR", "hi-IN", 2],
+      [1234.56, "1 235 $US", "USD", "fr-FR", 0],
+      [-1234.56, "-1,235"],
+      [0, "0"],
+      [1234567890.12, "1,234,567,890"],
+      [0.12, "$0.12", "USD", "en-US", 2],
     ])(
       "should format %d to %s",
       (
         value,
         expected,
+        currency = undefined,
         locales = "en-US",
-        currency = "USD",
         maximumFractionDigits = 0,
       ) => {
         expect(
-          formatCurrency(value, locales, currency, maximumFractionDigits),
+          formatCurrency(value, currency, locales, maximumFractionDigits),
         ).toBe(expected);
       },
     );
