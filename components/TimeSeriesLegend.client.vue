@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import { type LegendItem, LegendShape, plotBandsColor, plotLinesColor } from "./utils/charts";
+import { type LegendItem, LegendShape, plotBandsColor, plotLinesColor } from "./utils/highCharts";
 
 const appStore = useAppStore();
 

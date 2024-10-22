@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import type { ScenarioCost } from "~/types/resultTypes";
-import { costsPieColors, type LegendItem, LegendShape } from "./utils/charts";
+import { costsPieColors, type LegendItem, LegendShape } from "./utils/highCharts";
 
 const appStore = useAppStore();
 

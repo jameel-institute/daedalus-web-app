@@ -48,7 +48,7 @@ import offlineExportingInitialize from "highcharts/modules/offline-exporting";
 import { debounce } from "perfect-debounce";
 
 import type { DisplayInfo } from "~/types/apiResponseTypes";
-import { plotBandsColor, plotLinesColor, timeSeriesColors } from "./utils/charts";
+import { plotBandsColor, plotLinesColor, timeSeriesColors } from "./utils/highCharts";
 
 const props = defineProps<{
   seriesId: string
@@ -339,6 +339,7 @@ onUnmounted(() => {
     padding-bottom: 0.3rem;
     color: var(--cui-black) !important;
     background-color: var(--cui-light) !important;
+    border-radius: 0 !important;
   }
 
   .accordion-item {
