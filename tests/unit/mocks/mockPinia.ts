@@ -221,6 +221,10 @@ export const mockPinia = (
 ) => {
   const initialState = {
     app: {
+      globe: {
+        interactive: false,
+        selectedCountry: undefined,
+      },
       largeScreen: true,
       versions: undefined,
       metadata: includeMetadata ? { ...mockedMetadata } : undefined,
