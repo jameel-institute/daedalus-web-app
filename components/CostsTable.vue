@@ -8,7 +8,7 @@
     </thead>
     <tbody>
       <template
-        v-for="childCost in appStore.totalCost.children?.sort(
+        v-for="childCost in appStore.totalCost.children?.toSorted(
           (a, b) => b.value - a.value,
         )"
         :key="childCost.id"
