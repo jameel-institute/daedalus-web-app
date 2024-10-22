@@ -19,8 +19,19 @@ import * as am5map from "@amcharts/amcharts5/map";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import throttle from "lodash.throttle";
 
+const appStore = useAppStore();
+const route = useRoute();
+
+// Rename features so that they have the names used in the model package, e.g.
+// call it 'Turkey' rather than 'Türkiye', 'Russia' rather than 'Russian Federation'
+WHONationalBorders.features = WHONationalBorders.features.map((feature) => {
+  const modelCountryName = appStore.globeParameter?.options?.find(o => o.id === feature.id)?.label;
+  feature.properties.name = modelCountryName || feature.properties.name;
+  return feature;
+});
+
 const activeCountryColor = am5.color("#379f9f"); // Imperial sea-glass
-const fill = am5.color("#002e4e"); // A default land colour: dark blue
+const defaultLandColour = am5.color("#002e4e"); // A default land colour: dark blue
 const hoverLandColour = am5.color("#1c6777"); // The midpoint between defaultLandColour and activeCountryColor
 const lightGreyBackground = am5.color(rgba2hex("rgb(243, 244, 247)"));
 const maxZindex = 29; // 30 is reserved by amCharts
@@ -40,9 +51,6 @@ let root: am5.Root;
 let chart: am5map.MapChart;
 let selectableCountriesSeries: am5map.MapPolygonSeries;
 let backgroundSeries: am5map.MapPolygonSeries;
-let disputedBodiesOfWater: am5map.MapPolygonSeries;
-let prevBackgroundPolygon: am5map.MapPolygon | undefined;
-let prevPolygon: am5map.MapPolygon | undefined;
 const chartDefaultSettings: am5map.IMapChartSettings = {
   panX: "rotateX",
   panY: "rotateY",
@@ -55,6 +63,19 @@ const chartDefaultSettings: am5map.IMapChartSettings = {
   wheelY: "none",
   rotationX: southEastAsiaXCoordinate, // Initialize map on SE Asia
   rotationY: -20,
+};
+const countrySeriesSettings: am5map.IMapPolygonSeriesSettings = {
+  geoJSON: WHONationalBorders,
+  fill: defaultLandColour,
+};
+const backgroundSeriesSettings: am5map.IMapPolygonSeriesSettings = {
+  ...countrySeriesSettings,
+  layer: maxZindex - 5,
+};
+const selectableCountriesSeriesSettings: am5map.IMapPolygonSeriesSettings = {
+  ...countrySeriesSettings,
+  include: appStore.globeParameter?.options?.map(option => option.id),
+  layer: maxZindex - 4,
 };
 const disputedLands: Record<string, {
   disputers: string[]
@@ -70,8 +91,10 @@ const disputedLands: Record<string, {
 // You cannot use `ref` with amCharts objects. Instead, you must use `shallowRef`. https://www.amcharts.com/docs/v5/getting-started/integrations/vue/#Important_note
 const globediv = shallowRef(null);
 const rotatedToCountry = ref("");
+const prevBackgroundPolygon = ref<am5map.MapPolygon | undefined>(undefined);
+const prevSelectablePolygon = ref<am5map.MapPolygon | undefined>(undefined);
 
-const appStore = useAppStore();
+const globeClass = computed(() => `globe ${appStore.largeScreen ? "large-screen" : ""} ${appStore.globe.interactive ? "interactive" : ""}`);
 
 const tentativelySelectedCountrySeries = computed(() => {
   if (!appStore.globe.tentativelySelectedCountry) {
@@ -81,7 +104,7 @@ const tentativelySelectedCountrySeries = computed(() => {
   // before any colour animation up to imperialSeaGlass.
   // Otherwise, start from blue.
   const tentativeSelectionIsHovered = selectableCountriesSeries.getDataItemById(appStore.globe.tentativelySelectedCountry)?.get("mapPolygon").isHover();
-  const startingColor = tentativeSelectionIsHovered ? hoverLandColour : fill;
+  const startingColor = tentativeSelectionIsHovered ? hoverLandColour : defaultLandColour;
   return am5map.MapPolygonSeries.new(root, {
     geoJSON: WHONationalBorders.features.find(f => f.id === appStore.globe.tentativelySelectedCountry),
     reverseGeodata: false,
@@ -117,39 +140,36 @@ const removeSeries = (seriesToRemove: am5map.MapPolygonSeries) => {
   ).dispose();
 };
 
-const animateSeriesColour = (series: am5map.MapPolygonSeries, colour: am5.Color) => {
-  series.animate({
-    key: "fill",
-    to: colour,
-    duration: geoPointZoomDuration,
-    easing,
-  });
+const animateSeriesColour = (
+  series: am5map.MapPolygonSeries,
+  colour: am5.Color,
+) => series.animate({ key: "fill", to: colour, duration: geoPointZoomDuration, easing });
+
+const pauseAnimation = (animation: Animation) => {
+  if (animation && !animation.stopped) {
+    animation.pause();
+  }
 };
 
 const pauseAnimations = () => {
-  if (gentleRotateAnimation && !gentleRotateAnimation.stopped) {
-    gentleRotateAnimation.pause();
-  }
-  if (graduallyResetYAxis && !graduallyResetYAxis.stopped) {
-    graduallyResetYAxis.pause();
-  }
+  pauseAnimation(gentleRotateAnimation);
+  pauseAnimation(graduallyResetYAxis);
+};
+
+const rotateChart = (direction: "x" | "y", to: number) => {
+  chart.animate({
+    key: (direction === "x" ? "rotationX" : "rotationY"),
+    to,
+    duration: rotateDuration,
+    easing,
+  });
 };
 
 const rotateToCentroid = (centroid: am5.IGeoPoint, countryIso: string) => {
   return new Promise<void>((resolve) => {
     pauseAnimations();
-    chart.animate({
-      key: "rotationX",
-      to: -centroid.longitude,
-      duration: rotateDuration,
-      easing,
-    });
-    chart.animate({
-      key: "rotationY",
-      to: (amountToTiltTheEarthUpwardsBy - centroid.latitude),
-      duration: rotateDuration,
-      easing,
-    });
+    rotateChart("x", -centroid.longitude);
+    rotateChart("y", (amountToTiltTheEarthUpwardsBy - centroid.latitude));
     setTimeout(() => {
       rotatedToCountry.value = countryIso;
       resolve();
@@ -190,7 +210,6 @@ const zoomToCountry = (countryIso: string) => {
 
 // Reset the globe to slowly spinning.
 const createRotateAnimation = () => {
-  // Initialize map on SE Asia by default
   const currentRotationX = chart.get("rotationX") || southEastAsiaXCoordinate;
   return chart.animate({
     key: "rotationX",
@@ -201,77 +220,87 @@ const createRotateAnimation = () => {
   });
 };
 
+const initializeSeries = (settings: am5map.IMapPolygonSeriesSettings) => {
+  const series = am5map.MapPolygonSeries.new(root, settings);
+  chart.series.push(series);
+  return series;
+};
+
+const handlePolygonActive = (target: am5map.MapPolygon, prevPolygonRef: Ref<am5map.MapPolygon | undefined>) => {
+  if (prevPolygonRef.value && prevPolygonRef.value !== target) {
+    prevPolygonRef.value.set("active", false);
+  }
+  prevPolygonRef.value = target;
+};
+
+const setUpBackgroundSeries = () => {
+  backgroundSeries = initializeSeries({ ...backgroundSeriesSettings, reverseGeodata: true });
+  backgroundSeries.mapPolygons.template.setAll({ tooltipText: "{name} is not currently available", toggleKey: "active", interactive: true });
+  backgroundSeries.mapPolygons.template.on("active", (_active, target) => handlePolygonActive(target, prevBackgroundPolygon));
+};
+
+const setUpSelectableCountriesSeries = () => {
+  selectableCountriesSeries = initializeSeries({ ...selectableCountriesSeriesSettings, reverseGeodata: false });
+  selectableCountriesSeries.mapPolygons.template.setAll({
+    tooltipText: "{name}",
+    toggleKey: "active",
+    interactive: true,
+    cursorOverStyle: "pointer",
+  });
+  selectableCountriesSeries.mapPolygons.template.on("active", (_active, target) => {
+    handlePolygonActive(target, prevSelectablePolygon);
+    if (prevSelectablePolygon.value && prevSelectablePolygon.value !== target) {
+      animateSeriesColour(selectableCountriesSeries, defaultLandColour);
+    }
+    if (target?.dataItem?.get("id")) {
+      appStore.globe.tentativelySelectedCountry = target.dataItem.get("id") as string;
+    }
+  });
+  selectableCountriesSeries.mapPolygons.template.states.create("hover", { fill: hoverLandColour });
+  selectableCountriesSeries.events.on("datavalidated", async () => {
+    if (appStore.selectedCountry && !appStore.globe.tentativelySelectedCountry) {
+      appStore.globe.tentativelySelectedCountry = appStore.selectedCountry;
+      await rotateToCountry(appStore.selectedCountry);
+      zoomToCountry(appStore.selectedCountry);
+    }
+  });
+};
+
+const setUpDisputedAreasSeries = () => {
+  Object.keys(disputedLands).forEach((disputedArea) => {
+    disputedLands[disputedArea].mapSeries = initializeSeries({
+      geoJSON: WHODisputedAreas,
+      fill: defaultLandColour,
+      reverseGeodata: true,
+      include: [disputedArea],
+      layer: maxZindex - 1, // Make sure disputed areas are always painted on top of country areas
+    });
+  });
+
+  // Disputed bodies of water
+  initializeSeries({
+    geoJSON: WHODisputedAreas,
+    fill: lightGreyBackground,
+    reverseGeodata: true,
+    exclude: Object.keys(disputedLands),
+    layer: maxZindex, // Make sure lakes are always on top of land
+  });
+};
+
+const setUpChart = () => {
+  root = am5.Root.new(globediv.value);
+  root.setThemes([am5themes_Animated.new(root)]);
+  chart = root.container.children.push(am5map.MapChart.new(root, chartDefaultSettings));
+  setUpBackgroundSeries();
+  setUpSelectableCountriesSeries();
+  setUpDisputedAreasSeries();
+  gentleRotateAnimation = createRotateAnimation();
+  applyGlobeSettings();
+};
+
 watch(() => globediv.value, async (globediv) => {
   if (globediv !== null && !root) {
-    root = am5.Root.new(globediv);
-    root.setThemes([
-      am5themes_Animated.new(root),
-    ]);
-    chart = root.container.children.push(am5map.MapChart.new(root, chartDefaultSettings));
-
-    backgroundSeries = am5map.MapPolygonSeries.new(root, { geoJSON: WHONationalBorders, fill, reverseGeodata: true, layer: maxZindex - 5 });
-    backgroundSeries.mapPolygons.template.setAll({ tooltipText: "{name} is not available", toggleKey: "active", interactive: true });
-    backgroundSeries.mapPolygons.template.on("active", (_active, target) => {
-      if (prevBackgroundPolygon && prevBackgroundPolygon !== target) {
-        prevBackgroundPolygon.set("active", false);
-      }
-      prevBackgroundPolygon = target;
-    });
-    chart.series.push(backgroundSeries);
-
-    selectableCountriesSeries = am5map.MapPolygonSeries.new(root, {
-      geoJSON: WHONationalBorders,
-      fill,
-      reverseGeodata: false,
-      include: appStore.globeParameter?.options?.map(option => option.id),
-      layer: maxZindex - 4,
-    });
-    selectableCountriesSeries.mapPolygons.template.setAll({ tooltipText: "{name}", toggleKey: "active", interactive: true, cursorOverStyle: "pointer" });
-    selectableCountriesSeries.mapPolygons.template.on("active", (_active, target) => {
-      if (prevPolygon && prevPolygon !== target) {
-        prevPolygon.set("active", false);
-        animateSeriesColour(selectableCountriesSeries, fill);
-      }
-      if (target?.dataItem?.get("id")) {
-        appStore.globe.tentativelySelectedCountry = target.dataItem.get("id") as string;
-      }
-      prevPolygon = target;
-    });
-    selectableCountriesSeries.mapPolygons.template.states.create("hover", {
-      fill: hoverLandColour,
-    });
-    selectableCountriesSeries.events.on("datavalidated", async () => {
-      if (appStore.selectedCountry && !appStore.globe.tentativelySelectedCountry) {
-        appStore.globe.tentativelySelectedCountry = appStore.selectedCountry;
-        await rotateToCountry(appStore.selectedCountry);
-        zoomToCountry(appStore.selectedCountry);
-      }
-    });
-    chart.series.push(selectableCountriesSeries);
-
-    Object.keys(disputedLands).forEach((disputedArea) => {
-      const disputedLandSeries = am5map.MapPolygonSeries.new(root, {
-        geoJSON: WHODisputedAreas,
-        fill,
-        reverseGeodata: true,
-        include: [disputedArea],
-        layer: maxZindex - 1, // Make sure disputed areas are always painted on top of country areas
-      });
-      disputedLands[disputedArea].mapSeries = disputedLandSeries;
-      chart.series.push(disputedLandSeries);
-    });
-
-    disputedBodiesOfWater = am5map.MapPolygonSeries.new(root, {
-      geoJSON: WHODisputedAreas,
-      fill: lightGreyBackground,
-      reverseGeodata: true,
-      exclude: Object.keys(disputedLands),
-      layer: maxZindex, // Make sure lakes are always on top of land
-    });
-    chart.series.push(disputedBodiesOfWater);
-
-    gentleRotateAnimation = createRotateAnimation();
-    applyGlobeSettings();
+    setUpChart();
   }
 });
 
@@ -279,7 +308,7 @@ const stopDisplayingAllDisputedAreas = () => {
   Object.keys(disputedLands).forEach((disputedArea) => {
     if (disputedLands[disputedArea].displayed && disputedLands[disputedArea].mapSeries) {
       disputedLands[disputedArea].displayed = false;
-      animateSeriesColour(disputedLands[disputedArea].mapSeries!, fill);
+      animateSeriesColour(disputedLands[disputedArea].mapSeries!, defaultLandColour);
     }
   });
 };
@@ -304,8 +333,7 @@ const resetGlobeZoomAndAnimation = () => {
   }
 };
 
-const route = useRoute();
-
+// When a country is tentatively selected in the form, re-colour the country area and rotate the globe to it.
 const focusTentativelySelectedCountry = async () => {
   if (appStore.globe.tentativelySelectedCountry && tentativelySelectedCountrySeries.value) {
     pauseAnimations();
@@ -323,26 +351,22 @@ const focusTentativelySelectedCountry = async () => {
   }
 };
 
-// When a country is tentatively selected in the form, re-colour the country area and rotate the globe to it.
 watch(() => tentativelySelectedCountrySeries.value, async (newSeries, oldSeries) => {
-  if (!chart) {
-    return;
-  }
-  if (prevPolygon) {
-    prevPolygon.set("active", false);
-  }
-  if (!appStore.globe.tentativelySelectedCountry) {
-    resetGlobeZoomAndAnimation();
-  }
-  if (oldSeries) {
-    stopDisplayingAllDisputedAreas();
-    animateSeriesColour(oldSeries, fill);
-    setTimeout(() => {
-      removeSeries(oldSeries);
-    }, geoPointZoomDuration);
-  }
-  if (newSeries) {
-    await focusTentativelySelectedCountry();
+  if (chart) {
+    prevSelectablePolygon.value?.set("active", false);
+    if (!appStore.globe.tentativelySelectedCountry) {
+      resetGlobeZoomAndAnimation();
+    }
+    if (oldSeries) {
+      stopDisplayingAllDisputedAreas();
+      animateSeriesColour(oldSeries, defaultLandColour);
+      setTimeout(() => {
+        removeSeries(oldSeries);
+      }, geoPointZoomDuration);
+    }
+    if (newSeries) {
+      await focusTentativelySelectedCountry();
+    }
   }
 });
 
@@ -357,8 +381,6 @@ watch(() => appStore.selectedCountry, async () => {
     }
   }
 });
-
-const globeClass = computed(() => `globe ${appStore.largeScreen ? "large-screen" : ""} ${appStore.globe.interactive ? "interactive" : ""}`);
 
 watch(appStore.globe, () => {
   applyGlobeSettings();
