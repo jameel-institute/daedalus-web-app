@@ -14,18 +14,19 @@
         </CContainer>
       </div>
     </div>
-    <Globe />
+    <LazyGlobe v-if="loadGlobeComponent" />
   </div>
 </template>
 
 <script setup lang="ts">
+const appStore = useAppStore();
+
 const sidebarVisible = ref(false);
+const loadGlobeComponent = ref(false);
 
 function handleToggleSidebarVisibility() {
   sidebarVisible.value = !sidebarVisible.value;
 }
-
-const appStore = useAppStore();
 
 const setScreenSize = () => {
   const breakpoint = 992; // CoreUI's "lg" breakpoint
@@ -33,6 +34,7 @@ const setScreenSize = () => {
     appStore.largeScreen = false;
   } else {
     appStore.largeScreen = true;
+    loadGlobeComponent.value = true;
   }
 };
 
