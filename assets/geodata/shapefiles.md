@@ -4,7 +4,7 @@
 
 Displaying the in-built geojson supplied with amCharts is problematic for us since it takes positions on disputed territories, whereas we want to provide a product that can be uncomplicatedly used in any of the territories that the underlying model package might support.
 
-For this reason, we decided to use boundaries as defined by WHO: specifically, that we'd show national borders and the borders of disputed regions. Any complaints we receive about our choices of boundaries can then be explained.
+For this reason, we decided to use boundaries as defined by WHO: specifically, that we'd show national borders and the borders of disputed regions.
 
 ### Alternatives
 
