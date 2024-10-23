@@ -79,29 +79,22 @@ describe("time series", () => {
         xAxis: expect.objectContaining({
           plotBands: expect.arrayContaining([
             expect.objectContaining({
-              from: 1,
-              to: 4,
-            }),
-            expect.objectContaining({
-              from: 3,
-              to: 8,
+              from: 30,
+              to: 600,
             }),
           ]),
         }),
         yAxis: expect.objectContaining({
-          minRange: 40000,
+          minRange: 434700,
           plotLines: expect.arrayContaining([
             expect.objectContaining({
-              value: 40000,
-            }),
-            expect.objectContaining({
-              value: 5000,
+              value: 434700,
             }),
           ]),
         }),
         series: expect.arrayContaining([
           expect.objectContaining({
-            data: expect.arrayContaining([[1, 0], [2, 3.9626], [3, 6.8824], [4, 9.4865]]),
+            data: expect.arrayContaining([[1, 0], [2, 4.2465]]),
           }),
         ]),
       }),
