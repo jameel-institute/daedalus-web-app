@@ -27,6 +27,6 @@ describe("chart legend", () => {
     });
 
     // Items are sorted in descending value order
-    expect(component.text()).toMatch(/Life\s+years.*GDP.*Education/);
+    expect(component.text()).toMatch(/GDP.*Education.*Life\s+years/);
   });
 });
