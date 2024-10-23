@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { type LegendItem, LegendShape } from "./utils/charts";
+import { type LegendItem, LegendShape } from "./utils/highCharts";
 
 const props = defineProps<{
   items: LegendItem[]

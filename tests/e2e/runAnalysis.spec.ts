@@ -10,6 +10,7 @@ const parameterLabels = {
   hospital_capacity: "Hospital surge capacity",
 };
 const philippinesMinimumHospitalCapacity = "16300";
+const philippinesMinimumHospitalCapacityFormatted = "16,300";
 const scenarioPathMatcher = "scenarios/[a-f0-9]{32}";
 
 test.beforeAll(async () => {
@@ -125,7 +126,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   await expect(page.getByText("Elimination").first()).toBeVisible();
   await expect(page.getByText("Philippines").first()).toBeVisible();
   await expect(page.getByText("Medium").first()).toBeVisible();
-  await expect(page.getByText(philippinesMinimumHospitalCapacity).first()).toBeVisible();
+  await expect(page.getByText(philippinesMinimumHospitalCapacityFormatted).first()).toBeVisible();
 
   // Test that the second analysis results page has the correct parameters within the parameters form modal.
   await page.getByRole("button", { name: "Parameters" }).first().click();

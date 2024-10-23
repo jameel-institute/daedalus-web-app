@@ -14,7 +14,7 @@ import * as Highcharts from "highcharts";
 import accessibilityInitialize from "highcharts/modules/accessibility";
 import sunburstInitialize from "highcharts/modules/sunburst";
 import throttle from "lodash.throttle";
-import { costsPieColors, costsPieTooltipText } from "./utils/charts";
+import { costsPieColors, costsPieTooltipText } from "./utils/highCharts";
 
 const props = defineProps<{
   hideTooltips: boolean

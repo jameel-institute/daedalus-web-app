@@ -1,4 +1,4 @@
-import { costsPieTooltipText, plotBandsColor, timeSeriesColors } from "@/components/utils/charts";
+import { costsPieTooltipText, plotBandsColor, timeSeriesColors } from "~/components/utils/highCharts";
 
 describe("plotBandsColor", () => {
   it("should be in the correct rgba format", () => {
