@@ -79,10 +79,14 @@ const chartDefaultSettings: am5map.IMapChartSettings = {
   rotationX: southEastAsiaXCoordinate, // Initialize map on SE Asia
   rotationY: -20,
 };
+// Shared settings for countries.
 const countrySeriesSettings: am5map.IMapPolygonSeriesSettings = {
   geoJSON: WHONationalBorders,
   fill: defaultLandColour,
 };
+// Settings for the 'background' world map, a map that includes all countries regardless
+// of whether they are supported in the model. These are the majority of the world's countries
+// and are not able to be selected.
 const backgroundSeriesSettings: am5map.IMapPolygonSeriesSettings = {
   ...countrySeriesSettings,
   layer: maxZindex - 5,
@@ -92,17 +96,21 @@ const selectableCountriesSeriesSettings: am5map.IMapPolygonSeriesSettings = {
   include: appStore.globeParameter?.options?.map(option => option.id),
   layer: maxZindex - 4,
 };
+// Settings for whatever country the user has selected in the form (but might not have submitted yet).
 const highlightedCountrySeriesSettings: am5map.IMapPolygonSeriesSettings = {
   layer: maxZindex - 3,
 };
+// Shared settings for disputed areas.
 const disputedAreaSeriesSettings: am5map.IMapPolygonSeriesSettings = {
   geoJSON: WHODisputedAreas,
 };
+// Settings for disputed *land* areas - see 'Customization' in shapefiles.md
 const disputedLandSeriesSettings: am5map.IMapPolygonSeriesSettings = {
   ...disputedAreaSeriesSettings,
   fill: defaultLandColour,
   layer: maxZindex - 1, // Make sure disputed areas are always painted on top of country areas
 };
+// Settings for disputed *water* areas - see 'Customization' in shapefiles.md
 const disputedBodiesOfWaterSeriesSettings: am5map.IMapPolygonSeriesSettings = {
   ...disputedAreaSeriesSettings,
   fill: lightGreyBackground,
