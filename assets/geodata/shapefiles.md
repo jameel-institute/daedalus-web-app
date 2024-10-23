@@ -8,7 +8,7 @@ For this reason, we decided to use boundaries as defined by WHO: specifically, t
 
 ### Alternatives
 
-Another option would be to merge the specific complaints of Morocco, China, and India, as provided from amCharts here: https://www.amcharts.com/docs/v5/tutorials/country-specific-world-maps/. This doesn't seem much simpler technically, and is a less neutral-seeming source than WHO. Also, using shapefiles from WHO means we aren't so tied to amCharts as the mapping library.
+Another option would be to merge the specific maps of Morocco, China, and India,   which show disputed territories, as provided from amCharts here: https://www.amcharts.com/docs/v5/tutorials/country-specific-world-maps/. This doesn't seem much simpler technically, and is a less neutral-seeming source than WHO. Also, using shapefiles from WHO means we aren't so tied to amCharts as the mapping library.
 
 ## How to recreate or update the shapefiles
 
