@@ -23,13 +23,12 @@ export enum LegendShape {
   Circle = "circle",
 }
 
-export const costsPieTooltipText = (point: Highcharts.Point) => {
+export const costsPieTooltipText = (point: Highcharts.Point, nationalGdp: number) => {
   const abbr = abbreviateMillionsDollars(point.value);
   // The 'Total' cost/point has an 'i' of 0. When queried for the i of its own, non-existent parent, it returns -1.
   const pointIsTotal = point.node.i === 0;
   const parentIsTotal = point.node.parentNode.i === 0;
   const header = pointIsTotal || parentIsTotal ? point.name : [point.node.parentNode.name, point.name].join(": ");
-  return `<b>${header}</b><br/>\n`
-    + `$${abbr.amount} ${abbr.unit}<br/>\n`
-    + `X.Y% of national GDP`;
+  const base = `<b>${header}</b><br/>\n$${abbr.amount} ${abbr.unit}`;
+  return `${base}<br/>\n${((point.value / nationalGdp) * 100).toFixed(1)}% of national GDP`;
 };
