@@ -124,6 +124,8 @@ const rotatedToCountry = ref("");
 const prevBackgroundPolygon = ref<am5map.MapPolygon | undefined>(undefined);
 const prevSelectablePolygon = ref<am5map.MapPolygon | undefined>(undefined);
 
+const findFeatureForCountry = (countryIso: string) => WHONationalBorders.features.find(f => f.id === countryIso);
+
 const highlightedCountrySeries = computed(() => {
   if (!appStore.globe.highlightedCountry) {
     return null;
@@ -135,7 +137,7 @@ const highlightedCountrySeries = computed(() => {
   const startingColor = tentativeSelectionIsHovered ? hoverLandColour : defaultLandColour;
   return am5map.MapPolygonSeries.new(root, {
     ...highlightedCountrySeriesSettings,
-    geoJSON: WHONationalBorders.features.find(f => f.id === appStore.globe.highlightedCountry),
+    geoJSON: findFeatureForCountry(appStore.globe.highlightedCountry),
     reverseGeodata: false,
     fill: startingColor,
   });
@@ -208,7 +210,7 @@ const rotateToCentroid = (centroid: am5.IGeoPoint, countryIso: string) => {
 };
 
 const countryCentroid = (countryIso: string) => {
-  const geometry = WHONationalBorders.features.find(f => f.id === countryIso)?.geometry as MultiPolygon;
+  const geometry = findFeatureForCountry(countryIso)?.geometry as MultiPolygon;
   if (geometry) {
     return am5map.getGeoCentroid(geometry);
   }
@@ -224,7 +226,7 @@ const rotateToCountry = async (countryIso: string) => {
 
 const zoomToCountry = (countryIso: string) => {
   const centroid = countryCentroid(countryIso);
-  const geometry = WHONationalBorders.features.find(f => f.id === countryIso)?.geometry as MultiPolygon;
+  const geometry = findFeatureForCountry(countryIso)?.geometry as MultiPolygon;
   const bounds = am5map.getGeoBounds(geometry);
   // Don't zoom in very tightly on the country's bounds.
   // Also avoid exceeding the globe's bounds.
