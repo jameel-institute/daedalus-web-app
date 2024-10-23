@@ -61,7 +61,7 @@
     </p>
     <h2>Contact us:</h2>
     <p>
-      If you have any queries regarding DAEDALUS Explore, please contact: TODO
+      If you have any queries regarding DAEDALUS Explore, please contact us
     </p>
 
     <h2>Acknowledgements</h2>
@@ -136,7 +136,7 @@
         <em>Nature Computational Science</em> 2 (4): 223–33.
       </li>
     </ol>
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-5">
+    <div class="d-flex flex-wrap justify-content-center align-items-center mb-5 gap-3">
       <img class="p-2" style="width: 200px" title="Imperial Logo" src="~/assets/img/imperial_logo.svg" alt="Imperial Logo">
       <img class="p-2" title="Prepare logo" style="width: 200px" src="~/assets/img/prepare-logo.png" alt="Prepare logo">
       <img class="p-2" title="Jameel logo" style="width: 250px" src="~/assets/img/jameel-logo1.png" alt="Jameel logo">
