@@ -57,7 +57,9 @@ convert_to_js_map <- function(sf_object, id_col = "iso_3_code", name_col = "adm0
     require(dplyr)
     require(geojsonsf)
 
-    # Ensure the sf object is in WGS84
+    # Ensure the sf object is in WGS84.
+    # Many geojson libraries expect the data to be in the WGS84 coordinate reference system (CRS).
+    # Ensuring the data is in this CRS makes it more likely to be compatible with our mapping library.
     sf_object <- sf::st_transform(sf_object, 4326)
 
     # Select relevant columns
