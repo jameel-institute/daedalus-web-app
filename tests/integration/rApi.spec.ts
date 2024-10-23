@@ -230,7 +230,7 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
       ["runId", "time_series", "parameters", "costs", "capacities", "interventions"].forEach((key) => {
         expect(json).toHaveProperty(key);
       });
-      expect(json.time_series.prevalence[0]).toBe(67.886);
+      expect(json.time_series.prevalence[0]).toBe(331.0026);
     });
 
     it("returns a response with informative errors when the mock server responds with an error", async () => {
