@@ -23,7 +23,7 @@
     >
       <CModalHeader>
         <CModalTitle id="modalTitle">
-          Daedalus Code Snippet
+          DAEDALUS code snippet
         </CModalTitle>
       </CModalHeader>
       <CModalBody>
