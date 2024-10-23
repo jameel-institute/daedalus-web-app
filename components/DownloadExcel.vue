@@ -1,7 +1,7 @@
 <template>
   <div class="d-inline-block ms-auto">
     <div v-if="appStore.currentScenario.parameters && appStore.currentScenario.result.data">
-      <CTooltip content="Download as Excel file" placement="top">
+      <CTooltip v-show="!appStore.downloading" content="Download as Excel file" placement="top">
         <template #toggler="{ togglerId, on }">
           <CButton
             id="btn-download-excel"
@@ -10,7 +10,7 @@
             class="btn-scenario-header"
             :disabled="appStore.downloading"
             v-on="on"
-            @click="appStore.downloadExcel()"
+            @click="download"
           >
             <CIcon icon="cilCloudDownload" size="lg" class="text-secondary" />
           </CButton>
@@ -28,6 +28,11 @@
 import { CIcon } from "@coreui/icons-vue";
 
 const appStore = useAppStore();
+
+const download = () => {
+  appStore.downloadExcel();
+};
+
 // We want to undismiss on new download, so can't use default dismissed prop
 const alertDismissed = ref(false);
 watch(() => appStore.downloading, () => {
