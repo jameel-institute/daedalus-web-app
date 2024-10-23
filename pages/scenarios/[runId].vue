@@ -211,11 +211,11 @@ onUnmounted(() => {
 <style lang="scss">
 .results-cards-container {
   row-gap: 1rem;
+  backdrop-filter: blur(1px);
 }
 
 #resultsPage {
   .card {
-    backdrop-filter: blur(1px);
     background: rgba(255, 255, 255, 0.5);
 
     &.horizontal-card {
