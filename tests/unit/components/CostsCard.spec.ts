@@ -59,15 +59,18 @@ describe("costs card", () => {
     await setupResizeObserverMock(component);
     const container = component.find(`#costsPieContainer`);
     expect(container.classes()).not.toContain("hide-tooltips");
-    expect(component.find(`p#totalCostPara`).text()).toBe("1.1T");
-    expect(component.find(`#gdpContainer`).text()).toContain("42.6%");
+
+    expect(component.find(`#gdpContainer`).text()).toContain("44.9%");
+
+    const totalCostPara = component.find(`p#totalCostPara`);
+    expect(totalCostPara.text()).toBe("8.9T");
   });
 
   it("should show the tooltips when the mouse is over the cost pie container, and not otherwise", async () => {
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
     await setupResizeObserverMock(component);
 
-    const costsPieComponent = component.findComponent({ name: "CostsPie" });
+    const costsPieComponent = component.findComponent({ name: "CostsPie.client" });
     expect(costsPieComponent.props().hideTooltips).toBe(false);
 
     const container = component.find(`#costsPieContainer`);
@@ -89,7 +92,7 @@ describe("costs card", () => {
     await setupResizeObserverMock(component);
 
     const costsContainer = component.find(`#costsPieContainer`);
-    const costsPie = component.findComponent({ name: "CostsPie" });
+    const costsPie = component.findComponent({ name: "CostsPie.client" });
 
     await waitFor(() => {
       // 300px is 60% of 500px
