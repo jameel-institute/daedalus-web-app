@@ -135,8 +135,8 @@ const highlightedCountrySeries = computed(() => {
   // If the corresponding feature of the countrySeries has the state 'hover', then start from the midPoint color
   // before any colour animation up to imperialSeaGlass.
   // Otherwise, start from blue.
-  const tentativeSelectionIsHovered = selectableCountriesSeries.getDataItemById(appStore.globe.highlightedCountry)?.get("mapPolygon").isHover();
-  const startingColor = tentativeSelectionIsHovered ? hoverLandColour : defaultLandColour;
+  const highlightIsHovered = selectableCountriesSeries.getDataItemById(appStore.globe.highlightedCountry)?.get("mapPolygon").isHover();
+  const startingColor = highlightIsHovered ? hoverLandColour : defaultLandColour;
   return am5map.MapPolygonSeries.new(root, {
     ...highlightedCountrySeriesSettings,
     geoJSON: findFeatureForCountry(appStore.globe.highlightedCountry),
@@ -294,8 +294,13 @@ const setUpSelectableCountriesSeries = () => {
     }
   });
   selectableCountriesSeries.mapPolygons.template.states.create("hover", { fill: hoverLandColour });
+
+  // Wait for the series' 'datavalidated' event in order for us to be able to use 'getDataItemById';
+  // otherwise, when we try to operate on them so soon after creating the series, the dataItems will
+  // exist, but not yet have properties we rely on (specifically, an id).
   selectableCountriesSeries.events.on("datavalidated", async () => {
-    if (appStore.scenarioCountry && !appStore.globe.highlightedCountry) {
+    // On the results page, focus the globe on the scenario country.
+    if (appStore.scenarioCountry) {
       appStore.globe.highlightedCountry = appStore.scenarioCountry;
       await rotateToCountry(appStore.scenarioCountry);
       zoomToCountry(appStore.scenarioCountry);
@@ -361,8 +366,9 @@ const resetGlobeZoomAndAnimation = () => {
   }
 };
 
-// When a country is tentatively selected in the form, re-colour the country area and rotate the globe to it.
-const focusTentativelySelectedCountry = async () => {
+// When a country is selected (by form or globe), re-colour the country area, and, if we are
+// on the new scenario page, rotate the globe to focus on that country.
+const highlightCountry = async () => {
   if (appStore.globe.highlightedCountry && highlightedCountrySeries.value) {
     pauseAnimations();
     chart.series.push(highlightedCountrySeries.value);
@@ -373,6 +379,7 @@ const focusTentativelySelectedCountry = async () => {
     });
     animateSeriesColourChange(highlightedCountrySeries.value, activeCountryColor);
 
+    // Only rotate if we are on the new scenario page - on other pages this can be distracting.
     if (route.path === "/scenarios/new") {
       await rotateToCountry(appStore.globe.highlightedCountry);
     }
@@ -393,7 +400,7 @@ watch(() => highlightedCountrySeries.value, async (newSeries, oldSeries) => {
       }, geoPointZoomDuration);
     }
     if (newSeries) {
-      await focusTentativelySelectedCountry();
+      await highlightCountry();
     }
   }
 });
