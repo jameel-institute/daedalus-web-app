@@ -45,6 +45,7 @@ const southEastAsiaXCoordinate = -100;
 const goHomeDuration = 500;
 const rotateDuration = 2000;
 const geoPointZoomDuration = 2000;
+// To place any country of interest on the 'upper-facing' part of the globe. Just looks better.
 const amountToTiltTheEarthUpwardsBy = 25;
 const easing = am5.ease.inOut(am5.ease.cubic);
 interface Animation { pause: () => void, stopped: boolean, play: () => void }
@@ -120,6 +121,7 @@ const disputedBodiesOfWaterSeriesSettings: am5map.IMapPolygonSeriesSettings = {
 
 // You cannot use `ref` with amCharts objects. Instead, you must use `shallowRef`. https://www.amcharts.com/docs/v5/getting-started/integrations/vue/#Important_note
 const globediv = shallowRef(null);
+// Track the currently rotated to country, to avoid trying to rotate to where we already are.
 const rotatedToCountry = ref("");
 const prevBackgroundPolygon = ref<am5map.MapPolygon | undefined>(undefined);
 const prevSelectablePolygon = ref<am5map.MapPolygon | undefined>(undefined);
@@ -258,6 +260,7 @@ const initializeSeries = (settings: am5map.IMapPolygonSeriesSettings) => {
   return series;
 };
 
+// When a polygon is activated, make sure the previously activated polygon is deactivated.
 const handlePolygonActive = (target: am5map.MapPolygon, prevPolygonRef: Ref<am5map.MapPolygon | undefined>) => {
   if (prevPolygonRef.value && prevPolygonRef.value !== target) {
     prevPolygonRef.value.set("active", false);
@@ -279,6 +282,8 @@ const setUpSelectableCountriesSeries = () => {
     interactive: true,
     cursorOverStyle: "pointer",
   });
+  // When a selectable country is clicked ('active' in amCharts parlance), update the colour, and let
+  // the Globe component know the highlighted country has changed.
   selectableCountriesSeries.mapPolygons.template.on("active", (_active, target) => {
     handlePolygonActive(target, prevSelectablePolygon);
     if (prevSelectablePolygon.value && prevSelectablePolygon.value !== target) {
