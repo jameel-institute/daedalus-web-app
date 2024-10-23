@@ -211,6 +211,7 @@ onUnmounted(() => {
 <style lang="scss">
 .results-cards-container {
   row-gap: 1rem;
+  backdrop-filter: blur(1px);
 }
 
 #resultsPage {
