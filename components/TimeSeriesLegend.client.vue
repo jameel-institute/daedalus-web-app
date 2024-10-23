@@ -15,9 +15,12 @@ const capacityLabel = computed(() => {
 });
 
 const items = computed((): LegendItem[] => {
-  return [
-    { color: plotBandsColor, label: "Pandemic response", shape: LegendShape.Rectangle },
-    { color: plotLinesColor, label: capacityLabel.value || "Hospital capacity", shape: LegendShape.Line },
-  ];
+  const plotBandsItem = { color: plotBandsColor, label: "Pandemic response", shape: LegendShape.Rectangle };
+  const plotLinesItem = { color: plotLinesColor, label: capacityLabel.value || "Hospital capacity", shape: LegendShape.Line };
+  if (appStore.currentScenario.parameters?.response === "none") {
+    return [plotLinesItem]; // No interventions will be displayed on the time series
+  } else {
+    return [plotBandsItem, plotLinesItem];
+  }
 });
 </script>

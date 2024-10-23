@@ -97,7 +97,7 @@
             </div>
             <TimeSeriesLegend />
           </div>
-          <TimeSeriesList />
+          <TimeSeriesCard />
         </div>
       </div>
     </CRow>
