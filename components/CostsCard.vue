@@ -61,6 +61,9 @@
           @mouseover="hideTooltips = false"
         />
       </div>
+      <div class="d-flex flex-column">
+        <ReferenceLinks custom-classes="small text-secondary" />
+      </div>
     </div>
   </div>
 </template>

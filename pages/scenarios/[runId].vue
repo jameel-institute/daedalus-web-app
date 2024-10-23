@@ -215,6 +215,7 @@ onUnmounted(() => {
 
 #resultsPage {
   .card {
+    backdrop-filter: blur(1px);
     background: rgba(255, 255, 255, 0.5);
 
     &.horizontal-card {
