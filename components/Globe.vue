@@ -8,7 +8,7 @@
     <div
       ref="globediv"
       class="globe"
-      :class="[(appStore.largeScreen ? 'large-screen' : null), (appStore.globe.interactive ? 'interactive' : null)]"
+      :class="[(appStore.globe.interactive ? 'interactive' : null)]"
     />
   </div>
 </template>
@@ -415,17 +415,14 @@ $globeHeight: calc(100dvh - $app-header-height);
   height: $globeHeight;
   max-width: calc(100% - $sidebar-narrow-width);
   max-height: $globeHeight;
+  top: $app-header-height;
+  left: $sidebar-narrow-width;
   position: absolute; // TODO: make the globe stay still when you scroll down the results page
 
   transition: filter 1s ease;
   &:not(.interactive) {
     filter: opacity(20%);
     z-index: -1; // Results in the globe being behind elements and thus does not receive clicks / touches.
-  }
-
-  &.large-screen {
-    top: $app-header-height;
-    left: $sidebar-narrow-width;
   }
 }
 </style>
