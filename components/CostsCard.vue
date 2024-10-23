@@ -10,7 +10,7 @@
       </div>
     </div>
     <div id="costsCardBody" class="card-body">
-      <h3 id="totalHeading" class="mt-0 mb-0 ms-2 fs-6">
+      <h3 id="totalHeading" class="mt-0 mb-1 ms-2 fs-6">
         Total
       </h3>
       <div id="totalsContainer" ref="totalsContainer" class="d-flex flex-wrap gap-3 row-gap-0">
@@ -128,6 +128,9 @@ watch(() => totalsContainer.value, () => {
     height: fit-content;
     letter-spacing: 0.08rem;
     font-weight: normal;
+    text-transform: uppercase;
+    text-decoration: underline dotted gray from-font;
+    text-underline-offset: 0.1em;
   }
 
   #gdpContainer, #usdContainer {
