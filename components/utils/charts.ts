@@ -30,5 +30,5 @@ export const costsPieTooltipText = (point: Highcharts.Point, nationalGdp: number
   const parentIsTotal = point.node.parentNode.i === 0;
   const header = pointIsTotal || parentIsTotal ? point.name : [point.node.parentNode.name, point.name].join(": ");
   const base = `<b>${header}</b><br/>\n$${abbr.amount} ${abbr.unit}`;
-  return `${base}<br/>\n${((point.value / nationalGdp) * 100).toFixed(1)}% of national GDP`;
+  return `${base}<br/>\n${((point.value / nationalGdp) * 100).toFixed(1)}% of 2018 national GDP`;
 };
