@@ -1,25 +1,37 @@
 <template>
-  <div class="card-body p-0">
-    <TimeSeries
-      v-for="(_, seriesId, index) in appStore.timeSeriesData"
-      :key="seriesId"
-      :series-id="seriesId"
-      :index="index"
-      :open="openedAccordions.includes(seriesId)"
-      :hide-tooltips="hideTooltips"
-      :chart-height-px="chartHeightPx"
-      :min-chart-height-px="minChartHeightPx"
-      @hide-all-tooltips="hideAllTooltips"
-      @show-all-tooltips="showAllTooltips"
-      @chart-created="chartCreated"
-      @chart-destroyed="chartDestroyed"
-      @sync-tooltips-and-crosshairs="syncTooltipsAndCrosshairs(seriesId)"
-      @toggle-open="toggleOpen(seriesId)"
-    />
+  <div class="card">
+    <div class="card-header border-bottom-0 d-flex justify-content-between">
+      <div class="d-flex align-items-center">
+        <CIcon icon="cilChartLine" size="xl" class="mb-1 text-secondary" />
+        <h2 class="fs-5 m-0 ms-3 chart-header">
+          Time series
+        </h2>
+      </div>
+      <TimeSeriesLegend />
+    </div>
+    <div class="card-body p-0">
+      <TimeSeriesGroup
+        v-for="(seriesGroup, index) in appStore.timeSeriesGroups"
+        :key="seriesGroup.id"
+        :series-group="seriesGroup"
+        :group-index="index"
+        :open="openedAccordions.includes(seriesGroup.id)"
+        :hide-tooltips="hideTooltips"
+        :chart-height-px="chartHeightPx"
+        :min-chart-height-px="minChartHeightPx"
+        @hide-all-tooltips="hideAllTooltips"
+        @show-all-tooltips="showAllTooltips"
+        @chart-created="chartCreated"
+        @chart-destroyed="chartDestroyed"
+        @sync-tooltips-and-crosshairs="syncTooltipsAndCrosshairs"
+        @toggle-open="toggleOpen(seriesGroup.id)"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { CIcon } from "@coreui/icons-vue";
 import throttle from "lodash.throttle";
 
 const appStore = useAppStore();
@@ -33,8 +45,8 @@ const maxAccordionHeight = 400;
 const minTotalAccordionHeight = 500;
 const minChartHeightPx = minAccordionHeight - (2 * accordionBodyYPadding);
 const maxTotalAccordionHeight = computed(() => {
-  if (appStore.timeSeriesData) { // Allow at least minAccordionHeight for each accordion
-    return Math.max(minTotalAccordionHeight, (Object.keys(appStore.timeSeriesData!).length * minAccordionHeight));
+  if (appStore.timeSeriesGroups) { // Allow at least minAccordionHeight for each accordion
+    return Math.max(minTotalAccordionHeight, (Object.keys(appStore.timeSeriesGroups!).length * minAccordionHeight));
   } else {
     return minTotalAccordionHeight;
   }
@@ -78,7 +90,7 @@ const syncTooltipsAndCrosshairs = throttle((seriesId) => {
 }, 100, { leading: true });
 
 const initializeAccordions = () => {
-  openedAccordions.value = Object.keys(appStore.timeSeriesData || {});
+  openedAccordions.value = appStore.timeSeriesGroups?.map(({ id }) => id) || [];
 };
 
 const showAllTooltips = () => {
@@ -91,12 +103,12 @@ const hideAllTooltips = () => {
   }, 500);
 };
 
-const toggleOpen = (seriesId: string) => {
+const toggleOpen = (seriesGroupId: string) => {
   hideAllTooltips();
-  if (openedAccordions.value.includes(seriesId)) {
-    openedAccordions.value = openedAccordions.value.filter(id => id !== seriesId);
+  if (openedAccordions.value.includes(seriesGroupId)) {
+    openedAccordions.value = openedAccordions.value.filter(id => id !== seriesGroupId);
   } else {
-    openedAccordions.value = [...openedAccordions.value, seriesId];
+    openedAccordions.value = [...openedAccordions.value, seriesGroupId];
   }
 };
 

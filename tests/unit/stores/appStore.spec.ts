@@ -22,20 +22,30 @@ registerEndpoint("/api/versions", () => {
   };
 });
 
-registerEndpoint("/api/metadata", () => {
-  return {
-    parameters: [
-      { id: "country", parameterType: "globeSelect" },
-      { id: "settings", parameterType: "select" },
+const metadata = {
+  parameters: [
+    { id: "country", parameterType: "globeSelect" },
+    { id: "settings", parameterType: "select" },
+  ],
+  results: {
+    costs: [
+      { id: "total", label: "Total" },
     ],
-    results: {
-      costs: [
-        { id: "total", label: "Total" },
-      ],
-    },
-    modelVersion: "1.2.3",
-  };
-});
+    time_series_groups: [
+      {
+        id: "infections",
+        label: "Infections",
+        time_series: {
+          total: "prevalence",
+          daily: "new_infected",
+        },
+      },
+    ],
+  },
+  modelVersion: "1.2.3",
+};
+
+registerEndpoint("/api/metadata", () => metadata);
 
 registerEndpoint("/api/scenarios/123/status", () => {
   return {
@@ -82,18 +92,7 @@ describe("app store", () => {
       await store.loadMetadata();
 
       await waitFor(() => {
-        expect(store.metadata).toEqual({
-          parameters: [
-            { id: "country", parameterType: "globeSelect" },
-            { id: "settings", parameterType: "select" },
-          ],
-          results: {
-            costs: [
-              { id: "total", label: "Total" },
-            ],
-          },
-          modelVersion: "1.2.3",
-        });
+        expect(store.metadata).toEqual(metadata);
       });
       expect(store.metadataFetchStatus).toBe("success");
     });
@@ -291,6 +290,26 @@ describe("app store", () => {
         const costLabel = store.getCostLabel("not_found");
 
         expect(costLabel).toEqual("not_found");
+      });
+
+      it("can get the time series groups metadata", async () => {
+        const store = useAppStore();
+        expect(store.timeSeriesGroups).toEqual(undefined);
+
+        await store.loadMetadata();
+
+        await waitFor(() => {
+          expect(store.timeSeriesGroups).toEqual([
+            {
+              id: "infections",
+              label: "Infections",
+              time_series: {
+                total: "prevalence",
+                daily: "new_infected",
+              },
+            },
+          ]);
+        });
       });
     });
   });

@@ -1,6 +1,6 @@
-import TimeSeriesList from "@/components/TimeSeriesList.client.vue";
 import { emptyScenario, mockedMetadata, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
+import TimeSeriesCard from "~/components/TimeSeriesCard.client.vue";
 import { mockResultResponseData } from "~/tests/unit/mocks/mockResponseData";
 import type { ScenarioResultData } from "~/types/apiResponseTypes";
 
@@ -43,7 +43,7 @@ vi.mock("highcharts", async (importOriginal) => {
 
 describe("time series", () => {
   it("should render the correct list of time series", async () => {
-    const component = await mountSuspended(TimeSeriesList, { global: { stubs, plugins } });
+    const component = await mountSuspended(TimeSeriesCard, { global: { stubs, plugins } });
 
     seriesIds.forEach((seriesId) => {
       const container = component.find(`#${seriesId}-container`);
@@ -53,7 +53,7 @@ describe("time series", () => {
   });
 
   it("when an accordion's open state is toggled, it should switch state without affecting other accordions' states", async () => {
-    const component = await mountSuspended(TimeSeriesList, { global: { stubs, plugins } });
+    const component = await mountSuspended(TimeSeriesCard, { global: { stubs, plugins } });
 
     const timeSeriesComponents = component.findAllComponents({ name: "TimeSeries.client" });
     expect(timeSeriesComponents.length).toBe(3);

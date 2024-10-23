@@ -1,61 +1,38 @@
 <template>
-  <!-- Per each time series, use one accordion component with one item, so we can easily initialise them all as open with active-item-key -->
-  <CAccordion
-    :style="accordionStyle"
-    class="time-series"
-    :active-item-key="props.open ? props.seriesId : undefined"
-  >
-    <CAccordionItem :item-key="seriesId" class="border-0">
-      <CAccordionHeader class="border-top" @click="handleAccordionToggle">
-        <span aria-describedby="labelDescriptor">{{ seriesMetadata?.label }}</span>
-        <span id="labelDescriptor" class="visually-hidden">{{ seriesMetadata?.description }}</span>
-        <TooltipHelp :help-text="seriesMetadata?.description" :classes="['ms-2']" />
-      </CAccordionHeader>
-      <CAccordionBody>
-        <div
-          :id="chartContainerId"
-          ref="chartContainer"
-          :class="`chart-container time-series ${props.hideTooltips ? hideTooltipsClassName : ''}`"
-          :style="{ zIndex, height: 'fit-content' }"
-          @mousemove="onMove"
-          @touchmove="onMove"
-          @touchstart="onMove"
-          @mouseleave="handleMouseLeave"
-          @mouseover="handleMouseOver"
-        />
-      </CAccordionBody>
-    </CAccordionItem>
-  </CAccordion>
+  <div
+    :id="chartContainerId"
+    ref="chartContainer"
+    :class="`chart-container time-series ${props.hideTooltips ? hideTooltipsClassName : ''}`"
+    :style="{ zIndex, height: 'fit-content' }"
+  />
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import * as Highcharts from "highcharts";
 import accessibilityInitialize from "highcharts/modules/accessibility";
 import exportDataInitialize from "highcharts/modules/export-data";
 import exportingInitialize from "highcharts/modules/exporting";
 import offlineExportingInitialize from "highcharts/modules/offline-exporting";
-import { debounce } from "perfect-debounce";
 
+import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import { plotBandsColor, plotLinesColor, timeSeriesColors } from "./utils/highCharts";
 
 const props = defineProps<{
   seriesId: string
-  index: number
-  open: boolean
   hideTooltips: boolean
-  chartHeightPx: number
-  minChartHeightPx: number
+  seriesIndex: number // Probably 0 or 1 as time series come in pairs
+  groupIndex: number // Probably 0 to about 4
+  yUnits: string
+  chartHeight: number
+  seriesRole: string
 }>();
 
 const emit = defineEmits([
-  "hideAllTooltips",
-  "showAllTooltips",
-  "syncTooltipsAndCrosshairs",
-  "toggleOpen",
   "chartCreated",
   "chartDestroyed",
 ]);
+
 accessibilityInitialize(Highcharts);
 exportingInitialize(Highcharts);
 exportDataInitialize(Highcharts);
@@ -63,44 +40,32 @@ offlineExportingInitialize(Highcharts);
 
 const appStore = useAppStore();
 
-let chart: Highcharts.Chart;
-const chartContainer = ref<HTMLDivElement | null>(null);
-const chartBackgroundColor = "transparent";
-const chartBackgroundColorOnExporting = "white";
 const hideTooltipsClassName = "hide-tooltips";
-const accordionStyle = {
-  "--cui-accordion-btn-focus-box-shadow": "none",
-  "--cui-accordion-bg": "rgba(255, 255, 255, 0.7)",
-};
+
+// Get a unique index for this series, across all groups and series
+const uniqueSeriesIndex = props.groupIndex * 2 + props.seriesIndex;
 // We need each chart to have a higher z-index than the next one so that the exporting context menu is always on top and clickable.
 // Also, they should be at least 3 so that they are above .accordion-button:focus
-const zIndex = (Object.keys(appStore.timeSeriesData!).length - props.index) + 3;
-
-let yUnits: string; // TODO: Make this depend on a 'units' property in metadata. https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-117/
-switch (props.seriesId) {
-  case "hospitalised":
-    yUnits = "in need of hospitalisation";
-    break;
-  case "dead":
-    yUnits = "deaths";
-    break;
-  case "vaccinated":
-    yUnits = "vaccinated";
-    break;
-  default:
-    yUnits = "cases";
-    break;
-}
+const zIndex = (Object.keys(appStore.timeSeriesData!).length - uniqueSeriesIndex) + 3;
 const chartContainerId = computed(() => `${props.seriesId}-container`);
+
+const chartContainer = ref<HTMLDivElement | null>(null);
+
+let chart: Highcharts.Chart;
+const chartBackgroundColor = "transparent";
+const chartBackgroundColorOnExporting = "white";
+
+const seriesMetadata = computed((): DisplayInfo | undefined => {
+  return appStore.metadata?.results?.time_series.find(({ id }) => id === props.seriesId);
+});
+
 // Assign an x-position to y-values. Nth value corresponds to "N+1th day" of simulation.
 const data = computed(() => {
   return appStore.timeSeriesData![props.seriesId].map((value, index) => [index + 1, value]);
 });
-const seriesMetadata = computed((): DisplayInfo | undefined => {
-  return appStore.metadata?.results?.time_series.find(({ id }) => id === props.seriesId);
-});
+
 const usePlotLines = props.seriesId === "hospitalised"; // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
-const usePlotBands = props.seriesId === "hospitalised" || props.seriesId === "prevalence"; // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
+
 // The y-axis automatically rescales to the data (ignoring the plotLines). We want the plotLines
 // to remain visible, so we limit the y-axis' ability to rescale, by defining a minimum range. This way the
 // plotLines remain visible even when the maximum data value is less than the maximum plotline value.
@@ -111,6 +76,7 @@ const minRange = computed(() => {
     return undefined;
   }
 });
+
 const capacitiesPlotLines = computed(() => {
   const lines = new Array<Highcharts.AxisPlotLinesOptions>();
 
@@ -140,7 +106,7 @@ const capacitiesPlotLines = computed(() => {
 
 const interventionsPlotBands = computed(() => {
   const bands = new Array<Highcharts.AxisPlotBandsOptions>();
-
+  const usePlotBands = ["hospitalised", "new_hospitalised", "prevalence", "new_infected"].includes(props.seriesId); // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
   if (!usePlotBands) {
     return bands;
   }
@@ -152,36 +118,11 @@ const interventionsPlotBands = computed(() => {
   return bands;
 });
 
-const handleAccordionToggle = () => {
-  emit("toggleOpen");
-};
-
-const onMove = () => {
-  emit("syncTooltipsAndCrosshairs");
-};
-
-const handleMouseLeave = () => {
-  emit("hideAllTooltips");
-};
-
-const handleMouseOver = () => {
-  emit("showAllTooltips");
-};
-
 // Override the reset function as per synchronisation demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
 // Seems to be required in order for tooltips to hang around more than about a second.
 Highcharts.Pointer.prototype.reset = () => {
   return undefined;
 };
-
-const setChartHeight = debounce(async (height: number) => {
-  chart.setSize(undefined, height, { duration: 250 });
-}, 10);
-
-// Resize the chart when the accordion is opened or closed.
-watch(() => [props.chartHeightPx, props.open], () => {
-  setChartHeight((props.open ? props.chartHeightPx : props.minChartHeightPx));
-});
 
 const chartInitialOptions = () => {
   return {
@@ -189,7 +130,7 @@ const chartInitialOptions = () => {
       enabled: false, // Omit credits to allow us to reduce margin and save vertical space on page. We must credit Highcharts elsewhere.
     },
     chart: {
-      height: props.chartHeightPx,
+      height: props.chartHeight,
       marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
       marginBottom: 35,
       backgroundColor: chartBackgroundColor,
@@ -252,7 +193,7 @@ const chartInitialOptions = () => {
     },
     tooltip: {
       headerFormat: "<span style='font-size: 0.7rem; margin-bottom: 0.3rem;'>Day {point.x}</span><br/>",
-      pointFormat: `<span style='font-weight: 500'>{point.y}</span> ${yUnits}`,
+      pointFormat: `<span style='font-weight: 500'>{point.y}</span> ${props.yUnits}`,
       valueDecimals: 0,
     },
     xAxis: { // Omit title to save vertical space on page
@@ -272,12 +213,9 @@ const chartInitialOptions = () => {
     series: [{
       data: data.value,
       name: seriesMetadata.value!.label,
-      type: "area",
-      color: timeSeriesColors[props.index],
+      type: props.seriesRole === "total" ? "area" : "line",
+      color: timeSeriesColors[props.groupIndex],
       fillOpacity: 0.3,
-      tooltip: {
-        valueSuffix: ` ${props.seriesId === "vaccination" ? "%" : ""}`, // TODO: Make this depend on a 'units' property in metadata. https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-117/
-      },
       marker: {
         enabled: false,
       },
@@ -286,8 +224,10 @@ const chartInitialOptions = () => {
 };
 
 watch(() => chartContainer.value, () => {
-  chart = Highcharts.chart(chartContainerId.value, chartInitialOptions());
-  emit("chartCreated", props.seriesId, chart);
+  if (!chart) {
+    chart = Highcharts.chart(chartContainerId.value, chartInitialOptions());
+    emit("chartCreated", props.seriesId, chart);
+  }
 });
 
 onUnmounted(() => {
@@ -296,6 +236,14 @@ onUnmounted(() => {
   // Destroy this chart, since every time we navigate away and back to this page, another set
   // of charts is created, burdening the browser if they aren't disposed of.
   chart.destroy();
+});
+
+const setChartHeight = debounce(async (height: number) => {
+  chart.setSize(undefined, height, { duration: 250 });
+}, 10);
+
+watch(() => props.chartHeight, () => {
+  setChartHeight(props.chartHeight);
 });
 </script>
 
@@ -310,29 +258,6 @@ onUnmounted(() => {
       filter: opacity(0);
       transition: filter 0.2s;
     }
-  }
-}
-
-.accordion.time-series {
-  .collapsing {
-    transition: height .2s ease;
-  }
-
-  .accordion-body { // These are the default values from CoreUI, but we need to pin them so that our const accordionBodyYPadding is correct.
-    padding-top: 8px !important;
-    padding-bottom: 8px !important;
-  }
-
-  .accordion-button {
-    padding-top: 0.3rem;
-    padding-bottom: 0.3rem;
-    color: var(--cui-black) !important;
-    background-color: var(--cui-light) !important;
-    border-radius: 0 !important;
-  }
-
-  .accordion-item {
-    background: $light-background;
   }
 }
 </style>
