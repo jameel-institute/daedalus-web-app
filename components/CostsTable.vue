@@ -3,16 +3,18 @@
     <thead class="border-bottom-2 border-black">
       <tr>
         <th />
-        <th>$ in millions</th>
+        <th>$, millions</th>
       </tr>
     </thead>
     <tbody>
       <template
-        v-for="childCost in appStore.totalCost.children?.sort((a, b) => b.value - a.value)"
+        v-for="childCost in appStore.totalCost.children?.toSorted(
+          (a, b) => b.value - a.value,
+        )"
         :key="childCost.id"
       >
         <tr>
-          <td class="ps-2">
+          <td>
             {{ appStore.getCostLabel(childCost.id) }}
           </td>
           <td>{{ formatCurrency(childCost.value) }}</td>
@@ -21,9 +23,9 @@
           <tr
             v-for="grandChildCost in childCost.children"
             :key="grandChildCost.id"
-            class="nested-row"
+            class="nested-row fw-lighter"
           >
-            <td class="ps-5">
+            <td class="ps-4">
               {{ appStore.getCostLabel(grandChildCost.id) }}
             </td>
             <td>{{ formatCurrency(grandChildCost.value) }}</td>
@@ -41,5 +43,11 @@ const appStore = useAppStore();
 <style scoped>
 .nested-row {
   background-color: #f1f3f5;
+}
+td {
+  padding-left: 0.5rem;
+}
+thead tr th {
+  font-weight: 600 !important;
 }
 </style>
