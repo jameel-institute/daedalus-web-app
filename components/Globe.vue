@@ -3,7 +3,7 @@
     v-show="appStore.globeParameter && appStore.largeScreen"
     @mousedown="deselectText"
     @touchstart="deselectText"
-    @mousemove="avoidSelectingText"
+    @mousemove="onMouseMove"
   >
     <div
       ref="globediv"
@@ -139,12 +139,14 @@ const deselectText = () => {
   window.getSelection()?.removeAllRanges();
 };
 
-// If the user is dragging the globe around, they may accidentally select text on the page.
-const avoidSelectingText = throttle((event) => {
+const onMouseMove = throttle((event) => {
   const primaryMouseButtonIsDown = (event.buttons === 1);
   if (primaryMouseButtonIsDown) {
+    // If the user is dragging the globe around, they may accidentally select text on the page.
     deselectText();
-  };
+    // Reset rotatedToCountry when user rotates globe manually
+    rotatedToCountry.value = "";
+  }
 }, 25);
 
 const applyGlobeSettings = () => {
