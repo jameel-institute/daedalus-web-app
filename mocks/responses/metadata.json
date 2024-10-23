@@ -2,184 +2,290 @@
   "status": "success",
   "errors": null,
   "data": {
-    "modelVersion": "0.0.0",
+    "modelVersion": "0.0.19",
     "parameters": [
       {
         "id": "country",
         "label": "Country",
+        "description": "Select a country to set model parameters for country-specific demographic, patterns of social mixing and economic data",
         "parameterType": "globeSelect",
-        "defaultOption": "United Kingdom",
+        "defaultOption": "THA",
         "ordered": false,
         "options": [
           {
-            "id": "Austria",
+            "id": "ARG",
+            "label": "Argentina"
+          },
+          {
+            "id": "AUS",
+            "label": "Australia"
+          },
+          {
+            "id": "AUT",
             "label": "Austria"
           },
           {
-            "id": "Belgium",
+            "id": "BEL",
             "label": "Belgium"
           },
           {
-            "id": "Canada",
+            "id": "BRA",
+            "label": "Brazil"
+          },
+          {
+            "id": "BRN",
+            "label": "Brunei"
+          },
+          {
+            "id": "BGR",
+            "label": "Bulgaria"
+          },
+          {
+            "id": "KHM",
+            "label": "Cambodia"
+          },
+          {
+            "id": "CAN",
             "label": "Canada"
           },
           {
-            "id": "Chile",
+            "id": "CHL",
             "label": "Chile"
           },
           {
-            "id": "China",
+            "id": "CHN",
             "label": "China"
           },
           {
-            "id": "Costa Rica",
+            "id": "COL",
+            "label": "Colombia"
+          },
+          {
+            "id": "CRI",
             "label": "Costa Rica"
           },
           {
-            "id": "Croatia",
+            "id": "HRV",
             "label": "Croatia"
           },
           {
-            "id": "Cyprus",
+            "id": "CYP",
             "label": "Cyprus"
           },
           {
-            "id": "Czechia",
+            "id": "CZE",
             "label": "Czechia"
           },
           {
-            "id": "Denmark",
+            "id": "DNK",
             "label": "Denmark"
           },
           {
-            "id": "Estonia",
+            "id": "EGY",
+            "label": "Egypt"
+          },
+          {
+            "id": "EST",
             "label": "Estonia"
           },
           {
-            "id": "Finland",
+            "id": "ETH",
+            "label": "Ethiopia"
+          },
+          {
+            "id": "FIN",
             "label": "Finland"
           },
           {
-            "id": "France",
+            "id": "FRA",
             "label": "France"
           },
           {
-            "id": "Germany",
+            "id": "DEU",
             "label": "Germany"
           },
           {
-            "id": "Greece",
+            "id": "GRC",
             "label": "Greece"
           },
           {
-            "id": "Hungary",
+            "id": "HUN",
             "label": "Hungary"
           },
           {
-            "id": "India",
+            "id": "ISL",
+            "label": "Iceland"
+          },
+          {
+            "id": "IND",
             "label": "India"
           },
           {
-            "id": "Indonesia",
+            "id": "IDN",
             "label": "Indonesia"
           },
           {
-            "id": "Ireland",
+            "id": "IRL",
             "label": "Ireland"
           },
           {
-            "id": "Israel",
+            "id": "ISR",
             "label": "Israel"
           },
           {
-            "id": "Italy",
+            "id": "ITA",
             "label": "Italy"
           },
           {
-            "id": "Japan",
+            "id": "JPN",
             "label": "Japan"
           },
           {
-            "id": "Kazakhstan",
+            "id": "KAZ",
             "label": "Kazakhstan"
           },
           {
-            "id": "Latvia",
+            "id": "LAO",
+            "label": "Laos"
+          },
+          {
+            "id": "LVA",
             "label": "Latvia"
           },
           {
-            "id": "Lithuania",
+            "id": "LTU",
             "label": "Lithuania"
           },
           {
-            "id": "Luxembourg",
+            "id": "LUX",
             "label": "Luxembourg"
           },
           {
-            "id": "Malta",
+            "id": "MYS",
+            "label": "Malaysia"
+          },
+          {
+            "id": "MLT",
             "label": "Malta"
           },
           {
-            "id": "Mexico",
+            "id": "MEX",
             "label": "Mexico"
           },
           {
-            "id": "Netherlands",
+            "id": "MAR",
+            "label": "Morocco"
+          },
+          {
+            "id": "MMR",
+            "label": "Myanmar"
+          },
+          {
+            "id": "NLD",
             "label": "Netherlands"
           },
           {
-            "id": "Norway",
+            "id": "NZL",
+            "label": "New Zealand"
+          },
+          {
+            "id": "NOR",
             "label": "Norway"
           },
           {
-            "id": "Portugal",
+            "id": "PER",
+            "label": "Peru"
+          },
+          {
+            "id": "PHL",
+            "label": "Philippines"
+          },
+          {
+            "id": "POL",
+            "label": "Poland"
+          },
+          {
+            "id": "PRT",
             "label": "Portugal"
           },
           {
-            "id": "Russia",
+            "id": "ROU",
+            "label": "Romania"
+          },
+          {
+            "id": "RUS",
             "label": "Russia"
           },
           {
-            "id": "Slovakia",
+            "id": "RWA",
+            "label": "Rwanda"
+          },
+          {
+            "id": "SAU",
+            "label": "Saudi Arabia"
+          },
+          {
+            "id": "SGP",
+            "label": "Singapore"
+          },
+          {
+            "id": "SVK",
             "label": "Slovakia"
           },
           {
-            "id": "Slovenia",
+            "id": "SVN",
             "label": "Slovenia"
           },
           {
-            "id": "South Africa",
+            "id": "ZAF",
             "label": "South Africa"
           },
           {
-            "id": "Spain",
+            "id": "KOR",
+            "label": "South Korea"
+          },
+          {
+            "id": "ESP",
             "label": "Spain"
           },
           {
-            "id": "Sweden",
+            "id": "SWE",
             "label": "Sweden"
           },
           {
-            "id": "Switzerland",
+            "id": "CHE",
             "label": "Switzerland"
           },
           {
-            "id": "Turkey",
+            "id": "THA",
+            "label": "Thailand"
+          },
+          {
+            "id": "TUN",
+            "label": "Tunisia"
+          },
+          {
+            "id": "TUR",
             "label": "Turkey"
           },
           {
-            "id": "United Kingdom",
+            "id": "GBR",
             "label": "United Kingdom"
           },
           {
-            "id": "United States",
+            "id": "USA",
             "label": "United States"
+          },
+          {
+            "id": "VNM",
+            "label": "Vietnam"
           }
         ]
       },
       {
         "id": "pathogen",
         "label": "Disease",
+        "description": "Select a disease to set model parameters for transmissibility, incubation period and severity based on known characteristics of that historical epidemic or epidemic wave",
         "parameterType": "select",
         "ordered": false,
         "options": [
@@ -216,266 +322,407 @@
       {
         "id": "response",
         "label": "Response",
+        "description": "Select a pandemic mitigation strategy, comprising closures and other restrictions",
         "parameterType": "select",
         "defaultOption": "none",
         "ordered": true,
         "options": [
           {
             "id": "none",
-            "label": "No closures"
+            "label": "No closures",
+            "description": "No pandemic mitigation: all sectors are fully open"
           },
           {
             "id": "school_closures",
-            "label": "School closures"
+            "label": "School closures",
+            "description": "A response strategy of mostly school closures"
           },
           {
             "id": "economic_closures",
-            "label": "Business closures"
+            "label": "Business closures",
+            "description": "A response strategy of mostly economic closures"
           },
           {
             "id": "elimination",
-            "label": "Elimination"
+            "label": "Elimination",
+            "description": "A response strategy aimed at elimination of the disease, including all necessary closures"
           }
         ]
       },
       {
         "id": "vaccine",
         "label": "Global vaccine investment",
+        "description": "Select a level of advance global vaccine investment, which determines vaccine rollout start date, administration rate and population coverage during the pandemic",
         "parameterType": "select",
         "defaultOption": "none",
         "ordered": true,
         "options": [
           {
             "id": "none",
-            "label": "None"
+            "label": "None",
+            "description": "An investment level corresponding to: vaccine rollout commencing 365 days after the outbreak starts, a vaccine administration rate of 0.14% of population per day, and an upper limit of vaccine coverage of 40% of the general population"
           },
           {
             "id": "low",
-            "label": "Low"
+            "label": "Low",
+            "description": "An investment level corresponding to: vaccine rollout commencing 300 days after the outbreak starts, a vaccine administration rate of 0.29% of population per day, and an upper limit of vaccine coverage of 50% of the general population"
           },
           {
             "id": "medium",
-            "label": "Medium"
+            "label": "Medium",
+            "description": "An investment level corresponding to: vaccine rollout commencing 200 days after the outbreak starts, a vaccine administration rate of 0.43% of population per day, and an upper limit of vaccine coverage of 60% of the general population"
           },
           {
             "id": "high",
-            "label": "High"
+            "label": "High",
+            "description": "An investment level corresponding to: vaccine rollout commencing 100 days after the outbreak starts, a vaccine administration rate of 0.5% of population per day, and an upper limit of vaccine coverage of 80% of the general population"
           }
         ]
       },
       {
         "id": "hospital_capacity",
         "label": "Hospital surge capacity",
+        "description": "Number of hospital beds available nationally for pandemic patients",
         "parameterType": "numeric",
         "ordered": false,
         "step": 100,
         "updateNumericFrom": {
           "parameterId": "country",
           "values": {
-            "Austria": {
-              "min": 2700,
-              "default": 4100,
-              "max": 11700
+            "ARG": {
+              "min": 30400,
+              "default": 33800,
+              "max": 44000
             },
-            "Belgium": {
-              "min": 3500,
-              "default": 5200,
-              "max": 15100
+            "AUS": {
+              "min": 13200,
+              "default": 14700,
+              "max": 19100
             },
-            "Canada": {
-              "min": 11300,
-              "default": 17000,
-              "max": 49100
+            "AUT": {
+              "min": 15800,
+              "default": 17500,
+              "max": 22800
             },
-            "Chile": {
-              "min": 5700,
-              "default": 8600,
-              "max": 24900
+            "BEL": {
+              "min": 11100,
+              "default": 12300,
+              "max": 16000
             },
-            "China": {
-              "min": 431800,
-              "default": 647700,
-              "max": 1871100
+            "BRA": {
+              "min": 60000,
+              "default": 66600,
+              "max": 86600
             },
-            "Costa Rica": {
-              "min": 1500,
-              "default": 2300,
-              "max": 6600
-            },
-            "Croatia": {
-              "min": 1200,
-              "default": 1800,
-              "max": 5300
-            },
-            "Cyprus": {
-              "min": 400,
-              "default": 500,
-              "max": 1600
-            },
-            "Czechia": {
-              "min": 3200,
-              "default": 4800,
-              "max": 13900
-            },
-            "Denmark": {
-              "min": 1700,
-              "default": 2600,
-              "max": 7500
-            },
-            "Estonia": {
-              "min": 400,
-              "default": 600,
-              "max": 1700
-            },
-            "Finland": {
-              "min": 1700,
-              "default": 2500,
-              "max": 7200
-            },
-            "France": {
-              "min": 19600,
-              "default": 29400,
-              "max": 84900
-            },
-            "Germany": {
-              "min": 25100,
-              "default": 37700,
-              "max": 108900
-            },
-            "Greece": {
-              "min": 3100,
-              "default": 4700,
-              "max": 13500
-            },
-            "Hungary": {
-              "min": 2900,
-              "default": 4300,
-              "max": 12600
-            },
-            "India": {
-              "min": 414000,
-              "default": 621000,
-              "max": 1794000
-            },
-            "Indonesia": {
-              "min": 82100,
-              "default": 123100,
-              "max": 355600
-            },
-            "Ireland": {
-              "min": 1500,
-              "default": 2200,
-              "max": 6400
-            },
-            "Israel": {
-              "min": 2600,
-              "default": 3900,
-              "max": 11300
-            },
-            "Italy": {
-              "min": 18100,
-              "default": 27200,
-              "max": 78600
-            },
-            "Japan": {
-              "min": 37900,
-              "default": 56900,
-              "max": 164400
-            },
-            "Kazakhstan": {
-              "min": 5600,
-              "default": 8400,
-              "max": 24400
-            },
-            "Latvia": {
-              "min": 600,
-              "default": 800,
-              "max": 2500
-            },
-            "Lithuania": {
-              "min": 800,
-              "default": 1200,
-              "max": 3500
-            },
-            "Luxembourg": {
+            "BRN": {
               "min": 200,
-              "default": 300,
+              "default": 200,
+              "max": 200
+            },
+            "BGR": {
+              "min": 7100,
+              "default": 7900,
+              "max": 10300
+            },
+            "KHM": {
+              "min": 2000,
+              "default": 2300,
+              "max": 2900
+            },
+            "CAN": {
+              "min": 7200,
+              "default": 8000,
+              "max": 10400
+            },
+            "CHL": {
+              "min": 6900,
+              "default": 7600,
+              "max": 9900
+            },
+            "CHN": {
+              "min": 1017600,
+              "default": 1130700,
+              "max": 1469900
+            },
+            "COL": {
+              "min": 12000,
+              "default": 13300,
+              "max": 17300
+            },
+            "CRI": {
+              "min": 600,
+              "default": 600,
               "max": 800
             },
-            "Malta": {
-              "min": 100,
-              "default": 200,
-              "max": 600
+            "HRV": {
+              "min": 5200,
+              "default": 5800,
+              "max": 7600
             },
-            "Mexico": {
-              "min": 38700,
-              "default": 58000,
-              "max": 167600
+            "CYP": {
+              "min": 1400,
+              "default": 1600,
+              "max": 2000
             },
-            "Netherlands": {
-              "min": 5100,
-              "default": 7700,
-              "max": 22300
+            "CZE": {
+              "min": 19900,
+              "default": 22100,
+              "max": 28800
             },
-            "Norway": {
-              "min": 1600,
+            "DNK": {
+              "min": 2200,
               "default": 2400,
-              "max": 7000
+              "max": 3100
             },
-            "Portugal": {
-              "min": 3100,
-              "default": 4600,
-              "max": 13300
+            "EGY": {
+              "min": 19800,
+              "default": 22000,
+              "max": 28500
             },
-            "Russia": {
-              "min": 43800,
-              "default": 65700,
-              "max": 189700
+            "EST": {
+              "min": 1400,
+              "default": 1600,
+              "max": 2000
             },
-            "Slovakia": {
-              "min": 1600,
-              "default": 2500,
-              "max": 7100
+            "ETH": {
+              "min": 5100,
+              "default": 5700,
+              "max": 7400
             },
-            "Slovenia": {
-              "min": 600,
-              "default": 900,
-              "max": 2700
+            "FIN": {
+              "min": 4300,
+              "default": 4800,
+              "max": 6300
             },
-            "South Africa": {
-              "min": 17800,
-              "default": 26700,
-              "max": 77100
+            "FRA": {
+              "min": 72400,
+              "default": 80400,
+              "max": 104600
             },
-            "Spain": {
-              "min": 14000,
-              "default": 21000,
-              "max": 60800
+            "DEU": {
+              "min": 124700,
+              "default": 138500,
+              "max": 180100
             },
-            "Sweden": {
-              "min": 3000,
-              "default": 4500,
-              "max": 13100
+            "GRC": {
+              "min": 16400,
+              "default": 18200,
+              "max": 23700
             },
-            "Switzerland": {
+            "HUN": {
+              "min": 21700,
+              "default": 24200,
+              "max": 31400
+            },
+            "ISL": {
+              "min": 100,
+              "default": 100,
+              "max": 200
+            },
+            "IND": {
+              "min": 283100,
+              "default": 314500,
+              "max": 408900
+            },
+            "IDN": {
+              "min": 64000,
+              "default": 71100,
+              "max": 92500
+            },
+            "IRL": {
+              "min": 1300,
+              "default": 1400,
+              "max": 1900
+            },
+            "ISR": {
+              "min": 2100,
+              "default": 2400,
+              "max": 3100
+            },
+            "ITA": {
+              "min": 37700,
+              "default": 41800,
+              "max": 54400
+            },
+            "JPN": {
+              "min": 349300,
+              "default": 388100,
+              "max": 504600
+            },
+            "KAZ": {
+              "min": 13100,
+              "default": 14600,
+              "max": 18900
+            },
+            "LAO": {
+              "min": 1500,
+              "default": 1600,
+              "max": 2100
+            },
+            "LVA": {
+              "min": 2500,
+              "default": 2700,
+              "max": 3600
+            },
+            "LTU": {
+              "min": 4200,
+              "default": 4700,
+              "max": 6100
+            },
+            "LUX": {
+              "min": 500,
+              "default": 600,
+              "max": 800
+            },
+            "MYS": {
+              "min": 8200,
+              "default": 9100,
+              "max": 11900
+            },
+            "MLT": {
+              "min": 300,
+              "default": 400,
+              "max": 500
+            },
+            "MEX": {
+              "min": 29300,
+              "default": 32500,
+              "max": 42300
+            },
+            "MAR": {
+              "min": 5000,
+              "default": 5500,
+              "max": 7200
+            },
+            "MMR": {
+              "min": 7600,
+              "default": 8500,
+              "max": 11000
+            },
+            "NLD": {
+              "min": 17400,
+              "default": 19300,
+              "max": 25100
+            },
+            "NZL": {
+              "min": 1700,
+              "default": 1900,
+              "max": 2400
+            },
+            "NOR": {
+              "min": 3400,
+              "default": 3800,
+              "max": 4900
+            },
+            "PER": {
+              "min": 7100,
+              "default": 7900,
+              "max": 10200
+            },
+            "PHL": {
+              "min": 14600,
+              "default": 16300,
+              "max": 21200
+            },
+            "POL": {
+              "min": 31500,
+              "default": 35000,
+              "max": 45500
+            },
+            "PRT": {
+              "min": 6000,
+              "default": 6700,
+              "max": 8700
+            },
+            "ROU": {
+              "min": 18100,
+              "default": 20100,
+              "max": 26100
+            },
+            "RUS": {
+              "min": 277400,
+              "default": 308200,
+              "max": 400700
+            },
+            "RWA": {
+              "min": 2800,
+              "default": 3100,
+              "max": 4000
+            },
+            "SAU": {
+              "min": 10500,
+              "default": 11700,
+              "max": 15200
+            },
+            "SGP": {
+              "min": 2000,
+              "default": 2200,
+              "max": 2800
+            },
+            "SVK": {
+              "min": 9700,
+              "default": 10700,
+              "max": 13900
+            },
+            "SVN": {
               "min": 2600,
+              "default": 2900,
+              "max": 3700
+            },
+            "ZAF": {
+              "min": 38900,
+              "default": 43200,
+              "max": 56200
+            },
+            "KOR": {
+              "min": 86000,
+              "default": 95600,
+              "max": 124300
+            },
+            "ESP": {
+              "min": 29900,
+              "default": 33200,
+              "max": 43200
+            },
+            "SWE": {
+              "min": 4200,
+              "default": 4700,
+              "max": 6100
+            },
+            "CHE": {
+              "min": 6700,
+              "default": 7400,
+              "max": 9700
+            },
+            "THA": {
+              "min": 19800,
+              "default": 22000,
+              "max": 28600
+            },
+            "TUN": {
+              "min": 3500,
               "default": 3900,
-              "max": 11300
+              "max": 5000
             },
-            "Turkey": {
-              "min": 25300,
+            "TUR": {
+              "min": 75400,
+              "default": 83800,
+              "max": 108900
+            },
+            "GBR": {
+              "min": 23600,
+              "default": 26200,
+              "max": 34100
+            },
+            "USA": {
+              "min": 301000,
+              "default": 334400,
+              "max": 434700
+            },
+            "VNM": {
+              "min": 34200,
               "default": 38000,
-              "max": 109600
-            },
-            "United Kingdom": {
-              "min": 20400,
-              "default": 30500,
-              "max": 88300
-            },
-            "United States": {
-              "min": 99300,
-              "default": 149000,
-              "max": 430300
+              "max": 49400
             }
           }
         }
@@ -517,12 +764,12 @@
           "label": "Life years"
         },
         {
-          "id": "life_years_infants",
-          "label": "Infants"
+          "id": "life_years_pre_school",
+          "label": "Preschool-age children"
         },
         {
-          "id": "life_years_adolescents",
-          "label": "Adolescents"
+          "id": "life_years_school_age",
+          "label": "School-age children"
         },
         {
           "id": "life_years_working_age",
@@ -537,22 +784,14 @@
         {
           "id": "hospital_capacity",
           "label": "Hospital surge capacity",
-          "description": "Total hospital beds"
-        },
-        {
-          "id": "icu_capacity",
-          "label": "ICU capacity",
-          "description": "ICU hospital beds"
+          "description": "Number of hospital beds available nationally for pandemic patients"
         }
       ],
       "interventions": [
         {
-          "id": "school_closures",
-          "label": "School closures"
-        },
-        {
-          "id": "business_closures",
-          "label": "Business closures"
+          "id": "response",
+          "label": "Pandemic response",
+          "description": "National response to pandemic, including closures and social distancing."
         }
       ],
       "time_series": [
@@ -569,7 +808,76 @@
         {
           "id": "dead",
           "label": "Dead",
-          "description": "Cumulative deaths"
+          "description": "Total deaths"
+        },
+        {
+          "id": "vaccinated",
+          "label": "Vaccinated",
+          "description": "Total number of vaccinations administered"
+        },
+        {
+          "id": "new_infected",
+          "label": "New infections",
+          "description": "Number of new infections per day"
+        },
+        {
+          "id": "new_hospitalised",
+          "label": "New hospitalisations",
+          "description": "Number of new patients in need of hospitalisation per day"
+        },
+        {
+          "id": "new_dead",
+          "label": "New deaths",
+          "description": "Number of deaths per day"
+        },
+        {
+          "id": "new_vaccinated",
+          "label": "New vaccinations",
+          "description": "Number of vaccinations per day"
+        }
+      ],
+      "time_series_roles": [
+        {
+          "id": "total",
+          "label": "Total"
+        },
+        {
+          "id": "daily",
+          "label": "Daily"
+        }
+      ],
+      "time_series_groups": [
+        {
+          "id": "infections",
+          "label": "Infections",
+          "time_series": {
+            "total": "prevalence",
+            "daily": "new_infected"
+          }
+        },
+        {
+          "id": "hospitalisations",
+          "label": "Hospitalisations",
+          "time_series": {
+            "total": "hospitalised",
+            "daily": "new_hospitalised"
+          }
+        },
+        {
+          "id": "deaths",
+          "label": "Deaths",
+          "time_series": {
+            "total": "dead",
+            "daily": "new_dead"
+          }
+        },
+        {
+          "id": "vaccinations",
+          "label": "Vaccinations",
+          "time_series": {
+            "total": "vaccinated",
+            "daily": "new_vaccinated"
+          }
         }
       ]
     }

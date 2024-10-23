@@ -56,7 +56,7 @@ describe("time series", () => {
     const component = await mountSuspended(TimeSeriesList, { global: { stubs, plugins } });
 
     const timeSeriesComponents = component.findAllComponents({ name: "TimeSeries.client" });
-    expect(timeSeriesComponents.length).toBe(3);
+    expect(timeSeriesComponents.length).toBe(8);
     timeSeriesComponents.forEach((timeSeriesComponent) => {
       expect(timeSeriesComponent.props().open).toBe(true);
     });

@@ -178,6 +178,11 @@ const chartInitialOptions = () => {
     exporting: { enabled: false },
     navigation: {
       breadcrumbs: {
+        events: {
+          click() {
+            chart.update({ series: { levels: chartLevelsOptions(false) } });
+          },
+        },
         position: {
           verticalAlign: "bottom",
           align: "center",

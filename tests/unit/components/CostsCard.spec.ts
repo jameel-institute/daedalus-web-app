@@ -48,12 +48,12 @@ describe("costs card", () => {
     expect(container.classes()).not.toContain("hide-tooltips");
 
     const totalCostPara = component.find(`p#totalCostPara`);
-    expect(totalCostPara.text()).toBe("1.1T");
 
     const costsTable = component.find('[data-testid="costsTable"]');
     expect(costsTable).toBeTruthy();
 
     expect(component.text()).toContain(averageVsl);
+    expect(totalCostPara.text()).toBe("8.9T");
   });
 
   it("should show the tooltips when the mouse is over the cost pie container, and not otherwise", async () => {
