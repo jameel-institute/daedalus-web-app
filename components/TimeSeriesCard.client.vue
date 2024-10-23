@@ -1,25 +1,37 @@
 <template>
-  <div class="card-body p-0">
-    <TimeSeriesGroup
-      v-for="(seriesGroup, index) in appStore.timeSeriesGroups"
-      :key="seriesGroup.id"
-      :series-group="seriesGroup"
-      :group-index="index"
-      :open="openedAccordions.includes(seriesGroup.id)"
-      :hide-tooltips="hideTooltips"
-      :chart-height-px="chartHeightPx"
-      :min-chart-height-px="minChartHeightPx"
-      @hide-all-tooltips="hideAllTooltips"
-      @show-all-tooltips="showAllTooltips"
-      @chart-created="chartCreated"
-      @chart-destroyed="chartDestroyed"
-      @sync-tooltips-and-crosshairs="syncTooltipsAndCrosshairs"
-      @toggle-open="toggleOpen(seriesGroup.id)"
-    />
+  <div class="card">
+    <div class="card-header border-bottom-0 d-flex justify-content-between">
+      <div class="d-flex align-items-center">
+        <CIcon icon="cilChartLine" size="xl" class="mb-1 text-secondary" />
+        <h2 class="fs-5 m-0 ms-3 chart-header">
+          Time series
+        </h2>
+      </div>
+      <TimeSeriesLegend />
+    </div>
+    <div class="card-body p-0">
+      <TimeSeriesGroup
+        v-for="(seriesGroup, index) in appStore.timeSeriesGroups"
+        :key="seriesGroup.id"
+        :series-group="seriesGroup"
+        :group-index="index"
+        :open="openedAccordions.includes(seriesGroup.id)"
+        :hide-tooltips="hideTooltips"
+        :chart-height-px="chartHeightPx"
+        :min-chart-height-px="minChartHeightPx"
+        @hide-all-tooltips="hideAllTooltips"
+        @show-all-tooltips="showAllTooltips"
+        @chart-created="chartCreated"
+        @chart-destroyed="chartDestroyed"
+        @sync-tooltips-and-crosshairs="syncTooltipsAndCrosshairs"
+        @toggle-open="toggleOpen(seriesGroup.id)"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { CIcon } from "@coreui/icons-vue";
 import throttle from "lodash.throttle";
 
 const appStore = useAppStore();
