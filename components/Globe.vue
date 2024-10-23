@@ -174,7 +174,7 @@ const removeSeries = (seriesToRemove: am5map.MapPolygonSeries) => {
   ).dispose();
 };
 
-const animateSeriesColour = (
+const animateSeriesColourChange = (
   series: am5map.MapPolygonSeries,
   colour: am5.Color,
 ) => series.animate({ key: "fill", to: colour, duration: geoPointZoomDuration, easing });
@@ -287,7 +287,7 @@ const setUpSelectableCountriesSeries = () => {
   selectableCountriesSeries.mapPolygons.template.on("active", (_active, target) => {
     handlePolygonActive(target, prevSelectablePolygon);
     if (prevSelectablePolygon.value && prevSelectablePolygon.value !== target) {
-      animateSeriesColour(selectableCountriesSeries, defaultLandColour);
+      animateSeriesColourChange(selectableCountriesSeries, defaultLandColour);
     }
     if (target?.dataItem?.get("id")) {
       appStore.globe.highlightedCountry = target.dataItem.get("id") as string;
@@ -336,7 +336,7 @@ const stopDisplayingAllDisputedAreas = () => {
   Object.keys(disputedLands).forEach((disputedArea) => {
     if (disputedLands[disputedArea].displayed && disputedLands[disputedArea].mapSeries) {
       disputedLands[disputedArea].displayed = false;
-      animateSeriesColour(disputedLands[disputedArea].mapSeries!, defaultLandColour);
+      animateSeriesColourChange(disputedLands[disputedArea].mapSeries!, defaultLandColour);
     }
   });
 };
@@ -369,9 +369,9 @@ const focusTentativelySelectedCountry = async () => {
 
     disputedAreas(appStore.globe.highlightedCountry!).forEach((disputedArea) => {
       disputedLands[disputedArea].displayed = true;
-      animateSeriesColour(disputedLands[disputedArea].mapSeries!, hoverLandColour);
+      animateSeriesColourChange(disputedLands[disputedArea].mapSeries!, hoverLandColour);
     });
-    animateSeriesColour(highlightedCountrySeries.value, activeCountryColor);
+    animateSeriesColourChange(highlightedCountrySeries.value, activeCountryColor);
 
     if (route.path === "/scenarios/new") {
       await rotateToCountry(appStore.globe.highlightedCountry);
@@ -387,7 +387,7 @@ watch(() => highlightedCountrySeries.value, async (newSeries, oldSeries) => {
     }
     if (oldSeries) {
       stopDisplayingAllDisputedAreas();
-      animateSeriesColour(oldSeries, defaultLandColour);
+      animateSeriesColourChange(oldSeries, defaultLandColour);
       setTimeout(() => {
         removeSeries(oldSeries);
       }, geoPointZoomDuration);
