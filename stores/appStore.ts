@@ -135,7 +135,7 @@ export const useAppStore = defineStore("app", {
         } finally {
           this.downloading = false;
         }
-      })();
+      }, 200)();
     },
   },
 });
