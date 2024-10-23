@@ -78,7 +78,10 @@ const copySnippet = () => {
 };
 
 const resetCopied = () => {
-  copied.value = false;
+  // Add a little timeout so text is readable on immediate unhover
+  setTimeout(() => {
+    copied.value = false;
+  }, 1500);
 };
 </script>
 
@@ -103,5 +106,6 @@ const resetCopied = () => {
 
   .btn-copied {
     background-color: var(--cui-secondary-bg-dark)!important;
+    color: var(--cui-light)!important;
   }
 </style>
