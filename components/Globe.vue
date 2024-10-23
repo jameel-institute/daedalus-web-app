@@ -92,7 +92,7 @@ const selectableCountriesSeriesSettings: am5map.IMapPolygonSeriesSettings = {
   include: appStore.globeParameter?.options?.map(option => option.id),
   layer: maxZindex - 4,
 };
-const tentativelySelectedCountrySeriesSettings: am5map.IMapPolygonSeriesSettings = {
+const highlightedCountrySeriesSettings: am5map.IMapPolygonSeriesSettings = {
   layer: maxZindex - 3,
 };
 const disputedAreaSeriesSettings: am5map.IMapPolygonSeriesSettings = {
@@ -116,18 +116,18 @@ const rotatedToCountry = ref("");
 const prevBackgroundPolygon = ref<am5map.MapPolygon | undefined>(undefined);
 const prevSelectablePolygon = ref<am5map.MapPolygon | undefined>(undefined);
 
-const tentativelySelectedCountrySeries = computed(() => {
-  if (!appStore.globe.tentativelySelectedCountry) {
+const highlightedCountrySeries = computed(() => {
+  if (!appStore.globe.highlightedCountry) {
     return null;
   };
   // If the corresponding feature of the countrySeries has the state 'hover', then start from the midPoint color
   // before any colour animation up to imperialSeaGlass.
   // Otherwise, start from blue.
-  const tentativeSelectionIsHovered = selectableCountriesSeries.getDataItemById(appStore.globe.tentativelySelectedCountry)?.get("mapPolygon").isHover();
+  const tentativeSelectionIsHovered = selectableCountriesSeries.getDataItemById(appStore.globe.highlightedCountry)?.get("mapPolygon").isHover();
   const startingColor = tentativeSelectionIsHovered ? hoverLandColour : defaultLandColour;
   return am5map.MapPolygonSeries.new(root, {
-    ...tentativelySelectedCountrySeriesSettings,
-    geoJSON: WHONationalBorders.features.find(f => f.id === appStore.globe.tentativelySelectedCountry),
+    ...highlightedCountrySeriesSettings,
+    geoJSON: WHONationalBorders.features.find(f => f.id === appStore.globe.highlightedCountry),
     reverseGeodata: false,
     fill: startingColor,
   });
@@ -275,15 +275,15 @@ const setUpSelectableCountriesSeries = () => {
       animateSeriesColour(selectableCountriesSeries, defaultLandColour);
     }
     if (target?.dataItem?.get("id")) {
-      appStore.globe.tentativelySelectedCountry = target.dataItem.get("id") as string;
+      appStore.globe.highlightedCountry = target.dataItem.get("id") as string;
     }
   });
   selectableCountriesSeries.mapPolygons.template.states.create("hover", { fill: hoverLandColour });
   selectableCountriesSeries.events.on("datavalidated", async () => {
-    if (appStore.selectedCountry && !appStore.globe.tentativelySelectedCountry) {
-      appStore.globe.tentativelySelectedCountry = appStore.selectedCountry;
-      await rotateToCountry(appStore.selectedCountry);
-      zoomToCountry(appStore.selectedCountry);
+    if (appStore.scenarioCountry && !appStore.globe.highlightedCountry) {
+      appStore.globe.highlightedCountry = appStore.scenarioCountry;
+      await rotateToCountry(appStore.scenarioCountry);
+      zoomToCountry(appStore.scenarioCountry);
     }
   });
 };
@@ -348,26 +348,26 @@ const resetGlobeZoomAndAnimation = () => {
 
 // When a country is tentatively selected in the form, re-colour the country area and rotate the globe to it.
 const focusTentativelySelectedCountry = async () => {
-  if (appStore.globe.tentativelySelectedCountry && tentativelySelectedCountrySeries.value) {
+  if (appStore.globe.highlightedCountry && highlightedCountrySeries.value) {
     pauseAnimations();
-    chart.series.push(tentativelySelectedCountrySeries.value);
+    chart.series.push(highlightedCountrySeries.value);
 
-    disputedAreas(appStore.globe.tentativelySelectedCountry!).forEach((disputedArea) => {
+    disputedAreas(appStore.globe.highlightedCountry!).forEach((disputedArea) => {
       disputedLands[disputedArea].displayed = true;
       animateSeriesColour(disputedLands[disputedArea].mapSeries!, hoverLandColour);
     });
-    animateSeriesColour(tentativelySelectedCountrySeries.value, activeCountryColor);
+    animateSeriesColour(highlightedCountrySeries.value, activeCountryColor);
 
     if (route.path === "/scenarios/new") {
-      await rotateToCountry(appStore.globe.tentativelySelectedCountry);
+      await rotateToCountry(appStore.globe.highlightedCountry);
     }
   }
 };
 
-watch(() => tentativelySelectedCountrySeries.value, async (newSeries, oldSeries) => {
+watch(() => highlightedCountrySeries.value, async (newSeries, oldSeries) => {
   if (chart) {
     prevSelectablePolygon.value?.set("active", false);
-    if (!appStore.globe.tentativelySelectedCountry) {
+    if (!appStore.globe.highlightedCountry) {
       resetGlobeZoomAndAnimation();
     }
     if (oldSeries) {
@@ -385,12 +385,12 @@ watch(() => tentativelySelectedCountrySeries.value, async (newSeries, oldSeries)
 
 // When a country selection is actually submitted in a form (or a user navigates to
 // a results page for a different country), then go to that country, rotating if necessary.
-watch(() => appStore.selectedCountry, async () => {
-  if (appStore.selectedCountry && chart) {
-    const centroid = countryCentroid(appStore.selectedCountry);
+watch(() => appStore.scenarioCountry, async () => {
+  if (appStore.scenarioCountry && chart) {
+    const centroid = countryCentroid(appStore.scenarioCountry);
     if (centroid) {
-      await rotateToCountry(appStore.selectedCountry);
-      zoomToCountry(appStore.selectedCountry);
+      await rotateToCountry(appStore.scenarioCountry);
+      zoomToCountry(appStore.scenarioCountry);
     }
   }
 });

@@ -316,7 +316,7 @@ const handleChange = (param: Parameter) => {
   });
 
   if (param.parameterType === TypeOfParameter.GlobeSelect) {
-    appStore.globe.tentativelySelectedCountry = formData.value![param.id];
+    appStore.globe.highlightedCountry = formData.value![param.id];
   };
 };
 
@@ -326,8 +326,8 @@ const submitForm = async () => {
     return;
   }
 
-  if (!appStore.globe.tentativelySelectedCountry && appStore.globeParameter?.id && formData.value) {
-    appStore.globe.tentativelySelectedCountry = formData.value[appStore.globeParameter.id];
+  if (!appStore.globe.highlightedCountry && appStore.globeParameter?.id && formData.value) {
+    appStore.globe.highlightedCountry = formData.value[appStore.globeParameter.id];
   }
 
   appStore.downloadError = undefined;
@@ -350,7 +350,7 @@ const submitForm = async () => {
   };
 };
 
-watch(() => appStore.globe.tentativelySelectedCountry, (newValue, oldValue) => {
+watch(() => appStore.globe.highlightedCountry, (newValue, oldValue) => {
   if (!formData.value || formSubmitting.value || !newValue || newValue === oldValue || !appStore.globeParameter?.id
     || formData.value[appStore.globeParameter.id] === newValue) {
     return;

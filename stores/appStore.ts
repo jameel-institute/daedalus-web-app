@@ -28,7 +28,7 @@ export const useAppStore = defineStore("app", {
   state: (): AppState => ({
     globe: {
       interactive: false,
-      tentativelySelectedCountry: null,
+      highlightedCountry: null,
     },
     largeScreen: true,
     versions: undefined,
@@ -51,7 +51,7 @@ export const useAppStore = defineStore("app", {
       }
       return undefined;
     },
-    selectedCountry(state): string | undefined {
+    scenarioCountry(state): string | undefined {
       if (this.globeParameter?.id && state.currentScenario.parameters) {
         return state.currentScenario.parameters[this.globeParameter.id!];
       } else {

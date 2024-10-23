@@ -20,7 +20,7 @@ export interface Scenario {
 export interface AppState {
   globe: {
     interactive: boolean
-    tentativelySelectedCountry: string | null
+    highlightedCountry: string | null
   }
   largeScreen: boolean
   versions: VersionData | undefined
