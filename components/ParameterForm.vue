@@ -326,6 +326,9 @@ const submitForm = async () => {
     return;
   }
 
+  // If the user has not changed the highlighted country since loading the app, then it will still be null,
+  // since we don't want to highlight any particular country until the user chooses one. So now we need
+  // to set it to the value being submitted in the form. This triggers the Globe component to focus the country.
   if (!appStore.globe.highlightedCountry && appStore.globeParameter?.id && formData.value) {
     appStore.globe.highlightedCountry = formData.value[appStore.globeParameter.id];
   }
@@ -350,14 +353,14 @@ const submitForm = async () => {
   };
 };
 
+// Handle the selection of a country using the globe component: update the form country value.
 watch(() => appStore.globe.highlightedCountry, (newValue, oldValue) => {
-  if (!formData.value || formSubmitting.value || !newValue || newValue === oldValue || !appStore.globeParameter?.id
-    || formData.value[appStore.globeParameter.id] === newValue) {
-    return;
+  if (formData.value && !formSubmitting.value && newValue && newValue !== oldValue && appStore.globeParameter?.id
+    && formData.value[appStore.globeParameter.id] !== newValue) {
+    formData.value[appStore.globeParameter.id] = newValue;
+    pulse(appStore.globeParameter.id);
+    handleChange(appStore.globeParameter);
   }
-  formData.value[appStore.globeParameter.id] = newValue;
-  pulse(appStore.globeParameter.id);
-  handleChange(appStore.globeParameter);
 });
 
 onMounted(() => {
