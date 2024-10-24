@@ -40,11 +40,13 @@ vi.mock("highcharts", async (importOriginal) => {
 });
 
 describe("costs card", () => {
-  it("should render the costs pie chart container, costs table and the total cost", async () => {
+  it("should render the costs pie chart container, the total cost, costs table and total cost in terms of % of GDP", async () => {
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
 
     const container = component.find(`#costsPieContainer`);
     expect(container.classes()).not.toContain("hide-tooltips");
+
+    expect(component.find(`#gdpContainer`).text()).toContain("44.9%");
 
     const totalCostPara = component.find(`p#totalCostPara`);
 
