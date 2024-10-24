@@ -223,7 +223,7 @@ const populateCostsDataIntoPie = () => {
     costsData.push({
       id: cost.id,
       parent: appStore.totalCost!.id,
-      name: `${appStore.getCostLabel(cost.id)}${cost.id === "life_years" ? "*" : ""}`,
+      name: appStore.getCostLabel(cost.id),
       value: cost.value,
     });
   });
