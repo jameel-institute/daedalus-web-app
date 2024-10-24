@@ -4,7 +4,6 @@ import { CButtonGroup, CTooltip } from "@coreui/vue";
 import { mockNuxtImport, mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
 import { flushPromises } from "@vue/test-utils";
 import { FetchError } from "ofetch";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import VueSelect from "vue3-select-component";
 import ParameterHeader from "~/components/ParameterHeader.vue";
 
@@ -345,7 +344,7 @@ describe("parameter form", () => {
     expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(true);
   });
 
-  it("form data reverts to previous id update includes falsy values", async () => {
+  it("form data reverts to previous values if update includes falsy values", async () => {
     // Do a valid update from default
     const component = await mountSuspended(ParameterForm, {
       props: { inModal: false },
