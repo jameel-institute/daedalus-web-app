@@ -9,7 +9,7 @@ import { mountSuspended } from "@nuxt/test-utils/runtime";
 import * as Highcharts from "highcharts";
 import TimeSeries from "~/components/TimeSeries.client.vue";
 
-const timeSeries = mockedMetadata.results.time_series[1]; // hospitalized
+const timeSeriesId = mockedMetadata.results.time_series[1].id; // hospitalized
 const stubs = {
   CIcon: true,
 };
@@ -29,7 +29,7 @@ const plugins = [
   }),
 ];
 const props = {
-  seriesId: timeSeries.id,
+  seriesId: timeSeriesId,
   hideTooltips: false,
   groupIndex: 1,
   seriesIndex: 0,
