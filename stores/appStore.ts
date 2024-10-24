@@ -135,7 +135,7 @@ export const useAppStore = defineStore("app", {
         } finally {
           this.downloading = false;
         }
-      })();
+      }, 200)(); // include small delay to avoid tooltip flicker on immediate button disable
     },
     getCostLabel(costId: string): string {
       const name = this.metadata?.results.costs.find(
