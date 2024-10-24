@@ -33,14 +33,19 @@ test("can see code snippet and copy to clipboard", async ({ page, browserName, b
   // expect can copy
   if (browserSupportsClipboardPermissions(browserName)) {
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    console.warn(`Browser ${browserName} DOES support clipboard permissions`);
   } else {
-    console.warn("Browser does not support clipboard permissions");
+    console.warn(`Browser ${browserName} does not support clipboard permissions`);
   }
-  const copyBtn = page.getByText("Copy");
-  await copyBtn.click();
-  const handle = await page.evaluateHandle(() => navigator.clipboard.readText());
-  const clipboardContent = await handle.jsonValue();
-  expect(clipboardContent).toBe(expectedCodeSnippet);
+
+  // Firefox doesn't support setting clipboard perms, but unlike webkit doesn't seem to require them!
+  if (browserSupportsClipboardPermissions(browserName) || browserName === "firefox") {
+    const copyBtn = page.getByText("Copy");
+    await copyBtn.click();
+    const handle = await page.evaluateHandle(() => navigator.clipboard.readText());
+    const clipboardContent = await handle.jsonValue();
+    expect(clipboardContent).toBe(expectedCodeSnippet);
+  }
 
   // expect can close dialog
   await page.click(".btn-close");
