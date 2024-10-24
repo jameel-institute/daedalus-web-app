@@ -10,6 +10,8 @@ const expectedCodeSnippet = `model_result <- daedalus::daedalus(
 )`;
 
 const browserSupportsClipboardPermissions = (browserName: string) => {
+  // Not all browsers support setting clipboard permissions unfortunately, so we need to
+  // skip the copy test for those
   return [
     "chromium",
     "Microsoft Edge",
@@ -30,10 +32,8 @@ test("can see code snippet and copy to clipboard", async ({ page, browserName, b
   await expect(await page.getByText("DAEDALUS code snippet")).toBeVisible();
   await expect(await page.locator("pre")).toHaveText(expectedCodeSnippet);
 
-  // expect can copy
   if (browserSupportsClipboardPermissions(browserName)) {
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
-    console.warn(`Browser ${browserName} DOES support clipboard permissions`);
   } else {
     console.warn(`Browser ${browserName} does not support clipboard permissions`);
   }
