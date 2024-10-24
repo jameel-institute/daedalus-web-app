@@ -9,7 +9,13 @@ const expectedCodeSnippet = `model_result <- daedalus::daedalus(
   vaccine_investment = "none"
 )`;
 
-test("can see code snippet and copy to clipboard", async ({ page, baseURL, context }) => {
+const browserSupportsClipboardPermissions = (browserName: string) => {
+  // eslint-disable-next-line no-console
+  console.log(`BROWSER: ${browserName}`);
+};
+
+test("can see code snippet and copy to clipboard", async ({ page, browserName, baseURL, context }) => {
+  browserSupportsClipboardPermissions(browserName);
   await waitForNewScenarioPage(page, baseURL);
   // Run scenario with default parameters
   await page.click('button:has-text("Run")');
