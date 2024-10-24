@@ -37,23 +37,8 @@ import throttle from "lodash.throttle";
 const appStore = useAppStore();
 
 const charts = ref<Record<string, Highcharts.Chart>>({});
-const openedAccordions = ref<string[]>([]);
 const hideTooltips = ref(false);
-const accordionBodyYPadding = 8;
-const minAccordionHeight = 145;
-const maxAccordionHeight = 400;
-const minTotalAccordionHeight = 500;
-const minChartHeightPx = minAccordionHeight - (2 * accordionBodyYPadding);
-const maxTotalAccordionHeight = computed(() => {
-  if (appStore.timeSeriesGroups) { // Allow at least minAccordionHeight for each accordion
-    return Math.max(minTotalAccordionHeight, (Object.keys(appStore.timeSeriesGroups!).length * minAccordionHeight));
-  } else {
-    return minTotalAccordionHeight;
-  }
-});
-// Share available height equally between open accordions. Avoid division by zero.
-const accordionHeight = computed(() => openedAccordions.value.length ? (maxTotalAccordionHeight.value / openedAccordions.value.length) : 1);
-const chartHeightPx = computed(() => Math.min(accordionHeight.value, maxAccordionHeight) - (2 * accordionBodyYPadding));
+const { openedAccordions, chartHeightPx, minChartHeightPx } = useTimeSeriesAccordionHeights();
 
 const chartCreated = (seriesId: string, chart: Highcharts.Chart) => {
   charts.value = {

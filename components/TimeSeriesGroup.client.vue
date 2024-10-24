@@ -9,11 +9,11 @@
       <div v-if="props.open" class="switch-container position-absolute">
         <CFormSwitch
           :id="`${props.seriesGroup.id}DailySwitch`"
-          v-model="daily"
+          v-model="isDaily"
           label="New per day"
         />
       </div>
-      <CAccordionHeader class="border-top" @click="handleAccordionToggle">
+      <CAccordionHeader class="border-top" @click="$emit('toggleOpen')">
         <span aria-describedby="labelDescriptor">{{ activeSeriesMetadata?.label }}</span>
         <span id="labelDescriptor" class="visually-hidden">{{ activeSeriesMetadata?.description }}</span>
         <CTooltip
@@ -39,14 +39,14 @@
           :series-index="seriesIndex"
           :group-index="props.groupIndex"
           :y-units="yUnits"
-          :chart-height="chartHeight"
+          :chart-height="open ? chartHeightPx : minChartHeightPx"
           @mousemove="onMove(seriesId)"
           @touchmove="onMove(seriesId)"
           @touchstart="onMove(seriesId)"
-          @mouseleave="handleMouseLeave"
-          @mouseover="handleMouseOver"
-          @chart-created="chartCreated"
-          @chart-destroyed="chartDestroyed"
+          @mouseleave="$emit('hideAllTooltips')"
+          @mouseover="$emit('showAllTooltips')"
+          @chart-created="(seriesId, chart) => $emit('chartCreated', seriesId, chart)"
+          @chart-destroyed="(seriesId) => $emit('chartDestroyed', seriesId)"
         />
       </CAccordionBody>
     </CAccordionItem>
@@ -66,14 +66,14 @@ const props = defineProps<{
   minChartHeightPx: number
 }>();
 
-const emit = defineEmits([
-  "hideAllTooltips",
-  "showAllTooltips",
-  "syncTooltipsAndCrosshairs",
-  "toggleOpen",
-  "chartCreated",
-  "chartDestroyed",
-]);
+const emit = defineEmits<{
+  hideAllTooltips: []
+  showAllTooltips: []
+  syncTooltipsAndCrosshairs: [seriesId: string]
+  toggleOpen: []
+  chartCreated: [seriesId: string, chart: Highcharts.Chart]
+  chartDestroyed: [seriesId: string]
+}>();
 
 const appStore = useAppStore();
 
@@ -84,24 +84,16 @@ const accordionStyle = {
 
 // Since we are using a switch we assume there are only two roles.
 const timeSeriesGroupRoles = Object.keys(props.seriesGroup.time_series).slice(0, 2); // ["total", "daily"]
-const daily = ref(false);
-const activeTimeSeriesRole = computed(() => timeSeriesGroupRoles[Number(daily.value)]); // "total"
-const activeTimeSeriesId = computed(() => props.seriesGroup.time_series[activeTimeSeriesRole.value]); // "hospitalised"
-const activeSeriesMetadata = computed((): DisplayInfo | undefined => {
-  return appStore.metadata?.results?.time_series.find(({ id }) => {
-    return id === activeTimeSeriesId.value;
-  });
+const isDaily = ref(false);
+const activeTimeSeriesId = computed(() => {
+  const activeTimeSeriesRole = timeSeriesGroupRoles[Number(isDaily.value)]; // total or daily
+  return props.seriesGroup.time_series[activeTimeSeriesRole];
 });
-
-// Resize the chart when the accordion is opened or closed.
-const chartHeight = computed(() => props.open ? props.chartHeightPx : props.minChartHeightPx);
-
-const chartCreated = (seriesId: string, chart: Highcharts.Chart) => {
-  emit("chartCreated", seriesId, chart);
-};
-const chartDestroyed = (seriesId: string) => {
-  emit("chartDestroyed", seriesId);
-};
+const activeSeriesMetadata = computed((): DisplayInfo | undefined =>
+  appStore.metadata?.results?.time_series.find(({ id }) =>
+    id === activeTimeSeriesId.value,
+  ),
+);
 
 const yUnits = computed(() => { // TODO: Make this depend on a 'units' property in metadata. https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-117/
   switch (props.seriesGroup.id) {
@@ -116,20 +108,8 @@ const yUnits = computed(() => { // TODO: Make this depend on a 'units' property 
   }
 });
 
-const handleAccordionToggle = () => {
-  emit("toggleOpen");
-};
-
 const onMove = (seriesId: string) => {
   emit("syncTooltipsAndCrosshairs", seriesId);
-};
-
-const handleMouseLeave = () => {
-  emit("hideAllTooltips");
-};
-
-const handleMouseOver = () => {
-  emit("showAllTooltips");
 };
 </script>
 

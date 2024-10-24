@@ -10,17 +10,16 @@ import { type LegendItem, LegendShape, plotBandsColor, plotLinesColor } from "./
 
 const appStore = useAppStore();
 
-const capacityLabel = computed(() => {
-  return appStore.metadata?.results.capacities[0].label; // At first, we expect there to be only one capacity, 'Hospital capacity'
-});
-
 const items = computed((): LegendItem[] => {
-  const plotBandsItem = { color: plotBandsColor, label: "Pandemic response", shape: LegendShape.Rectangle };
-  const plotLinesItem = { color: plotLinesColor, label: capacityLabel.value || "Hospital capacity", shape: LegendShape.Line };
+  const plotLineItems = appStore.metadata?.results.capacities.map((capacity) => {
+    return { color: plotLinesColor, label: capacity.label, shape: LegendShape.Line };
+  }) ?? [];
+
   if (appStore.currentScenario.parameters?.response === "none") {
-    return [plotLinesItem]; // No interventions will be displayed on the time series
-  } else {
-    return [plotBandsItem, plotLinesItem];
+    return plotLineItems;
   }
+
+  const plotBandsItem = { color: plotBandsColor, label: "Pandemic response", shape: LegendShape.Rectangle };
+  return [plotBandsItem, ...plotLineItems];
 });
 </script>

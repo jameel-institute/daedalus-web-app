@@ -2,7 +2,7 @@
   <div
     :id="chartContainerId"
     ref="chartContainer"
-    :class="`chart-container time-series ${props.hideTooltips ? hideTooltipsClassName : ''}`"
+    :class="`chart-container time-series ${props.hideTooltips ? 'hide-tooltips' : ''}`"
     :style="{ zIndex, height: 'fit-content' }"
   />
 </template>
@@ -28,10 +28,10 @@ const props = defineProps<{
   seriesRole: string
 }>();
 
-const emit = defineEmits([
-  "chartCreated",
-  "chartDestroyed",
-]);
+const emit = defineEmits<{
+  chartCreated: [seriesId: string, chart: Highcharts.Chart]
+  chartDestroyed: [seriesId: string]
+}>();
 
 accessibilityInitialize(Highcharts);
 exportingInitialize(Highcharts);
@@ -39,8 +39,6 @@ exportDataInitialize(Highcharts);
 offlineExportingInitialize(Highcharts);
 
 const appStore = useAppStore();
-
-const hideTooltipsClassName = "hide-tooltips";
 
 // Get a unique index for this series, across all groups and series
 const uniqueSeriesIndex = props.groupIndex * 2 + props.seriesIndex;
@@ -69,13 +67,9 @@ const usePlotLines = props.seriesId === "hospitalised"; // https://mrc-ide.myjet
 // The y-axis automatically rescales to the data (ignoring the plotLines). We want the plotLines
 // to remain visible, so we limit the y-axis' ability to rescale, by defining a minimum range. This way the
 // plotLines remain visible even when the maximum data value is less than the maximum plotline value.
-const minRange = computed(() => {
-  if (usePlotLines) {
-    return appStore.capacitiesData?.reduce((acc, { value }) => Math.max(acc, value), 0);
-  } else {
-    return undefined;
-  }
-});
+const minRange = computed(() => usePlotLines
+  ? appStore.capacitiesData?.reduce((acc, { value }) => Math.max(acc, value), 0)
+  : undefined);
 
 const capacitiesPlotLines = computed(() => {
   const lines = new Array<Highcharts.AxisPlotLinesOptions>();
@@ -232,7 +226,6 @@ watch(() => chartContainer.value, () => {
 
 onUnmounted(() => {
   emit("chartDestroyed", props.seriesId);
-
   // Destroy this chart, since every time we navigate away and back to this page, another set
   // of charts is created, burdening the browser if they aren't disposed of.
   chart.destroy();
