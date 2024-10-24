@@ -7,6 +7,7 @@
             id="btn-code-snippet"
             color="light"
             :aria-describedby="togglerId"
+            aria-label="Generate code snippet"
             class="btn-scenario-header"
             v-on="on"
             @click="() => { modalVisible = true; }"
