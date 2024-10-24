@@ -1,4 +1,6 @@
+import type { Page } from "@playwright/test";
 import { expect, test } from "@playwright/test";
+import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
 
@@ -20,15 +22,20 @@ test.beforeAll(async () => {
 // screenshots are not constantly changing, and are not so brittle.
 const useVisualScreenshotTesting = false;
 
+const expectSelectParameterToHaveValueLabel = async (page: Page, parameterLabel: string, expectedValueLabel: string) => {
+  await expect(page.getByRole("combobox", { name: parameterLabel }).locator(".single-value"))
+    .toHaveText(expectedValueLabel);
+};
+
 test("Can request a scenario analysis run", async ({ page, baseURL, headless }) => {
   await waitForNewScenarioPage(page, baseURL);
 
-  await page.selectOption(`select[aria-label="${parameterLabels.pathogen}"]`, { label: "SARS 2004" });
-  await page.selectOption(`select[aria-label="${parameterLabels.response}"]`, { label: "Elimination" });
+  await selectParameterOption(page, "pathogen", "SARS 2004");
+  await selectParameterOption(page, "response", "Elimination");
 
   const initialCountryValue = await page.inputValue(`input[aria-label="${parameterLabels.hospital_capacity}"][type="number"]`);
   await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue(initialCountryValue);
-  await page.selectOption(`select[aria-label="${parameterLabels.country}"]`, { label: "United States" });
+  await selectParameterOption(page, "country", "United States");
   await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).not.toHaveValue(initialCountryValue);
 
   await page.click(`div[aria-label="${parameterLabels.vaccine}"] label[for="medium"]`);
@@ -107,14 +114,15 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   // The following line has been known to fail locally on webkit, but pass on CI.
   await expect(page.getByRole("heading", { name: "Edit parameters" })).toBeVisible();
 
-  await expect(page.getByLabel(parameterLabels.country)).toHaveValue("USA");
-  await expect(page.getByLabel(parameterLabels.pathogen)).toHaveValue("sars_cov_1");
-  await expect(page.getByLabel(parameterLabels.response)).toHaveValue("elimination");
+  await expectSelectParameterToHaveValueLabel(page, parameterLabels.country, "United States");
+  await expectSelectParameterToHaveValueLabel(page, parameterLabels.pathogen, "SARS 2004");
+  await expectSelectParameterToHaveValueLabel(page, parameterLabels.response, "Elimination");
+
   await expect(page.getByLabel("Medium")).toBeChecked();
   await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue("305000");
   await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue("305000");
 
-  await page.selectOption(`select[aria-label="${parameterLabels.country}"]`, { label: "Philippines" });
+  await selectParameterOption(page, "country", "Philippines");
   await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
   await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
 
@@ -136,9 +144,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   // Test that the second analysis results page has the correct parameters within the parameters form modal.
   await page.getByRole("button", { name: "Parameters" }).first().click();
   await expect(page.getByRole("heading", { name: "Edit parameters" })).toBeVisible();
-  await expect(page.getByLabel(parameterLabels.country)).toHaveValue("PHL");
-  await expect(page.getByLabel(parameterLabels.pathogen)).toHaveValue("sars_cov_1");
-  await expect(page.getByLabel(parameterLabels.response)).toHaveValue("elimination");
+  await expectSelectParameterToHaveValueLabel(page, parameterLabels.country, "Philippines");
+  await expectSelectParameterToHaveValueLabel(page, parameterLabels.pathogen, "SARS 2004");
+  await expectSelectParameterToHaveValueLabel(page, parameterLabels.response, "Elimination");
   await expect(page.getByLabel("Medium")).toBeChecked();
   await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
   await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
