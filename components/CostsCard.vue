@@ -10,8 +10,8 @@
       </div>
     </div>
     <div id="costsCardBody" class="card-body">
-      <h3 id="totalHeading" class="mt-0 mb-0 fs-6">
-        TOTAL
+      <h3 id="totalHeading" class="mt-0 mb-1 ms-2 fs-6">
+        Total
       </h3>
       <div
         id="totalsContainer"
@@ -19,14 +19,14 @@
       >
         <div id="gdpContainer" class="d-flex gap-1">
           <p id="gdpTotalCostPercent" class="mt-0 mb-0">
-            X.Y
+            {{ gdpTotalCostPercent }}
           </p>
           <div id="gdpTotalCostPercentSymbolContainer">
             <p id="gdpTotalCostPercentageSymbol" class="mb-0">
-              %
+              <span>%</span>
             </p>
             <p id="gdpTotalCostPercentReferent" class="mt-0 mb-0">
-              of GDP
+              <span>of 2018 GDP</span>
             </p>
           </div>
         </div>
@@ -73,6 +73,9 @@ import { CIcon } from "@coreui/icons-vue";
 
 const appStore = useAppStore();
 const hideTooltips = ref(false);
+
+// Display the 'headline' total cost in terms of a percentage of annual national GDP
+const gdpTotalCostPercent = computed(() => ((appStore.totalCost!.value / appStore.currentScenario!.result!.data!.gdp) * 100).toFixed(1));
 
 const totalCostAbbr = computed(() => {
   if (appStore.totalCost) {
@@ -125,6 +128,9 @@ const onMouseLeavePie = () => {
     height: fit-content;
     letter-spacing: 0.08rem;
     font-weight: normal;
+    text-transform: uppercase;
+    text-decoration: underline dotted gray from-font;
+    text-underline-offset: 0.1em;
   }
 
   #gdpContainer,
