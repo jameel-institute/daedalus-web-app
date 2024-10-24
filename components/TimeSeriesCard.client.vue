@@ -20,7 +20,7 @@
         :chart-height-px="chartHeightPx"
         :min-chart-height-px="minChartHeightPx"
         @hide-all-tooltips="hideAllTooltips"
-        @show-all-tooltips="showAllTooltips"
+        @show-all-tooltips="hideTooltips = false"
         @chart-created="chartCreated"
         @chart-destroyed="chartDestroyed"
         @sync-tooltips-and-crosshairs="syncTooltipsAndCrosshairs"
@@ -76,10 +76,6 @@ const syncTooltipsAndCrosshairs = throttle((seriesId) => {
 
 const initializeAccordions = () => {
   openedAccordions.value = appStore.timeSeriesGroups?.map(({ id }) => id) || [];
-};
-
-const showAllTooltips = () => {
-  hideTooltips.value = false;
 };
 
 const hideAllTooltips = () => {
