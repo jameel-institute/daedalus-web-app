@@ -55,9 +55,9 @@ describe("time series", () => {
   it("when an accordion's open state is toggled, it should switch state without affecting other accordions' states", async () => {
     const component = await mountSuspended(TimeSeriesCard, { global: { stubs, plugins } });
 
-    const timeSeriesComponents = component.findAllComponents({ name: "TimeSeries.client" });
-    expect(timeSeriesComponents.length).toBe(8);
-    timeSeriesComponents.forEach((timeSeriesComponent) => {
+    const timeSeriesGroups = component.findAllComponents({ name: "TimeSeriesGroup.client" });
+    expect(timeSeriesGroups.length).toBe(4);
+    timeSeriesGroups.forEach((timeSeriesComponent) => {
       expect(timeSeriesComponent.props().open).toBe(true);
     });
 
@@ -66,13 +66,13 @@ describe("time series", () => {
     await component.vm.$nextTick();
 
     // Check the open prop of the first TimeSeries component
-    expect(timeSeriesComponents[0].props().open).toBe(false);
-    expect(timeSeriesComponents[1].props().open).toBe(true);
-    expect(timeSeriesComponents[2].props().open).toBe(true);
+    expect(timeSeriesGroups[0].props().open).toBe(false);
+    expect(timeSeriesGroups[1].props().open).toBe(true);
+    expect(timeSeriesGroups[2].props().open).toBe(true);
 
     await firstAccordionHeader.trigger("click");
     await component.vm.$nextTick();
-    timeSeriesComponents.forEach((timeSeriesComponent) => {
+    timeSeriesGroups.forEach((timeSeriesComponent) => {
       expect(timeSeriesComponent.props().open).toBe(true);
     });
   });
