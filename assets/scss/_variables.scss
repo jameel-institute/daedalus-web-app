@@ -52,3 +52,10 @@ $breadcrumb-divider: '>';
 $accordion-button-padding-y: 0.5rem;
 $tooltip-margin: 0.5rem;
 $tooltip-max-width: calc($narrowest-supported-screen-width - (2 * var(--cui-tooltip-padding-x)) - (2 * $tooltip-margin));
+
+// Table variables 
+$table-bg: transparent;
+
+// fonts 
+$font-size-base:              1rem; // Assumes the browser default, typically `16px`
+$font-size-sm:                $font-size-base * .875;

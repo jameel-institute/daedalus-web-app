@@ -1,11 +1,9 @@
 import type { ScenarioResultData } from "@/types/apiResponseTypes";
-import type { VueWrapper } from "@vue/test-utils";
 import CostsCard from "@/components/CostsCard.vue";
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
-import { mockResultResponseData } from "@/tests/unit/mocks/mockResponseData";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
-import { mockResizeObserver } from "jsdom-testing-mocks";
+import { mockResultResponseData } from "../mocks/mockResponseData";
 
 const stubs = {
   CIcon: true,
@@ -26,7 +24,6 @@ const plugins = [mockPinia(
   },
 )];
 
-const mockSetSize = vi.fn();
 vi.mock("highcharts", async (importOriginal) => {
   const actual = await importOriginal();
 
@@ -34,7 +31,7 @@ vi.mock("highcharts", async (importOriginal) => {
     getOptions: actual.getOptions,
     chart: () => ({
       destroy: vi.fn(),
-      setSize: mockSetSize,
+      setSize: vi.fn(),
       series: [{ setData: vi.fn() }],
     }),
     _modules: actual._modules,
@@ -42,31 +39,27 @@ vi.mock("highcharts", async (importOriginal) => {
   };
 });
 
-const resizeObserver = mockResizeObserver();
-
-const setupResizeObserverMock = async (component: VueWrapper) => {
-  const totalsContainerEl = component.find(`#totalsContainer`).element as HTMLElement;
-  resizeObserver.mockElementSize(totalsContainerEl, { contentBoxSize: { inlineSize: 500 } });
-  resizeObserver.resize(totalsContainerEl);
-  await waitFor(() => {
-    expect(component.find(`#costsChartContainer`)).not.toBeNull();
-  });
-};
-
 describe("costs card", () => {
-  it("should render the costs pie chart container and the total cost", async () => {
+  it("should render the costs pie chart container, the total cost, costs table, vsl and total cost in terms of % of GDP", async () => {
+    const averageVsl = formatCurrency(mockResultResponseData.average_vsl);
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
-    await setupResizeObserverMock(component);
+
     const container = component.find(`#costsPieContainer`);
     expect(container.classes()).not.toContain("hide-tooltips");
 
+    expect(component.find(`#gdpContainer`).text()).toContain("44.9%");
+
     const totalCostPara = component.find(`p#totalCostPara`);
-    expect(totalCostPara.text()).toBe("1.1T");
+
+    const costsTable = component.find('[data-testid="costsTable"]');
+    expect(costsTable).toBeTruthy();
+
+    expect(component.text()).toContain(averageVsl);
+    expect(totalCostPara.text()).toBe("8.9T");
   });
 
   it("should show the tooltips when the mouse is over the cost pie container, and not otherwise", async () => {
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
-    await setupResizeObserverMock(component);
 
     const costsPieComponent = component.findComponent({ name: "CostsPie.client" });
     expect(costsPieComponent.props().hideTooltips).toBe(false);
@@ -83,30 +76,5 @@ describe("costs card", () => {
 
     await container.trigger("mouseover");
     expect(costsPieComponent.props().hideTooltips).toBe(false);
-  });
-
-  it("should render the costs pie chart container with the correct style and size, and resize it when elements are resized", async () => {
-    const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
-    await setupResizeObserverMock(component);
-
-    const costsContainer = component.find(`#costsPieContainer`);
-    const costsPie = component.findComponent({ name: "CostsPie.client" });
-
-    await waitFor(() => {
-      // 300px is 60% of 500px
-      expect(costsContainer.attributes("style")).toContain("height: 300px; width: 300px;");
-      expect(costsPie.props().pieSize).toBe(300);
-    });
-
-    const totalsContainerEl = component.find(`#totalsContainer`).element as HTMLElement;
-
-    resizeObserver.mockElementSize(totalsContainerEl, { contentBoxSize: { inlineSize: 1000 } });
-    resizeObserver.resize(totalsContainerEl);
-
-    await waitFor(() => {
-      // 600px is 60% of 1000px
-      expect(costsContainer.attributes("style")).toContain("height: 600px; width: 600px;");
-      expect(costsPie.props().pieSize).toBe(600);
-    });
   });
 });

@@ -10,20 +10,23 @@
       </div>
     </div>
     <div id="costsCardBody" class="card-body">
-      <h3 id="totalHeading" class="mt-0 mb-0 fs-6">
-        TOTAL
+      <h3 id="totalHeading" class="mt-0 mb-1 ms-2 fs-6">
+        Total
       </h3>
-      <div id="totalsContainer" ref="totalsContainer" class="d-flex flex-wrap gap-3 row-gap-0">
+      <div
+        id="totalsContainer"
+        class="d-flex flex-wrap gap-3 row-gap-0"
+      >
         <div id="gdpContainer" class="d-flex gap-1">
           <p id="gdpTotalCostPercent" class="mt-0 mb-0">
-            X.Y
+            {{ gdpTotalCostPercent }}
           </p>
           <div id="gdpTotalCostPercentSymbolContainer">
             <p id="gdpTotalCostPercentageSymbol" class="mb-0">
-              %
+              <span>%</span>
             </p>
             <p id="gdpTotalCostPercentReferent" class="mt-0 mb-0">
-              of GDP
+              <span>of 2018 GDP</span>
             </p>
           </div>
         </div>
@@ -46,14 +49,20 @@
           </p>
         </div>
       </div>
-      <CostsPie
-        id="costsPieContainer"
-        :hide-tooltips="hideTooltips"
-        :pie-size="pieSize"
-        :style="pieStyle"
-        @mouseleave="onMouseLeavePie"
-        @mouseover="() => { hideTooltips = false }"
-      />
+      <div class="pie-table-container">
+        <div class="flex-grow-1">
+          <CostsTable data-testid="costs-table" />
+        </div>
+        <CostsPie
+          id="costsPieContainer"
+          :hide-tooltips="hideTooltips"
+          @mouseleave="onMouseLeavePie"
+          @mouseover="hideTooltips = false"
+        />
+      </div>
+      <p class="fw-lighter vsl-display">
+        * Value of statistical life: ${{ formatCurrency(appStore.currentScenario.result.data!.average_vsl) }} Int'l$
+      </p>
     </div>
   </div>
 </template>
@@ -63,9 +72,10 @@ import { abbreviateMillionsDollars } from "@/utils/money";
 import { CIcon } from "@coreui/icons-vue";
 
 const appStore = useAppStore();
+const hideTooltips = ref(false);
 
-const totalsContainer = ref(null);
-const totalsContainerWidth = ref(0);
+// Display the 'headline' total cost in terms of a percentage of annual national GDP
+const gdpTotalCostPercent = computed(() => ((appStore.totalCost!.value / appStore.currentScenario!.result!.data!.gdp) * 100).toFixed(1));
 
 const totalCostAbbr = computed(() => {
   if (appStore.totalCost) {
@@ -75,38 +85,11 @@ const totalCostAbbr = computed(() => {
   }
 });
 
-// Highcharts does not automatically remove tooltips when the mouse leaves the chart area.
-const hideTooltips = ref(false);
 const onMouseLeavePie = () => {
   setTimeout(() => {
     hideTooltips.value = true;
-  }, 500);
+  }, 300);
 };
-
-// Fit the pie into the available width
-const pieSize = computed(() => {
-  return totalsContainerWidth.value * 0.6;
-});
-
-const pieStyle = computed(() => {
-  return {
-    marginLeft: "auto",
-    height: `${pieSize.value}px`,
-    width: `${pieSize.value}px`, // Since we are dealing with circles, the container's width and height are the same
-  };
-});
-
-// Once the card body is rendered, add observers to the sizes of the it and the containers within it.
-watch(() => totalsContainer.value, () => {
-  if (totalsContainer.value) {
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        totalsContainerWidth.value = entry.contentRect.width;
-      }
-    });
-    observer.observe(totalsContainer.value);
-  }
-});
 </script>
 
 <style lang="scss" scoped>
@@ -115,6 +98,26 @@ watch(() => totalsContainer.value, () => {
 // When adjusting or testing layout, use the widest possible values for the costs: 555.5% of GDP and 555.5 M USD.
 .costs-card {
   color: var(--cui-dark-text-emphasis);
+
+  .vsl-display {
+    font-size: $font-size-sm;
+  }
+  .card-body {
+    display: flex;
+    flex-direction: column;
+  }
+  .pie-table-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .pie-table-container > :nth-child(2) {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+  }
 
   .card-header {
     height: 66.375px; // Hard-coded to match the height of the time series card header
@@ -125,9 +128,13 @@ watch(() => totalsContainer.value, () => {
     height: fit-content;
     letter-spacing: 0.08rem;
     font-weight: normal;
+    text-transform: uppercase;
+    text-decoration: underline dotted gray from-font;
+    text-underline-offset: 0.1em;
   }
 
-  #gdpContainer, #usdContainer {
+  #gdpContainer,
+  #usdContainer {
     width: fit-content;
   }
 

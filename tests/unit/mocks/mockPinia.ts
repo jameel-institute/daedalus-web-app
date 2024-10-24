@@ -86,7 +86,7 @@ Object.freeze(mockedMetadata);
 export const mockResultData = {
   runId: "successfulResponseRunId",
   parameters: {
-    country: "United Kingdom",
+    country: "GBR",
     pathogen: "sars_cov_1",
     response: "none",
     vaccine: "none",
@@ -130,11 +130,11 @@ export const mockResultData = {
           value: 1029583.2309,
           children: [
             {
-              id: "life_years_infants",
+              id: "life_years_pre_school",
               value: 882.054,
             },
             {
-              id: "life_years_adolescents",
+              id: "life_years_school_age",
               value: 33273.6856,
             },
             {
@@ -194,6 +194,7 @@ export const mockResultData = {
       0.1825,
     ],
   },
+  gdp: 19863038.6,
 };
 Object.freeze(mockResultData);
 
