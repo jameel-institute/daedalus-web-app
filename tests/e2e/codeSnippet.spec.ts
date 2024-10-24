@@ -10,12 +10,10 @@ const expectedCodeSnippet = `model_result <- daedalus::daedalus(
 )`;
 
 const browserSupportsClipboardPermissions = (browserName: string) => {
-  // eslint-disable-next-line no-console
-  console.log(`BROWSER: ${browserName}`);
+  return browserName === "chromium";
 };
 
 test("can see code snippet and copy to clipboard", async ({ page, browserName, baseURL, context }) => {
-  browserSupportsClipboardPermissions(browserName);
   await waitForNewScenarioPage(page, baseURL);
   // Run scenario with default parameters
   await page.click('button:has-text("Run")');
@@ -28,7 +26,11 @@ test("can see code snippet and copy to clipboard", async ({ page, browserName, b
   await expect(await page.locator("pre")).toHaveText(expectedCodeSnippet);
 
   // expect can copy
-  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  if (browserSupportsClipboardPermissions(browserName)) {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  } else {
+    console.warn("Browser does not support clipboard permissions");
+  }
   const copyBtn = page.getByText("Copy");
   await copyBtn.click();
   const handle = await page.evaluateHandle(() => navigator.clipboard.readText());
