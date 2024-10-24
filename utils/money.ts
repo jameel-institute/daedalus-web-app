@@ -30,8 +30,8 @@ export const abbreviateMillionsDollars = (
  * Formats a number as a currency string.
  *
  * @param value - The numeric value to format.
- * @param locales - A string with a BCP 47 language tag, or an array of such strings. Defaults to "en-US".
  * @param currency - A string with the currency code (ISO 4217 format). Defaults to "USD".
+ * @param locales - A string with a BCP 47 language tag, or an array of such strings. Defaults to "en-US".
  * @param maximumFractionDigits - The maximum number of fraction digits to display. Defaults to 0.
  * @returns A string representing the formatted currency.
  *

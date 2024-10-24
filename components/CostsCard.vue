@@ -15,7 +15,6 @@
       </h3>
       <div
         id="totalsContainer"
-        ref="totalsContainer"
         class="d-flex flex-wrap gap-3 row-gap-0"
       >
         <div id="gdpContainer" class="d-flex gap-1">
@@ -61,6 +60,9 @@
           @mouseover="hideTooltips = false"
         />
       </div>
+      <p class="fw-lighter vsl-display">
+        * Value of statistical life: ${{ formatCurrency(appStore.currentScenario.result.data!.average_vsl) }} Int'l$
+      </p>
     </div>
   </div>
 </template>
@@ -70,7 +72,6 @@ import { abbreviateMillionsDollars } from "@/utils/money";
 import { CIcon } from "@coreui/icons-vue";
 
 const appStore = useAppStore();
-const totalsContainer = ref(null);
 const hideTooltips = ref(false);
 
 // Display the 'headline' total cost in terms of a percentage of annual national GDP
@@ -98,6 +99,9 @@ const onMouseLeavePie = () => {
 .costs-card {
   color: var(--cui-dark-text-emphasis);
 
+  .vsl-display {
+    font-size: $font-size-sm;
+  }
   .card-body {
     display: flex;
     flex-direction: column;

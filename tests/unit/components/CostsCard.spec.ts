@@ -40,7 +40,8 @@ vi.mock("highcharts", async (importOriginal) => {
 });
 
 describe("costs card", () => {
-  it("should render the costs pie chart container, the total cost, costs table and total cost in terms of % of GDP", async () => {
+  it("should render the costs pie chart container, the total cost, costs table, vsl and total cost in terms of % of GDP", async () => {
+    const averageVsl = formatCurrency(mockResultResponseData.average_vsl);
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
 
     const container = component.find(`#costsPieContainer`);
@@ -52,6 +53,8 @@ describe("costs card", () => {
 
     const costsTable = component.find('[data-testid="costsTable"]');
     expect(costsTable).toBeTruthy();
+
+    expect(component.text()).toContain(averageVsl);
     expect(totalCostPara.text()).toBe("8.9T");
   });
 

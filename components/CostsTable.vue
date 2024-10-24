@@ -14,8 +14,8 @@
         :key="childCost.id"
       >
         <tr>
-          <td>
-            {{ appStore.getCostLabel(childCost.id) }}
+          <td class="ps-2">
+            {{ appStore.getCostLabel(childCost.id) }}<span v-if="childCost.id === 'life_years'">*</span>
           </td>
           <td>{{ formatCurrency(childCost.value) }}</td>
         </tr>
