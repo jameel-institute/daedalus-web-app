@@ -10,7 +10,12 @@ const expectedCodeSnippet = `model_result <- daedalus::daedalus(
 )`;
 
 const browserSupportsClipboardPermissions = (browserName: string) => {
-  return browserName === "chromium";
+  return [
+    "chromium",
+    "Microsoft Edge",
+    "Mobile Chrome",
+    "Google Chrome",
+  ].includes(browserName);
 };
 
 test("can see code snippet and copy to clipboard", async ({ page, browserName, baseURL, context }) => {
