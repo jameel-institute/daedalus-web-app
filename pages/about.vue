@@ -11,7 +11,7 @@
     </p>
     <p>The dashboard provides estimates of:</p>
     <ul>
-      <li v-for="estimate in appStore.metadata?.results.time_series" :key="estimate.id">
+      <li v-for="estimate in appStore.metadata?.results.time_series_groups" :key="estimate.id">
         {{ estimate.label }}
       </li>
       <li>Economic losses</li>
@@ -121,7 +121,7 @@
 
     <p>
       <strong>pictogrammersMaterialBacteria.svg</strong><br>
-      Icons by
+      Icon by
       <a href="https://github.com/carbon-design-system/carbon?ref=svgrepo.com" target="_blank">Carbon Design</a>
       in Apache License via
       <a href="https://www.svgrepo.com/" target="_blank">SVG Repo</a>
