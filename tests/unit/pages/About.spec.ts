@@ -1,13 +1,15 @@
 import About from "@/pages/about.vue";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { describe, expect, it } from "vitest";
-import { mockedMetadata, mockPinia } from "../mocks/mockPinia";
+import { countryAndPathogenParams, mockedMetadata, mockPinia } from "../mocks/mockPinia";
 
 describe("about page", () => {
   it("should render about with correct metadata info", async () => {
-    const numberOfPandemics = mockedMetadata?.parameters.find(p => p.id === "pathogen")!.options!.length;
-    const numberOfCountries = mockedMetadata?.parameters.find(p => p.id === "country")!.options!.length;
-    const component = await mountSuspended(About, { global: { plugins: [mockPinia()] } });
+    const numberOfPandemics = countryAndPathogenParams.find(p => p.id === "pathogen")!.options!.length;
+    const numberOfCountries = countryAndPathogenParams.find(p => p.id === "country")!.options!.length;
+    const component = await mountSuspended(About, { global: { plugins: [mockPinia({
+      metadata: { ...mockedMetadata, parameters: countryAndPathogenParams as any },
+    })] } });
 
     const text = component.text();
 

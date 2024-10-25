@@ -74,7 +74,7 @@ export const updatableNumericParameter = {
     },
   },
 };
-const extraParameters = [
+export const countryAndPathogenParams = [
   {
     id: "country",
     label: "Country",
@@ -112,7 +112,7 @@ const extraParameters = [
 const resultsMetadata = sampleMetadataResponse.data.results as ResultsMetadata;
 export const mockedMetadata = {
   modelVersion: "0.0.0",
-  parameters: [...selectParameters, globeParameter, updatableNumericParameter, ...extraParameters],
+  parameters: [...selectParameters, globeParameter, updatableNumericParameter],
   results: resultsMetadata,
 } as unknown as Metadata;
 Object.freeze(mockedMetadata);
