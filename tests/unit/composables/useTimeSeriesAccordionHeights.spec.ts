@@ -12,7 +12,7 @@ describe("useTimeSeriesAccordionHeights composable", () => {
     [3, ["1", "2", "3"], 150],
     [4, ["1", "2", "3", "4"], 109],
   ])(
-    "should caclulate correct chartHeightPx when openedAccordions is %d",
+    "should calculate correct chartHeightPx when num openedAccordions is %d",
     (
       _numOpenAccordians: number,
       openAccordionList: any[],
