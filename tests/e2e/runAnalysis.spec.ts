@@ -54,6 +54,11 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
 
   await expect(page.locator("#prevalence-container")).toBeVisible();
   await page.locator("#prevalence-container").scrollIntoViewIfNeeded();
+  await expect(page.getByText("New per day").first()).toBeVisible();
+  await page.locator("#infectionsDailySwitch").check();
+  await expect(page.getByRole("button", { name: "New infections Number of new" })).toBeVisible();
+  await page.locator("#infectionsDailySwitch").setChecked(false);
+  await expect(page.getByRole("button", { name: "Prevalence Number of" })).toBeVisible();
   await expect(page.locator("#prevalence-container .highcharts-xaxis-labels")).toBeVisible();
   await expect(page.locator("#prevalence-container .highcharts-yaxis-labels")).toBeVisible();
   await expect(page.locator("#prevalence-container .highcharts-plot-band")).toBeVisible();
