@@ -193,6 +193,7 @@ export const mockResultData = {
       0.1825,
     ],
   },
+  gdp: 19863038.6,
 };
 Object.freeze(mockResultData);
 
