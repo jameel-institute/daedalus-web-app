@@ -61,7 +61,8 @@
     </p>
     <h2>Contact us:</h2>
     <p>
-      If you have any queries regarding DAEDALUS Explore, please contact us
+      If you have any queries regarding DAEDALUS Explore, please contact:
+      <a href="mailto:daedalus.explore@imperial.ac.uk" class="email">daedalus.explore@imperial.ac.uk</a>
     </p>
 
     <h2>Acknowledgements</h2>
