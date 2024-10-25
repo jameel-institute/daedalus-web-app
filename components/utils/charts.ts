@@ -2,14 +2,23 @@ import { abbreviateMillionsDollars } from "#imports";
 import hexRgb from "hex-rgb";
 import * as Highcharts from "highcharts";
 
-const originalHighchartsColors = Highcharts.getOptions().colors;
+const originalHighchartsColors = Highcharts.getOptions().colors!;
 const colorRgba = hexRgb(originalHighchartsColors[0] as string);
 colorRgba.alpha = 0.3;
 export const plotBandsColor = `rgba(${Object.values(colorRgba).join(",")})`;
 export const plotLinesColor = "#FF0000"; // red;
 export const timeSeriesColors = originalHighchartsColors!.slice(1);
-const costsPieColorsBase = originalHighchartsColors!.slice(2) as ArrayLike<string>; // Skip first two colors as being too vibrant
-export const costsPieColors = ["rgba(1,1,1,0)"].concat(Array.from<string>(costsPieColorsBase)); // Make the center circle translucent
+
+// IBM color blind safe palette
+const colorBlindSafeColors = [
+  { name: "Ultramarine 40", hex: "#648fff" },
+  { name: "Indigo 50", hex: "#785ef0" },
+  { name: "Magenta 50", hex: "#dc267f" },
+  { name: "Orange 40", hex: "#fe6100" },
+  { name: "Gold 20", hex: "#ffb000" },
+];
+
+export const costsPieColors = ["rgba(1,1,1,0)"].concat(Array.from<string>(colorBlindSafeColors.map(color => color.hex))); // Make the center circle translucent
 
 export interface LegendItem {
   color: string
