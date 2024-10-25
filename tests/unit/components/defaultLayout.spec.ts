@@ -30,14 +30,18 @@ describe("default layout", () => {
     removeEventListenerSpy.mockRestore();
   });
 
-  it("includes information about the version numbers", async () => {
+  it("should render JI logo on sidebar and header", async () => {
     const component = await mountSuspended(DefaultLayout, { global: { stubs } });
 
+    const headerLogo = component.find(`[data-testid="ji-logo-header"]`);
+    const sidebarLogo = component.find(`[data-testid="ji-logo-sidebar"]`);
+
+    expect(headerLogo.isVisible()).toBe(true);
+    expect(sidebarLogo.isVisible()).toBe(true);
     await waitFor(() => {
-      const logoTitleAttribute = component.find(`[data-testid="logo"]`).attributes().title;
-      expect(logoTitleAttribute).toContain("Model version: 1.2.3");
-      expect(logoTitleAttribute).toContain("R API version: 4.5.6");
-      expect(logoTitleAttribute).toContain("Web app version: 7.8.9");
+      expect(headerLogo.attributes().title).toContain("Model version: 1.2.3");
+      expect(headerLogo.attributes().title).toContain("R API version: 4.5.6");
+      expect(headerLogo.attributes().title).toContain("Web app version: 7.8.9");
     });
   });
 
