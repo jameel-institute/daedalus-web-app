@@ -48,7 +48,7 @@ describe("parameter form", () => {
       expect(header.props("parameter")).toStrictEqual(mockedMetadata.parameters[index]);
     });
 
-    const vueSelects = component.findAllComponents(VueSelect).slice(0, 2);
+    const vueSelects = component.findAllComponents(VueSelect);
     expect(vueSelects.length).toBe(2);
 
     vueSelects.forEach((vueSelect, index) => {
@@ -121,7 +121,7 @@ describe("parameter form", () => {
       global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithParameters })] },
     });
 
-    const vueSelects = component.findAllComponents(VueSelect).slice(0, 2);
+    const vueSelects = component.findAllComponents(VueSelect);
 
     expect(vueSelects[0].props("options")).toEqual([
       { value: "1", label: "Option 1", description: "Option 1 description" },

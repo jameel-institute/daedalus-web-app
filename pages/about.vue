@@ -27,7 +27,7 @@
     </p>
     <p>
       The losses associated with pandemics can be influenced by investments into
-      global vaccine R&D, manufacturing and hospital capacity. Users can
+      global vaccine R&D & manufacturing and hospital capacity. Users can
       explore the impact of such investments on health, education and economic
       pandemic impacts by comparing the outcomes of scenarios with different
       investments. The impacts of all pandemic scenarios for the countries are
