@@ -8,8 +8,17 @@
   >
     <CSidebarNav role="navigation">
       <CNavItem>
-        <NuxtLink prefetch-on="interaction" to="/scenarios/new" class="nav-link">
+        <NuxtLink
+          prefetch-on="interaction"
+          to="/scenarios/new"
+          class="nav-link"
+        >
           <CIcon icon="cilPlus" size="lg" class="nav-icon" /> New scenario
+        </NuxtLink>
+      </CNavItem>
+      <CNavItem>
+        <NuxtLink prefetch-on="interaction" to="/about" class="nav-link">
+          <CIcon icon="cilInfo" size="lg" class="nav-icon" /> About
         </NuxtLink>
       </CNavItem>
     </CSidebarNav>
@@ -67,5 +76,4 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

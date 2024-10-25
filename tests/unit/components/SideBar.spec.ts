@@ -81,9 +81,12 @@ describe("sidebar", () => {
         const coreuiSidebar = component.findComponent({ name: "CSidebar" });
         await mockCSidebarPageloadBehavior(coreuiSidebar);
 
-        expect(component.text()).toContain("New scenario");
-        const navLink = component.findComponent({ name: "NuxtLink" });
-        expect(navLink.props("to")).toBe("/scenarios/new");
+        const text = component.text();
+        expect(text).toContain("New scenario");
+        expect(text).toContain("About");
+        const navLinks = component.findAllComponents({ name: "NuxtLink" });
+        expect(navLinks[0].props("to")).toBe("/scenarios/new");
+        expect(navLinks[1].props("to")).toBe("/about");
       });
     });
   });
