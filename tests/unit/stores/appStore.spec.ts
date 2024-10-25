@@ -1,6 +1,10 @@
 import * as ExcelDownload from "@/download/excelScenarioDownload";
 import { useAppStore } from "@/stores/appStore";
-import { emptyScenario, mockResultData } from "@/tests/unit/mocks/mockPinia";
+import {
+  emptyScenario,
+  mockedMetadata,
+  mockResultData,
+} from "@/tests/unit/mocks/mockPinia";
 import { registerEndpoint } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 import { createPinia, setActivePinia } from "pinia";
@@ -28,9 +32,7 @@ const metadata = {
     { id: "settings", parameterType: "select" },
   ],
   results: {
-    costs: [
-      { id: "total", label: "Total" },
-    ],
+    costs: [{ id: "total", label: "Total" }],
     time_series_groups: [
       {
         id: "infections",
@@ -123,10 +125,14 @@ describe("app store", () => {
       await store.loadScenarioResult();
 
       await waitFor(() => {
-        expect(store.currentScenario.result.data).toEqual(mockResultDataWithoutRunId);
+        expect(store.currentScenario.result.data).toEqual(
+          mockResultDataWithoutRunId,
+        );
         expect(store.currentScenario.result.fetchError).toEqual(undefined);
         expect(store.currentScenario.result.fetchStatus).toEqual("success");
-        expect(store.currentScenario.parameters).toEqual(mockResultData.parameters);
+        expect(store.currentScenario.parameters).toEqual(
+          mockResultData.parameters,
+        );
       });
     });
 
@@ -141,7 +147,13 @@ describe("app store", () => {
           fetchStatus: "success",
         },
         status: {
-          data: { done: true, runId: undefined, runStatus: runStatus.Complete, runErrors: null, runSuccess: true },
+          data: {
+            done: true,
+            runId: undefined,
+            runStatus: runStatus.Complete,
+            runErrors: null,
+            runSuccess: true,
+          },
           fetchError: undefined,
           fetchStatus: "success",
         },
@@ -164,14 +176,19 @@ describe("app store", () => {
       });
     });
 
-    const mockExcelScenarioDownload = (mockDownload = () => { }) => {
+    const mockExcelScenarioDownload = (mockDownload = () => {}) => {
       // Mock ExelScenarioDownload constructor and return mock
       // instance with given download mock implementation
       const mockExcelScenarioDownloadObj = {
         download: vi.fn().mockImplementation(mockDownload),
       } as any;
-      const downloadConstructorSpy = vi.spyOn(ExcelDownload, "ExcelScenarioDownload");
-      downloadConstructorSpy.mockImplementation(() => mockExcelScenarioDownloadObj);
+      const downloadConstructorSpy = vi.spyOn(
+        ExcelDownload,
+        "ExcelScenarioDownload",
+      );
+      downloadConstructorSpy.mockImplementation(
+        () => mockExcelScenarioDownloadObj,
+      );
       return mockExcelScenarioDownloadObj;
     };
 
@@ -218,7 +235,10 @@ describe("app store", () => {
         await store.loadMetadata();
 
         await waitFor(() => {
-          expect(store.globeParameter).toEqual({ id: "country", parameterType: "globeSelect" });
+          expect(store.globeParameter).toEqual({
+            id: "country",
+            parameterType: "globeSelect",
+          });
         });
       });
 
@@ -293,6 +313,22 @@ describe("app store", () => {
             },
           ]);
         });
+      });
+      it("getCostLabel returns the label for cost id", async () => {
+        const store = useAppStore();
+        store.metadata = mockedMetadata;
+
+        const costLabel = store.getCostLabel("gdp_closures");
+
+        expect(costLabel).toEqual("Closures");
+      });
+      it("getCostLabel returns cost id if not found in metadata", async () => {
+        const store = useAppStore();
+        store.metadata = mockedMetadata;
+
+        const costLabel = store.getCostLabel("not_found");
+
+        expect(costLabel).toEqual("not_found");
       });
     });
   });

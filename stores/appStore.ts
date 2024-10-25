@@ -138,5 +138,11 @@ export const useAppStore = defineStore("app", {
         }
       })();
     },
+    getCostLabel(costId: string): string {
+      const name = this.metadata?.results.costs.find(
+        cost => cost.id === costId,
+      )?.label;
+      return name || costId;
+    },
   },
 });
