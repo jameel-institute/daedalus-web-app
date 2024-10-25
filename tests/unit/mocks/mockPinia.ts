@@ -213,6 +213,13 @@ export const emptyScenario = {
 };
 Object.freeze(emptyScenario);
 
+export const mockVersions = {
+  daedalusModel: "1.2.3",
+  daedalusApi: "4.5.6",
+  daedalusWebApp: "7.8.9",
+};
+Object.freeze(mockVersions);
+
 export const mockPinia = (
   appState: Partial<AppState> = {},
   includeMetadata: boolean = true,
@@ -221,7 +228,7 @@ export const mockPinia = (
   const initialState = {
     app: {
       largeScreen: true,
-      versions: undefined,
+      versions: mockVersions,
       metadata: includeMetadata ? { ...mockedMetadata } : undefined,
       metadataFetchError: undefined,
       metadataFetchStatus: includeMetadata ? "success" : undefined,

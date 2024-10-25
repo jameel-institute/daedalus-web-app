@@ -3,8 +3,10 @@
     <!-- <WebsocketConnection /> -->
     <SideBar
       v-model:visible="sidebarVisible"
+      :version-tooltip-content="versionTooltipContent"
     />
     <AppHeader
+      :version-tooltip-content="versionTooltipContent"
       @toggle-sidebar-visibility="handleToggleSidebarVisibility"
     />
     <div class="wrapper d-flex flex-column">
@@ -26,6 +28,15 @@ function handleToggleSidebarVisibility() {
 }
 
 const appStore = useAppStore();
+
+const versionTooltipContent = computed(() => {
+  const vers = appStore.versions;
+  if (vers) {
+    return `Model version: ${vers.daedalusModel} \nR API version: ${vers.daedalusApi} \nWeb app version: ${vers.daedalusWebApp}`;
+  } else {
+    return undefined;
+  }
+});
 
 const setScreenSize = () => {
   const breakpoint = 992; // CoreUI's "lg" breakpoint
