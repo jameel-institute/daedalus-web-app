@@ -16,17 +16,7 @@
       <CAccordionHeader class="border-top" @click="$emit('toggleOpen')">
         <span aria-describedby="labelDescriptor">{{ activeSeriesMetadata?.label }}</span>
         <span id="labelDescriptor" class="visually-hidden">{{ activeSeriesMetadata?.description }}</span>
-        <CTooltip
-          v-if="activeSeriesMetadata?.description"
-          :content="activeSeriesMetadata.description"
-          placement="top"
-        >
-          <template #toggler="{ togglerId, on }">
-            <CIconSvg class="icon smaller-icon opacity-50 ms-2">
-              <img src="~/assets/icons/circleQuestion.svg" :aria-describedby="togglerId" v-on="on">
-            </CIconSvg>
-          </template>
-        </CTooltip>
+        <TooltipHelp :help-text="activeSeriesMetadata?.description" :classes="['ms-2', 'mb-1', 'smaller-icon']" />
       </CAccordionHeader>
       <CAccordionBody>
         <TimeSeries
@@ -54,7 +44,6 @@
 </template>
 
 <script lang="ts" setup>
-import { CIconSvg } from "@coreui/icons-vue";
 import type { DisplayInfo, TimeSeriesGroup } from "~/types/apiResponseTypes";
 
 const props = defineProps<{
