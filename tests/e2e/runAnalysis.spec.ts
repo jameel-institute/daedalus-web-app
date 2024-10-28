@@ -66,6 +66,13 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   await expect(page.locator("#prevalence-container .highcharts-plot-band")).toBeVisible();
   await expect(page.locator("#prevalence-container").getByLabel("View chart menu, Chart")).toBeVisible();
 
+  // Check can toggle time series to "New per day" and back
+  await expect(page.getByText("New per day").first()).toBeVisible();
+  await page.locator("#infectionsDailySwitch").check();
+  await expect(page.getByRole("button", { name: "New infections Number of new" })).toBeVisible();
+  await page.locator("#infectionsDailySwitch").setChecked(false);
+  await expect(page.getByRole("button", { name: "Prevalence Number of" })).toBeVisible();
+
   await expect(page.locator("#hospitalised-container")).toBeVisible();
   await page.locator("#hospitalised-container").scrollIntoViewIfNeeded();
   await expect(page.locator("#hospitalised-container .highcharts-xaxis-labels")).toBeVisible();

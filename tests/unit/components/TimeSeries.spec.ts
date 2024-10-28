@@ -1,16 +1,20 @@
 import type { ScenarioResultData } from "@/types/apiResponseTypes";
-import TimeSeries from "@/components/TimeSeries.client.vue";
-import { emptyScenario, mockedMetadata, mockPinia } from "@/tests/unit/mocks/mockPinia";
+import {
+  emptyScenario,
+  mockedMetadata,
+  mockPinia,
+} from "@/tests/unit/mocks/mockPinia";
 import { mockResultResponseData } from "@/tests/unit/mocks/mockResponseData";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import * as Highcharts from "highcharts";
+import TimeSeries from "~/components/TimeSeries.client.vue";
 
-const seriesId = mockedMetadata.results.time_series[0].id;
+const timeSeriesId = mockedMetadata.results.time_series[1].id; // hospitalized
 const stubs = {
   CIcon: true,
 };
-const plugins = [mockPinia(
-  {
+const plugins = [
+  mockPinia({
     currentScenario: {
       ...emptyScenario,
       parameters: {
@@ -22,15 +26,16 @@ const plugins = [mockPinia(
         fetchStatus: "success",
       },
     },
-  },
-)];
+  }),
+];
 const props = {
-  seriesId,
-  index: 0,
-  open: true,
-  chartHeightPx: 100,
-  minChartHeightPx: 200,
+  seriesId: timeSeriesId,
   hideTooltips: false,
+  groupIndex: 1,
+  seriesIndex: 0,
+  yUnits: "in need of hospitalisation",
+  chartHeight: 100,
+  seriesRole: "total",
 };
 
 const mockSetSize = vi.fn();
@@ -53,14 +58,25 @@ vi.mock("highcharts", async (importOriginal) => {
 });
 
 describe("time series", () => {
+  afterAll(() => {
+    vi.clearAllMocks();
+  });
+
   it("should initialise the chart with the correct options", async () => {
     const chartSpy = vi.spyOn(Highcharts, "chart");
 
-    await mountSuspended(TimeSeries, { props: { ...props, seriesId: mockedMetadata.results.time_series[1].id }, global: { stubs, plugins } });
+    await mountSuspended(TimeSeries, {
+      props,
+      global: { stubs, plugins },
+    });
 
     expect(chartSpy).toHaveBeenCalledWith(
       "hospitalised-container",
       expect.objectContaining({
+        chart: expect.objectContaining({
+          height: props.chartHeight,
+          backgroundColor: "transparent",
+        }),
         exporting: expect.objectContaining({
           filename: "Hospital demand in USA",
           chartOptions: expect.objectContaining({
@@ -94,72 +110,46 @@ describe("time series", () => {
         }),
         series: expect.arrayContaining([
           expect.objectContaining({
-            data: expect.arrayContaining([[1, 0], [2, 4.2465]]),
+            data: expect.arrayContaining([
+              [1, 0],
+              [2, 4.2465],
+            ]),
           }),
         ]),
       }),
     );
   });
 
-  it("should render the correct label and description for the time series, and render the chart container", async () => {
-    const component = await mountSuspended(TimeSeries, { props, global: { stubs, plugins } });
+  it("should emit chart created event when the chart is initialised", async () => {
+    const component = await mountSuspended(TimeSeries, {
+      props,
+      global: { stubs, plugins },
+    });
 
-    expect(component.text()).toContain("Prevalence");
-    expect(component.text()).toContain("Number of infectious individuals");
-
-    const chartContainer = component.find(`#${seriesId}-container`);
-    expect(chartContainer.exists()).toBe(true);
-    expect(chartContainer.classes()).not.toContain("hide-tooltips");
-
-    expect(chartContainer.classes()).not.toContain("hide-tooltips");
-    await component.setProps({ hideTooltips: true });
-    expect(chartContainer.classes()).toContain("hide-tooltips");
+    expect(component.emitted("chartCreated")).toBeTruthy();
+    expect(component.emitted("chartCreated")![0][0]).toBe("hospitalised");
   });
 
-  it("should emit toggleOpen when the accordion header is clicked", async () => {
-    const component = await mountSuspended(TimeSeries, { props, global: { stubs, plugins } });
+  it("should resize the chart when height changes", async () => {
+    const component = await mountSuspended(TimeSeries, {
+      props,
+      global: { stubs, plugins },
+    });
 
-    const accordionHeader = component.findComponent({ name: "CAccordionHeader" });
-    await accordionHeader.trigger("click");
-
-    await component.vm.$nextTick();
-    expect(component.emitted("toggleOpen")).toBeTruthy();
-  });
-
-  it("should resize the chart when accordions are opened or closed", async () => {
-    const component = await mountSuspended(TimeSeries, { props, global: { stubs, plugins } });
-
-    await component.setProps({ open: false });
+    await component.setProps({ chartHeight: 200 });
     // Allow enough time for debounce to finish
     await new Promise(resolve => setTimeout(resolve, 100));
-    expect(mockSetSize).toHaveBeenCalled();
-    const newHeight = mockSetSize.mock.calls[0][1]; // The second argument to setSize is the new height
-    expect(newHeight).toBe(props.minChartHeightPx); // Since props.chartHeightPx is less than props.minChartHeightPx
 
-    await component.setProps({ open: true });
-    await component.vm.$nextTick();
-    expect(mockSetSize).toHaveBeenCalled();
+    expect(mockSetSize).toHaveBeenCalledWith(undefined, 200, { duration: 250 });
   });
 
   it("should destroy the chart when the component is unmounted", async () => {
-    const component = await mountSuspended(TimeSeries, { props, global: { stubs, plugins } });
+    const component = await mountSuspended(TimeSeries, {
+      props,
+      global: { stubs, plugins },
+    });
 
     component.unmount();
     expect(mockDestroy).toHaveBeenCalled();
-  });
-
-  it("should determine its collapsed state using the 'open' prop", async () => {
-    const component = await mountSuspended(TimeSeries, { props: { ...props, open: false }, global: { stubs, plugins } });
-
-    const accordionButton = component.find(".accordion-button");
-    expect(accordionButton.classes()).toContain("collapsed");
-
-    await component.setProps({ open: true });
-    await component.vm.$nextTick();
-    expect(accordionButton.classes()).not.toContain("collapsed");
-  });
-
-  afterAll(() => {
-    vi.clearAllMocks();
   });
 });
