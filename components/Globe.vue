@@ -260,7 +260,7 @@ const initializeSeries = (settings: am5map.IMapPolygonSeriesSettings) => {
   return series;
 };
 
-// When a polygon is activated, make sure the previously activated polygon is deactivated.
+// When a polygon is activated (clicked), make sure the previously activated polygon is deactivated.
 const handlePolygonActive = (target: am5map.MapPolygon, prevPolygonRef: Ref<am5map.MapPolygon | undefined>) => {
   if (prevPolygonRef.value && prevPolygonRef.value !== target) {
     prevPolygonRef.value.set("active", false);
