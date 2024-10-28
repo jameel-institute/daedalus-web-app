@@ -36,6 +36,8 @@ WHONationalBorders.features = WHONationalBorders.features.map((feature) => {
 
 const activeCountryColor = am5.color("#379f9f"); // Imperial sea-glass
 const defaultLandColour = am5.color("#002e4e"); // A default land colour: dark blue
+const unselectableLandColor = am5.color("#19425e"); // Color for land with missing data
+const unselectableLandBoundaryColor = am5.color("#002e4e"); // Color for stroke of the missing data
 const hoverLandColour = am5.color("#1c6777"); // The midpoint between defaultLandColour and activeCountryColor
 const lightGreyBackground = am5.color(rgba2hex("rgb(243, 244, 247)"));
 const maxZindex = 29; // 30 is reserved by amCharts
@@ -83,17 +85,19 @@ const chartDefaultSettings: am5map.IMapChartSettings = {
 // Shared settings for countries.
 const countrySeriesSettings: am5map.IMapPolygonSeriesSettings = {
   geoJSON: WHONationalBorders,
-  fill: defaultLandColour,
 };
 // Settings for the 'background' world map, a map that includes all countries regardless
 // of whether they are supported in the model. These are the majority of the world's countries
 // and are not able to be selected.
 const backgroundSeriesSettings: am5map.IMapPolygonSeriesSettings = {
   ...countrySeriesSettings,
+  fill: unselectableLandColor,
+  stroke: unselectableLandBoundaryColor,
   layer: maxZindex - 5,
 };
 const selectableCountriesSeriesSettings: am5map.IMapPolygonSeriesSettings = {
   ...countrySeriesSettings,
+  fill: defaultLandColour,
   include: appStore.globeParameter?.options?.map(option => option.id),
   layer: maxZindex - 4,
 };
@@ -193,12 +197,31 @@ const pauseAnimations = () => {
 };
 
 const rotateChart = (direction: "x" | "y", to: number) => {
-  chart.animate({
-    key: (direction === "x" ? "rotationX" : "rotationY"),
-    to,
-    duration: rotateDuration,
-    easing,
-  });
+  if (direction === "x") {
+    const currentXRotation = chart.get("rotationX")!;
+    // calculates the smallest rotation between 0 amd 360 to get to the country
+    let diffRotation = (to - currentXRotation) % 360;
+    // translates rotation to between -180 and 180 because rotating 270 east
+    // is the same as 90 west
+    if (diffRotation > 180) {
+      diffRotation = diffRotation - 360;
+    }
+    // gets actual rotation destination by adding the difference
+    const toShortest = currentXRotation + diffRotation;
+    chart.animate({
+      key: "rotationX",
+      to: toShortest,
+      duration: rotateDuration,
+      easing,
+    });
+  } else {
+    chart.animate({
+      key: "rotationY",
+      to,
+      duration: rotateDuration,
+      easing,
+    });
+  }
 };
 
 const rotateToCentroid = (centroid: am5.IGeoPoint, countryIso: string) => {
@@ -250,7 +273,7 @@ const createRotateAnimation = () => {
   return chart.animate({
     key: "rotationX",
     from: currentRotationX,
-    to: 360 - currentRotationX,
+    to: 360 + currentRotationX,
     duration: 180000,
     loops: Infinity,
   });
