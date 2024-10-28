@@ -1,6 +1,6 @@
 import type { VueWrapper } from "@vue/test-utils";
 import SideBar from "@/components/SideBar.vue";
-import { mockPinia, mockVersions } from "@/tests/unit/mocks/mockPinia";
+import { mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 
@@ -13,7 +13,6 @@ const mockCSidebarPageloadBehavior = async (coreuiSidebar: VueWrapper) => {
   coreuiSidebar.vm.$emit("hide");
 };
 
-const versionTooltipContent = `Model version: ${mockVersions.daedalusModel} \nR API version: ${mockVersions.daedalusApi} \nWeb app version: ${mockVersions.daedalusWebApp}`;
 describe("sidebar", () => {
   describe('when the "visible" prop is initialized as false', () => {
     describe("on smaller devices", () => {
@@ -23,7 +22,7 @@ describe("sidebar", () => {
 
       it('starts as hidden, and can be opened by setting "visible" prop', async () => {
         const component = await mountSuspended(SideBar, {
-          props: { visible: false, versionTooltipContent },
+          props: { visible: false },
           global: { stubs, plugins },
         });
         const coreuiSidebar = component.findComponent({ name: "CSidebar" });
@@ -38,20 +37,18 @@ describe("sidebar", () => {
         expect(coreuiSidebar.props("unfoldable")).toBe(false);
       });
 
-      it("should render logo and include information about the version numbers", async () => {
+      it("should render logo", async () => {
         const component = await mountSuspended(SideBar, {
-          props: { visible: false, versionTooltipContent },
+          props: { visible: false },
           global: { stubs, plugins },
         });
 
         await waitFor(() => {
-          const logoTitleAttribute = component
+          const logoSrcAttribute = component
             .find(`[data-testid="ji-logo-sidebar"]`)
             .attributes()
-            .title;
-          expect(logoTitleAttribute).toContain("Model version: 1.2.3");
-          expect(logoTitleAttribute).toContain("R API version: 4.5.6");
-          expect(logoTitleAttribute).toContain("Web app version: 7.8.9");
+            .src;
+          expect(logoSrcAttribute).toContain("IMPERIAL_JAMEEL_INSTITUTE");
         });
       });
     });
@@ -63,7 +60,6 @@ describe("sidebar", () => {
 
       it("starts as shown", async () => {
         const component = await mountSuspended(SideBar, {
-          props: { visible: false, versionTooltipContent },
           global: { stubs, plugins },
         });
         const coreuiSidebar = component.findComponent({ name: "CSidebar" });
@@ -75,7 +71,6 @@ describe("sidebar", () => {
 
       it("renders the text and href for nav items", async () => {
         const component = await mountSuspended(SideBar, {
-          props: { visible: false, versionTooltipContent },
           global: { stubs, plugins },
         });
         const coreuiSidebar = component.findComponent({ name: "CSidebar" });
