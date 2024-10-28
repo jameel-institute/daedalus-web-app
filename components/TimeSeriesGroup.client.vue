@@ -71,7 +71,7 @@ const accordionStyle = {
   "--cui-accordion-bg": "rgba(255, 255, 255, 0.7)",
 };
 
-// Since we are using a switch we assume there are only two roles.
+// Since we are using a switch we assume there are only two roles, and "total" role precedes "daily" role
 const timeSeriesGroupRoles = Object.keys(props.seriesGroup.time_series).slice(0, 2); // ["total", "daily"]
 const isDaily = ref(false);
 const activeTimeSeriesId = computed(() => {
