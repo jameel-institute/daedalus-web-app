@@ -6,18 +6,20 @@
 </template>
 
 <script setup lang="ts">
-import { type LegendItem, LegendShape, plotBandsColor, plotLinesColor } from "./utils/charts";
+import { type LegendItem, LegendShape, plotBandsColor, plotLinesColor } from "./utils/highCharts";
 
 const appStore = useAppStore();
 
-const capacityLabel = computed(() => {
-  return appStore.metadata?.results.capacities[0].label; // At first, we expect there to be only one capacity, 'Hospital capacity'
-});
-
 const items = computed((): LegendItem[] => {
-  return [
-    { color: plotBandsColor, label: "Pandemic response", shape: LegendShape.Rectangle },
-    { color: plotLinesColor, label: capacityLabel.value || "Hospital capacity", shape: LegendShape.Line },
-  ];
+  const plotLineItems = appStore.metadata?.results.capacities.map((capacity) => {
+    return { color: plotLinesColor, label: capacity.label, shape: LegendShape.Line };
+  }) ?? [];
+
+  if (appStore.currentScenario.parameters?.response === "none") {
+    return plotLineItems;
+  }
+
+  const plotBandsItem = { color: plotBandsColor, label: "Pandemic response", shape: LegendShape.Rectangle };
+  return [plotBandsItem, ...plotLineItems];
 });
 </script>

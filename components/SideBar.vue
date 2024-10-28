@@ -21,6 +21,11 @@
           <CIcon icon="cilInfo" size="lg" class="nav-icon" /> About
         </NuxtLink>
       </CNavItem>
+      <CNavItem>
+        <NuxtLink to="https://github.com/jameel-institute/daedalus" target="_blank" class="nav-link">
+          <CIcon icon="cibGithub" size="lg" class="nav-icon" /> DAEDALUS GitHub
+        </NuxtLink>
+      </CNavItem>
     </CSidebarNav>
     <CSidebarHeader class="border-top d-flex d-sm-none">
       <!-- Use CoreUI Sidebar Header component instead of footer so that stylings for CoreUI Sidebar Brand component work -->

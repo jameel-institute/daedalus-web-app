@@ -1,6 +1,10 @@
 import * as ExcelDownload from "@/download/excelScenarioDownload";
 import { useAppStore } from "@/stores/appStore";
-import { emptyScenario, mockedMetadata, mockResultData } from "@/tests/unit/mocks/mockPinia";
+import {
+  emptyScenario,
+  mockedMetadata,
+  mockResultData,
+} from "@/tests/unit/mocks/mockPinia";
 import { registerEndpoint } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 import { createPinia, setActivePinia } from "pinia";
@@ -22,20 +26,28 @@ registerEndpoint("/api/versions", () => {
   };
 });
 
-registerEndpoint("/api/metadata", () => {
-  return {
-    parameters: [
-      { id: "country", parameterType: "globeSelect" },
-      { id: "settings", parameterType: "select" },
+const metadata = {
+  parameters: [
+    { id: "country", parameterType: "globeSelect" },
+    { id: "settings", parameterType: "select" },
+  ],
+  results: {
+    costs: [{ id: "total", label: "Total" }],
+    time_series_groups: [
+      {
+        id: "infections",
+        label: "Infections",
+        time_series: {
+          total: "prevalence",
+          daily: "new_infected",
+        },
+      },
     ],
-    results: {
-      costs: [
-        { id: "total", label: "Total" },
-      ],
-    },
-    modelVersion: "1.2.3",
-  };
-});
+  },
+  modelVersion: "1.2.3",
+};
+
+registerEndpoint("/api/metadata", () => metadata);
 
 registerEndpoint("/api/scenarios/123/status", () => {
   return {
@@ -82,18 +94,7 @@ describe("app store", () => {
       await store.loadMetadata();
 
       await waitFor(() => {
-        expect(store.metadata).toEqual({
-          parameters: [
-            { id: "country", parameterType: "globeSelect" },
-            { id: "settings", parameterType: "select" },
-          ],
-          results: {
-            costs: [
-              { id: "total", label: "Total" },
-            ],
-          },
-          modelVersion: "1.2.3",
-        });
+        expect(store.metadata).toEqual(metadata);
       });
       expect(store.metadataFetchStatus).toBe("success");
     });
@@ -124,10 +125,14 @@ describe("app store", () => {
       await store.loadScenarioResult();
 
       await waitFor(() => {
-        expect(store.currentScenario.result.data).toEqual(mockResultDataWithoutRunId);
+        expect(store.currentScenario.result.data).toEqual(
+          mockResultDataWithoutRunId,
+        );
         expect(store.currentScenario.result.fetchError).toEqual(undefined);
         expect(store.currentScenario.result.fetchStatus).toEqual("success");
-        expect(store.currentScenario.parameters).toEqual(mockResultData.parameters);
+        expect(store.currentScenario.parameters).toEqual(
+          mockResultData.parameters,
+        );
       });
     });
 
@@ -142,7 +147,13 @@ describe("app store", () => {
           fetchStatus: "success",
         },
         status: {
-          data: { done: true, runId: undefined, runStatus: runStatus.Complete, runErrors: null, runSuccess: true },
+          data: {
+            done: true,
+            runId: undefined,
+            runStatus: runStatus.Complete,
+            runErrors: null,
+            runSuccess: true,
+          },
           fetchError: undefined,
           fetchStatus: "success",
         },
@@ -165,14 +176,19 @@ describe("app store", () => {
       });
     });
 
-    const mockExcelScenarioDownload = (mockDownload = () => { }) => {
+    const mockExcelScenarioDownload = (mockDownload = () => {}) => {
       // Mock ExelScenarioDownload constructor and return mock
       // instance with given download mock implementation
       const mockExcelScenarioDownloadObj = {
         download: vi.fn().mockImplementation(mockDownload),
       } as any;
-      const downloadConstructorSpy = vi.spyOn(ExcelDownload, "ExcelScenarioDownload");
-      downloadConstructorSpy.mockImplementation(() => mockExcelScenarioDownloadObj);
+      const downloadConstructorSpy = vi.spyOn(
+        ExcelDownload,
+        "ExcelScenarioDownload",
+      );
+      downloadConstructorSpy.mockImplementation(
+        () => mockExcelScenarioDownloadObj,
+      );
       return mockExcelScenarioDownloadObj;
     };
 
@@ -219,7 +235,10 @@ describe("app store", () => {
         await store.loadMetadata();
 
         await waitFor(() => {
-          expect(store.globeParameter).toEqual({ id: "country", parameterType: "globeSelect" });
+          expect(store.globeParameter).toEqual({
+            id: "country",
+            parameterType: "globeSelect",
+          });
         });
       });
 
@@ -276,6 +295,25 @@ describe("app store", () => {
         expect(store.totalCost?.children?.length).toEqual(3);
       });
 
+      it("can get the time series groups metadata", async () => {
+        const store = useAppStore();
+        expect(store.timeSeriesGroups).toEqual(undefined);
+
+        await store.loadMetadata();
+
+        await waitFor(() => {
+          expect(store.timeSeriesGroups).toEqual([
+            {
+              id: "infections",
+              label: "Infections",
+              time_series: {
+                total: "prevalence",
+                daily: "new_infected",
+              },
+            },
+          ]);
+        });
+      });
       it("getCostLabel returns the label for cost id", async () => {
         const store = useAppStore();
         store.metadata = mockedMetadata;

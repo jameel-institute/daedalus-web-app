@@ -16,18 +16,19 @@
         </CContainer>
       </div>
     </div>
-    <!-- <Globe /> -->
+    <LazyGlobe v-if="loadGlobeComponent" />
   </div>
 </template>
 
 <script setup lang="ts">
+const appStore = useAppStore();
+
 const sidebarVisible = ref(false);
+const loadGlobeComponent = ref(false);
 
 function handleToggleSidebarVisibility() {
   sidebarVisible.value = !sidebarVisible.value;
 }
-
-const appStore = useAppStore();
 
 const versionTooltipContent = computed(() => {
   const vers = appStore.versions;
@@ -44,6 +45,7 @@ const setScreenSize = () => {
     appStore.largeScreen = false;
   } else {
     appStore.largeScreen = true;
+    loadGlobeComponent.value = true;
   }
 };
 

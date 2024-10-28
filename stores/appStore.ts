@@ -1,5 +1,5 @@
 import type { AsyncDataRequestStatus } from "#app";
-import type { Metadata, ScenarioResultData, ScenarioStatusData, VersionData } from "@/types/apiResponseTypes";
+import type { Metadata, ScenarioResultData, ScenarioStatusData, TimeSeriesGroup, VersionData } from "@/types/apiResponseTypes";
 import type { AppState } from "@/types/storeTypes";
 import type { FetchError } from "ofetch";
 import { type Parameter, TypeOfParameter } from "@/types/parameterTypes";
@@ -28,6 +28,7 @@ export const useAppStore = defineStore("app", {
   state: (): AppState => ({
     globe: {
       interactive: false,
+      highlightedCountry: null,
     },
     largeScreen: true,
     versions: undefined,
@@ -50,6 +51,14 @@ export const useAppStore = defineStore("app", {
       }
       return undefined;
     },
+    scenarioCountry(state): string | undefined {
+      if (this.globeParameter?.id && state.currentScenario.parameters) {
+        return state.currentScenario.parameters[this.globeParameter.id!];
+      } else {
+        return undefined;
+      }
+    },
+    timeSeriesGroups: (state): Array<TimeSeriesGroup> | undefined => state.metadata?.results.time_series_groups as TimeSeriesGroup[] | undefined,
   },
   actions: {
     async loadScenarioStatus() {
