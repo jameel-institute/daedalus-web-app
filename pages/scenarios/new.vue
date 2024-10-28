@@ -15,6 +15,8 @@ const appStore = useAppStore();
 
 onMounted(() => {
   appStore.globe.interactive = true;
+  // Reset the globe (not the form) and don't highlight any countries, implying that the user can start fresh.
+  appStore.globe.highlightedCountry = null;
 });
 </script>
 

@@ -16,7 +16,7 @@ import offlineExportingInitialize from "highcharts/modules/offline-exporting";
 
 import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
-import { plotBandsColor, plotLinesColor, timeSeriesColors } from "./utils/charts";
+import { plotBandsColor, plotLinesColor, timeSeriesColors } from "./utils/highCharts";
 
 const props = defineProps<{
   seriesId: string
@@ -251,6 +251,29 @@ watch(() => props.chartHeight, () => {
       filter: opacity(0);
       transition: filter 0.2s;
     }
+  }
+}
+
+.accordion.time-series {
+  .collapsing {
+    transition: height .2s ease;
+  }
+
+  .accordion-body { // These are the default values from CoreUI, but we need to pin them so that our const accordionBodyYPadding is correct.
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  .accordion-button {
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+    color: var(--cui-black) !important;
+    background-color: var(--cui-light) !important;
+    border-radius: 0 !important;
+  }
+
+  .accordion-item {
+    background: $light-background;
   }
 }
 </style>

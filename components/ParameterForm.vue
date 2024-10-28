@@ -317,16 +317,20 @@ const numericParameterFeedback = (param: Parameter) => {
   }
 };
 
+const pulse = (parameterId) => {
+  pulsingParameters.value.push(parameterId);
+  setTimeout(() => {
+    pulsingParameters.value = pulsingParameters.value.filter(item => item !== parameterId); // Remove the pulse animation to allow it to be triggered again in the future.
+  }, 500);
+};
+
 const handleChange = (param: Parameter) => {
   if (dependentParameters.value[param.id] === undefined || dependentParameters.value[param.id]?.length === 0) {
     return;
   }
 
   dependentParameters.value[param.id].forEach((dependentParamId: string) => {
-    pulsingParameters.value.push(dependentParamId);
-    setTimeout(() => {
-      pulsingParameters.value = pulsingParameters.value.filter(item => item !== dependentParamId); // Remove the pulse animation to allow it to be triggered again in the future.
-    }, 500);
+    pulse(dependentParamId);
 
     const dependentParameter = paramMetadata.value!.find(param => param.id === dependentParamId)!;
     const newValueForDependentParam = defaultValue(dependentParameter);
@@ -334,12 +338,23 @@ const handleChange = (param: Parameter) => {
       formData.value![dependentParamId] = newValueForDependentParam;
     }
   });
+
+  if (param.parameterType === TypeOfParameter.GlobeSelect) {
+    appStore.globe.highlightedCountry = formData.value![param.id];
+  };
 };
 
 const submitForm = async () => {
   if (invalidFields.value?.length) {
     showValidations.value = true;
     return;
+  }
+
+  // If the user has not changed the highlighted country since loading the app, then it will still be null,
+  // since we don't want to highlight any particular country until the user chooses one. So now we need
+  // to set it to the value being submitted in the form. This triggers the Globe component to focus the country.
+  if (!appStore.globe.highlightedCountry && appStore.globeParameter?.id && formData.value) {
+    appStore.globe.highlightedCountry = formData.value[appStore.globeParameter.id];
   }
 
   appStore.downloadError = undefined;
@@ -361,6 +376,16 @@ const submitForm = async () => {
     await navigateTo(`/scenarios/${runId}`);
   };
 };
+
+// Handle the selection of a country using the globe component: update the form country value.
+watch(() => appStore.globe.highlightedCountry, (newValue, oldValue) => {
+  if (formData.value && !formSubmitting.value && newValue && newValue !== oldValue && appStore.globeParameter?.id
+    && formData.value[appStore.globeParameter.id] !== newValue) {
+    formData.value[appStore.globeParameter.id] = newValue;
+    pulse(appStore.globeParameter.id);
+    handleChange(appStore.globeParameter);
+  }
+});
 
 watch(formData, (newVal) => {
   if (newVal && paramMetadata.value && previousFullFormData.value) {

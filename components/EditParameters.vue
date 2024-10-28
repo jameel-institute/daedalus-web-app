@@ -42,7 +42,7 @@ const modalVisible = ref(false);
 </script>
 
 <style lang="scss">
-.parameters-button:active {
+.parameters-button, .parameters-button:active {
   background: transparent !important;
   border: transparent !important;
 }
