@@ -191,12 +191,31 @@ const pauseAnimations = () => {
 };
 
 const rotateChart = (direction: "x" | "y", to: number) => {
-  chart.animate({
-    key: (direction === "x" ? "rotationX" : "rotationY"),
-    to,
-    duration: rotateDuration,
-    easing,
-  });
+  if (direction === "x") {
+    const currentXRotation = chart.get("rotationX")!;
+    // calculates the smallest rotation between 0 amd 360 to get to the country
+    let diffRotation = (to - currentXRotation) % 360;
+    // translates rotation to between -180 and 180 because rotating 270 east
+    // is the same as 90 west
+    if (diffRotation > 180) {
+      diffRotation = diffRotation - 360;
+    }
+    // gets actual rotation destination by adding the difference
+    const toShortest = currentXRotation + diffRotation;
+    chart.animate({
+      key: "rotationX",
+      to: toShortest,
+      duration: rotateDuration,
+      easing,
+    });
+  } else {
+    chart.animate({
+      key: "rotationY",
+      to,
+      duration: rotateDuration,
+      easing,
+    });
+  }
 };
 
 const rotateToCentroid = (centroid: am5.IGeoPoint, countryIso: string) => {
@@ -248,7 +267,7 @@ const createRotateAnimation = () => {
   return chart.animate({
     key: "rotationX",
     from: currentRotationX,
-    to: 360 - currentRotationX,
+    to: 360 + currentRotationX,
     duration: 180000,
     loops: Infinity,
   });
