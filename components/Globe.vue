@@ -201,10 +201,10 @@ const rotateChart = (direction: "x" | "y", to: number) => {
       diffRotation = diffRotation - 360;
     }
     // gets actual rotation destination by adding the difference
-    const toMod360 = currentXRotation + diffRotation;
+    const toShortest = currentXRotation + diffRotation;
     chart.animate({
       key: "rotationX",
-      to: toMod360,
+      to: toShortest,
       duration: rotateDuration,
       easing,
     });
