@@ -9,13 +9,11 @@ export const plotBandsColor = `rgba(${Object.values(colorRgba).join(",")})`;
 export const plotLinesColor = "#FF0000"; // red;
 export const timeSeriesColors = originalHighchartsColors!.slice(1);
 
-// IBM color blind safe palette
+// Colours from Bang Wong palette, see https://davidmathlogic.com/colorblind
 const colorBlindSafeColors = [
-  { name: "Ultramarine 40", hex: "#648fff" },
-  { name: "Indigo 50", hex: "#785ef0" },
-  { name: "Magenta 50", hex: "#dc267f" },
-  { name: "Orange 40", hex: "#fe6100" },
-  { name: "Gold 20", hex: "#ffb000" },
+  { name: "Vermillion", hex: "#d55e00" },
+  { name: "Bluish green", hex: "#009e73" },
+  { name: "Sky blue", hex: "#56b4e9" },
 ];
 
 export const costsPieColors = ["rgba(1,1,1,0)"].concat(Array.from<string>(colorBlindSafeColors.map(color => color.hex))); // Make the center circle translucent
