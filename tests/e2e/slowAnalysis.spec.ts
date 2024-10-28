@@ -1,14 +1,7 @@
 import { expect, test } from "@playwright/test";
+import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
 import checkRApiServer from "./helpers/checkRApiServer";
 import waitForNewScenarioPage from "./helpers/waitForNewScenarioPage";
-
-const parameterLabels = {
-  country: "Country",
-  pathogen: "Disease",
-  response: "Response",
-  vaccine: "Global vaccine investment",
-  hospital_capacity: "Hospital surge capacity",
-};
 
 test.beforeAll(async () => {
   checkRApiServer();
@@ -19,8 +12,8 @@ test("Can show relevant alerts for long-running analysis, e.g. Omicron in Singap
   await waitForNewScenarioPage(page, baseURL);
 
   // This parameter combination reliably takes upwards of 15 seconds to run.
-  await page.selectOption(`select[aria-label="${parameterLabels.country}"]`, { label: "Singapore" });
-  await page.selectOption(`select[aria-label="${parameterLabels.pathogen}"]`, { label: "Covid-19 Omicron" });
+  await selectParameterOption(page, "country", "Singapore");
+  await selectParameterOption(page, "pathogen", "Covid-19 Omicron");
   await page.click('button:has-text("Run")');
   await page.waitForURL(new RegExp(`${baseURL}/scenarios/[a-f0-9]{32}`));
 

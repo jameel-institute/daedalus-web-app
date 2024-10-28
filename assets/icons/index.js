@@ -1,4 +1,5 @@
 import {
+  cibGithub,
   cifAd,
   cifAe,
   cifAf,
@@ -202,7 +203,9 @@ import {
   cilChartLine,
   cilChartPie,
   cilCloudDownload,
+  cilCode,
   cilGlobeAlt,
+  cilInfo,
   cilMedicalCross,
   cilMenu,
   cilPencil,
@@ -211,18 +214,21 @@ import {
 } from "@coreui/icons";
 
 export const iconsSet = {
+  cibGithub,
   cilActionUndo,
   cilArrowRight,
   cilBookmark,
   cilChartLine,
   cilChartPie,
   cilCloudDownload,
+  cilCode,
   cilGlobeAlt,
   cilMedicalCross,
   cilMenu,
   cilPencil,
   cilPlus,
   cilShieldAlt,
+  cilInfo,
   cifAd,
   cifAe,
   cifAf,

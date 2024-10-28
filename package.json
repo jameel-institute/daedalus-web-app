@@ -46,6 +46,7 @@
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
     "vue": "^3.5",
+    "vue3-select-component": "^0.6.1",
     "xlsx": "^0.18.5"
   },
   "optionalDependencies": {
@@ -64,7 +65,6 @@
     "@vitest/coverage-v8": "^2.1.2",
     "@vue/test-utils": "^2.4.6",
     "jsdom": "^25.0.1",
-    "jsdom-testing-mocks": "^1.13.1",
     "lint-staged": "^15.2.9",
     "playwright": "^1.45.2",
     "prisma": "^5.20.0",

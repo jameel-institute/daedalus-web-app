@@ -8,17 +8,31 @@
   >
     <CSidebarNav role="navigation">
       <CNavItem>
-        <NuxtLink prefetch-on="interaction" to="/scenarios/new" class="nav-link">
+        <NuxtLink
+          prefetch-on="interaction"
+          to="/scenarios/new"
+          class="nav-link"
+        >
           <CIcon icon="cilPlus" size="lg" class="nav-icon" /> New scenario
         </NuxtLink>
       </CNavItem>
+      <CNavItem>
+        <NuxtLink prefetch-on="interaction" to="/about" class="nav-link">
+          <CIcon icon="cilInfo" size="lg" class="nav-icon" /> About
+        </NuxtLink>
+      </CNavItem>
+      <CNavItem>
+        <NuxtLink to="https://github.com/jameel-institute/daedalus" target="_blank" class="nav-link">
+          <CIcon icon="cibGithub" size="lg" class="nav-icon" /> DAEDALUS GitHub
+        </NuxtLink>
+      </CNavItem>
     </CSidebarNav>
-    <CSidebarHeader class="border-top d-flex">
+    <CSidebarHeader class="border-top d-flex d-sm-none">
       <!-- Use CoreUI Sidebar Header component instead of footer so that stylings for CoreUI Sidebar Brand component work -->
       <CSidebarBrand>
         <div class="sidebar-brand-full">
           <img
-            data-testid="logo"
+            data-testid="ji-logo-sidebar"
             class="img-fluid mb-1"
             :title="versionTooltipContent"
             src="~/assets/img/IMPERIAL_JAMEEL_INSTITUTE_LOCKUP-p-500.png"
@@ -33,16 +47,10 @@
 <script lang="ts" setup>
 import { CIcon } from "@coreui/icons-vue";
 
+defineProps<{
+  versionTooltipContent: string | undefined
+}>();
 const appStore = useAppStore();
-
-const versionTooltipContent = computed(() => {
-  const vers = appStore.versions;
-  if (vers) {
-    return `Model version: ${vers.daedalusModel} \nR API version: ${vers.daedalusApi} \nWeb app version: ${vers.daedalusWebApp}`;
-  } else {
-    return undefined;
-  }
-});
 
 const visible = defineModel("visible", { type: Boolean, required: true });
 
@@ -73,5 +81,4 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

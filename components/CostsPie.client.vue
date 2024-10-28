@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="position-relative">
     <CostsLegend />
     <div
       :id="chartContainerId"
@@ -18,7 +18,6 @@ import { costsPieColors, costsPieTooltipText } from "./utils/highCharts";
 
 const props = defineProps<{
   hideTooltips: boolean
-  pieSize?: number
 }>();
 
 accessibilityInitialize(Highcharts);
@@ -38,6 +37,7 @@ const chartBackgroundColor = "transparent";
 const chartBackgroundColorOnExporting = "white";
 let chart: Highcharts.Chart;
 let costsData: pieCost[] = [];
+const pieSize = computed(() => appStore.largeScreen ? 450 : 300);
 const chartContainer = ref<HTMLElement | null>(null);
 
 // Prioritise showing labels for larger slices over smaller slices, where labels would otherwise overlap.
@@ -160,8 +160,8 @@ const chartInitialOptions = () => {
       options3d: {
         enabled: true,
       },
-      height: props.pieSize,
-      width: props.pieSize,
+      height: pieSize.value,
+      width: pieSize.value,
       backgroundColor: chartBackgroundColor,
       events: {
         fullscreenOpen() {
@@ -200,15 +200,10 @@ const chartInitialOptions = () => {
     series: [chartSeries()],
     tooltip: {
       pointFormatter() {
-        return costsPieTooltipText(this);
+        return costsPieTooltipText(this, appStore.currentScenario.result.data!.gdp);
       },
     },
   } as Highcharts.Options;
-};
-
-const getCostLabel = (costId: string) => {
-  const name = appStore.metadata?.results.costs.find(cost => cost.id === costId)?.label;
-  return name || costId;
 };
 
 const populateCostsDataIntoPie = () => {
@@ -218,7 +213,7 @@ const populateCostsDataIntoPie = () => {
   costsData = [{
     id: appStore.totalCost.id,
     parent: "",
-    name: getCostLabel(appStore.totalCost.id),
+    name: appStore.getCostLabel(appStore.totalCost.id),
     value: appStore.totalCost?.value,
   }];
   // Iterate over first level of children before recursing into the next level,
@@ -228,7 +223,7 @@ const populateCostsDataIntoPie = () => {
     costsData.push({
       id: cost.id,
       parent: appStore.totalCost!.id,
-      name: getCostLabel(cost.id),
+      name: appStore.getCostLabel(cost.id),
       value: cost.value,
     });
   });
@@ -241,7 +236,7 @@ const populateCostsDataIntoPie = () => {
       costsData.push({
         id: subCost.id,
         parent: cost.id,
-        name: getCostLabel(subCost.id),
+        name: appStore.getCostLabel(subCost.id),
         value: subCost.value,
       });
     });
@@ -255,9 +250,9 @@ watch(() => appStore.costsData, () => {
   }
 });
 
-watch(() => props.pieSize, throttle(() => {
-  if (chart && props.pieSize) {
-    chart.setSize(props.pieSize, props.pieSize, { duration: 250 });
+watch(() => appStore.largeScreen, throttle(() => {
+  if (chart) {
+    chart.setSize(pieSize.value, pieSize.value, { duration: 250 });
   }
 }, 25));
 

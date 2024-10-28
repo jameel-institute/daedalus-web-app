@@ -34,9 +34,8 @@ const items = computed((): LegendItem[] => {
 <style lang="scss">
 .legend-container.costs-legend {
   position: absolute;
-  right: 1rem;
+  right: 0;
   z-index: 11; // Above costs pie path
-  position: absolute;
   border-radius: 0.25rem;
   box-shadow: var(--cui-box-shadow-sm);
   background-color: white;

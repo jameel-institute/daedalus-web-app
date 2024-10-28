@@ -22,15 +22,16 @@ const selectParameters = [
   {
     id: "long_list",
     label: "Drop Down",
+    description: "Drop Down Description",
     parameterType: TypeOfParameter.Select,
     defaultOption: null,
     ordered: false,
     options: [
-      { id: "1", label: "Option 1" },
-      { id: "2", label: "Option 2" },
-      { id: "3", label: "Option 3" },
-      { id: "4", label: "Option 4" },
-      { id: "5", label: "Option 5" },
+      { id: "1", label: "Option 1", description: "Option 1 description" },
+      { id: "2", label: "Option 2", description: "Option 2 description" },
+      { id: "3", label: "Option 3", description: "Option 3 description" },
+      { id: "4", label: "Option 4", description: "Option 4 description" },
+      { id: "5", label: "Option 5", description: "Option 5 description" },
       { id: "6", label: "Option 6" },
     ],
     updateNumericFrom: null,
@@ -42,7 +43,7 @@ const selectParameters = [
     defaultOption: "no",
     ordered: false,
     options: [
-      { id: "yes", label: "Yes" },
+      { id: "yes", label: "Yes", description: "Yes description" },
       { id: "no", label: "No" },
     ],
     updateNumericFrom: null,
@@ -73,13 +74,47 @@ export const updatableNumericParameter = {
     },
   },
 };
+export const countryAndPathogenParams = [
+  {
+    id: "country",
+    label: "Country",
+    parameterType: TypeOfParameter.GlobeSelect,
+    defaultOption: "THA",
+    ordered: false,
+    options: [
+      { id: "ARG", label: "Argentina" },
+      { id: "BRA", label: "Brazil" },
+      { id: "CHN", label: "China" },
+      { id: "DEU", label: "Germany" },
+      { id: "GBR", label: "United Kingdom" },
+    ],
+  },
+  {
+    id: "pathogen",
+    label: "Disease",
+    parameterType: TypeOfParameter.Select,
+    defaultOption: null,
+    ordered: false,
+    options: [
+      { id: "sars_cov_1", label: "SARS 2004" },
+      { id: "sars_cov_2_pre_alpha", label: "Covid-19 wild-type" },
+      { id: "sars_cov_2_omicron", label: "Covid-19 Omicron" },
+      { id: "sars_cov_2_delta", label: "Covid-19 Delta" },
+      { id: "influenza_2009", label: "Influenza 2009 (Swine flu)" },
+      { id: "influenza_1957", label: "Influenza 1957" },
+      { id: "influenza_1918", label: "Influenza 1918 (Spanish flu)" },
+    ],
+    description:
+      "Select a disease to set model parameters for transmissibility, incubation period and severity based on known characteristics of that historical epidemic or epidemic wave",
+  },
+];
 
 const resultsMetadata = sampleMetadataResponse.data.results as ResultsMetadata;
 export const mockedMetadata = {
   modelVersion: "0.0.0",
   parameters: [...selectParameters, globeParameter, updatableNumericParameter],
   results: resultsMetadata,
-} as Metadata;
+} as unknown as Metadata;
 Object.freeze(mockedMetadata);
 
 export const mockResultData = {
@@ -174,25 +209,11 @@ export const mockResultData = {
     },
   ],
   time_series: {
-    infect: [
-      67.886,
-      56.4939,
-      59.2434,
-      70.9342,
-    ],
-    hospitalised: [
-      0,
-      3.9626,
-      6.8824,
-      9.4865,
-    ],
-    dead: [
-      0,
-      0.0244,
-      0.0878,
-      0.1825,
-    ],
+    infect: [67.886, 56.4939, 59.2434, 70.9342],
+    hospitalised: [0, 3.9626, 6.8824, 9.4865],
+    dead: [0, 0.0244, 0.0878, 0.1825],
   },
+  gdp: 19863038.6,
 };
 Object.freeze(mockResultData);
 
@@ -212,6 +233,13 @@ export const emptyScenario = {
 };
 Object.freeze(emptyScenario);
 
+export const mockVersions = {
+  daedalusModel: "1.2.3",
+  daedalusApi: "4.5.6",
+  daedalusWebApp: "7.8.9",
+};
+Object.freeze(mockVersions);
+
 export const mockPinia = (
   appState: Partial<AppState> = {},
   includeMetadata: boolean = true,
@@ -224,7 +252,7 @@ export const mockPinia = (
         selectedCountry: undefined,
       },
       largeScreen: true,
-      versions: undefined,
+      versions: mockVersions,
       metadata: includeMetadata ? { ...mockedMetadata } : undefined,
       metadataFetchError: undefined,
       metadataFetchStatus: includeMetadata ? "success" : undefined,

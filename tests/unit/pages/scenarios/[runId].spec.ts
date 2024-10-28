@@ -8,7 +8,7 @@ import type { Metadata } from "~/types/apiResponseTypes";
 
 const stubs = {
   "CIcon": true,
-  "TimeSeriesList.client": true,
+  "TimeSeries.client": true,
   "CostsCard": true,
 };
 

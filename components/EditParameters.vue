@@ -1,18 +1,20 @@
 <template>
-  <CModal
-    :visible="modalVisible"
-    aria-labelledby="modalTitle"
-    @close="() => { modalVisible = false }"
-  >
-    <CModalHeader>
-      <CModalTitle id="modalTitle">
-        Edit parameters
-      </CModalTitle>
-    </CModalHeader>
-    <CModalBody>
-      <ParameterForm :in-modal="true" />
-    </CModalBody>
-  </CModal>
+  <Teleport to="body">
+    <CModal
+      :visible="modalVisible"
+      aria-labelledby="modalTitle"
+      @close="() => { modalVisible = false }"
+    >
+      <CModalHeader>
+        <CModalTitle id="modalTitle">
+          Edit parameters
+        </CModalTitle>
+      </CModalHeader>
+      <CModalBody>
+        <ParameterForm :in-modal="true" />
+      </CModalBody>
+    </CModal>
+  </Teleport>
   <CTooltip
     content="Edit parameters"
     placement="top"

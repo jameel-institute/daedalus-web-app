@@ -5,6 +5,7 @@
         Results
       </h1>
       <DownloadExcel />
+      <CodeSnippet />
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
         <CIconSvg size="xxl">
           <img src="/icons/rotate-device.svg">
@@ -87,18 +88,7 @@
         <CostsCard />
       </div>
       <div class="col-12 col-xl-6">
-        <div class="card">
-          <div class="card-header border-bottom-0 d-flex justify-content-between">
-            <div class="d-flex align-items-center">
-              <CIcon icon="cilChartLine" size="xl" class="mb-1 text-secondary" />
-              <h2 class="fs-5 m-0 ms-3 chart-header">
-                Time series
-              </h2>
-            </div>
-            <TimeSeriesLegend />
-          </div>
-          <TimeSeriesList />
-        </div>
+        <TimeSeriesCard />
       </div>
     </CRow>
   </div>

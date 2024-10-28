@@ -1,25 +1,29 @@
 <template>
   <CHeader class="header-sticky p-0" :class="{ 'shadow-sm': isScrolled }">
-    <CContainer id="headerNavContainer" fluid class="border-bottom mt-1 justify-content-start">
-      <CHeaderToggler class="d-lg-none" @click="toggleSidebarVisibility">
-        <span data-testid="toggle-sidebar-button">
-          <CIcon icon="cilMenu" size="lg" />
-        </span>
-      </CHeaderToggler>
-      <div class="header-brand px-2">
-        <NuxtLink prefetch-on="interaction" to="/" class="nav-link">
-          <CIcon icon="cilGlobeAlt" size="lg" />
-          <span id="appTitle">DAEDALUS Explore</span>
-        </NuxtLink>
+    <CContainer id="headerNavContainer" fluid class="border-bottom mt-1 justify-content-between">
+      <div class="d-flex">
+        <CHeaderToggler class="d-lg-none" @click="$emit('toggleSidebarVisibility')">
+          <span data-testid="toggle-sidebar-button">
+            <CIcon icon="cilMenu" size="lg" />
+          </span>
+        </CHeaderToggler>
+        <div class="header-brand px-2">
+          <NuxtLink prefetch-on="interaction" to="/" class="nav-link">
+            <CIcon icon="cilGlobeAlt" size="lg" />
+            <span id="appTitle">DAEDALUS Explore</span>
+          </NuxtLink>
+        </div>
       </div>
-      <CHeaderNav class="ms-auto">
-        <CNavItem class="py-1">
-          <div class="vr h-100 mx-1 text-body text-opacity-75" />
-        </CNavItem>
-        <CNavItem id="helpNavLink" href="#">
-          <img id="help" src="~/assets/icons/circleQuestion.svg">
-        </CNavItem>
-      </CHeaderNav>
+      <div class="d-none d-sm-block">
+        <img
+          data-testid="ji-logo-header"
+          style="width: 150px;"
+          class="img-fluid"
+          :title="versionTooltipContent"
+          src="~/assets/img/IMPERIAL_JAMEEL_INSTITUTE_LOCKUP-p-500.png"
+          alt="Imperial College and Community Jameel logo"
+        >
+      </div>
     </CContainer>
   </CHeader>
 </template>
@@ -28,11 +32,12 @@
 import { CIcon } from "@coreui/icons-vue";
 import throttle from "lodash.throttle";
 
-const emit = defineEmits(["toggleSidebarVisibility"]);
-
-function toggleSidebarVisibility() {
-  emit("toggleSidebarVisibility");
-}
+defineProps<{
+  versionTooltipContent: string | undefined
+}>();
+defineEmits<{
+  toggleSidebarVisibility: []
+}>();
 
 // We apply a shadow to the header when the position is scrolled down
 const isScrolled = ref(false);
