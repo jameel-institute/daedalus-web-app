@@ -1,4 +1,5 @@
 import {
+  cibGithub,
   cifAd,
   cifAe,
   cifAf,
@@ -213,6 +214,7 @@ import {
 } from "@coreui/icons";
 
 export const iconsSet = {
+  cibGithub,
   cilActionUndo,
   cilArrowRight,
   cilBookmark,
