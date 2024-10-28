@@ -87,6 +87,7 @@ describe("sidebar", () => {
         const navLinks = component.findAllComponents({ name: "NuxtLink" });
         expect(navLinks[0].props("to")).toBe("/scenarios/new");
         expect(navLinks[1].props("to")).toBe("/about");
+        expect(navLinks[2].props("to")).toBe("https://github.com/jameel-institute/daedalus");
       });
     });
   });
