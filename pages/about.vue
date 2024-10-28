@@ -127,6 +127,14 @@
       in Apache License via
       <a href="https://www.svgrepo.com/" target="_blank">SVG Repo</a>
     </p>
+    <template v-if="appStore.versions">
+      <h2>Version</h2>
+      <ul>
+        <li>Model version: {{ appStore.versions.daedalusModel }}</li>
+        <li>R API version: {{ appStore.versions.daedalusApi }}</li>
+        <li>Web app version: {{ appStore.versions.daedalusWebApp }}</li>
+      </ul>
+    </template>
     <h2>References</h2>
     <ol>
       <li>

@@ -19,7 +19,6 @@
           data-testid="ji-logo-header"
           style="width: 150px;"
           class="img-fluid"
-          :title="versionTooltipContent"
           src="~/assets/img/IMPERIAL_JAMEEL_INSTITUTE_LOCKUP-p-500.png"
           alt="Imperial College and Community Jameel logo"
         >
@@ -32,9 +31,6 @@
 import { CIcon } from "@coreui/icons-vue";
 import throttle from "lodash.throttle";
 
-defineProps<{
-  versionTooltipContent: string | undefined
-}>();
 defineEmits<{
   toggleSidebarVisibility: []
 }>();
