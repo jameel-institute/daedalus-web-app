@@ -37,6 +37,7 @@ WHONationalBorders.features = WHONationalBorders.features.map((feature) => {
 const activeCountryColor = am5.color("#379f9f"); // Imperial sea-glass
 const defaultLandColour = am5.color("#002e4e"); // A default land colour: dark blue
 const unselectableLandColor = am5.color("#19425e"); // Color for land with missing data
+const unselectableLandBoundaryColor = am5.color("#19425e"); // Color for stroke of the missing data
 const hoverLandColour = am5.color("#1c6777"); // The midpoint between defaultLandColour and activeCountryColor
 const lightGreyBackground = am5.color(rgba2hex("rgb(243, 244, 247)"));
 const maxZindex = 29; // 30 is reserved by amCharts
@@ -91,7 +92,7 @@ const countrySeriesSettings: am5map.IMapPolygonSeriesSettings = {
 const backgroundSeriesSettings: am5map.IMapPolygonSeriesSettings = {
   ...countrySeriesSettings,
   fill: unselectableLandColor,
-  stroke: defaultLandColour,
+  stroke: unselectableLandBoundaryColor,
   layer: maxZindex - 5,
 };
 const selectableCountriesSeriesSettings: am5map.IMapPolygonSeriesSettings = {
