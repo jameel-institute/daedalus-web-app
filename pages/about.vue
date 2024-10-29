@@ -127,6 +127,18 @@
       in Apache License via
       <a href="https://www.svgrepo.com/" target="_blank">SVG Repo</a>
     </p>
+    <h3>World map disclaimer and attribution</h3>
+    <p>
+      The country borders shown on the world map in DAEDALUS Explore are reflective of boundaries as
+      employed by the World Health Organization (WHO), including both national borders and disputed
+      borders: <a target="_blank" href="https://gis-who.hub.arcgis.com/pages/detailedboundary">https://gis-who.hub.arcgis.com/pages/detailedboundary</a>.
+      The code underlying the WHO-aligned world map can be accessed <a target="_blank" href="https://github.com/whocov/whomapper">here</a>.
+    </p>
+    <p>
+      The country borders depicted on the world map do not reflect any expression of opinions by the DAEDALUS Explore
+      creators. The world map may be intermittently updated in line with code rewrites, however the timing of such
+      updates will be at the discretion of the DAEDALUS Explore creators.
+    </p>
     <template v-if="appStore.versions">
       <h2>Version</h2>
       <ul>
