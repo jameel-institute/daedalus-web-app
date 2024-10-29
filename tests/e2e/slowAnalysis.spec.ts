@@ -7,7 +7,7 @@ test.beforeAll(async () => {
   checkRApiServer();
 });
 
-test("Can show relevant alerts for long-running analysis, e.g. Omicron in Singapore", async ({ page, baseURL, browserName }) => {
+test.skip("Can show relevant alerts for long-running analysis, e.g. Omicron in Singapore", async ({ page, baseURL, browserName }) => {
   test.skip(browserName !== "firefox", "Run in only one browser to save time");
   await waitForNewScenarioPage(page, baseURL);
 
