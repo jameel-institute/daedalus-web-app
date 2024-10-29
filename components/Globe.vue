@@ -1,6 +1,6 @@
 <template>
   <div
-    v-show="appStore.globeParameter && appStore.largeScreen"
+    v-show="showGlobe"
     @mousedown="deselectText"
     @touchstart="deselectText"
     @mousemove="onMouseMove"
@@ -131,6 +131,8 @@ const prevBackgroundPolygon = ref<am5map.MapPolygon | undefined>(undefined);
 const prevSelectablePolygon = ref<am5map.MapPolygon | undefined>(undefined);
 
 const findFeatureForCountry = (countryIso: string) => WHONationalBorders.features.find(f => f.id === countryIso);
+
+const showGlobe = computed(() => appStore.globeParameter && appStore.largeScreen && route.path !== "/about");
 
 const highlightedCountrySeries = computed(() => {
   if (!appStore.globe.highlightedCountry) {
