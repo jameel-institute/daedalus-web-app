@@ -34,7 +34,6 @@
           <img
             data-testid="ji-logo-sidebar"
             class="img-fluid mb-1"
-            :title="versionTooltipContent"
             src="~/assets/img/IMPERIAL_JAMEEL_INSTITUTE_LOCKUP-p-500.png"
             alt="Imperial College and Community Jameel logo"
           >
@@ -47,9 +46,6 @@
 <script lang="ts" setup>
 import { CIcon } from "@coreui/icons-vue";
 
-defineProps<{
-  versionTooltipContent: string | undefined
-}>();
 const appStore = useAppStore();
 
 const visible = defineModel("visible", { type: Boolean, required: true });

@@ -1,3 +1,4 @@
+import packageJson from "@/package.json";
 import { getVersionData } from "@/server/handlers/versions";
 import { registerEndpoint } from "@nuxt/test-utils/runtime";
 
@@ -24,8 +25,10 @@ describe("get version data", () => {
       expect(response.data).toEqual({
         daedalusApi: "0.1.999",
         daedalusModel: "0.1.0",
-        daedalusWebApp: "0.0.2",
+        daedalusWebApp: packageJson.version,
       });
+      // Check we have a sensible version string in the package
+      expect(response.data?.daedalusWebApp).toMatch(/\d+\.\d+\.\d/);
       expect(response.errors).toBeNull();
       expect(response.statusCode).toBe(200);
       expect(response.statusText).toBe("");

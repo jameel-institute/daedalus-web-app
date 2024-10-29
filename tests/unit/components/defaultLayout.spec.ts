@@ -1,6 +1,5 @@
 import DefaultLayout from "@/layouts/default.vue";
 import { mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
-import { waitFor } from "@testing-library/vue";
 
 const stubs = {
   CIcon: true,
@@ -38,11 +37,6 @@ describe("default layout", () => {
 
     expect(headerLogo.isVisible()).toBe(true);
     expect(sidebarLogo.isVisible()).toBe(true);
-    await waitFor(() => {
-      expect(headerLogo.attributes().title).toContain("Model version: 1.2.3");
-      expect(headerLogo.attributes().title).toContain("R API version: 4.5.6");
-      expect(headerLogo.attributes().title).toContain("Web app version: 7.8.9");
-    });
   });
 
   describe("on smaller devices", () => {
