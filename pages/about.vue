@@ -96,7 +96,7 @@
     </p>
     <h3>Affiliations</h3>
     <ol type="a">
-      <li>Reside-IC, MRC Centre for Global Infectious Disease Analysis & Department of Infectious Disease Epidemiology, Imperial, London, United Kingdom</li>
+      <li>Reside-IC, MRC Centre for Global Infectious Disease Analysis &amp; Department of Infectious Disease Epidemiology, Imperial, London, United Kingdom</li>
       <li>MRC Centre for Global Infectious Disease Analysis, Jameel Institute, Imperial, London, United Kingdom</li>
       <li>Mathematical Sciences & Infection, Veterinary and Ecological Sciences, University of Liverpool, United Kingdom</li>
       <li>Department of Economics, Stockholm University, Sweden</li>
