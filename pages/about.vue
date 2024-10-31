@@ -82,7 +82,7 @@
     <h3>Software team</h3>
     <p>
       David Mears<sup>a,b</sup>, Pratik Gupte<sup>a,b</sup>, Emma Russell<sup>a</sup>, Anmol Thapar<sup>a</sup>,
-      Mantra Kusumgar<sup>a</sup>, Rich Fitzjohn<sup>a</sup>
+      Mantra Kusumgar<sup>a</sup>, Rich FitzJohn<sup>a</sup>
     </p>
     <h3>Modelling team</h3>
     <p>
