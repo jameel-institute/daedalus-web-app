@@ -59,13 +59,13 @@
       preparedness and response activities, and in doing so, endeavours to
       supports effective future pandemic planning, preparedness and response.
     </p>
-    <h2>Contact us:</h2>
+    <h2>Contact us</h2>
     <p>
       If you have any queries regarding DAEDALUS Explore, please contact:
       <a href="mailto:daedalus.explore@imperial.ac.uk" class="email">daedalus.explore@imperial.ac.uk</a>
     </p>
 
-    <h2>Acknowledgements</h2>
+    <h2>Contribution Acknowledgements</h2>
     <p>
       The DAEDALUS Explore dashboard and the underlying DAEDALUS model were
       created by ‘The Jameel Institute – Kenneth C Griffin Initiative for the
@@ -74,8 +74,37 @@
       World Health Organization and Singapore’s Programme For Research In
       Epidemic Preparedness And Response (PREPARE), National Centre for
       Infectious Diseases (NCID) and Umeå University in Sweden. For more
-      information, visit the website of the <a href="https://new.express.adobe.com/webpage/TXLBkz1sN9FI5" target="_blank">EPPI Initiative</a>.
+      information, visit the website of the <a href="https://new.express.adobe.com/webpage/TXLBkz1sN9FI5/" target="_blank">EPPI Initiative</a>.
     </p>
+    <p>
+      A large team of authors have contributed to the development of DAEDALUS Explore, and the underlying code, since spring 2020.
+    </p>
+    <h3>Software team</h3>
+    <p>
+      David Mears<sup>a,b</sup>, Pratik Gupte<sup>a,b</sup>, Emma Russell<sup>a</sup>, Anmol Thapar<sup>a</sup>,
+      Mantra Kusumgar<sup>a</sup>, Rich FitzJohn<sup>a</sup>
+    </p>
+    <h3>Modelling team</h3>
+    <p>
+      Patrick Doohan<sup>b</sup>*, Rob Johnson<sup>b</sup>*, David Haw<sup>b,c</sup>, Kanchan Parchani<sup>b</sup>,
+      Christian Morgenstern<sup>b</sup>, Matteo Pianella<sup>d</sup>, Wei Hao Kwok<sup>e</sup>, Jeremy Chan<sup>e</sup>,
+      Paula Christen<sup>b</sup>, Kelvin Bryan Tan<sup>e</sup>, Peter C Smith<sup>f</sup>, Giovanni Forchini<sup>b,g</sup>,
+      Katharina Hauck<sup>b</sup>
+    </p>
+    <p>
+      * contributed equally
+    </p>
+    <h3>Affiliations</h3>
+    <ol type="a">
+      <li>Reside-IC, MRC Centre for Global Infectious Disease Analysis &amp; Department of Infectious Disease Epidemiology, Imperial, London, United Kingdom</li>
+      <li>MRC Centre for Global Infectious Disease Analysis, Jameel Institute, Imperial, London, United Kingdom</li>
+      <li>Mathematical Sciences &amp; Infection, Veterinary and Ecological Sciences, University of Liverpool, United Kingdom</li>
+      <li>Department of Economics, Stockholm University, Sweden</li>
+      <li>PREPARE, National Centre for Infectious Diseases, Singapore</li>
+      <li>Centre for Health Economics, University of York, United Kingdom</li>
+      <li>Umeå School of Business, Economics and Statistics, Umeå Universitet, Umeå, Sweden</li>
+    </ol>
+    <h2>Funding Acknowledgements</h2>
     <p>
       The EPPI Initiative gratefully acknowledges research funding from
       Community Jameel and Kenneth C Griffin which enabled the development of
