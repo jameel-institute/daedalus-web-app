@@ -74,7 +74,7 @@
       World Health Organization and Singapore’s Programme For Research In
       Epidemic Preparedness And Response (PREPARE), National Centre for
       Infectious Diseases (NCID) and Umeå University in Sweden. For more
-      information, visit the website of the <a href="https://www.imperial.ac.uk/jameel-institute/research/the-jameel-institute--kenneth-c-griffin-initiative-for-the-economics-of-pandemic-preparedness/" target="_blank">EPPI Initiative</a>.
+      information, visit the website of the <a href="https://new.express.adobe.com/webpage/TXLBkz1sN9FI5/" target="_blank">EPPI Initiative</a>.
     </p>
     <p>
       A large team of authors have contributed to the development of DAEDALUS Explore, and the underlying code, since spring 2020.
