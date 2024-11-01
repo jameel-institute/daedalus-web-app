@@ -110,7 +110,10 @@
       Community Jameel and Kenneth C Griffin which enabled the development of
       the DAEDALUS model and DAEDALUS Explore dashboard.
     </p>
-    <img class="p-2 mb-3" title="Jameel community logo" style="width: 200px" src="~/assets/img/jameel-community-logo.svg" alt="Jameel community logo">
+    <div class="d-flex flex-wrap justify-content-start align-items-center mb-3 gap-3">
+      <img class="p-2" title="Jameel community logo" style="width: 200px" src="~/assets/img/jameel-community-logo.svg" alt="Jameel community logo">
+      <img class="p-2" title="Kenneth C Griffin logo" style="width: 200px" src="~/assets/img/GriffinCatalyst_Logo_FullColor.png" alt="Kenneth C Griffin logo">
+    </div>
     <h2>Disclaimer and Licensing</h2>
     <h3>Model code license</h3>
     <p>
