@@ -70,7 +70,7 @@ export const useAppStore = defineStore("app", {
         data: scenarioStatusData,
         status: scenarioStatusFetchStatus,
         error: scenarioStatusFetchError,
-      } = await useFetch(`/api/scenarios/${this.currentScenario.runId}/status`) as {
+      } = await useFetch(`/api/scenarios/${this.currentScenario.runId}/status`, { dedupe: "defer" }) as {
         data: Ref<ScenarioStatusData>
         status: Ref<AsyncDataRequestStatus>
         error: Ref<FetchError>
