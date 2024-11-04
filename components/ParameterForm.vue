@@ -30,6 +30,7 @@
                 :key="option.id"
                 :content="option.description"
                 placement="top"
+                :delay="100"
               >
                 <template #toggler="{ togglerId, on }">
                   <div
