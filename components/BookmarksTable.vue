@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { CIcon } from '@coreui/icons-vue';
+import { CIcon } from '@coreui/icons-vue'
 
 // Note - datatables bundles in jquery, so we need to be careful that we don't
 // end up making every page download jquery!
@@ -19,6 +19,7 @@ DataTable.use(DataTablesCore)
 
 const columns = [
   { data: 'type', title: 'Type' },
+  { data: 'name', title: 'Name' },
   { data: 'date', title: 'Date created' },
   { data: 'tags', title: 'Tags' },
 ]
@@ -27,14 +28,16 @@ const data = [
   {
     id: '1',
     type: 'comparison',
+    name: 'All policies (Nigeria)',
     date: '2021-04-25',
-    tags: ['Best scenario', 'Baseline'],
+    tags: ['Surprising'],
   },
   {
     id: '2',
     type: 'single',
+    name: 'Elimination strategy',
     date: '2021-04-25',
-    tags: ['Surprising'],
+    tags: ['Best scenario', 'Baseline'],
   },
 ]
 
@@ -57,11 +60,11 @@ const data = [
         <CIcon v-if="props.cellData === 'comparison'" :icon="cilChart" title="Comparison" />
         <CIcon v-else :icon="cilChartPie" title="Single scenario" />
       </template>
-      <template #column-2="props">
+      <template #column-3="props">
         <span
-          class="tag"
           v-for="tag in props.cellData"
           :key="tag"
+          class="tag"
           :style="`background-color: ${['lightgreen', 'lightblue', 'pink'][Math.floor(Math.random() * 3)]}`"
         >
           {{ tag }}
