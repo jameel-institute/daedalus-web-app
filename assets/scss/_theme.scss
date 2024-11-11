@@ -121,10 +121,6 @@ body {
   opacity: 0.5;
 }
 
-.tooltip {
-  max-width: $tooltip-max-width;
-}
-
 // Limit modal dialog width by screen width. Override modal default max-width when screen would have been narrower than modal.
 // Media queries can't use dynamic variables, but the calculation to get 532px was: calc(var(--cui-modal-width) + 2 * var(--cui-modal-padding));
 @media (max-width: 532px) {
