@@ -14,6 +14,7 @@
         </CContainer>
       </div>
     </div>
+    <!-- This is a dynamic import: https://nuxt.com/docs/guide/directory-structure/components#dynamic-imports -->
     <LazyGlobe v-if="loadGlobeComponent" />
   </div>
 </template>
@@ -23,10 +24,24 @@ const appStore = useAppStore();
 
 const sidebarVisible = ref(false);
 const loadGlobeComponent = ref(false);
+const route = useRoute();
 
 function handleToggleSidebarVisibility() {
   sidebarVisible.value = !sidebarVisible.value;
 }
+
+const pagesUsingGlobe = ["scenarios-runId", "scenarios-new"];
+
+// Set whether to load the globe component based on the current route and screen size
+const setGlobeComponent = () => {
+  // In order that we only load the globe component once, don't set loadGlobeComponent back to false if
+  // it's already true, since setting it to false will cause the component to be destroyed.
+  if (!loadGlobeComponent.value) {
+    // Set the loadGlobeComponent value here, rather than using a computed property, since the app store initializes
+    // with the assumption that largeScreen is true, and so it would always try to load the globe on the initial page load.
+    loadGlobeComponent.value = appStore.largeScreen && pagesUsingGlobe.includes(route.name as string);
+  }
+};
 
 const setScreenSize = () => {
   const breakpoint = 992; // CoreUI's "lg" breakpoint
@@ -34,9 +49,13 @@ const setScreenSize = () => {
     appStore.largeScreen = false;
   } else {
     appStore.largeScreen = true;
-    loadGlobeComponent.value = true;
   }
+  setGlobeComponent();
 };
+
+watch(() => route.name, () => {
+  setGlobeComponent();
+});
 
 appStore.loadMetadata();
 

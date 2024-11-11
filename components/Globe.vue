@@ -132,6 +132,8 @@ const prevSelectablePolygon = ref<am5map.MapPolygon | undefined>(undefined);
 
 const findFeatureForCountry = (countryIso: string) => WHONationalBorders.features.find(f => f.id === countryIso);
 
+// This determines the v-show value, as opposed to the v-if which is controlled in the layout and which manages the loading
+// of the component per se, so that we can hide/show the component separately from loading it (which we want to do either 0 or 1 times max).
 const showGlobe = computed(() => appStore.globeParameter && appStore.largeScreen && route.path !== "/about");
 
 const highlightedCountrySeries = computed(() => {
