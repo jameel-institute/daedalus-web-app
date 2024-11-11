@@ -78,7 +78,12 @@ export const animateSeriesColourChange = (
 
 // Reset the globe to slowly spinning.
 export const createRotateAnimation = (chart: am5map.MapChart) => {
-  const currentRotationX = chart.get("rotationX") || southEastAsiaXCoordinate;
+  let currentRotationX: number;
+  if (chart.get("rotationX") === 0) {
+    currentRotationX = 0;
+  } else {
+    currentRotationX = chart.get("rotationX") || southEastAsiaXCoordinate;
+  }
   return chart.animate({
     key: "rotationX",
     from: currentRotationX,
