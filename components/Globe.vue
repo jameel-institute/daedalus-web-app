@@ -77,10 +77,11 @@ const chartDefaultSettings: am5map.IMapChartSettings = {
   paddingTop: 20,
   paddingLeft: 20,
   paddingRight: 20,
+  pinchZoom: false,
   wheelX: "none",
   wheelY: "none",
   rotationX: southEastAsiaXCoordinate, // Initialize map on SE Asia
-  rotationY: -20,
+  rotationY: -amountToTiltTheEarthUpwardsBy,
 };
 // Shared settings for countries.
 const countrySeriesSettings: am5map.IMapPolygonSeriesSettings = {
@@ -199,12 +200,14 @@ const pauseAnimations = () => {
 const rotateChart = (direction: "x" | "y", to: number) => {
   if (direction === "x") {
     const currentXRotation = chart.get("rotationX")!;
-    // calculates the smallest rotation between 0 amd 360 to get to the country
+    // calculates the smallest rotation between 0 and 360 to get to the country
     let diffRotation = (to - currentXRotation) % 360;
     // translates rotation to between -180 and 180 because rotating 270 east
     // is the same as 90 west
     if (diffRotation > 180) {
       diffRotation = diffRotation - 360;
+    } else if (diffRotation < -180) {
+      diffRotation = diffRotation + 360;
     }
     // gets actual rotation destination by adding the difference
     const toShortest = currentXRotation + diffRotation;
@@ -346,6 +349,9 @@ const setUpDisputedAreasSeries = () => {
 };
 
 const setUpChart = () => {
+  if (root) {
+    root.dispose();
+  }
   root = am5.Root.new(globediv.value);
   root.setThemes([am5themes_Animated.new(root)]);
   chart = root.container.children.push(am5map.MapChart.new(root, chartDefaultSettings));
@@ -354,6 +360,7 @@ const setUpChart = () => {
   setUpDisputedAreasSeries();
   gentleRotateAnimation = createRotateAnimation();
   applyGlobeSettings();
+  return chart;
 };
 
 watch(() => globediv.value, async (globediv) => {
@@ -387,7 +394,11 @@ const resetGlobeZoomAndAnimation = () => {
     rotatedToCountry.value = "";
     // TODO: Make more memory efficient by not re-creating the animations every time
     gentleRotateAnimation = createRotateAnimation();
-    graduallyResetYAxis = chart.animate({ key: "rotationY", to: 0, duration: 20000, easing });
+    if (graduallyResetYAxis) {
+      graduallyResetYAxis.play();
+    } else {
+      graduallyResetYAxis = chart.animate({ key: "rotationY", to: 0, duration: 20000, easing });
+    }
   }
 };
 
