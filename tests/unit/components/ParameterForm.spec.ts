@@ -79,8 +79,8 @@ describe("parameter form", () => {
     expect(renderedOptions[5].find("div.text-secondary").exists()).toBe(false);
 
     expect(vueSelects[1].props("options")).toEqual([
-      { value: "CLD", label: "Cloud Nine", description: null },
-      { value: "HVN", label: "Heaven", description: null },
+      { value: "CLD", label: "Cloud Nine", description: undefined },
+      { value: "HVN", label: "Heaven", description: undefined },
     ]);
     expect(vueSelects[1].props("modelValue")).toBe("HVN");
 
@@ -134,8 +134,8 @@ describe("parameter form", () => {
     expect(vueSelects[0].props("modelValue")).toBe("3");
 
     expect(vueSelects[1].props("options")).toEqual([
-      { value: "CLD", label: "Cloud Nine", description: null },
-      { value: "HVN", label: "Heaven", description: null },
+      { value: "CLD", label: "Cloud Nine", description: undefined },
+      { value: "HVN", label: "Heaven", description: undefined },
     ]);
     expect(vueSelects[1].props("modelValue")).toBe("CLD");
 
@@ -297,9 +297,12 @@ describe("parameter form", () => {
 
     const component = await mountSuspended(ParameterForm, {
       props: { inModal: false },
-      global: { stubs, plugins: [mockPinia({
-        downloadError: "test error",
-      })] },
+      global: {
+        stubs,
+        plugins: [mockPinia({
+          downloadError: "test error",
+        })],
+      },
     });
 
     const buttonEl = component.find("button[type='submit']");

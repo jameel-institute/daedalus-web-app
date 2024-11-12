@@ -5,26 +5,24 @@ import type { Metadata, ResultsMetadata } from "~/types/apiResponseTypes";
 import { TypeOfParameter } from "~/types/parameterTypes";
 import { InterventionLevel } from "~/types/resultTypes";
 
-const globeParameter = {
+export const globeParameter = {
   id: "region",
   label: "Region",
   parameterType: TypeOfParameter.GlobeSelect,
   defaultOption: "HVN",
   ordered: false,
   options: [
-    { id: "CLD", label: "Cloud Nine", description: null },
-    { id: "HVN", label: "Heaven", description: null },
+    { id: "CLD", label: "Cloud Nine" },
+    { id: "HVN", label: "Heaven" },
   ],
-  updateNumericFrom: null,
 };
 
-const selectParameters = [
+export const selectParameters = [
   {
     id: "long_list",
     label: "Drop Down",
     description: "Drop Down Description",
     parameterType: TypeOfParameter.Select,
-    defaultOption: null,
     ordered: false,
     options: [
       { id: "1", label: "Option 1", description: "Option 1 description" },
@@ -34,7 +32,6 @@ const selectParameters = [
       { id: "5", label: "Option 5", description: "Option 5 description" },
       { id: "6", label: "Option 6" },
     ],
-    updateNumericFrom: null,
   },
   {
     id: "short_list",
@@ -46,7 +43,6 @@ const selectParameters = [
       { id: "yes", label: "Yes", description: "Yes description" },
       { id: "no", label: "No" },
     ],
-    updateNumericFrom: null,
   },
 ];
 
@@ -56,7 +52,6 @@ export const updatableNumericParameter = {
   parameterType: TypeOfParameter.Numeric,
   ordered: false,
   step: 1000,
-  defaultOption: null,
   options: [],
   updateNumericFrom: {
     parameterId: "short_list",
@@ -93,7 +88,6 @@ export const countryAndPathogenParams = [
     id: "pathogen",
     label: "Disease",
     parameterType: TypeOfParameter.Select,
-    defaultOption: null,
     ordered: false,
     options: [
       { id: "sars_cov_1", label: "SARS 2004" },

@@ -25,9 +25,9 @@ interface UpdateNumericFrom {
 
 export interface Parameter extends DisplayInfo {
   parameterType: TypeOfParameter
-  defaultOption: string | undefined
+  defaultOption?: string
   ordered: boolean
-  options: Array<ParameterOption> | undefined
-  step: number | undefined
-  updateNumericFrom: UpdateNumericFrom | undefined
+  options?: Array<ParameterOption>
+  step?: number
+  updateNumericFrom?: UpdateNumericFrom
 }
