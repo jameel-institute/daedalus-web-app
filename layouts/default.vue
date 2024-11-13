@@ -33,7 +33,7 @@ function handleToggleSidebarVisibility() {
 const pagesUsingGlobe = ["scenarios-runId", "scenarios-new"];
 
 // Hide/show the component separately from loading it. We want to load either 0 or 1 times max, but show/hide it as needed.
-const showGlobe = computed(() => appStore.globeParameter && appStore.largeScreen && pagesUsingGlobe.includes(route.name as string));
+const showGlobe = computed(() => !!appStore.globeParameter && appStore.largeScreen && pagesUsingGlobe.includes(route.name as string));
 
 // Set whether to load the globe component based on the current route and screen size.
 const setGlobeComponent = () => {
@@ -42,7 +42,7 @@ const setGlobeComponent = () => {
   if (!loadGlobeComponent.value) {
     // Set the loadGlobeComponent value here, rather than using a computed property, since the app store initializes with the assumption
     // that largeScreen is true, and so using a computed would mean that we always try to load the globe on the initial page load.
-    loadGlobeComponent.value = appStore.largeScreen && pagesUsingGlobe.includes(route.name as string);
+    loadGlobeComponent.value = showGlobe.value;
   }
 };
 
