@@ -14,6 +14,11 @@ afterEach(() => {
   mockRoute.mockReset();
 });
 
+// NB: These component tests perform assertions about the return value of setUpChart(), which I call
+// directly in the tests. This is a second-best kind of test, since it means we're testing a
+// second chart object, rather than the one that was created automatically by the component
+// setup script. I do this because I couldn't find a way to access that first chart object from here.
+
 describe("globe", () => {
   describe("on the scenarios new page", () => {
     beforeEach(() => {
@@ -112,8 +117,8 @@ describe("globe", () => {
 
       await waitFor(() => {
         expect(gbrSeries._settings.fill).not.toBe(originalColor);
-        expect(chart.get("rotationX")).toBeCloseTo(-177, 0);
-        expect(chart.get("rotationY")).toBeCloseTo(78, 0);
+        expect(chart.get("rotationX")).toBeCloseTo(3, 0);
+        expect(chart.get("rotationY")).toBeCloseTo(-29, 0);
       }, { timeout: 2500 /* >= rotateDuration */ });
     });
 
@@ -160,9 +165,9 @@ describe("globe", () => {
       });
 
       const chart = component.vm.setUpChart();
-      expect(chart._settings.zoomLevel).toBe(1);
 
       const zoomToGeoBoundsSpy = vi.spyOn(chart, "zoomToGeoBounds");
+      const goHomeSpy = vi.spyOn(chart, "goHome");
 
       appStore.currentScenario.parameters = { country: "NOR" };
 
@@ -174,14 +179,15 @@ describe("globe", () => {
         expect(zoomToGeoBoundsSpy).toHaveBeenCalled();
       }, { timeout: 2500 /* >= rotateDuration */ });
 
-      // Navigating from a page that sets appStore.globe.interactive to true to a page that sets it to false
+      // Simulate the changes to app store that are performed by the 'scenarios/new' page's onMounted hook
       appStore.globe.interactive = false;
+      appStore.globe.highlightedCountry = null;
 
       await component.vm.$nextTick();
 
-      expect(component.vm.gentleRotateAnimation.stopped).toBe(true);
+      expect(component.vm.gentleRotateAnimation.stopped).toBe(false);
       await waitFor(() => {
-        expect(chart._settings.zoomLevel).toBe(1);
+        expect(goHomeSpy).toHaveBeenCalled();
       });
     });
   });

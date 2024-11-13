@@ -147,7 +147,6 @@ const highlightedCountrySeries = computed(() => {
   return am5map.MapPolygonSeries.new(root, {
     ...highlightedCountrySeriesSettings,
     geoJSON: findFeatureForCountry(appStore.globe.highlightedCountry),
-    reverseGeodata: false,
     fill: startingColor,
   });
 });
@@ -206,8 +205,6 @@ const rotateChart = (direction: "x" | "y", to: number) => {
     // is the same as 90 west
     if (diffRotation > 180) {
       diffRotation = diffRotation - 360;
-    } else if (diffRotation < -180) {
-      diffRotation = diffRotation + 360;
     }
     // gets actual rotation destination by adding the difference
     const toShortest = currentXRotation + diffRotation;
@@ -297,13 +294,13 @@ const handlePolygonActive = (target: am5map.MapPolygon, prevPolygonRef: Ref<am5m
 };
 
 const setUpBackgroundSeries = () => {
-  backgroundSeries = initializeSeries({ ...backgroundSeriesSettings, reverseGeodata: true });
+  backgroundSeries = initializeSeries({ ...backgroundSeriesSettings });
   backgroundSeries.mapPolygons.template.setAll({ tooltipText: "{name} is not currently available", toggleKey: "active", interactive: true });
   backgroundSeries.mapPolygons.template.on("active", (_active, target) => handlePolygonActive(target, prevBackgroundPolygon));
 };
 
 const setUpSelectableCountriesSeries = () => {
-  selectableCountriesSeries = initializeSeries({ ...selectableCountriesSeriesSettings, reverseGeodata: false });
+  selectableCountriesSeries = initializeSeries({ ...selectableCountriesSeriesSettings });
   selectableCountriesSeries.mapPolygons.template.setAll({
     tooltipText: "{name}",
     toggleKey: "active",
@@ -340,12 +337,11 @@ const setUpDisputedAreasSeries = () => {
   Object.keys(disputedLands).forEach((disputedArea) => {
     disputedLands[disputedArea].mapSeries = initializeSeries({
       ...disputedLandSeriesSettings,
-      reverseGeodata: true,
       include: [disputedArea],
     });
   });
 
-  initializeSeries({ ...disputedBodiesOfWaterSeriesSettings, reverseGeodata: true });
+  initializeSeries({ ...disputedBodiesOfWaterSeriesSettings });
 };
 
 const setUpChart = () => {
