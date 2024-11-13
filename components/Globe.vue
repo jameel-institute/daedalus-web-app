@@ -17,6 +17,7 @@
 import type { MultiPolygon } from "geojson";
 import WHONationalBorders from "@/assets/geodata/2pc_downsampled_WHO_adm0_22102024";
 import WHODisputedAreas from "@/assets/geodata/2pc_downsampled_WHO_disputed_areas_22102024";
+import { amountToTiltTheEarthUpwardsBy, animateSeriesColourChange, type Animation, createRotateAnimation, geoPointZoomDuration, getWideGeoBounds, handlePolygonActive, initializeSeries, pauseAnimations, removeSeries, rotateToCentroid, southEastAsiaXCoordinate } from "@/components/utils/globe";
 import { rgba2hex } from "@amcharts/amcharts5/.internal/core/util/Color";
 import * as am5 from "@amcharts/amcharts5/index";
 import * as am5map from "@amcharts/amcharts5/map";
@@ -42,17 +43,10 @@ const hoverLandColour = am5.color("#1c6777"); // The midpoint between defaultLan
 const lightGreyBackground = am5.color(rgba2hex("rgb(243, 244, 247)"));
 const maxZindex = 29; // 30 is reserved by amCharts
 
-// Animation variables
-const southEastAsiaXCoordinate = -100;
 const goHomeDuration = 500;
-const rotateDuration = 2000;
-const geoPointZoomDuration = 2000;
-// To place any country of interest on the 'upper-facing' part of the globe. Just looks better.
-const amountToTiltTheEarthUpwardsBy = 25;
-const easing = am5.ease.inOut(am5.ease.cubic);
-interface Animation { pause: () => void, stopped: boolean, play: () => void }
 let gentleRotateAnimation: Animation;
 let graduallyResetYAxis: Animation;
+let animations: Animation[] = [];
 
 let root: am5.Root;
 let chart: am5map.MapChart;
@@ -173,69 +167,6 @@ const applyGlobeSettings = () => {
   }
 };
 
-// https://www.amcharts.com/docs/v4/tutorials/dynamically-adding-and-removing-series/
-const removeSeries = (seriesToRemove: am5map.MapPolygonSeries) => {
-  chart.series.removeIndex(
-    chart.series.indexOf(seriesToRemove),
-  ).dispose();
-};
-
-const animateSeriesColourChange = (
-  series: am5map.MapPolygonSeries,
-  colour: am5.Color,
-) => series.animate({ key: "fill", to: colour, duration: geoPointZoomDuration, easing });
-
-const pauseAnimation = (animation: Animation) => {
-  if (animation && !animation.stopped) {
-    animation.pause();
-  }
-};
-
-const pauseAnimations = () => {
-  pauseAnimation(gentleRotateAnimation);
-  pauseAnimation(graduallyResetYAxis);
-};
-
-const rotateChart = (direction: "x" | "y", to: number) => {
-  if (direction === "x") {
-    const currentXRotation = chart.get("rotationX")!;
-    // calculates the smallest rotation between 0 and 360 to get to the country
-    let diffRotation = (to - currentXRotation) % 360;
-    // translates rotation to between -180 and 180 because rotating 270 east
-    // is the same as 90 west
-    if (diffRotation > 180) {
-      diffRotation = diffRotation - 360;
-    }
-    // gets actual rotation destination by adding the difference
-    const toShortest = currentXRotation + diffRotation;
-    chart.animate({
-      key: "rotationX",
-      to: toShortest,
-      duration: rotateDuration,
-      easing,
-    });
-  } else {
-    chart.animate({
-      key: "rotationY",
-      to,
-      duration: rotateDuration,
-      easing,
-    });
-  }
-};
-
-const rotateToCentroid = (centroid: am5.IGeoPoint, countryIso: string) => {
-  return new Promise<void>((resolve) => {
-    pauseAnimations();
-    rotateChart("x", -centroid.longitude);
-    rotateChart("y", (amountToTiltTheEarthUpwardsBy - centroid.latitude));
-    setTimeout(() => {
-      rotatedToCountry.value = countryIso;
-      resolve();
-    }, rotateDuration);
-  });
-};
-
 const countryCentroid = (countryIso: string) => {
   const geometry = findFeatureForCountry(countryIso)?.geometry as MultiPolygon;
   if (geometry) {
@@ -246,61 +177,28 @@ const countryCentroid = (countryIso: string) => {
 const rotateToCountry = async (countryIso: string) => {
   const centroid = countryCentroid(countryIso);
   if (chart && centroid && rotatedToCountry.value !== countryIso) {
-    pauseAnimations();
-    await rotateToCentroid(centroid, countryIso);
+    pauseAnimations(animations);
+    await rotateToCentroid(chart, centroid, countryIso, rotatedToCountry);
   }
 };
 
 const zoomToCountry = (countryIso: string) => {
   const centroid = countryCentroid(countryIso);
   const geometry = findFeatureForCountry(countryIso)?.geometry as MultiPolygon;
-  const bounds = am5map.getGeoBounds(geometry);
-  // Don't zoom in very tightly on the country's bounds.
-  // Also avoid exceeding the globe's bounds.
-  bounds.left = Math.max(-180, bounds.left -= 10);
-  bounds.right = Math.min(180, bounds.right += 10);
-  bounds.top = Math.min(90, bounds.top += 10);
-  bounds.bottom = Math.max(-90, bounds.bottom -= 10);
   if (chart && centroid) {
-    pauseAnimations();
-    chart.zoomToGeoBounds(bounds, geoPointZoomDuration);
+    pauseAnimations(animations);
+    chart.zoomToGeoBounds(getWideGeoBounds(geometry), geoPointZoomDuration);
   }
-};
-
-// Reset the globe to slowly spinning.
-const createRotateAnimation = () => {
-  const currentRotationX = chart.get("rotationX") || southEastAsiaXCoordinate;
-  return chart.animate({
-    key: "rotationX",
-    from: currentRotationX,
-    to: 360 + currentRotationX,
-    duration: 180000,
-    loops: Infinity,
-  });
-};
-
-const initializeSeries = (settings: am5map.IMapPolygonSeriesSettings) => {
-  const series = am5map.MapPolygonSeries.new(root, settings);
-  chart.series.push(series);
-  return series;
-};
-
-// When a polygon is activated (clicked), make sure the previously activated polygon is deactivated.
-const handlePolygonActive = (target: am5map.MapPolygon, prevPolygonRef: Ref<am5map.MapPolygon | undefined>) => {
-  if (prevPolygonRef.value && prevPolygonRef.value !== target) {
-    prevPolygonRef.value.set("active", false);
-  }
-  prevPolygonRef.value = target;
 };
 
 const setUpBackgroundSeries = () => {
-  backgroundSeries = initializeSeries({ ...backgroundSeriesSettings });
+  backgroundSeries = initializeSeries(root, chart, { ...backgroundSeriesSettings });
   backgroundSeries.mapPolygons.template.setAll({ tooltipText: "{name} is not currently available", toggleKey: "active", interactive: true });
   backgroundSeries.mapPolygons.template.on("active", (_active, target) => handlePolygonActive(target, prevBackgroundPolygon));
 };
 
 const setUpSelectableCountriesSeries = () => {
-  selectableCountriesSeries = initializeSeries({ ...selectableCountriesSeriesSettings });
+  selectableCountriesSeries = initializeSeries(root, chart, { ...selectableCountriesSeriesSettings });
   selectableCountriesSeries.mapPolygons.template.setAll({
     tooltipText: "{name}",
     toggleKey: "active",
@@ -335,13 +233,13 @@ const setUpSelectableCountriesSeries = () => {
 
 const setUpDisputedAreasSeries = () => {
   Object.keys(disputedLands).forEach((disputedArea) => {
-    disputedLands[disputedArea].mapSeries = initializeSeries({
+    disputedLands[disputedArea].mapSeries = initializeSeries(root, chart, {
       ...disputedLandSeriesSettings,
       include: [disputedArea],
     });
   });
 
-  initializeSeries({ ...disputedBodiesOfWaterSeriesSettings });
+  initializeSeries(root, chart, { ...disputedBodiesOfWaterSeriesSettings });
 };
 
 const setUpChart = () => {
@@ -354,7 +252,7 @@ const setUpChart = () => {
   setUpBackgroundSeries();
   setUpSelectableCountriesSeries();
   setUpDisputedAreasSeries();
-  gentleRotateAnimation = createRotateAnimation();
+  gentleRotateAnimation = createRotateAnimation(chart);
   applyGlobeSettings();
   return chart;
 };
@@ -383,18 +281,19 @@ const disputedAreas = (countryId: string) => {
 
 const resetGlobeZoomAndAnimation = () => {
   if (chart) {
-    pauseAnimations();
+    pauseAnimations(animations);
     // Probably the user has navigated back to the home page.
     chart.goHome(goHomeDuration);
     // Reset the globe to zoomed out and slowly spinning.
     rotatedToCountry.value = "";
     // TODO: Make more memory efficient by not re-creating the animations every time
-    gentleRotateAnimation = createRotateAnimation();
+    gentleRotateAnimation = createRotateAnimation(chart);
     if (graduallyResetYAxis) {
       graduallyResetYAxis.play();
     } else {
-      graduallyResetYAxis = chart.animate({ key: "rotationY", to: 0, duration: 20000, easing });
+      graduallyResetYAxis = chart.animate({ key: "rotationY", to: 0, duration: 20000, easing: am5.ease.inOut(am5.ease.cubic) });
     }
+    animations = [gentleRotateAnimation, graduallyResetYAxis];
   }
 };
 
@@ -402,7 +301,7 @@ const resetGlobeZoomAndAnimation = () => {
 // on the new scenario page, rotate the globe to focus on that country.
 const highlightCountry = async () => {
   if (appStore.globe.highlightedCountry && highlightedCountrySeries.value) {
-    pauseAnimations();
+    pauseAnimations(animations);
     chart.series.push(highlightedCountrySeries.value);
 
     disputedAreas(appStore.globe.highlightedCountry!).forEach((disputedArea) => {
@@ -428,7 +327,7 @@ watch(() => highlightedCountrySeries.value, async (newSeries, oldSeries) => {
       stopDisplayingAllDisputedAreas();
       animateSeriesColourChange(oldSeries, defaultLandColour);
       setTimeout(() => {
-        removeSeries(oldSeries);
+        removeSeries(chart, oldSeries);
       }, geoPointZoomDuration);
     }
     if (newSeries) {
