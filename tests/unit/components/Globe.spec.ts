@@ -30,19 +30,20 @@ describe("globe", () => {
     it("initially creates the chart, with series whose layers are correct, without any 'highlighted country' series", async () => {
       const component = await mountSuspended(Globe);
 
-      const chart = component.vm.setUpChart();
+      const chart = (component.vm as any).setUpChart();
 
       expect(chart.get("rotationX")).toBe(-100);
       expect(chart.get("rotationY")).toBe(-25);
 
-      expect(chart.series._values.length).toBe(7);
-      expect(chart.series._values[0]._settings.layer).toBe(24);
-      expect(chart.series._values[1]._settings.layer).toBe(25);
-      expect(chart.series._values[2]._settings.layer).toBe(28);
-      expect(chart.series._values[3]._settings.layer).toBe(28);
-      expect(chart.series._values[4]._settings.layer).toBe(28);
-      expect(chart.series._values[5]._settings.layer).toBe(28);
-      expect(chart.series._values[6]._settings.layer).toBe(29);
+      expect(chart.series._values.length).toBe(8);
+      expect(chart.series._values[0]._settings.layer).toBe(24); // Background series
+      expect(chart.series._values[1]._settings.layer).toBe(24); // Antarctica
+      expect(chart.series._values[2]._settings.layer).toBe(25); // Selectable countries
+      expect(chart.series._values[3]._settings.layer).toBe(28); // Disputed land 1
+      expect(chart.series._values[4]._settings.layer).toBe(28); // Disputed land 2
+      expect(chart.series._values[5]._settings.layer).toBe(28); // Disputed land 3
+      expect(chart.series._values[6]._settings.layer).toBe(28); // Disputed land 4
+      expect(chart.series._values[7]._settings.layer).toBe(29); // Disputed bodies of water
     });
 
     it("updating highlightedCountry in store (as when a country is selected from the drop-down) should trigger a 'highlighted country' series to be added, which is disposed of when a new highlightedCountry is set", async () => {
@@ -61,20 +62,20 @@ describe("globe", () => {
         global: { plugins: [testPinia] },
       });
 
-      const chart = component.vm.setUpChart();
+      const chart = (component.vm as any).setUpChart();
 
       appStore.globe.highlightedCountry = "GBR";
 
       await component.vm.$nextTick();
 
-      expect(chart.series._values.length).toBe(8);
-      const gbrSeries = chart.series._values[7];
+      expect(chart.series._values.length).toBe(9);
+      const gbrSeries = chart.series._values[8];
 
       // Ensure that the name has been updated from 'United Kingdom of Great Britain and Northern Ireland' to 'United Kingdom'
       // Name is used for tooltips.
       expect(gbrSeries._settings.geoJSON.properties.name).toBe("United Kingdom");
 
-      const selectableCountrySeries = chart.series._values[1];
+      const selectableCountrySeries = chart.series._values[2];
 
       // These expectations won't pass until the data has been validated by amcharts
       await waitFor(() => {
@@ -92,9 +93,9 @@ describe("globe", () => {
         expect(gbrSeries._disposed).toBe(true);
       }, { timeout: 3000 /* >= geoPointZoomDuration */ });
 
-      expect(chart.series._values.length).toBe(8);
-      expect(chart.series._values[7]._settings.geoJSON.properties.name).toBe("United States");
-      expect(chart.series._values[7].mapPolygons._values[0]._dataItem?.dataContext?.name).toBe("United States");
+      expect(chart.series._values.length).toBe(9);
+      expect(chart.series._values[8]._settings.geoJSON.properties.name).toBe("United States");
+      expect(chart.series._values[8].mapPolygons._values[0]._dataItem?.dataContext?.name).toBe("United States");
     });
 
     it("updating highlightedCountry in store (as when a country is selected from the drop-down) should trigger a recolouring of and a rotation to that country", async () => {
@@ -104,7 +105,7 @@ describe("globe", () => {
         global: { plugins: [testPinia] },
       });
 
-      const chart = component.vm.setUpChart();
+      const chart = (component.vm as any).setUpChart();
 
       appStore.globe.highlightedCountry = "GBR";
 
@@ -112,7 +113,7 @@ describe("globe", () => {
 
       expect(component.vm.gentleRotateAnimation.stopped).toBe(true);
 
-      const gbrSeries = chart.series._values[7];
+      const gbrSeries = chart.series._values[8];
       const originalColor = gbrSeries._settings.fill;
 
       await waitFor(() => {
@@ -135,7 +136,7 @@ describe("globe", () => {
         global: { plugins: [testPinia] },
       });
 
-      const chart = component.vm.setUpChart();
+      const chart = (component.vm as any).setUpChart();
       expect(chart._settings.zoomLevel).toBe(1);
 
       const zoomToGeoBoundsSpy = vi.spyOn(chart, "zoomToGeoBounds");
@@ -164,7 +165,7 @@ describe("globe", () => {
         global: { plugins: [testPinia] },
       });
 
-      const chart = component.vm.setUpChart();
+      const chart = (component.vm as any).setUpChart();
 
       const zoomToGeoBoundsSpy = vi.spyOn(chart, "zoomToGeoBounds");
       const goHomeSpy = vi.spyOn(chart, "goHome");
@@ -206,13 +207,13 @@ describe("globe", () => {
         global: { plugins: [testPinia] },
       });
 
-      const chart = component.vm.setUpChart();
+      const chart = (component.vm as any).setUpChart();
 
       appStore.globe.highlightedCountry = "GBR";
 
       await component.vm.$nextTick();
 
-      const gbrSeries = chart.series._values[7];
+      const gbrSeries = chart.series._values[8];
       const originalColor = gbrSeries._settings.fill;
       const originalX = chart.get("rotationX");
       const originalY = chart.get("rotationY");
