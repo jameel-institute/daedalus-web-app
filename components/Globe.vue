@@ -22,6 +22,7 @@ import { rgba2hex } from "@amcharts/amcharts5/.internal/core/util/Color";
 import * as am5 from "@amcharts/amcharts5/index";
 import * as am5map from "@amcharts/amcharts5/map";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+import worldLow from "@amcharts/amcharts5-geodata/worldLow";
 import throttle from "lodash.throttle";
 
 const appStore = useAppStore();
@@ -57,11 +58,12 @@ const disputedLands: Record<string, {
   disputers: string[]
   mapSeries: am5map.MapPolygonSeries | null
   displayed: boolean
+  colorAsSelectable: boolean
 }> = {
-  "Western Sahara": { disputers: ["ESH", "MAR"], mapSeries: null, displayed: false },
-  "Abyei": { disputers: ["SSD", "SDN"], mapSeries: null, displayed: false },
-  "Aksai Chin": { disputers: ["CHN", "IND"], mapSeries: null, displayed: false },
-  "Jammu and Kashmir": { disputers: ["IND", "PAK", "CHN"], mapSeries: null, displayed: false },
+  "Western Sahara": { disputers: ["ESH", "MAR"], mapSeries: null, displayed: false, colorAsSelectable: false },
+  "Abyei": { disputers: ["SSD", "SDN"], mapSeries: null, displayed: false, colorAsSelectable: false },
+  "Aksai Chin": { disputers: ["CHN", "IND"], mapSeries: null, displayed: false, colorAsSelectable: true },
+  "Jammu and Kashmir": { disputers: ["IND", "PAK", "CHN"], mapSeries: null, displayed: false, colorAsSelectable: true },
 };
 const chartDefaultSettings: am5map.IMapChartSettings = {
   panX: "rotateX",
@@ -107,7 +109,6 @@ const disputedAreaSeriesSettings: am5map.IMapPolygonSeriesSettings = {
 // Settings for disputed *land* areas - see 'Customization' in shapefiles.md
 const disputedLandSeriesSettings: am5map.IMapPolygonSeriesSettings = {
   ...disputedAreaSeriesSettings,
-  fill: defaultLandColour,
   layer: maxZindex - 1, // Make sure disputed areas are always painted on top of country areas
 };
 // Settings for disputed *water* areas - see 'Customization' in shapefiles.md
@@ -197,6 +198,10 @@ const setUpBackgroundSeries = () => {
   backgroundSeries.mapPolygons.template.on("active", (_active, target) => handlePolygonActive(target, prevBackgroundPolygon));
 };
 
+const setUpAntarcticaSeries = () => {
+  initializeSeries({ ...backgroundSeriesSettings, geoJSON: worldLow, include: ["AQ"] });
+};
+
 const setUpSelectableCountriesSeries = () => {
   selectableCountriesSeries = initializeSeries(root, chart, { ...selectableCountriesSeriesSettings });
   selectableCountriesSeries.mapPolygons.template.setAll({
@@ -236,6 +241,7 @@ const setUpDisputedAreasSeries = () => {
     disputedLands[disputedArea].mapSeries = initializeSeries(root, chart, {
       ...disputedLandSeriesSettings,
       include: [disputedArea],
+      fill: disputedLands[disputedArea].colorAsSelectable ? defaultLandColour : unselectableLandColor,
     });
   });
 
@@ -250,6 +256,7 @@ const setUpChart = () => {
   root.setThemes([am5themes_Animated.new(root)]);
   chart = root.container.children.push(am5map.MapChart.new(root, chartDefaultSettings));
   setUpBackgroundSeries();
+  setUpAntarcticaSeries();
   setUpSelectableCountriesSeries();
   setUpDisputedAreasSeries();
   gentleRotateAnimation = createRotateAnimation(chart);
