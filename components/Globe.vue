@@ -196,7 +196,7 @@ const setUpBackgroundSeries = () => {
 };
 
 const setUpAntarcticaSeries = () => {
-  initializeSeries({ ...backgroundSeriesSettings, geoJSON: worldLow, include: ["AQ"] });
+  initializeSeries(root, chart, { ...backgroundSeriesSettings, geoJSON: worldLow, include: ["AQ"] });
 };
 
 const setUpSelectableCountriesSeries = () => {
