@@ -165,7 +165,7 @@ describe("costs pie", () => {
   it("should destroy the chart when the component is unmounted", async () => {
     const component = await mountSuspended(CostsPie, {
       global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithCostData })] },
-      props: { hideTooltips: false, pieSize: 100 },
+      props: { hideTooltips: false },
     });
 
     component.unmount();
