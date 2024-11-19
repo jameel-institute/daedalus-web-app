@@ -222,9 +222,10 @@ describe("globe", () => {
 
       await waitFor(() => {
         expect(gbrSeries._settings.fill).not.toBe(originalColor);
+        expect(gbrSeries._settings.fill._hex).toBe(3645343); // This is the decimal version of the hex for 'Imperial sea-glass'
         expect(chart.get("rotationX")).toBe(originalX);
         expect(chart.get("rotationY")).toBe(originalY);
-      });
+      }, { timeout: 3000 });
     });
   });
 });
