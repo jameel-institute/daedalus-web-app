@@ -1,6 +1,7 @@
 import Globe from "@/components/Globe.vue";
-import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
+import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
+import { mount } from "@vue/test-utils";
 import { globeParameter, mockedMetadata, mockPinia, selectParameters, updatableNumericParameter } from "~/tests/unit/mocks/mockPinia";
 
 // https://developer.mamezou-tech.com/en/blogs/2024/02/12/nuxt3-unit-testing-mock/
@@ -14,11 +15,6 @@ afterEach(() => {
   mockRoute.mockReset();
 });
 
-// NB: These component tests perform assertions about the return value of setUpChart(), which I call
-// directly in the tests. This is a second-best kind of test, since it means we're testing a
-// second chart object, rather than the one that was created automatically by the component
-// setup script. I do this because I couldn't find a way to access that first chart object from here.
-
 describe("globe", () => {
   describe("on the scenarios new page", () => {
     beforeEach(() => {
@@ -28,9 +24,9 @@ describe("globe", () => {
     });
 
     it("initially creates the chart, with series whose layers are correct, without any 'highlighted country' series", async () => {
-      const component = await mountSuspended(Globe);
+      const component = await mount(Globe);
 
-      const chart = (component.vm as any).setUpChart();
+      const chart = component.vm.chart;
 
       expect(chart.get("rotationX")).toBe(-100);
       expect(chart.get("rotationY")).toBe(-25);
@@ -58,11 +54,11 @@ describe("globe", () => {
         },
       });
       const appStore = useAppStore(testPinia);
-      const component = await mountSuspended(Globe, {
+      const component = await mount(Globe, {
         global: { plugins: [testPinia] },
       });
 
-      const chart = (component.vm as any).setUpChart();
+      const chart = component.vm.chart;
 
       appStore.globe.highlightedCountry = "GBR";
 
@@ -101,11 +97,11 @@ describe("globe", () => {
     it("updating highlightedCountry in store (as when a country is selected from the drop-down) should trigger a recolouring of and a rotation to that country", async () => {
       const testPinia = mockPinia();
       const appStore = useAppStore(testPinia);
-      const component = await mountSuspended(Globe, {
+      const component = await mount(Globe, {
         global: { plugins: [testPinia] },
       });
 
-      const chart = (component.vm as any).setUpChart();
+      const chart = component.vm.chart;
 
       appStore.globe.highlightedCountry = "GBR";
 
@@ -132,11 +128,11 @@ describe("globe", () => {
       });
       const appStore = useAppStore(testPinia);
 
-      const component = await mountSuspended(Globe, {
+      const component = await mount(Globe, {
         global: { plugins: [testPinia] },
       });
 
-      const chart = (component.vm as any).setUpChart();
+      const chart = component.vm.chart;
       expect(chart._settings.zoomLevel).toBe(1);
 
       const zoomToGeoBoundsSpy = vi.spyOn(chart, "zoomToGeoBounds");
@@ -161,11 +157,11 @@ describe("globe", () => {
       });
       const appStore = useAppStore(testPinia);
 
-      const component = await mountSuspended(Globe, {
+      const component = await mount(Globe, {
         global: { plugins: [testPinia] },
       });
 
-      const chart = (component.vm as any).setUpChart();
+      const chart = component.vm.chart;
 
       const zoomToGeoBoundsSpy = vi.spyOn(chart, "zoomToGeoBounds");
       const goHomeSpy = vi.spyOn(chart, "goHome");
@@ -203,11 +199,11 @@ describe("globe", () => {
     it("updating highlightedCountry in store (as when a country is selected from the drop-down) should not trigger a rotation to that country", async () => {
       const testPinia = mockPinia();
       const appStore = useAppStore(testPinia);
-      const component = await mountSuspended(Globe, {
+      const component = await mount(Globe, {
         global: { plugins: [testPinia] },
       });
 
-      const chart = (component.vm as any).setUpChart();
+      const chart = component.vm.chart;
 
       appStore.globe.highlightedCountry = "GBR";
 

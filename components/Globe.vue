@@ -246,9 +246,6 @@ const setUpDisputedAreasSeries = () => {
 };
 
 const setUpChart = () => {
-  if (root) {
-    root.dispose();
-  }
   root = am5.Root.new(globediv.value);
   root.setThemes([am5themes_Animated.new(root)]);
   chart = root.container.children.push(am5map.MapChart.new(root, chartDefaultSettings));
@@ -258,7 +255,6 @@ const setUpChart = () => {
   setUpDisputedAreasSeries();
   gentleRotateAnimation = createRotateAnimation(chart);
   applyGlobeSettings();
-  return chart;
 };
 
 watch(() => globediv.value, async (globediv) => {
