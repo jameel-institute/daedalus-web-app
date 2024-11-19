@@ -28,8 +28,8 @@ describe("globe", () => {
 
       const chart = component.vm.chart;
 
-      expect(chart.get("rotationX")).toBe(-100);
-      expect(chart.get("rotationY")).toBe(-25);
+      expect(chart.get("rotationX")).toBe(-100); // southEastAsiaXCoordinate
+      expect(chart.get("rotationY")).toBe(-25); // amountToTiltTheEarthUpwardsBy - centroid.latitude
 
       expect(chart.series._values.length).toBe(8);
       expect(chart.series._values[0]._settings.layer).toBe(24); // Background series
