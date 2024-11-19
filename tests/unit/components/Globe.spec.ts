@@ -1,3 +1,4 @@
+import type * as am5map from "@amcharts/amcharts5/map";
 import Globe from "@/components/Globe.vue";
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
@@ -14,6 +15,10 @@ mockNuxtImport("useRoute", () => mockRoute);
 afterEach(() => {
   mockRoute.mockReset();
 });
+
+const getHighlightedCountrySeries = (chart: am5map.MapChart): am5map.MapSeries => {
+  return chart.series._values.find(s => s._settings.layer === 26) as am5map.MapSeries;
+};
 
 describe("globe", () => {
   describe("on the scenarios new page", () => {
@@ -65,17 +70,17 @@ describe("globe", () => {
       await component.vm.$nextTick();
 
       expect(chart.series._values.length).toBe(9);
-      const gbrSeries = chart.series._values[8];
+      const highlightedSeries1 = getHighlightedCountrySeries(chart);
 
       // Ensure that the name has been updated from 'United Kingdom of Great Britain and Northern Ireland' to 'United Kingdom'
       // Name is used for tooltips.
-      expect(gbrSeries._settings.geoJSON.properties.name).toBe("United Kingdom");
+      expect(highlightedSeries1._settings.geoJSON.properties.name).toBe("United Kingdom");
 
       const selectableCountrySeries = chart.series._values[2];
 
       // These expectations won't pass until the data has been validated by amcharts
       await waitFor(() => {
-        expect(gbrSeries.mapPolygons._values[0]._dataItem?.dataContext?.name).toBe("United Kingdom");
+        expect(highlightedSeries1.mapPolygons._values[0]._dataItem?.dataContext?.name).toBe("United Kingdom");
         expect(selectableCountrySeries._dataItems.find(d => d.dataContext.id === "GBR").dataContext.name).toBe("United Kingdom");
         expect(selectableCountrySeries._dataItems.find(d => d.dataContext.id === "USA").dataContext.name).toBe("United States");
         expect(selectableCountrySeries._dataItems.find(d => d.dataContext.id === "THA").dataContext.name).toBe("Thailand");
@@ -86,12 +91,13 @@ describe("globe", () => {
       await component.vm.$nextTick();
 
       await waitFor(() => {
-        expect(gbrSeries._disposed).toBe(true);
+        expect(highlightedSeries1._disposed).toBe(true);
       }, { timeout: 3000 /* >= geoPointZoomDuration */ });
 
       expect(chart.series._values.length).toBe(9);
-      expect(chart.series._values[8]._settings.geoJSON.properties.name).toBe("United States");
-      expect(chart.series._values[8].mapPolygons._values[0]._dataItem?.dataContext?.name).toBe("United States");
+      const highlightedSeries2 = getHighlightedCountrySeries(chart);
+      expect(highlightedSeries2._settings.geoJSON.properties.name).toBe("United States");
+      expect(highlightedSeries2.mapPolygons._values[0]._dataItem?.dataContext?.name).toBe("United States");
     });
 
     it("updating highlightedCountry in store (as when a country is selected from the drop-down) should trigger a recolouring of and a rotation to that country", async () => {
@@ -109,7 +115,7 @@ describe("globe", () => {
 
       expect(component.vm.gentleRotateAnimation.stopped).toBe(true);
 
-      const gbrSeries = chart.series._values[8];
+      const gbrSeries = getHighlightedCountrySeries(chart);
       const originalColor = gbrSeries._settings.fill;
 
       await waitFor(() => {
@@ -209,7 +215,7 @@ describe("globe", () => {
 
       await component.vm.$nextTick();
 
-      const gbrSeries = chart.series._values[8];
+      const gbrSeries = getHighlightedCountrySeries(chart);
       const originalColor = gbrSeries._settings.fill;
       const originalX = chart.get("rotationX");
       const originalY = chart.get("rotationY");
