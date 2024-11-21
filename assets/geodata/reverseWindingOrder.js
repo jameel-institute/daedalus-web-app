@@ -35,6 +35,6 @@ map.features.forEach((feature) => {
 const updatedFileContent = `const map = ${JSON.stringify(map, null, 2)};\nexport default map;`;
 
 // Save the updated content back to the file
-fs.writeFileSync(filePath, updatedFileContent, "utf8");
+fs.writeFileSync(`reversed_${filePath}`, updatedFileContent, "utf8");
 
 console.log("Winding order reversed successfully.");
