@@ -73,7 +73,7 @@ docker run --rm -d \
   --entrypoint="/usr/local/bin/daedalus.api" \
   $R_API_IMAGE
 
-sleep 10
+sleep 5
 
 docker run --rm -d \
   --name=daedalus-api-worker \
