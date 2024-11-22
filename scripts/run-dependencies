@@ -69,7 +69,7 @@ docker run --rm -d \
   --network=$NETWORK \
   -v $VOLUME:/daedalus/results \
   --env=DAEDALUS_QUEUE_ID=$QUEUE_ID \
-  --env=REDIS_CONTAINER_NAME=daedalus-redis \s
+  --env=REDIS_CONTAINER_NAME=daedalus-redis \
   --entrypoint="/usr/local/bin/daedalus.api" \
   $R_API_IMAGE
 
