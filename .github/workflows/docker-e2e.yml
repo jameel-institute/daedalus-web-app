@@ -40,6 +40,8 @@ jobs:
         run: npm ci
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps && npx playwright install msedge
+      - name: docker check
+        run: docker ps
       - name: Run Playwright tests
         run: npm run test:e2e
       - uses: actions/upload-artifact@v4
