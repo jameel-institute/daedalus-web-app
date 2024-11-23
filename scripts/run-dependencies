@@ -73,6 +73,7 @@ docker run --rm -d \
   --entrypoint="/usr/local/bin/daedalus.api" \
   $R_API_IMAGE
 
+# Give the api container time to configure the queue
 sleep 5
 
 docker run --rm -d \
