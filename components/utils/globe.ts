@@ -2,8 +2,8 @@ import * as am5 from "@amcharts/amcharts5/index";
 import * as am5map from "@amcharts/amcharts5/map";
 
 // To place any country of interest on the 'upper-facing' part of the globe. Just looks better.
-const amountToTiltTheEarthUpwardsBy = 25;
 const rotateDuration = 2000;
+export const amountToTiltTheEarthUpwardsBy = 25;
 export const geoPointZoomDuration = 2000;
 export const southEastAsiaXCoordinate = -100;
 

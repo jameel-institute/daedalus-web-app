@@ -16,7 +16,7 @@
 import type { MultiPolygon } from "geojson";
 import WHONationalBorders from "@/assets/geodata/2pc_downsampled_WHO_adm0_22102024";
 import WHODisputedAreas from "@/assets/geodata/2pc_downsampled_WHO_disputed_areas_22102024";
-import { animateSeriesColourChange, type Animation, createRotateAnimation, geoPointZoomDuration, getWideGeoBounds, handlePolygonActive, initializeSeries, pauseAnimations, removeSeries, rotateToCentroid, southEastAsiaXCoordinate } from "@/components/utils/globe";
+import { amountToTiltTheEarthUpwardsBy, animateSeriesColourChange, type Animation, createRotateAnimation, geoPointZoomDuration, getWideGeoBounds, handlePolygonActive, initializeSeries, pauseAnimations, removeSeries, rotateToCentroid, southEastAsiaXCoordinate } from "@/components/utils/globe";
 import { rgba2hex } from "@amcharts/amcharts5/.internal/core/util/Color";
 import * as am5 from "@amcharts/amcharts5/index";
 import * as am5map from "@amcharts/amcharts5/map";
@@ -72,10 +72,11 @@ const chartDefaultSettings: am5map.IMapChartSettings = {
   paddingTop: 20,
   paddingLeft: 20,
   paddingRight: 20,
+  pinchZoom: false,
   wheelX: "none",
   wheelY: "none",
   rotationX: southEastAsiaXCoordinate, // Initialize map on SE Asia
-  rotationY: -20,
+  rotationY: -amountToTiltTheEarthUpwardsBy,
 };
 // Shared settings for countries.
 const countrySeriesSettings: am5map.IMapPolygonSeriesSettings = {
@@ -138,7 +139,6 @@ const highlightedCountrySeries = computed(() => {
   return am5map.MapPolygonSeries.new(root, {
     ...highlightedCountrySeriesSettings,
     geoJSON: findFeatureForCountry(appStore.globe.highlightedCountry),
-    reverseGeodata: false,
     fill: startingColor,
   });
 });
@@ -190,17 +190,17 @@ const zoomToCountry = (countryIso: string) => {
 };
 
 const setUpBackgroundSeries = () => {
-  backgroundSeries = initializeSeries(root, chart, { ...backgroundSeriesSettings, reverseGeodata: true });
+  backgroundSeries = initializeSeries(root, chart, { ...backgroundSeriesSettings });
   backgroundSeries.mapPolygons.template.setAll({ tooltipText: "{name} is not currently available", toggleKey: "active", interactive: true });
   backgroundSeries.mapPolygons.template.on("active", (_active, target) => handlePolygonActive(target, prevBackgroundPolygon));
 };
 
 const setUpAntarcticaSeries = () => {
-  initializeSeries({ ...backgroundSeriesSettings, geoJSON: worldLow, include: ["AQ"] });
+  initializeSeries(root, chart, { ...backgroundSeriesSettings, geoJSON: worldLow, include: ["AQ"] });
 };
 
 const setUpSelectableCountriesSeries = () => {
-  selectableCountriesSeries = initializeSeries(root, chart, { ...selectableCountriesSeriesSettings, reverseGeodata: false });
+  selectableCountriesSeries = initializeSeries(root, chart, { ...selectableCountriesSeriesSettings });
   selectableCountriesSeries.mapPolygons.template.setAll({
     tooltipText: "{name}",
     toggleKey: "active",
@@ -237,13 +237,12 @@ const setUpDisputedAreasSeries = () => {
   Object.keys(disputedLands).forEach((disputedArea) => {
     disputedLands[disputedArea].mapSeries = initializeSeries(root, chart, {
       ...disputedLandSeriesSettings,
-      reverseGeodata: true,
       include: [disputedArea],
       fill: disputedLands[disputedArea].colorAsSelectable ? defaultLandColour : unselectableLandColor,
     });
   });
 
-  initializeSeries(root, chart, { ...disputedBodiesOfWaterSeriesSettings, reverseGeodata: true });
+  initializeSeries(root, chart, { ...disputedBodiesOfWaterSeriesSettings });
 };
 
 const setUpChart = () => {
@@ -289,7 +288,11 @@ const resetGlobeZoomAndAnimation = () => {
     rotatedToCountry.value = "";
     // TODO: Make more memory efficient by not re-creating the animations every time
     gentleRotateAnimation = createRotateAnimation(chart);
-    graduallyResetYAxis = chart.animate({ key: "rotationY", to: 0, duration: 20000, easing: am5.ease.inOut(am5.ease.cubic) });
+    if (graduallyResetYAxis) {
+      graduallyResetYAxis.play();
+    } else {
+      graduallyResetYAxis = chart.animate({ key: "rotationY", to: 0, duration: 20000, easing: am5.ease.inOut(am5.ease.cubic) });
+    }
     animations = [gentleRotateAnimation, graduallyResetYAxis];
   }
 };

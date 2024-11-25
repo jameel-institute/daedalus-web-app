@@ -122,7 +122,14 @@ convert_to_js_map(simplified_who_adm0$disp_area, id_col = "name", name_col = "na
 
 You'll need to add the line `export default map;` to the end of the new js file so it can be imported.
 
-To use this data you need to tell amCharts to reverse the polygons' points, since otherwise the borders will be inside out, and each country will be rendered as covering most of the globe except for itself! That's because the WHO data uses the opposite 'winding order' for polygons, compared to amCharts. Use amCharts' `reverseGeodata: true` option. Note that this operation seems to mutate some variable, since any immediately subsequent call does not require the same option to be passed.
+### Winding order
+
+To use this data we need to reverse the polygons' points, since otherwise the borders will be inside out, and each country will be rendered as covering most of the globe except for itself! That's because the WHO data uses the opposite 'winding order' for polygons, compared to amCharts. Although amCharts provides a `reverseGeodata: true` option, it's more complication than it's worth, since this operation seems to mutate the source geojson, such that any immediately subsequent call would require `reverseGeodata: false`. (This also pollutes the source geodata between unit tests in a test suite.) The simpler way to manage this is to reverse the winding order of the data _ourselves_, which is a pre-processing step you should perform before committing the new geodata files to git, using the script assets/geodata/reverseWindingOrder.js:
+
+```
+cd assets/geodata
+node reverseWindingOrder.js simplified_WHO_adm0_22102024.js
+```
 
 ### Customizations
 

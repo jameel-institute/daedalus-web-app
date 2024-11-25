@@ -27,7 +27,7 @@ describe("rotateToCentroid", () => {
     expect(chart.animate).toHaveBeenCalledTimes(2);
     expect(chart.animate).toHaveBeenNthCalledWith(1, expect.objectContaining({
       key: "rotationX",
-      to: -100,
+      to: -100, // southEastAsiaXCoordinate
     }));
     expect(chart.animate).toHaveBeenNthCalledWith(2, expect.objectContaining({
       key: "rotationY",
