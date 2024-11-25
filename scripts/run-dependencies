@@ -63,14 +63,6 @@ docker run --rm -d \
   --network=$NETWORK \
   redis
 
-# Ephemeral container for one-time queue configuration
-docker run --rm \
-  --network=$NETWORK \
-  --env=DAEDALUS_QUEUE_ID=$QUEUE_ID \
-  --env=REDIS_CONTAINER_NAME=daedalus-redis \
-  --entrypoint="/usr/local/bin/daedalus.api.configure" \
-  $R_API_IMAGE
-
 docker run --rm -d \
   -p 8001:8001 \
   --name=daedalus-api \
@@ -80,6 +72,9 @@ docker run --rm -d \
   --env=REDIS_CONTAINER_NAME=daedalus-redis \
   --entrypoint="/usr/local/bin/daedalus.api" \
   $R_API_IMAGE
+
+# Give the api container time to configure the queue
+sleep 5
 
 docker run --rm -d \
   --name=daedalus-api-worker \
