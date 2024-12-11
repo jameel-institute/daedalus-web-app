@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
+import { checkTimeSeriesDataPoints } from "./helpers/checkTimeSeriesDataPoints";
 
 const parameterLabels = {
   country: "Country",
@@ -19,16 +20,12 @@ test.beforeAll(async () => {
   checkRApiServer();
 });
 
-// We are switching off visual testing until such a time as the underlying model code is stable enough that these
-// screenshots are not constantly changing, and are not so brittle.
-const useVisualScreenshotTesting = false;
-
 const expectSelectParameterToHaveValueLabel = async (page: Page, parameterLabel: string, expectedValueLabel: string) => {
   await expect(page.getByRole("combobox", { name: parameterLabel }).locator(".single-value"))
     .toHaveText(expectedValueLabel);
 };
 
-test("Can request a scenario analysis run", async ({ page, baseURL, headless }) => {
+test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await waitForNewScenarioPage(page, baseURL);
 
   await selectParameterOption(page, "pathogen", "SARS 2004");
@@ -94,28 +91,10 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
 
   await expect(page.locator("#costsChartContainer rect").first()).toBeVisible();
 
-  // To regenerate these screenshots:
-  // 1. Insert a generous timeout so that screenshots are of the final chart, not the chart half-way through
-  //    its initialization animation: `await page.waitForTimeout(10000);`
-  // 2. Delete the screenshots directory, ./<this-file-name>-snapshots
-  // 3. Run the tests with `npm run test:e2e` to regenerate the screenshots - tests will appear to fail the first time.
-  // Make sure to stop any local development server first so that Playwright runs its own server, in production mode, so that the
-  // Nuxt devtools are not present in the screenshots.
-  if (headless && useVisualScreenshotTesting) {
-    await expect(page.locator(".accordion-body").first()).toHaveScreenshot("first-time-series.png", { maxDiffPixelRatio: 0.04, timeout: 15000 });
-    await expect(page.locator(".accordion-body").nth(1)).toHaveScreenshot("second-time-series.png", { maxDiffPixelRatio: 0.04 });
-    await expect(page.locator(".accordion-body").nth(2)).toHaveScreenshot("third-time-series.png", { maxDiffPixelRatio: 0.04 });
-    await expect(page.locator(".accordion-body").nth(3)).toHaveScreenshot("fourth-time-series.png", { maxDiffPixelRatio: 0.04 });
-    await expect(page.locator("#costsChartContainer rect").first()).toHaveScreenshot("costs-pie.png", { maxDiffPixelRatio: 0.04 });
-
-    // Test re-sizing of the charts
-    await page.getByRole("button", { name: "Prevalence" }).click();
-    await expect(page.locator(".accordion-body").nth(2)).toHaveScreenshot("third-time-series-taller.png", { maxDiffPixelRatio: 0.04 });
-    await page.getByRole("button", { name: "Hospital demand" }).click();
-    await expect(page.locator(".accordion-body").nth(2)).toHaveScreenshot("third-time-series-tallest.png", { maxDiffPixelRatio: 0.04 });
-  } else {
-    console.warn("No screenshot comparison");
-  }
+  await checkTimeSeriesDataPoints(page.locator("#prevalence-container"), [1, 331.0026], [600, 110_000]);
+  await checkTimeSeriesDataPoints(page.locator("#hospitalised-container"), [1, 0], [600, 55_000]);
+  await checkTimeSeriesDataPoints(page.locator("#dead-container"), [1, 0], [600, 800_000]);
+  await checkTimeSeriesDataPoints(page.locator("#vaccinated-container"), [1, 0], [600, 200_000_000]);
 
   // Run a second analysis with a different parameter, using the parameters form on the results page.
   await page.getByRole("button", { name: "Parameters" }).first().click();
