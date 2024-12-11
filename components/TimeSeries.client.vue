@@ -4,6 +4,7 @@
     ref="chartContainer"
     :class="`chart-container time-series ${props.hideTooltips ? 'hide-tooltips' : ''}`"
     :style="{ zIndex, height: 'fit-content' }"
+    :data-test="JSON.stringify({ firstDataPoint: data[0], lastDataPoint: data[data.length - 1] })"
   />
 </template>
 

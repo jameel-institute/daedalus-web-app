@@ -61,4 +61,6 @@ export default defineNuxtConfig({
       rApiBase: "", // https://nuxt.com/docs/getting-started/testing#registerendpoint
     },
   },
+
+  compatibilityDate: "2024-12-11",
 });
