@@ -1,4 +1,3 @@
-/* eslint-disable perfectionist/sort-imports */
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   mockAoaToSheet,
@@ -10,7 +9,6 @@ import {
   mockWriteFile,
 } from "./mocks";
 import { ExcelScenarioDownload } from "~/download/excelScenarioDownload";
-/* eslint-enable perfectionist/sort-imports */
 
 const scenario = {
   parameters: {

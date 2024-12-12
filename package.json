@@ -40,7 +40,7 @@
     "hex-rgb": "^5.0.0",
     "highcharts": "^11.4.8",
     "lodash.throttle": "^4.1.1",
-    "nuxt": "^3.13.2",
+    "nuxt": "^3.14.1592",
     "perfect-debounce": "^1.0.0",
     "pinia": "^2.2.4",
     "socket.io": "^4.7.5",
