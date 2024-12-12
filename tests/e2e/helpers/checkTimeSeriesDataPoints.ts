@@ -1,21 +1,15 @@
 import type { Locator } from "playwright/test";
-import { expect } from "@playwright/test";
-
-type DataPoint = [number, number];
-
-const checkValueIsInRange = (value: number, expected: number, tolerance: number) => {
-  expect(value).toBeGreaterThanOrEqual(expected * (1 - tolerance));
-  expect(value).toBeLessThanOrEqual(expected * (1 + tolerance));
-};
+import type { TimeSeriesDataPoint } from "~/types/dataTypes";
+import { checkValueIsInRange } from "./checkValueIsInRange";
 
 export const checkTimeSeriesDataPoints = async (
   locator: Locator,
-  expectedFirstDataPoint: DataPoint,
-  expectedLastDataPoint: DataPoint,
+  expectedFirstDataPoint: TimeSeriesDataPoint,
+  expectedLastDataPoint: TimeSeriesDataPoint,
   tolerance = 0.5,
 ) => {
-  const testData = await locator.getAttribute("data-test");
-  const data = JSON.parse(testData!);
+  const dataString = await locator.getAttribute("data-test");
+  const data = JSON.parse(dataString!);
 
   const [firstX, firstY] = data.firstDataPoint;
   const [lastX, lastY] = data.lastDataPoint;

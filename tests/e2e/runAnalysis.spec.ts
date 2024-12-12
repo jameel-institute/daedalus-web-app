@@ -4,6 +4,7 @@ import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
 import { checkTimeSeriesDataPoints } from "./helpers/checkTimeSeriesDataPoints";
+import { checkValueIsInRange } from "./helpers/checkValueIsInRange";
 
 const parameterLabels = {
   country: "Country",
@@ -89,12 +90,42 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.locator("#vaccinated-container .highcharts-yaxis-labels")).toBeVisible();
   await expect(page.locator("#vaccinated-container").getByLabel("View chart menu, Chart")).toBeVisible();
 
-  await expect(page.locator("#costsChartContainer rect").first()).toBeVisible();
+  const prevalence1DataStr = await page.locator("#prevalence-container").getAttribute("data-test");
+  const prevalence1Data = JSON.parse(prevalence1DataStr!);
+  const prevalenceTimeSeries1LastY = prevalence1Data.lastDataPoint[1];
 
   await checkTimeSeriesDataPoints(page.locator("#prevalence-container"), [1, 331.0026], [600, 110_000]);
   await checkTimeSeriesDataPoints(page.locator("#hospitalised-container"), [1, 0], [600, 55_000]);
   await checkTimeSeriesDataPoints(page.locator("#dead-container"), [1, 0], [600, 800_000]);
   await checkTimeSeriesDataPoints(page.locator("#vaccinated-container"), [1, 0], [600, 200_000_000]);
+
+  await expect(page.locator("#costsChartContainer rect").first()).toBeVisible();
+
+  const costsPieDataStr = await page.locator("#costsChartContainer").getAttribute("data-test");
+  const costsPieData = JSON.parse(costsPieDataStr!);
+  expect(costsPieData).toHaveLength(12);
+
+  const expectedCostData = [
+    { id: "total", parent: "", name: "Total", value: 16_000_000 },
+    { id: "gdp", parent: "total", name: "GDP", value: 8_000_000 },
+    { id: "education", parent: "total", name: "Education", value: 6_000_000 },
+    { id: "life_years", parent: "total", name: "Life years", value: 2_250_000 },
+    { id: "gdp_closures", parent: "gdp", name: "Closures", value: 8_000_000 },
+    { id: "gdp_absences", parent: "gdp", name: "Absences", value: 50_000 },
+    { id: "education_closures", parent: "education", name: "Closures", value: 6_000_000 },
+    { id: "education_absences", parent: "education", name: "Absences", value: 100 },
+    { id: "life_years_pre_school", parent: "life_years", name: "Preschool-age children", value: 250_000 },
+    { id: "life_years_school_age", parent: "life_years", name: "School-age children", value: 1_200_000 },
+    { id: "life_years_working_age", parent: "life_years", name: "Working-age adults", value: 600_000 },
+    { id: "life_years_retirement_age", parent: "life_years", name: "Retirement-age adults", value: 220_000 },
+  ];
+
+  expectedCostData.forEach((expectedCost) => {
+    const cost = costsPieData.find((cost: any) => cost.id === expectedCost.id);
+    expect(cost.name).toEqual(expectedCost.name);
+    expect(cost.parent).toBe(expectedCost.parent);
+    checkValueIsInRange(cost.value, expectedCost.value, 0.5);
+  });
 
   // Run a second analysis with a different parameter, using the parameters form on the results page.
   await page.getByRole("button", { name: "Parameters" }).first().click();
@@ -140,10 +171,24 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   const closeButton = page.getByLabel("Edit parameters").getByLabel("Close");
   await closeButton.click();
 
-  // Test that the second analysis results page has charts of both types.
+  // Test that the second analysis results page has visible charts of both types.
   await expect(page.locator("#prevalence-container")).toBeVisible({ timeout: 20000 });
   await expect(page.locator("#prevalence-container .highcharts-xaxis-labels")).toBeVisible();
   await expect(page.locator("#costsChartContainer rect").first()).toBeVisible();
+
+  // Test that one of the time series charts for the second analysis has different data from the first analysis.
+  const prevalence2DataStr = await page.locator("#prevalence-container").getAttribute("data-test");
+  const prevalence2Data = JSON.parse(prevalence2DataStr!);
+  const prevalenceTimeSeries2LastY = prevalence2Data.lastDataPoint[1];
+  expect(prevalenceTimeSeries2LastY).not.toEqual(prevalenceTimeSeries1LastY);
+
+  // Test that the second analysis' costs pie chart has different data from the first.
+  const costsPie2DataStr = await page.locator("#costsChartContainer").getAttribute("data-test");
+  const costsPie2Data = JSON.parse(costsPie2DataStr!);
+  expect(costsPie2Data).toHaveLength(12);
+  costsPie2Data.forEach((cost: any, index: number) => {
+    expect(cost.value).not.toEqual(costsPieData[index].value);
+  });
 
   // Test that the user can navigate to previously-run analyses, including when the page is initially rendered server-side.
   await page.goto(urlOfFirstAnalysis);
