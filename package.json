@@ -59,7 +59,7 @@
     "@babel/core": "^7.26.0",
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-typescript": "^7.26.0",
-    "@mockoon/cli": "^8.4.0",
+    "@mockoon/cli": "^9.1.0",
     "@pinia/testing": "^0.1.6",
     "@playwright/test": "^1.46.1",
     "@testing-library/vue": "^8.1.0",
