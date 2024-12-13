@@ -37,5 +37,12 @@ export default withNuxt(
         }],
       },
     },
+  ).override(
+    "antfu/perfectionist/setup",
+    {
+      rules: {
+        "perfectionist/sort-imports": "off",
+      },
+    },
   ),
 );
