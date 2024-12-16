@@ -94,10 +94,11 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   const prevalence1Data = JSON.parse(prevalence1DataStr!);
   const prevalenceTimeSeries1LastY = prevalence1Data.lastDataPoint[1];
 
-  await checkTimeSeriesDataPoints(page.locator("#prevalence-container"), [1, 331.0026], [600, 110_000]);
-  await checkTimeSeriesDataPoints(page.locator("#hospitalised-container"), [1, 0], [600, 55_000]);
-  await checkTimeSeriesDataPoints(page.locator("#dead-container"), [1, 0], [600, 800_000]);
-  await checkTimeSeriesDataPoints(page.locator("#vaccinated-container"), [1, 0], [600, 200_000_000]);
+  const numberOfTimePoints = 600;
+  await checkTimeSeriesDataPoints(page.locator("#prevalence-container"), [1, 331.0026], [numberOfTimePoints, 110_000]);
+  await checkTimeSeriesDataPoints(page.locator("#hospitalised-container"), [1, 0], [numberOfTimePoints, 55_000]);
+  await checkTimeSeriesDataPoints(page.locator("#dead-container"), [1, 0], [numberOfTimePoints, 800_000]);
+  await checkTimeSeriesDataPoints(page.locator("#vaccinated-container"), [1, 0], [numberOfTimePoints, 200_000_000]);
 
   await expect(page.locator("#costsChartContainer rect").first()).toBeVisible();
 
