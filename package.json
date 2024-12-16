@@ -73,7 +73,6 @@
     "jest-environment-jsdom": "^29.7.0",
     "jsdom": "^25.0.1",
     "lint-staged": "^15.2.9",
-    "playwright": "^1.45.2",
     "prisma": "^5.20.0",
     "sass": "^1.79.5",
     "simple-git-hooks": "^2.11.1",
