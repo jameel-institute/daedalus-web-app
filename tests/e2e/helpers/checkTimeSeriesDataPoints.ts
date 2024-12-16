@@ -8,7 +8,7 @@ export const checkTimeSeriesDataPoints = async (
   expectedLastDataPoint: TimeSeriesDataPoint,
   tolerance = 0.5,
 ) => {
-  const dataString = await locator.getAttribute("data-test");
+  const dataString = await locator.getAttribute("data-summary");
   const data = JSON.parse(dataString!);
 
   const [firstX, firstY] = data.firstDataPoint;

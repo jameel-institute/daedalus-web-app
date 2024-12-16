@@ -90,7 +90,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.locator("#vaccinated-container .highcharts-yaxis-labels")).toBeVisible();
   await expect(page.locator("#vaccinated-container").getByLabel("View chart menu, Chart")).toBeVisible();
 
-  const prevalence1DataStr = await page.locator("#prevalence-container").getAttribute("data-test");
+  const prevalence1DataStr = await page.locator("#prevalence-container").getAttribute("data-summary");
   const prevalence1Data = JSON.parse(prevalence1DataStr!);
   const prevalenceTimeSeries1LastY = prevalence1Data.lastDataPoint[1];
 
@@ -101,7 +101,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
 
   await expect(page.locator("#costsChartContainer rect").first()).toBeVisible();
 
-  const costsPieDataStr = await page.locator("#costsChartContainer").getAttribute("data-test");
+  const costsPieDataStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
   const costsPieData = JSON.parse(costsPieDataStr!);
   expect(costsPieData).toHaveLength(12);
 
@@ -177,13 +177,13 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.locator("#costsChartContainer rect").first()).toBeVisible();
 
   // Test that one of the time series charts for the second analysis has different data from the first analysis.
-  const prevalence2DataStr = await page.locator("#prevalence-container").getAttribute("data-test");
+  const prevalence2DataStr = await page.locator("#prevalence-container").getAttribute("data-summary");
   const prevalence2Data = JSON.parse(prevalence2DataStr!);
   const prevalenceTimeSeries2LastY = prevalence2Data.lastDataPoint[1];
   expect(prevalenceTimeSeries2LastY).not.toEqual(prevalenceTimeSeries1LastY);
 
   // Test that the second analysis' costs pie chart has different data from the first.
-  const costsPie2DataStr = await page.locator("#costsChartContainer").getAttribute("data-test");
+  const costsPie2DataStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
   const costsPie2Data = JSON.parse(costsPie2DataStr!);
   expect(costsPie2Data).toHaveLength(12);
   costsPie2Data.forEach((cost: any, index: number) => {

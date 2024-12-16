@@ -5,7 +5,7 @@
       :id="chartContainerId"
       ref="chartContainer"
       :class="[props.hideTooltips ? hideTooltipsClassName : '']"
-      :data-test="JSON.stringify(costsData)"
+      :data-summary="JSON.stringify(costsData)"
     />
   </div>
 </template>
@@ -37,7 +37,7 @@ const hideTooltipsClassName = "hide-tooltips";
 const chartBackgroundColor = "transparent";
 const chartBackgroundColorOnExporting = "white";
 let chart: Highcharts.Chart;
-const costsData = ref<pieCost[]>([]); // This is only implemented as ref for testing purposes, via the data-test attribute.
+const costsData = ref<pieCost[]>([]); // This is only implemented as ref for testing purposes, via the data-summary attribute.
 const pieSize = computed(() => appStore.largeScreen ? 450 : 300);
 const chartContainer = ref<HTMLElement | null>(null);
 
