@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
-import { checkTimeSeriesDataPoints } from "./helpers/checkTimeSeriesDataPoints";
+import { checkTimeSeriesDataPoints, numberOfTimePoints } from "./helpers/checkTimeSeriesDataPoints";
 import { checkValueIsInRange } from "./helpers/checkValueIsInRange";
 
 const parameterLabels = {
@@ -94,7 +94,6 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   const prevalence1Data = JSON.parse(prevalence1DataStr!);
   const prevalenceTimeSeries1LastY = prevalence1Data.lastDataPoint[1];
 
-  const numberOfTimePoints = 600;
   await checkTimeSeriesDataPoints(page.locator("#prevalence-container"), [1, 331.0026], [numberOfTimePoints, 110_000]);
   await checkTimeSeriesDataPoints(page.locator("#hospitalised-container"), [1, 0], [numberOfTimePoints, 55_000]);
   await checkTimeSeriesDataPoints(page.locator("#dead-container"), [1, 0], [numberOfTimePoints, 800_000]);

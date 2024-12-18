@@ -2,6 +2,8 @@ import type { Locator } from "playwright/test";
 import type { TimeSeriesDataPoint } from "~/types/dataTypes";
 import { checkValueIsInRange } from "./checkValueIsInRange";
 
+export const numberOfTimePoints = 600;
+
 export const checkTimeSeriesDataPoints = async (
   locator: Locator,
   expectedFirstDataPoint: TimeSeriesDataPoint,
@@ -18,4 +20,5 @@ export const checkTimeSeriesDataPoints = async (
   checkValueIsInRange(firstY, expectedFirstDataPoint[1], tolerance);
   checkValueIsInRange(lastX, expectedLastDataPoint[0], tolerance);
   checkValueIsInRange(lastY, expectedLastDataPoint[1], tolerance);
+  expect(data.dataLength).toBe(numberOfTimePoints);
 };
