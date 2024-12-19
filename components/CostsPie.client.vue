@@ -5,6 +5,7 @@
       :id="chartContainerId"
       ref="chartContainer"
       :class="[props.hideTooltips ? hideTooltipsClassName : '']"
+      :data-summary="JSON.stringify(costsData)"
     />
   </div>
 </template>
@@ -36,7 +37,7 @@ const hideTooltipsClassName = "hide-tooltips";
 const chartBackgroundColor = "transparent";
 const chartBackgroundColorOnExporting = "white";
 let chart: Highcharts.Chart;
-let costsData: pieCost[] = [];
+const costsData = ref<pieCost[]>([]); // This is only implemented as ref for testing purposes, via the data-summary attribute.
 const pieSize = computed(() => appStore.largeScreen ? 450 : 300);
 const chartContainer = ref<HTMLElement | null>(null);
 
@@ -112,7 +113,7 @@ const chartLevelsOptions = (isDrillingDown: boolean = false): Array<Highcharts.P
 const chartSeries = () => {
   return {
     type: "sunburst",
-    data: costsData, // Empty at initialisation, populated later
+    data: costsData.value, // Empty at initialisation, populated later
     name: "Root",
     allowDrillToNode: true,
     borderRadius: 0,
@@ -210,7 +211,7 @@ const populateCostsDataIntoPie = () => {
   if (!appStore.totalCost) {
     return;
   }
-  costsData = [{
+  const data = [{
     id: appStore.totalCost.id,
     parent: "",
     name: appStore.getCostLabel(appStore.totalCost.id),
@@ -220,7 +221,7 @@ const populateCostsDataIntoPie = () => {
   // so that earlier pieCostsColors are assigned to top-level children before
   // the next level of children. (Using recursion changes the color assignment order.)
   appStore.totalCost.children?.forEach((cost) => {
-    costsData.push({
+    data.push({
       id: cost.id,
       parent: appStore.totalCost!.id,
       name: appStore.getCostLabel(cost.id),
@@ -233,7 +234,7 @@ const populateCostsDataIntoPie = () => {
   appStore.totalCost.children?.forEach((cost) => {
     // Omit sub-costs with a value of zero
     cost.children?.filter(subCost => subCost.value !== 0)?.forEach((subCost) => {
-      costsData.push({
+      data.push({
         id: subCost.id,
         parent: cost.id,
         name: appStore.getCostLabel(subCost.id),
@@ -241,7 +242,8 @@ const populateCostsDataIntoPie = () => {
       });
     });
   });
-  chart.series[0].setData(costsData);
+  costsData.value = data;
+  chart.series[0].setData(costsData.value);
 };
 
 watch(() => appStore.costsData, () => {

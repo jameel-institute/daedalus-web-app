@@ -3,6 +3,8 @@ import { expect, test } from "@playwright/test";
 import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
+import { checkTimeSeriesDataPoints, numberOfTimePoints } from "./helpers/checkTimeSeriesDataPoints";
+import { checkValueIsInRange } from "./helpers/checkValueIsInRange";
 
 const parameterLabels = {
   country: "Country",
@@ -19,16 +21,12 @@ test.beforeAll(async () => {
   checkRApiServer();
 });
 
-// We are switching off visual testing until such a time as the underlying model code is stable enough that these
-// screenshots are not constantly changing, and are not so brittle.
-const useVisualScreenshotTesting = false;
-
 const expectSelectParameterToHaveValueLabel = async (page: Page, parameterLabel: string, expectedValueLabel: string) => {
   await expect(page.getByRole("combobox", { name: parameterLabel }).locator(".single-value"))
     .toHaveText(expectedValueLabel);
 };
 
-test("Can request a scenario analysis run", async ({ page, baseURL, headless }) => {
+test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await waitForNewScenarioPage(page, baseURL);
 
   await selectParameterOption(page, "pathogen", "SARS 2004");
@@ -92,30 +90,42 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   await expect(page.locator("#vaccinated-container .highcharts-yaxis-labels")).toBeVisible();
   await expect(page.locator("#vaccinated-container").getByLabel("View chart menu, Chart")).toBeVisible();
 
+  const prevalence1DataStr = await page.locator("#prevalence-container").getAttribute("data-summary");
+  const prevalence1Data = JSON.parse(prevalence1DataStr!);
+  const prevalenceTimeSeries1LastY = prevalence1Data.lastDataPoint[1];
+
+  await checkTimeSeriesDataPoints(page.locator("#prevalence-container"), [1, 331.0026], [numberOfTimePoints, 110_000]);
+  await checkTimeSeriesDataPoints(page.locator("#hospitalised-container"), [1, 0], [numberOfTimePoints, 55_000]);
+  await checkTimeSeriesDataPoints(page.locator("#dead-container"), [1, 0], [numberOfTimePoints, 800_000]);
+  await checkTimeSeriesDataPoints(page.locator("#vaccinated-container"), [1, 0], [numberOfTimePoints, 200_000_000]);
+
   await expect(page.locator("#costsChartContainer rect").first()).toBeVisible();
 
-  // To regenerate these screenshots:
-  // 1. Insert a generous timeout so that screenshots are of the final chart, not the chart half-way through
-  //    its initialization animation: `await page.waitForTimeout(10000);`
-  // 2. Delete the screenshots directory, ./<this-file-name>-snapshots
-  // 3. Run the tests with `npm run test:e2e` to regenerate the screenshots - tests will appear to fail the first time.
-  // Make sure to stop any local development server first so that Playwright runs its own server, in production mode, so that the
-  // Nuxt devtools are not present in the screenshots.
-  if (headless && useVisualScreenshotTesting) {
-    await expect(page.locator(".accordion-body").first()).toHaveScreenshot("first-time-series.png", { maxDiffPixelRatio: 0.04, timeout: 15000 });
-    await expect(page.locator(".accordion-body").nth(1)).toHaveScreenshot("second-time-series.png", { maxDiffPixelRatio: 0.04 });
-    await expect(page.locator(".accordion-body").nth(2)).toHaveScreenshot("third-time-series.png", { maxDiffPixelRatio: 0.04 });
-    await expect(page.locator(".accordion-body").nth(3)).toHaveScreenshot("fourth-time-series.png", { maxDiffPixelRatio: 0.04 });
-    await expect(page.locator("#costsChartContainer rect").first()).toHaveScreenshot("costs-pie.png", { maxDiffPixelRatio: 0.04 });
+  const costsPieDataStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
+  const costsPieData = JSON.parse(costsPieDataStr!);
+  expect(costsPieData).toHaveLength(12);
 
-    // Test re-sizing of the charts
-    await page.getByRole("button", { name: "Prevalence" }).click();
-    await expect(page.locator(".accordion-body").nth(2)).toHaveScreenshot("third-time-series-taller.png", { maxDiffPixelRatio: 0.04 });
-    await page.getByRole("button", { name: "Hospital demand" }).click();
-    await expect(page.locator(".accordion-body").nth(2)).toHaveScreenshot("third-time-series-tallest.png", { maxDiffPixelRatio: 0.04 });
-  } else {
-    console.warn("No screenshot comparison");
-  }
+  const expectedCostData = [
+    { id: "total", parent: "", name: "Total", value: 16_000_000 },
+    { id: "gdp", parent: "total", name: "GDP", value: 8_000_000 },
+    { id: "education", parent: "total", name: "Education", value: 6_000_000 },
+    { id: "life_years", parent: "total", name: "Life years", value: 2_250_000 },
+    { id: "gdp_closures", parent: "gdp", name: "Closures", value: 8_000_000 },
+    { id: "gdp_absences", parent: "gdp", name: "Absences", value: 50_000 },
+    { id: "education_closures", parent: "education", name: "Closures", value: 6_000_000 },
+    { id: "education_absences", parent: "education", name: "Absences", value: 100 },
+    { id: "life_years_pre_school", parent: "life_years", name: "Preschool-age children", value: 250_000 },
+    { id: "life_years_school_age", parent: "life_years", name: "School-age children", value: 1_200_000 },
+    { id: "life_years_working_age", parent: "life_years", name: "Working-age adults", value: 600_000 },
+    { id: "life_years_retirement_age", parent: "life_years", name: "Retirement-age adults", value: 220_000 },
+  ];
+
+  expectedCostData.forEach((expectedCost) => {
+    const cost = costsPieData.find((cost: any) => cost.id === expectedCost.id);
+    expect(cost.name).toEqual(expectedCost.name);
+    expect(cost.parent).toBe(expectedCost.parent);
+    checkValueIsInRange(cost.value, expectedCost.value, 0.5);
+  });
 
   // Run a second analysis with a different parameter, using the parameters form on the results page.
   await page.getByRole("button", { name: "Parameters" }).first().click();
@@ -161,10 +171,24 @@ test("Can request a scenario analysis run", async ({ page, baseURL, headless }) 
   const closeButton = page.getByLabel("Edit parameters").getByLabel("Close");
   await closeButton.click();
 
-  // Test that the second analysis results page has charts of both types.
+  // Test that the second analysis results page has visible charts of both types.
   await expect(page.locator("#prevalence-container")).toBeVisible({ timeout: 20000 });
   await expect(page.locator("#prevalence-container .highcharts-xaxis-labels")).toBeVisible();
   await expect(page.locator("#costsChartContainer rect").first()).toBeVisible();
+
+  // Test that one of the time series charts for the second analysis has different data from the first analysis.
+  const prevalence2DataStr = await page.locator("#prevalence-container").getAttribute("data-summary");
+  const prevalence2Data = JSON.parse(prevalence2DataStr!);
+  const prevalenceTimeSeries2LastY = prevalence2Data.lastDataPoint[1];
+  expect(prevalenceTimeSeries2LastY).not.toEqual(prevalenceTimeSeries1LastY);
+
+  // Test that the second analysis' costs pie chart has different data from the first.
+  const costsPie2DataStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
+  const costsPie2Data = JSON.parse(costsPie2DataStr!);
+  expect(costsPie2Data).toHaveLength(12);
+  costsPie2Data.forEach((cost: any, index: number) => {
+    expect(cost.value).not.toEqual(costsPieData[index].value);
+  });
 
   // Test that the user can navigate to previously-run analyses, including when the page is initially rendered server-side.
   await page.goto(urlOfFirstAnalysis);

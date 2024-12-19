@@ -4,6 +4,7 @@
     ref="chartContainer"
     :class="`chart-container time-series ${props.hideTooltips ? 'hide-tooltips' : ''}`"
     :style="{ zIndex, height: 'fit-content' }"
+    :data-summary="JSON.stringify({ firstDataPoint: data[0], lastDataPoint: data[data.length - 1], dataLength: data.length })"
   />
 </template>
 
@@ -13,9 +14,9 @@ import accessibilityInitialize from "highcharts/modules/accessibility";
 import exportDataInitialize from "highcharts/modules/export-data";
 import exportingInitialize from "highcharts/modules/exporting";
 import offlineExportingInitialize from "highcharts/modules/offline-exporting";
-
 import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
+import type { TimeSeriesDataPoint } from "~/types/dataTypes";
 import { plotBandsColor, plotLinesColor, timeSeriesColors } from "./utils/highCharts";
 
 const props = defineProps<{
@@ -58,7 +59,7 @@ const seriesMetadata = computed((): DisplayInfo | undefined => {
 });
 
 // Assign an x-position to y-values. Nth value corresponds to "N+1th day" of simulation.
-const data = computed(() => {
+const data = computed((): TimeSeriesDataPoint[] => {
   return appStore.timeSeriesData![props.seriesId].map((value, index) => [index + 1, value]);
 });
 
