@@ -69,9 +69,7 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
   // Normally @nuxt/test-utils/e2e would handle setting up and running the server itself (see https://nuxt.com/docs/getting-started/testing#setup-1),
   // but since we first need to run db migrations on whatever server is going to be tested, we instead run a server and db ourselves,
   // and perform these tests against that server.
-  await setup({
-    host: "http://localhost:3000",
-  });
+  await setup({ host: localWebServerUrl });
 
   describe("api/versions", async () => {
     it("returns a successful response when the mock server responds successfully", async () => {
