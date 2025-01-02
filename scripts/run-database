@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Ensure HERE is set
+HERE=$(dirname "$0")
+
+DB_BUILD_SKIP=$1
+
+# (Conditionally build and) run the database
+if [ $DB_BUILD_SKIP -eq 0 ]; then
+  "$HERE"/../db/scripts/build
+else
+  echo "Skipping db build"
+fi
+"$HERE"/../db/scripts/run
+
+docker exec daedalus-web-app-db wait-for-db
