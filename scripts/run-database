@@ -3,7 +3,7 @@
 # Ensure HERE is set
 HERE=$(dirname "$0")
 
-DB_BUILD_SKIP=$1
+DB_BUILD_SKIP=${1:-0}
 
 # (Conditionally build and) run the database
 if [ $DB_BUILD_SKIP -eq 0 ]; then
