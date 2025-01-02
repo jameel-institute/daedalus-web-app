@@ -25,7 +25,7 @@ describe("requesting a scenario status", () => {
       expect(response.data).toBeNull();
       expect(response.errors).toEqual([{ error: "Bad request", detail: "Run ID not provided." }]);
       expect(response.statusCode).toBe(400);
-      expect(response.statusText).toBe("Bad request");
+      expect(response.statusText).toBe("Bad Request");
     });
   });
 

@@ -33,15 +33,9 @@ handle_options() {
 
 handle_options "$@"
 
-# (Conditionally build and) run the database
-if [ $DB_BUILD_SKIP -eq 0 ]; then
-  "$HERE"/../db/scripts/build
-else
-  echo "Skipping db build"
-fi
-"$HERE"/../db/scripts/run
-
-docker exec daedalus-web-app-db wait-for-db
+HERE=$(dirname "$0")
+DB_BUILD_SKIP=${DB_BUILD_SKIP:-0}
+"$HERE"/run-database "$DB_BUILD_SKIP"
 
 NETWORK=daedalus
 VOLUME=daedalus-results

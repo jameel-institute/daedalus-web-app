@@ -4,36 +4,40 @@ npx nuxi analyze
 
 # Tests
 
-To run unit tests:
+## To run unit tests:
+
 ```bash
 npm run test:unit
 # Or with coverage:
 npm run test:unit:coverage
 ```
 
-To run integration tests, first start the Mockoon server:
+## To run integration tests
+
+First start the Mockoon server:
 ```bash
 npx mockoon-cli start --data ./mocks/mockoon.json
+```
+Then build and run the database image if it's not already running:
+```bash
+scripts/run-database
 ```
 Then run:
 ```bash
 npm run test:integration
 ```
 
-Run server-side rendering tests:
-```bash
-npm run test:ssr
-```
+More information about integration test set-up in `tests/integration/INTEGRATION_TESTING.md`.
 
-Run full-stack tests:
+## To run end-to-end tests
+
+'End-to-end' includes running the [R API](https://github.com/jameel-institute/daedalus.api) and its worker(s) in addition to the present application.
 
 1. Ensure you have the service dependencies up and running (`./scripts/run-dev-dependencies`), and that the Mockoon server is not running.
 1. Run:
 ```bash
 npm run test:e2e
 ```
-
-The tests under e2e, which are run by playwright, are for testing the full-stack (client app and server app) in a browser environment. Since the server-rendered page may be different from the client-rendered page, for example, when some elements are configured to only render on the client side, relevant tests should wait for the elements to be present.
 
 # Local development
 

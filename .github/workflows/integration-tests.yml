@@ -29,5 +29,7 @@ jobs:
         run: curl -s http://localhost:8001/mock-smoke
       - name: Set non-secret environment variables for app
         run: mv .env.example .env
+      - name: Start database
+        run: scripts/run-database
       - name: Test
         run: npm run test:integration
