@@ -30,6 +30,7 @@ const exampleMetadata = {
   ],
 };
 
+// Mocking the response from the R API.
 registerEndpoint("/metadata", mockedMetadataResponse);
 
 describe("get metadata", () => {

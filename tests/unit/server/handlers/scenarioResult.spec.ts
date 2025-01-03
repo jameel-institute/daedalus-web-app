@@ -12,6 +12,7 @@ const sampleResults = {
   time_series: { series1: [0, 1, 2] },
 };
 
+// Mocking the response from the R API.
 registerEndpoint(`/scenario/results/${runId}`, {
   method: "GET",
   handler: mockedScenarioResultResponse,

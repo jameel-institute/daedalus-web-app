@@ -4,6 +4,7 @@ import { registerEndpoint } from "@nuxt/test-utils/runtime";
 
 const mockedVersionResponse = vi.fn();
 
+// Mocking the response from the R API.
 registerEndpoint("/", mockedVersionResponse);
 
 describe("get version data", () => {

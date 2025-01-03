@@ -15,14 +15,14 @@ import { createScenario, deleteScenario, getScenarioByParametersHash } from "../
 
 const modelVersion = "0.0.1"; // TODO: Make this not hard-coded.
 
-const rApiNewScenarioEndpoint = "/scenario/run";
+const rApiRunScenarioEndpoint = "/scenario/run";
 const runScenario = async (
   parameters: ParameterDict,
   modelVersion: string,
   event?: H3Event<EventHandlerRequest>,
 ): Promise<NewScenarioResponse> => {
   const response = await fetchRApi<NewScenarioData>( // Since we aren't transforming the R API's response, we can re-use the type interface for the web app's response (NewScenarioData) as the interface for the R API's response.
-    rApiNewScenarioEndpoint,
+    rApiRunScenarioEndpoint,
     {
       method: "POST",
       body: {
@@ -119,8 +119,8 @@ export const newScenario = async (
     const scenarioStatus = await getScenarioStatus(scenario.run_id, event);
     if (scenarioStatus.statusCode === 200) {
       return {
-        statusText: "OK",
-        statusCode: 200,
+        statusText: scenarioStatus.statusText,
+        statusCode: scenarioStatus.statusCode,
         errors: null,
         data: { runId: scenario.run_id } as NewScenarioData,
       } as NewScenarioResponse;
