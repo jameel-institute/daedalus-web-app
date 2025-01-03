@@ -2,6 +2,7 @@ import JSSHA from "jssha";
 
 import type { ApiError } from "@/types/apiResponseTypes";
 import type { ParameterDict } from "~/types/apiRequestTypes";
+import { getVersionData } from "../handlers/versions";
 
 // Convert list of error objects to string
 export const errorMessage = (errors: Array<ApiError> | null) => {
@@ -31,4 +32,10 @@ export const hashParameters = (parameters: ParameterDict, modelVersion: string) 
   const sha256 = new JSSHA("SHA-256", "TEXT");
   sha256.update(JSON.stringify(parametersWithModelVersion));
   return sha256.getHash("HEX");
+};
+
+export const getModelVersion = async () => {
+  const versionResponse = await getVersionData();
+
+  return versionResponse.data?.daedalusModel;
 };

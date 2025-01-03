@@ -17,6 +17,14 @@ const env = dotenv.config().parsed;
 let rApiBaseUrl = env!.NUXT_R_API_BASE;
 rApiBaseUrl = rApiBaseUrl.endsWith("/") ? rApiBaseUrl.slice(0, -1) : rApiBaseUrl;
 
+// Send a request to 'purge' Mockoon, i.e. reset it to its initial state,
+// so that responses configured to be sequential will start from the first response.
+// https://mockoon.com/docs/latest/admin-api/server-state/
+const purgeRApiMockServer = async () => {
+  const purgeResponse = await nodeFetch(`${rApiBaseUrl}/mockoon-admin/state/purge`, { method: "POST" });
+  expect(purgeResponse?.status).toBe(200);
+};
+
 // We configure mockoon to return different responses for the same request, sequentially:
 // https://mockoon.com/docs/latest/route-responses/multiple-responses/#sequential-route-response
 describe("endpoints which consume the R API", { sequential: true }, async () => {
@@ -54,12 +62,7 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
       checkServer();
     });
 
-    // Send a request to 'purge' Mockoon, i.e. reset it to its initial state,
-    // so that responses configured to be sequential will start from the first response.
-    // https://mockoon.com/docs/latest/admin-api/server-state/
-    const purgeUrl = `${rApiBaseUrl}/mockoon-admin/state/purge`;
-    const purgeResponse = await nodeFetch(purgeUrl, { method: "POST" });
-    expect(purgeResponse?.status).toBe(200);
+    await purgeRApiMockServer();
   });
 
   afterEach(async () => {
@@ -148,25 +151,32 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     });
   });
 
+  const requestNewScenario = async (mockoonResponse: string) => {
+    const parameters = { country: "Thailand", pathogen: "sars-cov-1", response: "no_closure", vaccine: "none", mockoonResponse };
+    const headers = new Headers();
+    headers.append("content-type", "application/json");
+    const body = JSON.stringify({ parameters });
+
+    const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body, headers });
+    return response;
+  };
+
   // In these tests, Mockoon is configured to check the request body for all the expected parameters (and respond with the
   // appropriate status code etc.), as a way to test that the parameters (and model version) are being passed through all the way
-  // to the R API. This is called a 'rule' in Mockoon, and rules can't be used simultaneously with the 'sequential' setting, so we
-  // instead use the mockoonResponse parameter to tell Mockoon which type of response to send.
+  // to the R API. This check is called a 'rule' in Mockoon, and rules can't be used simultaneously with the 'sequential' setting,
+  // so we instead use the mockoonResponse parameter to tell Mockoon which type of response to send.
   describe("post api/scenarios", async () => {
-    const parameters = { country: "Thailand", pathogen: "sars-cov-1", response: "no_closure", vaccine: "none" };
-    const parametersHashForSuccessfulResponse = "84cf3d71c34fa31c5b0b02e3cca67b9eaca49e45b57c25a268f9dff6c6798409";
+    const parametersHashForSuccessfulResponse = "1a15c2fd6f8c08d3410d026e4945dc3bf92af4a1da0fad2c3822dc64afaf56b0";
+
+    beforeEach(async () => {
+      await purgeRApiMockServer(); // Reset the mock server so that the version request is always successful.
+    });
 
     describe("when a scenario with these parameters has not been run before", async () => {
-      it("creates a scenario record and returns a successful response when the mock server responds successfully", async () => {
-        const headers = new Headers();
-        headers.append("content-type", "application/json");
-        const body = JSON.stringify(
-          { parameters: { ...parameters, mockoonResponse: "successful" } },
-        );
-
+      it("creates a scenario record and returns a successful response when the mock server responds successfully to a /scenario/run request", async () => {
         await expect(prisma.scenario.count()).resolves.toBe(0);
 
-        const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body, headers });
+        const response = await requestNewScenario("successful");
 
         expect(response.ok).toBe(true);
         expect(response.status).toBe(200);
@@ -182,13 +192,8 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
         });
       });
 
-      it("returns a response with informative errors when the mock server responds with an error", async () => {
-        const headers = new Headers();
-        headers.append("content-type", "application/json");
-        const body = JSON.stringify(
-          { parameters: { ...parameters, mockoonResponse: "notFound" } },
-        );
-        const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body, headers });
+      it("returns a response with informative errors when the mock server responds with an error to a /scenario/run request", async () => {
+        const response = await requestNewScenario("notFound");
 
         expect(response.ok).toBe(false);
         expect(response.status).toBe(404);
@@ -200,14 +205,8 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
         await expect(prisma.scenario.count()).resolves.toBe(0);
       });
 
-      it("returns a response with informative errors when the mock server doesn't respond in time", async () => {
-        const headers = new Headers();
-        headers.append("content-type", "application/json");
-        const body = JSON.stringify(
-          { parameters: { ...parameters, mockoonResponse: "delayed" } },
-        );
-
-        const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body, headers });
+      it("returns a response with informative errors when the mock server doesn't respond in time to a /scenario/run request", async () => {
+        const response = await requestNewScenario("delayed");
 
         expect(response.ok).toBe(false);
         expect(response.status).toBe(500);
@@ -215,6 +214,21 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
 
         const json = await response.json();
         expect(json.message).toBe("Unknown error: No response from the API");
+        await expect(prisma.scenario.count()).resolves.toBe(0);
+      });
+
+      it("returns a response with informative errors when the mock server responds with an error to a versions request", async () => {
+        await nuxtTestUtilsFetch("/api/versions"); // This request should succeed, so that the next one will fail.
+
+        const response = await requestNewScenario("successful");
+
+        expect(response.ok).toBe(false);
+        expect(response.status).toBe(500);
+        expect(response.statusText).toBe("Internal Server Error");
+        const json = await response.json();
+        expect(json.data[0].error).toBe("Internal server error");
+        expect(json.data[0].detail).toBe("Model version lookup failed.");
+        expect(json.message).toBe("Internal server error: Model version lookup failed."); // A concatenation of the error details from the R API.
         await expect(prisma.scenario.count()).resolves.toBe(0);
       });
     });
@@ -230,15 +244,9 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
       });
 
       it("does not create a scenario record, and returns the run id of the pre-existing scenario record", async () => {
-        const headers = new Headers();
-        headers.append("content-type", "application/json");
-        const body = JSON.stringify(
-          { parameters: { ...parameters, mockoonResponse: "successful" } },
-        );
-
         const existingScenario = await prisma.scenario.findFirst() as scenario;
 
-        const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body, headers });
+        const response = await requestNewScenario("successful");
 
         expect(response.ok).toBe(true);
         expect(response.status).toBe(200);
@@ -263,15 +271,9 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
       });
 
       it("deletes the pre-existing scenario record, runs the analysis anew, creates a new scenario record with the new run id, and returns the run id", async () => {
-        const headers = new Headers();
-        headers.append("content-type", "application/json");
-        const body = JSON.stringify(
-          { parameters: { ...parameters, mockoonResponse: "successful" } },
-        );
-
         const existingScenario = await prisma.scenario.findFirst() as scenario;
 
-        const response = await nuxtTestUtilsFetch(`/api/scenarios`, { method: "POST", body, headers });
+        const response = await requestNewScenario("successful");
 
         expect(response.ok).toBe(true);
         expect(response.status).toBe(200);

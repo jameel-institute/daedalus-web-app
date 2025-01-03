@@ -10,15 +10,13 @@ import type {
 } from "@/types/apiResponseTypes";
 import type { EventHandlerRequest, H3Event } from "h3";
 import { fetchRApi } from "@/server/utils/rApi";
-import { hashParameters } from "../utils/helpers";
+import { getModelVersion, hashParameters } from "../utils/helpers";
 import { createScenario, deleteScenario, getScenarioByParametersHash } from "../utils/scenarioHelpers";
-
-const modelVersion = "0.0.1"; // TODO: Make this not hard-coded.
 
 const rApiRunScenarioEndpoint = "/scenario/run";
 const runScenario = async (
   parameters: ParameterDict,
-  modelVersion: string,
+  version: string,
   event?: H3Event<EventHandlerRequest>,
 ): Promise<NewScenarioResponse> => {
   const response = await fetchRApi<NewScenarioData>( // Since we aren't transforming the R API's response, we can re-use the type interface for the web app's response (NewScenarioData) as the interface for the R API's response.
@@ -26,7 +24,7 @@ const runScenario = async (
     {
       method: "POST",
       body: {
-        modelVersion,
+        modelVersion: version,
         parameters,
       },
     },
@@ -111,7 +109,18 @@ export const newScenario = async (
   parameters: ParameterDict,
   event?: H3Event<EventHandlerRequest>,
 ): Promise<NewScenarioResponse> => {
-  const parametersHash = hashParameters(parameters, modelVersion);
+  const version = await getModelVersion();
+
+  if (!version) {
+    const errors: Array<ApiError> = [{ error: "Internal server error", detail: "Model version lookup failed." }];
+    return {
+      statusText: "Internal Server Error",
+      statusCode: 500,
+      errors,
+      data: null,
+    } as NewScenarioResponse;
+  }
+  const parametersHash = hashParameters(parameters, version);
   const scenario = await getScenarioByParametersHash(parametersHash);
 
   if (scenario) {
@@ -129,7 +138,7 @@ export const newScenario = async (
     }
   }
 
-  const response = await runScenario(parameters, modelVersion, event);
+  const response = await runScenario(parameters, version, event);
 
   if (response?.data?.runId) {
     await createScenario(parametersHash, response.data.runId);
