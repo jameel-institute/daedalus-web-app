@@ -1,7 +1,7 @@
 import type { scenario } from "@prisma/client";
 import prisma from "~/lib/prisma";
 
-export const getScenarioByParametersHash = async (parametersHash: string) => {
+export const getScenarioByParametersHash = async (parametersHash: string): Promise<scenario | null> => {
   return await prisma.scenario.findUnique({
     where: {
       parameters_hash: parametersHash,
