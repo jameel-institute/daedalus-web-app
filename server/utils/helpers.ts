@@ -28,14 +28,12 @@ export const formDataToObject = (formData: FormData) => {
 };
 
 export const hashParameters = (parameters: ParameterDict, modelVersion: string) => {
-  const parametersWithModelVersion = { ...parameters, modelVersion };
   const sha256 = new JSSHA("SHA-256", "TEXT");
-  sha256.update(JSON.stringify(parametersWithModelVersion));
+  sha256.update(JSON.stringify({ ...parameters, modelVersion }));
   return sha256.getHash("HEX");
 };
 
 export const getModelVersion = async () => {
   const versionResponse = await getVersionData();
-
   return versionResponse.data?.daedalusModel;
 };

@@ -25,6 +25,26 @@ const purgeRApiMockServer = async () => {
   expect(purgeResponse?.status).toBe(200);
 };
 
+// Wait for the local web server to be ready before running the tests
+const waitForLocalServer = async () => {
+  await new Promise<void>((resolve) => {
+    const checkServer = async () => {
+      try {
+        const response = await nodeFetch(localWebServerUrl);
+        if (response.status === 200) {
+          resolve();
+        } else {
+          setTimeout(checkServer, 1000);
+        }
+      } catch {
+        setTimeout(checkServer, 1000);
+      }
+    };
+
+    checkServer();
+  });
+};
+
 // We configure mockoon to return different responses for the same request, sequentially:
 // https://mockoon.com/docs/latest/route-responses/multiple-responses/#sequential-route-response
 describe("endpoints which consume the R API", { sequential: true }, async () => {
@@ -44,24 +64,7 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     // A failure, in order to exit the test if no mock server.
     expect(response?.status).toBe(200);
 
-    // Wait for the local web server to be ready before running the tests
-    await new Promise<void>((resolve) => {
-      const checkServer = async () => {
-        try {
-          const response = await nodeFetch(localWebServerUrl);
-          if (response.status === 200) {
-            resolve();
-          } else {
-            setTimeout(checkServer, 1000);
-          }
-        } catch {
-          setTimeout(checkServer, 1000);
-        }
-      };
-
-      checkServer();
-    });
-
+    await waitForLocalServer();
     await purgeRApiMockServer();
   });
 

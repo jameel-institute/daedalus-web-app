@@ -4,7 +4,7 @@
 
 One type of integration test needed for this app is tests of the outer interface of the web server API, namely, the responses including their metadata (e.g. status codes), and how these depend on the responses from the R API.
 
-To run these tests, we run the web server and the database, and we mock the R API server with a separate service. Thus these are tests of the integration of the web server and database.
+To run these tests, we run the web server and the database, and we mock the R API server with a separate service.
 
 To run that separate R API service, [MSW](https://mswjs.io/) would be a common choice, but it doesn't seem to be compatible with Nuxt (at least server-side): [here](https://github.com/nuxt/test-utils/issues/775) is an example of a GitHub issue for this. So instead we are using [Mockoon](https://mockoon.com/), whose canned responses are stored in /tests/unit/mocks/mockoon.json.
 
