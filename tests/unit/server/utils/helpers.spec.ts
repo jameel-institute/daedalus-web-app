@@ -1,4 +1,4 @@
-import { formDataToObject, hashParameters } from "@/server/utils/helpers";
+import { formDataToObject, getModelVersion, hashParameters } from "@/server/utils/helpers";
 
 describe("formDataToObject", () => {
   it("should convert FormData to an object with correct values, handling single and multiple values for the same key correctly", () => {
@@ -36,5 +36,19 @@ describe("hashParameters", () => {
 
     expect(hashParameters(parameters, modelVersion)).toEqual(expectedHash);
     expect(hashParameters(parameters, "9.9.9")).not.toEqual(expectedHash);
+  });
+});
+
+describe("getModelVersion", () => {
+  it("should return the model version from the version data response", async () => {
+    vi.mock("@/server/handlers/versions", () => ({
+      getVersionData: () => ({
+        data: {
+          daedalusModel: "3.3.3",
+        },
+      }),
+    }));
+
+    expect(await getModelVersion()).toBe("3.3.3");
   });
 });

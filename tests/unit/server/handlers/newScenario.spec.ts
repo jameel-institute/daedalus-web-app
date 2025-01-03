@@ -5,7 +5,7 @@ import { readBody } from "h3";
 import prisma from "@/lib/prisma";
 
 const runId = "abcd1234";
-const expectedParametersHash = "91b10e110fcf1e7991c10eac15434b940b20e41ea45da7faa01339de82c65e4f";
+const expectedParametersHash = "7f75087abc61c538fe870d672ece552640e4000e40d6d2dbf708e14b2a748076";
 
 const mockedRunScenarioResponse = vi.fn();
 const mockedScenarioStatusResponse = vi.fn();
@@ -32,6 +32,16 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
+vi.mock("@/server/handlers/versions", () => ({
+  getVersionData: () => ({
+    data: {
+      daedalusApi: "0.0.0",
+      daedalusModel: "3.2.1",
+      daedalusWebApp: "0.0.0",
+    },
+  }),
+}));
+
 describe("requesting a scenario analysis to be run by the R API", () => {
   describe("when there is no existing scenario in the database", () => {
     describe("when the R API response to a run request is successful", () => {
@@ -39,7 +49,7 @@ describe("requesting a scenario analysis to be run by the R API", () => {
         mockedRunScenarioResponse.mockImplementation(async (event) => {
           const body = await readBody(event);
 
-          if (body.parameters.disease === "mpox" && body.modelVersion === "0.0.1") {
+          if (body.parameters.disease === "mpox" && body.modelVersion === "3.2.1") {
             return {
               status: "success",
               errors: null,
@@ -141,7 +151,7 @@ describe("requesting a scenario analysis to be run by the R API", () => {
         mockedRunScenarioResponse.mockImplementation(async (event) => {
           const body = await readBody(event);
 
-          if (body.parameters.disease === "mpox" && body.modelVersion === "0.0.1") {
+          if (body.parameters.disease === "mpox" && body.modelVersion === "3.2.1") {
             return {
               status: "success",
               errors: null,
