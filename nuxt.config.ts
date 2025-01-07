@@ -1,7 +1,9 @@
 import process from "node:process";
 
 const cacheRoute = (maxAge: number) => {
-  // Don't cache endpoints during tests, so that tests are isolated.
+  // Don't cache endpoints during integration tests, so that tests are isolated.
+  // In end-to-end tests, this variable evaluates to "production" so long as Playwright is using
+  // a built version of the app rather than `npm run dev`.
   return process.env.NODE_ENV === "test" ? {} : { cache: { maxAge } };
 };
 
