@@ -1,3 +1,10 @@
+import process from "node:process";
+
+const cacheRoute = (maxAge: number) => {
+  // Don't cache endpoints during tests, so that tests are isolated.
+  return process.env.NODE_ENV === "test" ? {} : { cache: { maxAge } };
+};
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   build: {
@@ -21,6 +28,7 @@ export default defineNuxtConfig({
     },
     routeRules: {
       "/": { redirect: "/scenarios/new" },
+      "/api/versions": cacheRoute(60),
     },
   },
 
