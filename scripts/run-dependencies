@@ -33,7 +33,6 @@ handle_options() {
 
 handle_options "$@"
 
-HERE=$(dirname "$0")
 DB_BUILD_SKIP=${DB_BUILD_SKIP:-0}
 "$HERE"/run-database "$DB_BUILD_SKIP"
 
