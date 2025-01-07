@@ -10,7 +10,6 @@ import type { scenario } from "@prisma/client";
 import dotenv from "dotenv";
 import prisma from "~/lib/prisma";
 
-const localWebServerUrl = "http://localhost:3000";
 const nodeFetch = fetch; // Normal 'fetch' from Node
 
 const env = dotenv.config().parsed;
@@ -23,26 +22,6 @@ rApiBaseUrl = rApiBaseUrl.endsWith("/") ? rApiBaseUrl.slice(0, -1) : rApiBaseUrl
 const purgeRApiMockServer = async () => {
   const purgeResponse = await nodeFetch(`${rApiBaseUrl}/mockoon-admin/state/purge`, { method: "POST" });
   expect(purgeResponse?.status).toBe(200);
-};
-
-// Wait for the local web server to be ready before running the tests
-const waitForLocalServer = async () => {
-  await new Promise<void>((resolve) => {
-    const checkServer = async () => {
-      try {
-        const response = await nodeFetch(localWebServerUrl);
-        if (response.status === 200) {
-          resolve();
-        } else {
-          setTimeout(checkServer, 1000);
-        }
-      } catch {
-        setTimeout(checkServer, 1000);
-      }
-    };
-
-    checkServer();
-  });
 };
 
 // We configure mockoon to return different responses for the same request, sequentially:
@@ -64,7 +43,6 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     // A failure, in order to exit the test if no mock server.
     expect(response?.status).toBe(200);
 
-    await waitForLocalServer();
     await purgeRApiMockServer();
   });
 
@@ -72,10 +50,7 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
     await prisma.scenario.deleteMany({});
   });
 
-  // Normally @nuxt/test-utils/e2e would handle setting up and running the server itself (see https://nuxt.com/docs/getting-started/testing#setup-1),
-  // but since we first need to run db migrations on whatever server is going to be tested, we instead run a server and db ourselves,
-  // and perform these tests against that server.
-  await setup({ host: localWebServerUrl });
+  await setup(); // Start the Nuxt server
 
   describe("api/versions", async () => {
     it("returns a successful response when the mock server responds successfully", async () => {
