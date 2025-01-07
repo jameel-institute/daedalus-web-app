@@ -14,13 +14,9 @@ npm run test:unit:coverage
 
 ## To run integration tests
 
-First start the Mockoon server:
+First start the test dependencies (Mockoon server and database image):
 ```bash
-npx mockoon-cli start --data ./mocks/mockoon.json
-```
-Then build and run the database image if it's not already running:
-```bash
-scripts/run-database
+scripts/run-integration-test-dependencies
 ```
 Then run:
 ```bash

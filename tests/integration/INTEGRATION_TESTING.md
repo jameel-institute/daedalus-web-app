@@ -24,13 +24,17 @@ To save time writing mock responses, Mockoon is able to record responses from an
 
 As I couldn't find a way to expose all of the error details in the response in unit tests using registerEndpoint, we are testing for all these details in the integration tests, ensuring that the error details are passed on in the implementation.
 
-### To run the mock server
+## To run the integration tests
 
-#### From CLI:
+See README.md
 
+## To run the mock server from CLI:
+
+```sh
 npx mockoon-cli start --data ./mocks/mockoon.json
+```
 
-#### From desktop app:
+### From desktop app:
 
 Make sure the correct API config is selected in the left sidebar (not the demo config). Then click the green "play" button.
 
