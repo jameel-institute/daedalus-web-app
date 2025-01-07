@@ -8,7 +8,7 @@
 import { fetch as nuxtTestUtilsFetch, setup } from "@nuxt/test-utils/e2e";
 import type { scenario } from "@prisma/client";
 import dotenv from "dotenv";
-import prisma from "~/lib/prisma";
+import prisma from "~/server/utils/db/prisma";
 
 const nodeFetch = fetch; // Normal 'fetch' from Node
 

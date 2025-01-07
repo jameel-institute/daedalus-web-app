@@ -1,7 +1,7 @@
-import prisma from "~/lib/prisma";
-import { createScenario, deleteScenario, getScenarioByParametersHash } from "@/server/utils/scenarioHelpers";
+import prisma from "~/server/utils/db/prisma";
+import { createScenario, deleteScenario, getScenarioByParametersHash } from "~/server/utils/db/scenarioRepository";
 
-vi.mock("~/lib/prisma", () => ({
+vi.mock("~/server/utils/db/prisma", () => ({
   default: {
     scenario: {
       findUnique: vi.fn(),
@@ -11,7 +11,7 @@ vi.mock("~/lib/prisma", () => ({
   },
 }));
 
-describe("scenarioHelpers", () => {
+describe("scenarioRepository", () => {
   const parametersHash = "test-hash";
   const runId = "test-run-id";
   const scenario = { id: "1", parameters_hash: parametersHash, run_id: runId, created_at: new Date(), updated_at: new Date() };
