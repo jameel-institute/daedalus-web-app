@@ -11,6 +11,7 @@ import type {
 import type { EventHandlerRequest, H3Event } from "h3";
 import { fetchRApi } from "@/server/utils/rApi";
 import { getModelVersion, hashParameters } from "../utils/helpers";
+import { apiResponse, badRequestResponse, internalServerErrorResponse } from "../utils/responseHelpers";
 import { createScenario, deleteScenario, getScenarioByParametersHash } from "../utils/db/scenarioRepository";
 
 const rApiRunScenarioEndpoint = "/scenario/run";
@@ -31,12 +32,7 @@ const runScenario = async (
     event,
   );
 
-  return {
-    statusText: response.statusText,
-    statusCode: response.statusCode,
-    errors: response?.errors || null,
-    data: response?.data as NewScenarioData,
-  } as NewScenarioResponse;
+  return apiResponse<NewScenarioData>(response) as NewScenarioResponse;
 };
 
 const rApiScenarioStatusEndpoint = (runId: string) => `/scenario/status/${runId}`;
@@ -46,12 +42,7 @@ export const getScenarioStatus = async (
 ): Promise<ScenarioStatusResponse> => {
   if (!runId) {
     const errors: Array<ApiError> = [{ error: "Bad request", detail: "Run ID not provided." }];
-    return {
-      statusText: "Bad Request",
-      statusCode: 400,
-      errors,
-      data: null,
-    } as ScenarioStatusResponse;
+    return badRequestResponse(errors) as ScenarioStatusResponse;
   }
 
   const response = await fetchRApi<ScenarioStatusData>(
@@ -62,12 +53,7 @@ export const getScenarioStatus = async (
     event,
   );
 
-  return {
-    statusText: response.statusText,
-    statusCode: response.statusCode,
-    errors: response?.errors || null,
-    data: response?.data as ScenarioStatusData,
-  } as ScenarioStatusResponse;
+  return apiResponse<ScenarioStatusData>(response) as ScenarioStatusResponse;
 };
 
 const rApiScenarioResultEndpoint = (runId: string) => `/scenario/results/${runId}`;
@@ -77,12 +63,7 @@ export const getScenarioResult = async (
 ): Promise<ScenarioResultResponse> => {
   if (!runId) {
     const errors: Array<ApiError> = [{ error: "Bad request", detail: "Run ID not provided." }];
-    return {
-      statusText: "Bad Request",
-      statusCode: 400,
-      errors,
-      data: null,
-    } as ScenarioResultResponse;
+    return badRequestResponse(errors) as ScenarioResultResponse;
   }
 
   const response = await fetchRApi<ScenarioResultData>(
@@ -93,12 +74,7 @@ export const getScenarioResult = async (
     event,
   );
 
-  return {
-    statusText: response.statusText,
-    statusCode: response.statusCode,
-    errors: response?.errors || null,
-    data: response?.data as ScenarioResultData,
-  } as ScenarioResultResponse;
+  return apiResponse<ScenarioResultData>(response) as ScenarioResultResponse;
 };
 
 // Look up the scenario in the db, by a hash of the parameters.
@@ -113,12 +89,7 @@ export const newScenario = async (
 
   if (!version) {
     const errors: Array<ApiError> = [{ error: "Internal server error", detail: "Model version lookup failed." }];
-    return {
-      statusText: "Internal Server Error",
-      statusCode: 500,
-      errors,
-      data: null,
-    } as NewScenarioResponse;
+    return internalServerErrorResponse(errors) as NewScenarioResponse;
   }
   const parametersHash = hashParameters(parameters, version);
   const scenario = await getScenarioByParametersHash(parametersHash);
@@ -126,13 +97,11 @@ export const newScenario = async (
   if (scenario) {
     // Validate that the run ID returned by the db is one the R API recognises.
     const scenarioStatus = await getScenarioStatus(scenario.run_id, event);
-    if (scenarioStatus.statusCode === 200) {
-      return {
-        statusText: scenarioStatus.statusText,
-        statusCode: scenarioStatus.statusCode,
-        errors: null,
-        data: { runId: scenario.run_id } as NewScenarioData,
-      } as NewScenarioResponse;
+    if (scenarioStatus.statusCode === 200 && scenarioStatus.errors === null) {
+      return apiResponse<NewScenarioData>({
+        ...scenarioStatus,
+        data: { runId: scenario.run_id },
+      }) as NewScenarioResponse;
     } else {
       await deleteScenario(scenario);
     }
@@ -144,10 +113,5 @@ export const newScenario = async (
     await createScenario(parametersHash, response.data.runId);
   }
 
-  return {
-    statusText: response.statusText,
-    statusCode: response.statusCode,
-    errors: response?.errors || null,
-    data: response.data as NewScenarioData,
-  } as NewScenarioResponse;
+  return apiResponse<NewScenarioData>(response) as NewScenarioResponse;
 };
