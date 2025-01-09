@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -exo pipefail
+
+HERE=$(realpath "$(dirname $0)")
+
+DB_BUILD_SKIP=${1:-0}
+
+# (Conditionally build and) run the database
+if [ $DB_BUILD_SKIP -eq 0 ]; then
+  "$HERE"/../db/scripts/build
+else
+  echo "Skipping db build"
+fi
+"$HERE"/../db/scripts/run
+
+docker exec daedalus-web-app-db wait-for-db

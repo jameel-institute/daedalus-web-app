@@ -4,6 +4,7 @@ import { registerEndpoint } from "@nuxt/test-utils/runtime";
 const mockedScenarioStatusResponse = vi.fn();
 const runId = "abcd125f555a69b376cf08eba800289e4a133234";
 
+// Mocking the response from the R API.
 registerEndpoint(`/scenario/status/${runId}`, {
   method: "GET",
   handler: mockedScenarioStatusResponse,
@@ -17,7 +18,7 @@ describe("requesting a scenario status", () => {
       expect(response.data).toBeNull();
       expect(response.errors).toEqual([{ error: "Bad request", detail: "Run ID not provided." }]);
       expect(response.statusCode).toBe(400);
-      expect(response.statusText).toBe("Bad request");
+      expect(response.statusText).toBe("Bad Request");
     });
   });
 

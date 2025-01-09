@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -exo pipefail
+
+HERE=$(realpath "$(dirname $0)")
+
+# Start Mockoon server
+npx mockoon-cli start --data ./mocks/mockoon.json &
+
+# Build and run the database image
+"$HERE"/run-database

@@ -4,9 +4,9 @@
 
 One type of integration test needed for this app is tests of the outer interface of the web server API, namely, the responses including their metadata (e.g. status codes), and how these depend on the responses from the R API.
 
-To run these tests, we run a test server using Vitest, and we mock the R API server with a separate service.
+To run these tests, we first run a database image and mock the R API server with a separate service. Vitest runs the test web server.
 
-To run that separate service, [MSW](https://mswjs.io/) would be a common choice, but it doesn't seem to be compatible with Nuxt (at least server-side): [here](https://github.com/nuxt/test-utils/issues/775) is an example of a GitHub issue for this. So instead we are using [Mockoon](https://mockoon.com/), whose canned responses are stored in /tests/unit/mocks/mockoon.json.
+To run that separate mocked R API service, [MSW](https://mswjs.io/) would be a common choice, but it didn't seem to be compatible with Nuxt (at least server-side): [here](https://github.com/nuxt/test-utils/issues/775) is an example of a GitHub issue for this. So instead we are using [Mockoon](https://mockoon.com/), whose canned responses are stored in /tests/unit/mocks/mockoon.json.
 
 ## When?
 
@@ -24,13 +24,17 @@ To save time writing mock responses, Mockoon is able to record responses from an
 
 As I couldn't find a way to expose all of the error details in the response in unit tests using registerEndpoint, we are testing for all these details in the integration tests, ensuring that the error details are passed on in the implementation.
 
-### To run the mock server
+## To run the integration tests
 
-#### From CLI:
+See README.md
 
+## To run the mock server from CLI:
+
+```sh
 npx mockoon-cli start --data ./mocks/mockoon.json
+```
 
-#### From desktop app:
+### From desktop app:
 
 Make sure the correct API config is selected in the left sidebar (not the demo config). Then click the green "play" button.
 

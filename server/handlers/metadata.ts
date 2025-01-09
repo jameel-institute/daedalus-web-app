@@ -1,6 +1,7 @@
 import type { Metadata, MetadataResponse } from "@/types/apiResponseTypes";
 import type { EventHandlerRequest, H3Event } from "h3";
 import { fetchRApi } from "@/server/utils/rApi";
+import { apiResponse } from "../utils/responseHelpers";
 
 const rApiMetadataEndpoint = "/metadata";
 
@@ -11,10 +12,5 @@ export const getMetadata = async (event?: H3Event<EventHandlerRequest>): Promise
     event,
   );
 
-  return {
-    statusText: response.statusText,
-    statusCode: response.statusCode,
-    errors: response?.errors || null,
-    data: response?.data as Metadata,
-  } as MetadataResponse;
+  return apiResponse<Metadata>(response) as MetadataResponse;
 };

@@ -180,7 +180,7 @@
       "responses": [
         {
           "uuid": "d2ac5ea7-a405-494b-9dac-363a1315dd85",
-          "body": "{\n  \"status\": \"success\",\n  \"errors\": null,\n  \"data\": {\n    \"runId\": \"007e5f5453d64850\"\n  }\n}",
+          "body": "{\n  \"status\": \"success\",\n  \"errors\": null,\n  \"data\": {\n    \"runId\": \"successfulResponseRunId\"\n  }\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "",
@@ -200,7 +200,7 @@
             {
               "target": "body",
               "modifier": "$.modelVersion",
-              "value": "0.0.1",
+              "value": "1.2.3.4.5.6.7.8",
               "invert": false,
               "operator": "equals"
             },
@@ -262,7 +262,7 @@
             {
               "target": "body",
               "modifier": "$.modelVersion",
-              "value": "0.0.1",
+              "value": "1.2.3.4.5.6.7.8",
               "invert": false,
               "operator": "equals"
             },
@@ -324,7 +324,7 @@
             {
               "target": "body",
               "modifier": "$.modelVersion",
-              "value": "0.0.1",
+              "value": "1.2.3.4.5.6.7.8",
               "invert": false,
               "operator": "equals"
             },
@@ -406,6 +406,52 @@
         {
           "uuid": "58b3039a-1420-4590-8216-c2dd137528cd",
           "body": "{\n  \"status\": \"success\",\n  \"errors\": null,\n  \"data\": {\n    \"runStatus\": \"complete\",\n    \"runSuccess\": true,\n    \"done\": true,\n    \"runErrors\": null,\n    \"runId\": \"successfulResponseRunId\"\n  }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null
+    },
+    {
+      "uuid": "2e085e4c-0c5c-46e8-a728-298c7a79baa7",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "scenario/status/runIdOfPreExistingScenario",
+      "responses": [
+        {
+          "uuid": "768e6899-d4c7-48fd-9952-5cbd83c32146",
+          "body": "{\n  \"status\": \"success\",\n  \"errors\": null,\n  \"data\": {\n    \"runStatus\": \"complete\",\n    \"runSuccess\": true,\n    \"done\": true,\n    \"runErrors\": null,\n    \"runId\": \"runIdOfPreExistingScenario\"\n  }\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "",
