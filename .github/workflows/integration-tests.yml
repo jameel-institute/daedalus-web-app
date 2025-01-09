@@ -22,16 +22,9 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Start API server with Mockoon to mock R API
-        uses: mockoon/cli-action@v2
-        with:
-          data-file: ./mocks/mockoon.json
-          port: 8001
-      - name: Check mocked R API server is running
-        run: curl -s http://localhost:8001/mock-smoke
       - name: Set non-secret environment variables for app
         run: mv .env.example .env
-      - name: Start database
-        run: scripts/run-database
+      - name: Start dependency services
+        run: scripts/run-integration-test-dependencies
       - name: Test
         run: npm run test:integration
