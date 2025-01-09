@@ -12,7 +12,7 @@ import type { EventHandlerRequest, H3Event } from "h3";
 import { fetchRApi } from "@/server/utils/rApi";
 import { getModelVersion, hashParameters } from "../utils/helpers";
 import { apiResponse, badRequestResponse, internalServerErrorResponse } from "../utils/responseHelpers";
-import { createScenario, deleteScenario, getScenarioByParametersHash } from "../utils/db/scenarioRepository";
+import { createScenario, deleteScenario, getScenarioByParametersHash } from "../db/scenarioRepository";
 
 const rApiRunScenarioEndpoint = "/scenario/run";
 const runScenario = async (

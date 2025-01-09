@@ -2,7 +2,7 @@ import { newScenario } from "@/server/handlers/scenarios";
 import { registerEndpoint } from "@nuxt/test-utils/runtime";
 import { readBody } from "h3";
 
-import prisma from "~/server/utils/db/prisma";
+import prisma from "~/server/db/prisma";
 
 const runId = "abcd1234";
 const expectedParametersHash = "7f75087abc61c538fe870d672ece552640e4000e40d6d2dbf708e14b2a748076";
@@ -20,7 +20,7 @@ registerEndpoint(`/scenario/status/${runId}`, {
   handler: mockedScenarioStatusResponse,
 });
 
-vi.mock("~/server/utils/db/prisma", () => ({
+vi.mock("~/server/db/prisma", () => ({
   default: {
     scenario: {
       create: vi.fn(),

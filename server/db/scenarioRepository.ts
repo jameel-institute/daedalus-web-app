@@ -1,5 +1,5 @@
 import type { scenario } from "@prisma/client";
-import prisma from "~/server/utils/db/prisma";
+import prisma from "~/server/db/prisma";
 
 export const getScenarioByParametersHash = async (parametersHash: string): Promise<scenario | null> => {
   return await prisma.scenario.findUnique({

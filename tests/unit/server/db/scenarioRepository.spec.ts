@@ -1,7 +1,7 @@
-import prisma from "~/server/utils/db/prisma";
-import { createScenario, deleteScenario, getScenarioByParametersHash } from "~/server/utils/db/scenarioRepository";
+import prisma from "~/server/db/prisma";
+import { createScenario, deleteScenario, getScenarioByParametersHash } from "~/server/db/scenarioRepository";
 
-vi.mock("~/server/utils/db/prisma", () => ({
+vi.mock("~/server/db/prisma", () => ({
   default: {
     scenario: {
       findUnique: vi.fn(),
