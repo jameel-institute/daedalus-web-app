@@ -9,14 +9,46 @@
       class="globe"
       :class="[(appStore.globe.interactive ? 'interactive' : null)]"
     />
+    <div style="position: absolute; bottom: 1rem; right: 1rem; display: flex; flex-direction: column;">
+      <CPopover placement="top" title="Globe settings" :animation="false">
+        <template #toggler="{ id, on }">
+          <CIcon :aria-describedby="id" icon="cil-settings" style="margin-left: auto" title="Globe settings" v-on="on" />
+        </template>
+        <template #content>
+          <CButton
+            v-if="appStore.globe.interactive && !appStore.globe.highlightedCountry"
+            color="light"
+            size="sm"
+            @click="toggleGlobeAnimation"
+          >
+            <CIcon :icon="`cil-media-${appStore.globe.rotationPreferred ? 'pause' : 'play'}`" style="height: 0.8rem;" />
+            Toggle globe rotation
+          </CButton>
+        </template>
+      </CPopover>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { CIcon } from "@coreui/icons-vue";
 import type { MultiPolygon } from "geojson";
 import WHONationalBorders from "@/assets/geodata/2pc_downsampled_WHO_adm0_22102024";
 import WHODisputedAreas from "@/assets/geodata/2pc_downsampled_WHO_disputed_areas_22102024";
-import { amountToTiltTheEarthUpwardsBy, animateSeriesColourChange, type Animation, createRotateAnimation, geoPointZoomDuration, getWideGeoBounds, handlePolygonActive, initializeSeries, pauseAnimations, removeSeries, rotateToCentroid, southEastAsiaXCoordinate } from "@/components/utils/globe";
+import {
+  amountToTiltTheEarthUpwardsBy,
+  animateSeriesColourChange,
+  type Animation,
+  createResetYAxisAnimation,
+  createRotateAnimation,
+  geoPointZoomDuration,
+  getWideGeoBounds,
+  handlePolygonActive,
+  initializeSeries,
+  removeSeries,
+  rotateToCentroid,
+  southEastAsiaXCoordinate,
+} from "@/components/utils/globe";
 import { rgba2hex } from "@amcharts/amcharts5/.internal/core/util/Color";
 import * as am5 from "@amcharts/amcharts5/index";
 import * as am5map from "@amcharts/amcharts5/map";
@@ -44,9 +76,9 @@ const lightGreyBackground = am5.color(rgba2hex("rgb(243, 244, 247)"));
 const maxZindex = 29; // 30 is reserved by amCharts
 
 const goHomeDuration = 500;
+
 let gentleRotateAnimation: Animation;
-let graduallyResetYAxis: Animation;
-let animations: Animation[] = [];
+let resetYAxis: Animation;
 
 let root: am5.Root;
 let chart: am5map.MapChart;
@@ -143,6 +175,22 @@ const highlightedCountrySeries = computed(() => {
   });
 });
 
+const stopAnimations = () => {
+  gentleRotateAnimation?.stop();
+  resetYAxis?.stop();
+};
+
+const toggleGlobeAnimation = () => {
+  // There may be a version of the resetYAxis animation ongoing which uses a default (very slow) duration;
+  // if so, and the user is switching off animations, we should finish this reset animation quickly.
+  if (appStore.globe.rotationPreferred && resetYAxis?.playing) {
+    resetYAxis.stop();
+    resetYAxis = createResetYAxisAnimation(chart, 1000);
+  }
+
+  appStore.globe.rotationPreferred = !appStore.globe.rotationPreferred;
+};
+
 // If the user has any text selected, this plays havoc with any ensuing attempts to drag the globe
 // around. So when they restart dragging, we should unselect any selections for them.
 const deselectText = () => {
@@ -160,8 +208,10 @@ const onMouseMove = throttle((event) => {
 }, 25);
 
 const applyGlobeSettings = () => {
-  if (!appStore.globe.interactive && !gentleRotateAnimation.stopped) {
-    gentleRotateAnimation.pause();
+  if (!appStore.globe.interactive || !appStore.globe.rotationPreferred) {
+    gentleRotateAnimation?.stop();
+  } else {
+    gentleRotateAnimation = createRotateAnimation(chart);
   }
 };
 
@@ -175,7 +225,7 @@ const countryCentroid = (countryIso: string) => {
 const rotateToCountry = async (countryIso: string) => {
   const centroid = countryCentroid(countryIso);
   if (chart && centroid && rotatedToCountry.value !== countryIso) {
-    pauseAnimations(animations);
+    stopAnimations();
     await rotateToCentroid(chart, centroid, countryIso, rotatedToCountry);
   }
 };
@@ -184,7 +234,7 @@ const zoomToCountry = (countryIso: string) => {
   const centroid = countryCentroid(countryIso);
   const geometry = findFeatureForCountry(countryIso)?.geometry as MultiPolygon;
   if (chart && centroid) {
-    pauseAnimations(animations);
+    stopAnimations();
     chart.zoomToGeoBounds(getWideGeoBounds(geometry), geoPointZoomDuration);
   }
 };
@@ -253,7 +303,6 @@ const setUpChart = () => {
   setUpAntarcticaSeries();
   setUpSelectableCountriesSeries();
   setUpDisputedAreasSeries();
-  gentleRotateAnimation = createRotateAnimation(chart);
   applyGlobeSettings();
 };
 
@@ -281,19 +330,17 @@ const disputedAreas = (countryId: string) => {
 
 const resetGlobeZoomAndAnimation = () => {
   if (chart) {
-    pauseAnimations(animations);
+    stopAnimations();
     // Probably the user has navigated back to the home page.
     chart.goHome(goHomeDuration);
-    // Reset the globe to zoomed out and slowly spinning.
-    rotatedToCountry.value = "";
-    // TODO: Make more memory efficient by not re-creating the animations every time
-    gentleRotateAnimation = createRotateAnimation(chart);
-    if (graduallyResetYAxis) {
-      graduallyResetYAxis.play();
+    if (appStore.globe.rotationPreferred) {
+      // Reset the globe to zoomed out and slowly spinning.
+      rotatedToCountry.value = "";
+      gentleRotateAnimation = createRotateAnimation(chart);
+      resetYAxis = createResetYAxisAnimation(chart);
     } else {
-      graduallyResetYAxis = chart.animate({ key: "rotationY", to: 0, duration: 20000, easing: am5.ease.inOut(am5.ease.cubic) });
+      resetYAxis = createResetYAxisAnimation(chart, 1000);
     }
-    animations = [gentleRotateAnimation, graduallyResetYAxis];
   }
 };
 
@@ -301,7 +348,7 @@ const resetGlobeZoomAndAnimation = () => {
 // on the new scenario page, rotate the globe to focus on that country.
 const highlightCountry = async () => {
   if (appStore.globe.highlightedCountry && highlightedCountrySeries.value) {
-    pauseAnimations(animations);
+    stopAnimations();
     chart.series.push(highlightedCountrySeries.value);
 
     disputedAreas(appStore.globe.highlightedCountry!).forEach((disputedArea) => {

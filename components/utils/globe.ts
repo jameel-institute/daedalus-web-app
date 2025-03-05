@@ -7,17 +7,7 @@ export const amountToTiltTheEarthUpwardsBy = 25;
 export const geoPointZoomDuration = 2000;
 export const southEastAsiaXCoordinate = -100;
 
-export interface Animation { pause: () => void, stopped: boolean, play: () => void }
-
-const pauseAnimation = (animation: Animation) => {
-  if (animation && !animation.stopped) {
-    animation.pause();
-  }
-};
-
-export const pauseAnimations = (animations: Animation[]) => {
-  animations.forEach((animation: Animation) => pauseAnimation(animation));
-};
+export interface Animation { playing: boolean, stop: () => void }
 
 const rotateChart = (chart: am5map.MapChart, direction: "x" | "y", to: number) => {
   if (direction === "x") {
@@ -76,7 +66,7 @@ export const animateSeriesColourChange = (
   colour: am5.Color,
 ) => series.animate({ key: "fill", to: colour, duration: geoPointZoomDuration, easing: am5.ease.inOut(am5.ease.cubic) });
 
-// Reset the globe to slowly spinning.
+// Sets the globe slowly spinning.
 export const createRotateAnimation = (chart: am5map.MapChart) => {
   let currentRotationX: number;
   if (chart.get("rotationX") === 0) {
@@ -92,6 +82,10 @@ export const createRotateAnimation = (chart: am5map.MapChart) => {
     loops: Infinity,
   });
 };
+
+// Gradually reset the Y axis (e.g. after having deselected a very northerly country).
+export const createResetYAxisAnimation = (chart: am5map.MapChart, duration: number = 20000) =>
+  chart.animate({ key: "rotationY", to: 0, duration, easing: am5.ease.inOut(am5.ease.cubic) });
 
 // When a polygon is activated (clicked), make sure the previously activated polygon is deactivated.
 export const handlePolygonActive = (target: am5map.MapPolygon, prevPolygonRef: Ref<am5map.MapPolygon | undefined>) => {

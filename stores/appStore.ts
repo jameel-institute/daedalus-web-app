@@ -29,6 +29,7 @@ export const useAppStore = defineStore("app", {
     globe: {
       interactive: false,
       highlightedCountry: null,
+      rotationPreferred: true, // TODO: Derive from persistent user settings e.g. in localstorage
     },
     largeScreen: true,
     versions: undefined,
