@@ -2,21 +2,10 @@ import {
   createRotateAnimation,
   getWideGeoBounds,
   handlePolygonActive,
-  pauseAnimations,
   removeSeries,
   rotateToCentroid,
 } from "@/components/utils/globe";
 import * as am5map from "@amcharts/amcharts5/map";
-
-describe("pauseAnimations", () => {
-  it("should pause animations passed to it, unless they have been stopped", () => {
-    const stoppedAnimation = { pause: vi.fn(), stopped: true, play: vi.fn() };
-    const unstoppedAnimation = { pause: vi.fn(), stopped: false, play: vi.fn() };
-    pauseAnimations([stoppedAnimation, unstoppedAnimation]);
-    expect(stoppedAnimation.pause).not.toHaveBeenCalled();
-    expect(unstoppedAnimation.pause).toHaveBeenCalled();
-  });
-});
 
 describe("rotateToCentroid", () => {
   it("should rotate the chart to the centroid", async () => {

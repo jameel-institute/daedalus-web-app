@@ -21,6 +21,7 @@ export interface AppState {
   globe: {
     interactive: boolean
     highlightedCountry: string | null
+    rotationPreferred: boolean
   }
   largeScreen: boolean
   versions: VersionData | undefined
