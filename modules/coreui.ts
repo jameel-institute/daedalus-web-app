@@ -52,6 +52,37 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/grid/CContainer",
     });
     addComponent({
+      name: "CDropdown",
+      export: "CDropdown",
+      filePath: "@coreui/vue/src/components/dropdown/CDropdown",
+    });
+    addComponent({
+      name: "CDropdownDivider",
+      export: "CDropdownDivider",
+      filePath: "@coreui/vue/src/components/dropdown/CDropdownDivider",
+    });
+    addComponent({
+      name: "CDropdownHeader",
+      export: "CDropdownHeader",
+      filePath: "@coreui/vue/src/components/dropdown/CDropdownHeader",
+    });
+    addComponent({
+      name: "CDropdownItem",
+      export: "CDropdownItem",
+      filePath: "@coreui/vue/src/components/dropdown/CDropdownItem",
+    });
+    addComponent({
+      name: "CDropdownMenu",
+      export: "CDropdownMenu",
+      filePath: "@coreui/vue/src/components/dropdown/CDropdownMenu",
+    });
+
+    addComponent({
+      name: "CDropdownToggle",
+      export: "CDropdownToggle",
+      filePath: "@coreui/vue/src/components/dropdown/CDropdownToggle",
+    });
+    addComponent({
       name: "CForm",
       export: "CForm",
       filePath: "@coreui/vue/src/components/form/CForm",
@@ -122,9 +153,34 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/modal/CModalBody",
     });
     addComponent({
+      name: "CNavbar",
+      export: "CNavbar",
+      filePath: "@coreui/vue/src/components/navbar/CNavbar",
+    });
+    addComponent({
+      name: "CNavbarBrand",
+      export: "CNavbarBrand",
+      filePath: "@coreui/vue/src/components/navbar/CNavbarBrand",
+    });
+    addComponent({
+      name: "CNavbarToggler",
+      export: "CNavbarToggler",
+      filePath: "@coreui/vue/src/components/navbar/CNavbarToggler",
+    });
+    addComponent({
+      name: "CNavbarNav",
+      export: "CNavbarNav",
+      filePath: "@coreui/vue/src/components/navbar/CNavbarNav",
+    });
+    addComponent({
       name: "CNavItem",
       export: "CNavItem",
       filePath: "@coreui/vue/src/components/nav/CNavItem",
+    });
+    addComponent({
+      name: "CNavLink",
+      export: "CNavLink",
+      filePath: "@coreui/vue/src/components/nav/CNavLink",
     });
     addComponent({
       name: "CRow",

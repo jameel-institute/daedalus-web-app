@@ -1,5 +1,5 @@
 <template>
-  <ParameterIcon :parameter="parameter" />
+  <ParameterIcon v-if="!hideIcon" :parameter="parameter" />
   <CFormLabel :id="`${parameter.id}-label`" :for="parameter.id">
     {{ parameter.label }}
   </CFormLabel>
@@ -11,5 +11,6 @@ import type { Parameter } from "~/types/parameterTypes";
 
 defineProps<{
   parameter: Parameter
+  hideIcon?: boolean
 }>();
 </script>
