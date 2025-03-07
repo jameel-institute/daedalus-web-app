@@ -13,7 +13,7 @@
         :key="parameter.id"
         class="field-container"
       >
-        <div v-if="renderAsRadios(parameter)" class="button-group-container">
+        <div v-if="false" class="button-group-container">
           <CRow class="pe-2">
             <ParameterHeader :parameter="parameter" />
           </CRow>
@@ -54,34 +54,35 @@
             </CButtonGroup>
           </CRow>
         </div>
-        <div v-else-if="renderAsSelect(parameter)" class="select-container">
-          <CRow>
+        <div v-else-if="true && parameter.id !== 'vaccine' && parameter.options" class="select-container">
+          <div class="d-flex">
             <ParameterHeader :parameter="parameter" />
-            <VueSelect
-              v-model="formData![parameter.id]"
-              :input-id="parameter.id"
-              :aria="{ labelledby: `${parameter.id}-label`, required: true }"
-              class="form-control"
-              :class="[pulsingParameters.includes(parameter.id) ? 'pulse' : '']"
-              :options="parameter.options.map((o) => ({ value: o.id, label: o.label, description: o.description }))"
-              :is-clearable="false"
-              @option-selected="handleChange(parameter)"
-            >
-              <template #option="{ option }">
-                <div class="parameter-option">
-                  <span>{{ option.label }}</span>
-                  <div
-                    v-if="option.description"
-                    :class="option.value === formData[parameter.id] ? 'text-dark' : 'text-secondary'"
-                  >
-                    <small>{{ option.description }}</small>
-                  </div>
+          </div>
+          <VueSelect
+            v-model="formData![parameter.id]"
+            :input-id="parameter.id"
+            :aria="{ labelledby: `${parameter.id}-label`, required: true }"
+            class="form-control"
+            :class="[pulsingParameters.includes(parameter.id) ? 'pulse' : '']"
+            :disabled="parameter.id === 'vaccine'"
+            :options="parameter.options.map((o) => ({ value: o.id, label: o.label, description: o.description }))"
+            :is-clearable="false"
+            @option-selected="handleChange(parameter)"
+          >
+            <template #option="{ option }">
+              <div class="parameter-option">
+                <span>{{ option.label }}</span>
+                <div
+                  v-if="option.description"
+                  :class="option.value === formData[parameter.id] ? 'text-dark' : 'text-secondary'"
+                >
+                  <small>{{ option.description }}</small>
                 </div>
-              </template>
-            </VueSelect>
-          </CRow>
+              </div>
+            </template>
+          </VueSelect>
         </div>
-        <div v-else-if="parameter.parameterType === TypeOfParameter.Numeric">
+        <div v-else-if="parameter.parameterType === TypeOfParameter.Numeric" class="ms-3 me-3">
           <div class="d-flex numeric-header">
             <ParameterHeader :parameter="parameter" />
           </div>
@@ -96,7 +97,7 @@
                 :min="min(parameter)"
                 :max="max(parameter)"
                 :step="parameter.step"
-                :size="appStore.largeScreen ? 'lg' : undefined"
+                :size="appStore.largeScreen ? undefined : undefined"
                 :feedback-invalid="numericParameterFeedback(parameter)"
                 :data-valid="!invalidFields?.includes(parameter.id)"
                 :invalid="invalidFields?.includes(parameter.id) && showValidations"
@@ -133,12 +134,12 @@
       <CButton
         id="run-button"
         color="primary"
-        :size="appStore.largeScreen ? 'lg' : undefined"
+        size="sm"
         type="submit"
         :disabled="runButtonDisabled"
         @click="submitForm"
       >
-        Run
+        Submit
         <CSpinner v-if="formSubmitting && appStore.metadataFetchStatus !== 'error'" size="sm" class="ms-1" />
         <CIcon v-else icon="cilArrowRight" />
       </CButton>
@@ -418,6 +419,7 @@ onMounted(() => {
   row-gap: 1rem;
   column-gap: 1rem;
   position: relative; // Provide a 'nearest positioned ancestor' for the feedback element.
+  margin-left: -1rem;
 }
 
 .field-container {
@@ -431,9 +433,11 @@ onMounted(() => {
 
 #run-button {
   min-width: 6rem;
-  margin-left: auto;
+  margin-left: 1rem;
+  margin-bottom: 0.5rem;
+  margin-top: -0.5rem;
   align-self: flex-start;
-  margin-top: 2rem; // Align button with height of labels when it shares a row with an input.
+  // margin-top: 2rem; // Align button with height of labels when it shares a row with an input.
 }
 
 .pulse {
