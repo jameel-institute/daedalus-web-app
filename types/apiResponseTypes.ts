@@ -28,6 +28,9 @@ export interface DisplayInfo {
   label: string
   description?: string
 }
+
+// A time series group collects data that is related to a single scenario and a single indicator,
+// e.g. prevalence, but it may contain multiple time series, e.g. for cumulative vs non-cumulative data.
 export interface TimeSeriesGroup {
   id: string
   label: string

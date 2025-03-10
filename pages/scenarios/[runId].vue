@@ -1,11 +1,27 @@
 <template>
   <div id="resultsPage">
     <div class="d-flex flex-wrap mb-3 gap-3">
-      <h1 class="fs-2 mb-0 pt-1">
-        Results
+      <h1 class="fs-3 mb-0 pt-1">
+        Exploring global vaccine investment
       </h1>
+      <p class="text-muted">
+        Mockup variants available: (0) grid/nongrid (1) settings inside time series card header ("outside-time-series-card"), (2) all lines colored, (3) diffingAgainstBaseline/not
+      </p>
+      <p>
+        Mockup variants needed: [? version with no highlighted baseline ?]
+      </p>
       <DownloadExcel />
       <CodeSnippet />
+      <div class="d-inline-block">
+        <div>
+          <CButton
+            color="light"
+            class="btn-scenario-header"
+          >
+            <CIcon icon="cilShare" size="lg" class="text-secondary" />
+          </CButton>
+        </div>
+      </div>
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
         <CIconSvg size="xxl">
           <img src="/icons/rotate-device.svg">
@@ -15,7 +31,7 @@
           Rotate your mobile device to landscape for the best experience.
         </p>
       </CAlert>
-      <div v-show="appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="card horizontal-card parameters-card">
+      <!-- <div v-show="appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="card horizontal-card parameters-card">
         <CRow>
           <div
             v-show="!appStore.largeScreen"
@@ -54,7 +70,7 @@
             </div>
           </CCol>
         </CRow>
-      </div>
+      </div> -->
     </div>
     <CSpinner v-show="showSpinner" class="ms-3 mb-3 mt-3" />
     <CAlert v-if="appStore.currentScenario.status.data?.runSuccess === false" color="danger">
@@ -84,10 +100,10 @@
       </p>
     </CAlert>
     <CRow v-else-if="appStore.currentScenario.result.data" class="results-cards-container">
-      <div class="col-12 col-xl-6">
+      <!-- <div class="col-12 col-xl-6">
         <CostsCard />
-      </div>
-      <div class="col-12 col-xl-6">
+      </div> -->
+      <div class="col-12">
         <TimeSeriesCard />
       </div>
     </CRow>
