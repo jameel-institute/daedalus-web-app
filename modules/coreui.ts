@@ -222,5 +222,15 @@ export default defineNuxtModule({
       export: "CTooltip",
       filePath: "@coreui/vue/src/components/tooltip/CTooltip",
     });
+    addComponent({
+      name: "CWidgetStatsA",
+      export: "CWidgetStatsA",
+      filePath: "@coreui/vue/src/components/widgets/CWidgetStatsA",
+    });
+    addComponent({
+      name: "CWidgetStatsE",
+      export: "CWidgetStatsE",
+      filePath: "@coreui/vue/src/components/widgets/CWidgetStatsE",
+    });
   },
 });
