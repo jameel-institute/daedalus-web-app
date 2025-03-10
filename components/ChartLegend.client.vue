@@ -49,7 +49,7 @@ const iStyle = (item: LegendItem) => {
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .legend-container {
   padding: 0.2rem;
 }

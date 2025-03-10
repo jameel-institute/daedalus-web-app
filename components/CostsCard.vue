@@ -1,64 +1,67 @@
 <template>
   <div class="card costs-card">
     <!-- Todo: Make height dynamic. Matching header of time series. -->
-    <div class="card-header d-flex justify-content-between">
-      <div class="d-flex align-items-center">
-      </div>
-    </div>
     <div id="costsCardBody" class="card-body">
-      <h3 id="totalHeading" class="mt-0 mb-1 ms-2 fs-6">
-        Total
-      </h3>
-      <div
-        id="totalsContainer"
-        class="d-flex flex-wrap gap-3 row-gap-0"
-      >
-        <div id="gdpContainer" class="d-flex gap-1">
-          <p id="gdpTotalCostPercent" class="mt-0 mb-0">
-            {{ gdpTotalCostPercent }}
-          </p>
-          <div id="gdpTotalCostPercentSymbolContainer">
-            <p id="gdpTotalCostPercentageSymbol" class="mb-0">
-              <span>%</span>
-            </p>
-            <p id="gdpTotalCostPercentReferent" class="mt-0 mb-0">
-              <span>of 2018 GDP</span>
-            </p>
+      <CRow>
+        <img v-if="!stackBars && !diffing" height="700px" class="col-6 p-3 mb-5" src="~/assets/img/chart.svg">
+        <img v-else-if="stackBars && !diffing" height="700px" class="col-6 p-3 mb-5" src="~/assets/img/chart (1).svg">
+        <img v-else-if="!stackBars && diffing" height="700px" class="col-6 p-3 mb-5" src="~/assets/img/chart (2).svg">
+        <div class="col-6 d-flex flex-column gap-3 pt-5">
+          <div class="d-flex align-items-center gap-3 mb-3 mt-3">
+            <CFormSwitch
+              id="showSubCosts"
+              label="Show sub-costs"
+            />
+            <CButton
+              id="sortScenariosButton"
+              class="border"
+              color="light"
+            >
+              <CIcon icon="cilSortAscending" size="lg" class="text-secondary" style="transform: rotate(270deg)" />
+              <span class="ps-2 position-relative">Sort scenarios by total losses</span>
+              <!-- (only offer that if the scenarios do not have a natural ordering?) -->
+            </CButton>
+            <CButton
+              id="stackBarsButton"
+              class="border"
+              color="light"
+              @click.prevent="stackBars = !stackBars"
+            >
+              <CIcon icon="cilWrapText" size="lg" class="text-secondary" style="transform: rotate(270deg)" />
+              <span class="ps-2">Stack bars</span> <!-- toggles split and stack -->
+            </CButton>
+          </div>
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <CFormLabel class="mt-2">
+              Units
+            </CFormLabel>
+            <VueSelect
+              v-model="costUnits"
+              :options="[{ label: '% of 2018 GDP', value: 'gdp' }, { label: '$ USD', value: 'usd' }]"
+              label="Select unit"
+              :is-clearable="false"
+              style="width: 12rem"
+            />
+          </div>
+          <div>
+            <CostsLegend />
+          </div>
+          <div class="mt-3">
+            <CostsTable data-testid="costs-table" />
+          </div>
+          <div v-if="!diffing" class="position-absolute d-flex fs-5" style="bottom: 5rem; left: 10rem; width: 100%;">
+            <div><CIcon icon="cil-star" class="me-2 ms-3" />None</div>
+            <div style="margin-left: 7.5rem; font-weight: 500;">Low</div>
+            <div style="margin-left: 8rem;">Medium</div>
+            <div style="margin-left: 7.8rem;">High</div>
+          </div>
+          <div v-else class="position-absolute d-flex fs-5" style="bottom: 5rem; left: 10rem; width: 100%;">
+            <div><CIcon icon="cil-star" class="me-2 ms-5" />None</div>
+            <div style="margin-left: 10.5rem;">Medium</div>
+            <div style="margin-left: 11rem;">High</div>
           </div>
         </div>
-        <div id="usdContainer">
-          <div id="currency">
-            <p id="usdSymbol">
-              $
-            </p>
-            <p id="usdWord">
-              USD
-            </p>
-          </div>
-          <p id="totalCostPara" class="d-inline-block">
-            <span id="usdTotalCost">
-              <span>{{ totalCostAbbr?.amount }}</span>
-              <span id="totalCostUnit">
-                {{ totalCostAbbr?.unit }}
-              </span>
-            </span>
-          </p>
-        </div>
-      </div>
-      <div class="pie-table-container">
-        <div class="flex-grow-1">
-          <CostsTable data-testid="costs-table" />
-        </div>
-        <CostsPie
-          id="costsPieContainer"
-          :hide-tooltips="hideTooltips"
-          @mouseleave="onMouseLeavePie"
-          @mouseover="hideTooltips = false"
-        />
-      </div>
-      <p class="fw-lighter vsl-display">
-        * Value of statistical life: ${{ formatCurrency(appStore.currentScenario.result.data!.average_vsl) }} Int'l$
-      </p>
+      </CRow>
     </div>
   </div>
 </template>
@@ -66,9 +69,13 @@
 <script lang="ts" setup>
 import { abbreviateMillionsDollars } from "@/utils/money";
 import { CIcon } from "@coreui/icons-vue";
+import VueSelect from "vue3-select-component";
 
 const appStore = useAppStore();
 const hideTooltips = ref(false);
+const costUnits = ref("gdp");
+const stackBars = ref(false);
+const diffing = ref(true);
 
 // Display the 'headline' total cost in terms of a percentage of annual national GDP
 const gdpTotalCostPercent = computed(() => ((appStore.totalCost!.value / appStore.currentScenario!.result!.data!.gdp) * 100).toFixed(1));
@@ -88,11 +95,14 @@ const onMouseLeavePie = () => {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @use "sass:map";
-
 // When adjusting or testing layout, use the widest possible values for the costs: 555.5% of GDP and 555.5 M USD.
 .costs-card {
+  .form-switch .form-label.form-check-label {
+    margin-bottom: 0 !important;
+  }
+
   border-top: 0;
 
   color: var(--cui-dark-text-emphasis);
@@ -120,6 +130,10 @@ const onMouseLeavePie = () => {
   .card-header {
     height: 66.375px; // Hard-coded to match the height of the time series card header
     border-bottom: var(--cui-border-width) solid var(--cui-border-color);
+
+    .btn, .form-check {
+      white-space: nowrap !important;
+    }
   }
 
   #totalHeading {

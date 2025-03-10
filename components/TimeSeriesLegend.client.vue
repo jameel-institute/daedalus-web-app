@@ -37,7 +37,7 @@
   <div :class="`legend-container d-flex flex-column gap-1 m-1 ${props.allLinesColored && props.diffingAgainstBaseline ? 'mt-3' : ''}`">
     <ChartLegend
       :items="[items[0]]"
-      :row-height-rem="1.5"
+      :row-height-rem="1"
     />
     <ChartLegendDotted
       v-if="!diffingAgainstBaseline"

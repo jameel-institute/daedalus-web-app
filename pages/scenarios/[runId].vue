@@ -1,12 +1,9 @@
 <template>
   <div id="resultsPage">
     <div class="d-flex gap-3">
-      <h1 class="fs-4 mb-0 pt-1" style="min-width: 500px">
+      <h1 class="fs-4 mb-3 pt-1" style="min-width: 500px">
         Exploring outcomes by global vaccine investment
       </h1>
-      <p class="text-muted small d-inline-block">
-        Mockup variants available: (0) grid/nongrid (1) settings inside time series card header ("outside-time-series-card"), (2) all lines colored, (3) diffingAgainstBaseline/not. Mockup variants needed: [? version with no highlighted baseline ?]
-      </p>
       <DownloadExcel />
       <CodeSnippet />
       <div class="d-inline-block">

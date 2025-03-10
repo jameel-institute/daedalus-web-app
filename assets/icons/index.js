@@ -215,7 +215,10 @@ import {
   cilSettings,
   cilShare,
   cilShieldAlt,
+  cilStar,
+  cilSortAscending,
   cilViewStream,
+  cilWrapText,
 } from "@coreui/icons";
 
 export const iconsSet = {
@@ -237,7 +240,10 @@ export const iconsSet = {
   cilSettings,
   cilShare,
   cilShieldAlt,
+  cilStar,
+  cilSortAscending,
   cilViewStream,
+  cilWrapText,
   cilInfo,
   cifAd,
   cifAe,
