@@ -1,14 +1,11 @@
 <template>
   <div id="resultsPage">
-    <div class="d-flex flex-wrap mb-3 gap-3">
-      <h1 class="fs-3 mb-0 pt-1">
-        Exploring global vaccine investment
+    <div class="d-flex gap-3">
+      <h1 class="fs-4 mb-0 pt-1" style="min-width: 500px">
+        Exploring outcomes by global vaccine investment
       </h1>
-      <p class="text-muted">
-        Mockup variants available: (0) grid/nongrid (1) settings inside time series card header ("outside-time-series-card"), (2) all lines colored, (3) diffingAgainstBaseline/not
-      </p>
-      <p>
-        Mockup variants needed: [? version with no highlighted baseline ?]
+      <p class="text-muted small d-inline-block">
+        Mockup variants available: (0) grid/nongrid (1) settings inside time series card header ("outside-time-series-card"), (2) all lines colored, (3) diffingAgainstBaseline/not. Mockup variants needed: [? version with no highlighted baseline ?]
       </p>
       <DownloadExcel />
       <CodeSnippet />
@@ -100,11 +97,35 @@
       </p>
     </CAlert>
     <CRow v-else-if="appStore.currentScenario.result.data" class="results-cards-container">
-      <!-- <div class="col-12 col-xl-6">
-        <CostsCard />
-      </div> -->
       <div class="col-12">
-        <TimeSeriesCard />
+        <CTabs activeItemKey="costs">
+          <CTabList variant="tabs">
+            <CTab itemKey="home" class="ms-3">Overview</CTab>
+            <CTab itemKey="costs" class="d-flex align-items-center card-header px-4">
+              <CIcon icon="cilBarChart" size="lg" class="mb-1 text-secondary" />
+              <p class="fs-6 m-0 ms-3 chart-header">
+                Losses
+              </p>
+            </CTab>
+            <CTab itemKey="timeseries" class="d-flex align-items-center card-header px-4">
+              <CIcon icon="cilChartLine" size="xl" class="mb-1 text-secondary" />
+              <p class="fs-6 m-0 ms-3 chart-header">
+                Time series
+              </p>
+            </CTab>
+          </CTabList>
+          <CTabContent>
+            <CTabPanel class="p-3" itemKey="home">
+              Overview tab content
+            </CTabPanel>
+            <CTabPanel class="p-0" itemKey="costs">
+              <CostsCard />
+            </CTabPanel>
+            <CTabPanel class="p-0" itemKey="timeseries">
+              <TimeSeriesCard />
+            </CTabPanel>
+          </CTabContent>
+        </CTabs>
       </div>
     </CRow>
   </div>
@@ -220,6 +241,16 @@ onUnmounted(() => {
 }
 
 #resultsPage {
+  .nav-tabs {
+    // background: rgba(255, 255, 255, 0.5); // Only for interaction with .nav-link.active background color
+
+  }
+
+  .nav-tabs .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.36) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.36) !important;
+  }
+
   .card {
     background: rgba(255, 255, 255, 0.5);
 

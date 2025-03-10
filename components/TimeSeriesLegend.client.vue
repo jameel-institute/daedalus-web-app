@@ -2,36 +2,36 @@
   <div v-if="props.allLinesColored && !props.diffingAgainstBaseline" class="legend-container m-1 mt-3 me-3 d-flex gap-3">
     <ChartLegendDotted
       :items="[nonBaselineItems[0]]"
-      :row-height-rem="1"
+      :row-height-rem="0.8"
       :dashed="true"
     />
     <ChartLegend
       :items="[baselineItem]"
-      :row-height-rem="1"
+      :row-height-rem="0.8"
     />
     <ChartLegendDotted
       :items="[nonBaselineItems[1]]"
-      :row-height-rem="1"
+      :row-height-rem="0.8"
       :dashed="true"
     />
     <ChartLegendDotted
       :items="[nonBaselineItems[2]]"
-      :row-height-rem="1"
+      :row-height-rem="0.8"
       :dashed="true"
     />
   </div>
   <div v-if="props.allLinesColored && props.diffingAgainstBaseline" class="legend-container m-1 me-3 d-flex flex-column gap-0">
     <ChartLegend
       :items="[nonBaselineItems[0]]"
-      :row-height-rem="1"
+      :row-height-rem="0.8"
     />
     <ChartLegend
       :items="[nonBaselineItems[1]]"
-      :row-height-rem="1"
+      :row-height-rem="0.8"
     />
     <ChartLegend
       :items="[nonBaselineItems[2]]"
-      :row-height-rem="1"
+      :row-height-rem="0.8"
     />
   </div>
   <div :class="`legend-container d-flex flex-column gap-1 m-1 ${props.allLinesColored && props.diffingAgainstBaseline ? 'mt-3' : ''}`">

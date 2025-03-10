@@ -1,19 +1,12 @@
 <template>
-  <div class="card">
-    <div class="card-header border-bottom-0 d-flex justify-content-between">
+  <div class="card timeseries">
+    <div class="card-header border-bottom-0 border-top-0 d-flex justify-content-between">
       <div class="d-flex align-items-center">
-        <CIcon icon="cilChartLine" size="xl" class="mb-1 text-secondary" />
-        <h2 class="fs-5 m-0 ms-3 chart-header">
-          Time series
-        </h2>
-        <CDropdown v-if="variant === 'outside-time-series-card'" class="ps-3">
+        <CDropdown v-if="variant === 'outside-time-series-card'" class="ps-0">
           <CDropdownToggle @click="showSwitches = !showSwitches">
-            <CIcon icon="cilSettings" />
+            <CIcon icon="cilSettings" size="lg" class="mt-2" />
           </CDropdownToggle>
         </CDropdown>
-        <span v-if="diffingAgainstBaseline" class="text-secondary ps-2">
-          Showing values relative to baseline scenario
-        </span>
       </div>
       <div class="d-flex">
         <div v-if="showSwitches" :class="`switch-container ${variant} position-absolute d-flex gap-4`">
@@ -95,6 +88,9 @@
       </div>
     </div>
     <div class="card-body pb-0 pe-0">
+      <!-- <span v-if="diffingAgainstBaseline" class="text-secondary ps-0">
+        Showing values relative to baseline scenario
+      </span> -->
       <div class="d-flex flex-wrap">
         <TimeSeriesGroup
           v-for="(seriesGroup, index) in [appStore.timeSeriesGroups[0], appStore.timeSeriesGroups[1]]"
@@ -157,7 +153,7 @@ const isDaily = ref(false);
 const isGridView = ref(true);
 const showInterventions = ref(true);
 const showCapacities = ref(true);
-const variant = "outside-time-series-card";
+const variant = "" // "outside-time-series-card";
 
 const showSwitches = ref(variant !== "outside-time-series-card");
 const diffingAgainstBaseline = ref(true);
@@ -226,15 +222,19 @@ watch(() => (Object.keys(appStore.timeSeriesData || {})), () => {
 </script>
 
 <style scoped lang="scss">
+.card.timeseries {
+  border-top: 0;
+}
+
 .switch-container {
   z-index: 5; // Must be in front of button or clicks will close the accordion
-  right: 15rem;
   top: 1.2rem;
+  left: 1rem;
 }
 
 .switch-container.outside-time-series-card {
-  top: 3.3rem;
-  left: 7.5rem;
+  top: 3.7rem;
+  left: 0.5rem;
   background-color: white;
   padding: 1rem;
   padding-right: 1.5rem;

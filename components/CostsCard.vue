@@ -3,10 +3,6 @@
     <!-- Todo: Make height dynamic. Matching header of time series. -->
     <div class="card-header d-flex justify-content-between">
       <div class="d-flex align-items-center">
-        <CIcon icon="cilChartPie" size="xl" class="mb-1 text-secondary" />
-        <h2 class="fs-5 m-0 ms-3 chart-header">
-          Losses
-        </h2>
       </div>
     </div>
     <div id="costsCardBody" class="card-body">
@@ -97,6 +93,8 @@ const onMouseLeavePie = () => {
 
 // When adjusting or testing layout, use the widest possible values for the costs: 555.5% of GDP and 555.5 M USD.
 .costs-card {
+  border-top: 0;
+
   color: var(--cui-dark-text-emphasis);
 
   .vsl-display {
