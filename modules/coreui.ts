@@ -158,6 +158,11 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/nav/CNavItem",
     });
     addComponent({
+      name: "CPopover",
+      export: "CPopover",
+      filePath: "@coreui/vue/src/components/popover/CPopover",
+    });
+    addComponent({
       name: "CRow",
       export: "CRow",
       filePath: "@coreui/vue/src/components/grid/CRow",

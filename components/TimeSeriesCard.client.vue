@@ -7,6 +7,10 @@
             <CIcon icon="cilSettings" size="lg" class="mt-2" />
           </CDropdownToggle>
         </CDropdown>
+        <img
+          style="position: absolute; top: 1rem; left: 40rem; width: 191px; height: 82px; z-index: 100;"
+          src="~/assets/img/transparent bg columns sparklines.png"
+        >
       </div>
       <div class="d-flex">
         <div v-if="showSwitches" :class="`switch-container ${variant} position-absolute d-flex gap-4`">
