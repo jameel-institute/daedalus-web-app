@@ -30,7 +30,7 @@ function handleToggleSidebarVisibility() {
   sidebarVisible.value = !sidebarVisible.value;
 }
 
-const pagesUsingGlobe = ["scenarios-runId", "scenarios-new"];
+const pagesUsingGlobe = ["scenarios-runId", "scenarios-new", "comparisons-new"];
 
 // Hide/show the component separately from loading it. We want to load either 0 or 1 times max, but show/hide it as needed.
 const showGlobe = computed(() => !!appStore.globeParameter && appStore.largeScreen && pagesUsingGlobe.includes(route.name as string));

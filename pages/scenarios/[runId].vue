@@ -11,7 +11,7 @@
             height: 2.6rem;
             border: 1px solid rgba(8, 10, 12, 0.17)!important;
             border-radius: 0.375rem;"
-          @click="() => { modalVisible = true; }"
+          @click="() => { navigateTo('/comparisons/new') }"
         >
           <CIconSvg class="icon m-0 p-0" style="height: 1.2rem; width: 1.2rem;">
             <img src="/icons/axes-white.png"> <!-- Source: https://www.flaticon.com/free-icon/arrows_10436878?term=axis&page=1&position=9&origin=tag&related_id=10436878 -->
@@ -345,53 +345,6 @@ onUnmounted(() => {
 
   .chart-header {
     height: fit-content;
-  }
-
-  .dropdown-toggle.show {
-    // border: var(--cui-border-width) var(--cui-border-style) var(--cui-border-color) !important;
-    // border-bottom: none !important;
-    // border-bottom-right-radius: 0 !important;
-    // border-bottom-left-radius: 0 !important;
-    background-color: var(--cui-btn-active-bg);
-  }
-
-    // From parameterform.vue, but adapted
-    .vue-select {
-    --vs-font-size: 1rem !important;
-    // --vs-input-outline: transparent;
-    --vs-border-radius: 4px;
-    --vs-line-height: 0.9;
-    --vs-menu-height: 450px;
-    // --vs-padding: 0;
-    --vs-option-font-size: var(--vs-font-size);
-    --vs-option-text-color: var(--vs-text-color);
-    --vs-option-hover-color: var(--cui-tertiary-bg);
-    --vs-option-focused-color: var(--vs-option-hover-color);
-    --vs-option-selected-color: var(--cui-primary-bg-subtle);
-    --vs-option-padding: 8px;
-  }
-  .vue-select  {
-    border-radius: 1rem!important;
-
-    .control {
-      min-height: unset !important;
-    }
-  }
-  :deep(.vue-select .control) {
-    border-style: none;
-  }
-  :deep(.vue-select .menu) {
-    border-radius: 0.5rem!important;
-  }
-  // This prevents odd default styling where search text appears after width of current value
-  :deep(.vue-select .search-input) {
-    position: absolute;
-    left: 0;
-    width: 100%;
-  }
-  // This fixes an issue where the open select contracted in width because .single-value items had absolute position
-  :deep(.open .single-value) {
-    position: relative!important;
   }
 }
 </style>
