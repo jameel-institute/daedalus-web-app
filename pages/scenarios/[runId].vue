@@ -2,8 +2,106 @@
   <div id="resultsPage">
     <div class="d-flex flex-wrap mb-3 gap-3">
       <h1 class="fs-2 mb-0 pt-1">
-        Results
+        Results {{ chosenAxis }}
       </h1>
+      <div class="d-inline-block ms-auto">
+        <CButton
+          color="primary"
+          style="padding-bottom: 0.1rem;
+            height: 2.6rem;
+            border: 1px solid rgba(8, 10, 12, 0.17)!important;
+            border-radius: 0.375rem;"
+          @click="() => { modalVisible = true; }"
+        >
+          <CIconSvg class="icon m-0 p-0" style="height: 1.2rem; width: 1.2rem;">
+            <img src="/icons/axes-white.png"> <!-- Source: https://www.flaticon.com/free-icon/arrows_10436878?term=axis&page=1&position=9&origin=tag&related_id=10436878 -->
+          </CIconSvg>
+          <span class="ms-2">Compare against other scenarios</span>
+        </CButton>
+      </div>
+      <CModal
+        v-if="chosenAxis === ''"
+        :visible="modalVisible && chosenAxis === ''"
+        aria-labelledby="modalTitle"
+        @close="() => { modalVisible = false; chosenAxis = ''; }"
+      >
+        <CModalHeader>
+          <CModalTitle id="modalTitle" class="mb-0 mt-1">
+            Compare scenarios
+          </CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <p>
+            Which parameter would you like to explore?
+          </p>
+          <CDropdown>
+            <CDropdownToggle color="primary">
+              Select parameter
+            </CDropdownToggle>
+            <CDropdownMenu>
+              <CDropdownHeader>
+                Parameters
+              </CDropdownHeader>
+              <a
+                v-for="para in appStore.metadata?.parameters"
+                :key="para.id"
+                href="#"
+                class="dropdown-item py-2"
+                @click.prevent="(e) => { e.preventDefault(); chosenAxis = para.id; }"
+              >
+                <ParameterIcon :parameter="para" />
+                <span class="ms-2">{{ para.label }}</span>
+              </a>
+            </CDropdownMenu>
+          </CDropdown>
+        </CModalBody>
+      </CModal>
+      <CModal
+        v-show="chosenAxis !== ''"
+        :visible="chosenAxis !== ''"
+        aria-labelledby="pTitle"
+        @close="() => { modalVisible = false; chosenAxis = ''; }"
+      >
+        <CModalHeader>
+          <CModalTitle id="pTitle" class="mb-0 mt-1">
+            Compare scenarios by {{ chosenAxisParam?.label?.toLowerCase() }}
+          </CModalTitle>
+        </CModalHeader>
+        <CModalBody v-if="chosenAxis === 'country'">
+          <p>Choose country</p>
+        </CModalBody>
+        <CModalBody v-if="chosenAxis === 'pathogen'">
+          <VueSelect
+            v-if="axisParamOptions"
+            :model-value="chosenAxisParam?.defaultOption"
+            class="form-control"
+            :options="axisParamOptions"
+            :is-multi="true"
+            :close-on-select="false"
+            :is-clearable="false"
+          >
+            <template #option="{ option }">
+              <div class="parameter-option">
+                <span>{{ option.label }}</span>
+                <div
+                  v-if="option.description"
+                >
+                  <small>{{ option.description }}</small>
+                </div>
+              </div>
+            </template>
+          </VueSelect>
+        </CModalBody>
+        <CModalBody v-if="chosenAxis === 'response'">
+          <p>Choose responsseee</p>
+        </CModalBody>
+        <CModalBody v-if="chosenAxis === 'vaccine'">
+
+        </CModalBody>
+        <CModalBody v-if="chosenAxis === 'hospital_capacity'">
+
+        </CModalBody>
+      </CModal>
       <DownloadExcel />
       <CodeSnippet />
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
@@ -97,6 +195,7 @@
 <script lang="ts" setup>
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import getCountryISO2 from "country-iso-3-to-2";
+import VueSelect from "vue3-select-component";
 import type { Parameter } from "~/types/parameterTypes";
 
 const appStore = useAppStore();
@@ -109,6 +208,11 @@ const showSpinner = computed(() => !appStore.currentScenario.result.data
   && appStore.currentScenario.status.data?.runSuccess !== false
   && appStore.currentScenario.runId,
 );
+const modalVisible = ref(false);
+const chosenAxis = ref("");
+
+const chosenAxisParam = computed(() => appStore.metadata?.parameters.find((p) => p.id === chosenAxis.value));
+const axisParamOptions = computed(() => chosenAxisParam.value?.options?.map((o) => ({ value: o.id, label: o.label, description: o.description })));
 
 const paramDisplayText = (param: Parameter) => {
   if (appStore.currentScenario?.parameters && appStore.currentScenario?.parameters[param.id]) {
@@ -241,6 +345,53 @@ onUnmounted(() => {
 
   .chart-header {
     height: fit-content;
+  }
+
+  .dropdown-toggle.show {
+    // border: var(--cui-border-width) var(--cui-border-style) var(--cui-border-color) !important;
+    // border-bottom: none !important;
+    // border-bottom-right-radius: 0 !important;
+    // border-bottom-left-radius: 0 !important;
+    background-color: var(--cui-btn-active-bg);
+  }
+
+    // From parameterform.vue, but adapted
+    .vue-select {
+    --vs-font-size: 1rem !important;
+    // --vs-input-outline: transparent;
+    --vs-border-radius: 4px;
+    --vs-line-height: 0.9;
+    --vs-menu-height: 450px;
+    // --vs-padding: 0;
+    --vs-option-font-size: var(--vs-font-size);
+    --vs-option-text-color: var(--vs-text-color);
+    --vs-option-hover-color: var(--cui-tertiary-bg);
+    --vs-option-focused-color: var(--vs-option-hover-color);
+    --vs-option-selected-color: var(--cui-primary-bg-subtle);
+    --vs-option-padding: 8px;
+  }
+  .vue-select  {
+    border-radius: 1rem!important;
+
+    .control {
+      min-height: unset !important;
+    }
+  }
+  :deep(.vue-select .control) {
+    border-style: none;
+  }
+  :deep(.vue-select .menu) {
+    border-radius: 0.5rem!important;
+  }
+  // This prevents odd default styling where search text appears after width of current value
+  :deep(.vue-select .search-input) {
+    position: absolute;
+    left: 0;
+    width: 100%;
+  }
+  // This fixes an issue where the open select contracted in width because .single-value items had absolute position
+  :deep(.open .single-value) {
+    position: relative!important;
   }
 }
 </style>
