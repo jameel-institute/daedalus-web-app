@@ -259,7 +259,7 @@ const chartInitialOptions = () => {
       data: data.value,
       name: seriesMetadata.value!.label,
       type: "line",
-      color: timeSeriesColors[0],
+      color: { prevalence: "rgb(0, 0, 205)", hospitalised: "rgb(236, 115, 0)", vaccinated: "green", dead: "darkred" }[props.seriesId] || timeSeriesColors[0],
       lineWidth: 3,
       marker: {
         enabled: false,

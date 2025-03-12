@@ -156,7 +156,7 @@ const showCapacities = ref(true);
 const variant = "" // "outside-time-series-card";
 
 const showSwitches = ref(variant !== "outside-time-series-card");
-const diffingAgainstBaseline = ref(true);
+const diffingAgainstBaseline = ref(false);
 const allLinesColored = ref(false || diffingAgainstBaseline);
 
 const chartCreated = (seriesId: string, chart: Highcharts.Chart) => {
@@ -228,7 +228,7 @@ watch(() => (Object.keys(appStore.timeSeriesData || {})), () => {
 
 .switch-container {
   z-index: 5; // Must be in front of button or clicks will close the accordion
-  top: 1.2rem;
+  top: 0.75rem;
   left: 1rem;
 }
 

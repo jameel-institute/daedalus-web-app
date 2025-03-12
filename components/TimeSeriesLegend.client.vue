@@ -40,7 +40,7 @@
       :row-height-rem="1"
     />
     <ChartLegendDotted
-      v-if="!diffingAgainstBaseline"
+      v-if="!diffingAgainstBaseline && items.length > 1"
       :items="[items[1]]"
       :row-height-rem="1"
       :dashed="false"
