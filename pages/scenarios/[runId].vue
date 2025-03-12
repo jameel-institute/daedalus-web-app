@@ -98,28 +98,17 @@
         <CTabs activeItemKey="costs">
           <CTabList variant="tabs">
             <CTab itemKey="home" class="ms-3">Overview</CTab>
+            <CTab itemKey="costs" class="d-flex align-items-center card-header px-4">
+              <CIcon icon="cilBarChart" size="lg" class="mb-1 text-secondary" />
+              <p class="fs-6 m-0 ms-3 chart-header">
+                Losses
+              </p>
+            </CTab>
             <CTab itemKey="timeseries" class="d-flex align-items-center card-header px-4">
               <CIcon icon="cilChartLine" size="xl" class="mb-1 text-secondary" />
               <p class="fs-6 m-0 ms-3 chart-header">
                 Time series
               </p>
-            </CTab>
-            <CTab itemKey="costs">
-              <CPopover placement="top" trigger="hover">
-                <template #toggler="{ id, on }">
-                  <div :aria-describedby="id" v-on="on" class="d-flex align-items-center card-header px-4">
-                    <CIcon icon="cilBarChart" size="lg" class="mb-1 text-secondary" />
-                    <p class="fs-6 m-0 ms-3 chart-header">
-                      Losses
-                    </p>
-                  </div>
-                </template>
-                <template #content>
-                  <img
-                    src="~/assets/img/transparent bg columns sparklines.png"
-                  >
-                </template>
-              </CPopover>
             </CTab>
           </CTabList>
           <CTabContent>
