@@ -1,6 +1,5 @@
 <template>
   <div class="position-relative">
-    <CostsLegend />
     <div
       :id="chartContainerId"
       ref="chartContainer"

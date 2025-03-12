@@ -52,6 +52,37 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/grid/CContainer",
     });
     addComponent({
+      name: "CDropdown",
+      export: "CDropdown",
+      filePath: "@coreui/vue/src/components/dropdown/CDropdown",
+    });
+    addComponent({
+      name: "CDropdownDivider",
+      export: "CDropdownDivider",
+      filePath: "@coreui/vue/src/components/dropdown/CDropdownDivider",
+    });
+    addComponent({
+      name: "CDropdownHeader",
+      export: "CDropdownHeader",
+      filePath: "@coreui/vue/src/components/dropdown/CDropdownHeader",
+    });
+    addComponent({
+      name: "CDropdownItem",
+      export: "CDropdownItem",
+      filePath: "@coreui/vue/src/components/dropdown/CDropdownItem",
+    });
+    addComponent({
+      name: "CDropdownMenu",
+      export: "CDropdownMenu",
+      filePath: "@coreui/vue/src/components/dropdown/CDropdownMenu",
+    });
+
+    addComponent({
+      name: "CDropdownToggle",
+      export: "CDropdownToggle",
+      filePath: "@coreui/vue/src/components/dropdown/CDropdownToggle",
+    });
+    addComponent({
       name: "CForm",
       export: "CForm",
       filePath: "@coreui/vue/src/components/form/CForm",
@@ -127,6 +158,11 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/nav/CNavItem",
     });
     addComponent({
+      name: "CPopover",
+      export: "CPopover",
+      filePath: "@coreui/vue/src/components/popover/CPopover",
+    });
+    addComponent({
       name: "CRow",
       export: "CRow",
       filePath: "@coreui/vue/src/components/grid/CRow",
@@ -162,9 +198,44 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/spinner/CSpinner",
     });
     addComponent({
+      name: "CTabContent",
+      export: "CTabContent",
+      filePath: "@coreui/vue/src/components/tabs/CTabContent",
+    });
+    addComponent({
+      name: "CTabList",
+      export: "CTabList",
+      filePath: "@coreui/vue/src/components/tabs/CTabList",
+    });
+    addComponent({
+      name: "CTabPanel",
+      export: "CTabPanel",
+      filePath: "@coreui/vue/src/components/tabs/CTabPanel",
+    });
+    addComponent({
+      name: "CTab",
+      export: "CTab",
+      filePath: "@coreui/vue/src/components/tabs/CTab",
+    });
+    addComponent({
+      name: "CTabs",
+      export: "CTabs",
+      filePath: "@coreui/vue/src/components/tabs/CTabs",
+    });
+    addComponent({
       name: "CTooltip",
       export: "CTooltip",
       filePath: "@coreui/vue/src/components/tooltip/CTooltip",
+    });
+    addComponent({
+      name: "CWidgetStatsA",
+      export: "CWidgetStatsA",
+      filePath: "@coreui/vue/src/components/widgets/CWidgetStatsA",
+    });
+    addComponent({
+      name: "CWidgetStatsE",
+      export: "CWidgetStatsE",
+      filePath: "@coreui/vue/src/components/widgets/CWidgetStatsE",
     });
   },
 });

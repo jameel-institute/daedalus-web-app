@@ -2,18 +2,11 @@
   <!-- Per each time series group, use one accordion component with one item, so we can easily initialise them all as open with active-item-key -->
   <CAccordion
     :style="accordionStyle"
-    class="time-series"
+    :class="`time-series rounded col-12 ${appStore.largeScreen && props.gridView ? 'col-xl-6' : ''}`"
     :active-item-key="props.open ? props.seriesGroup.id : undefined"
   >
-    <CAccordionItem :item-key="props.seriesGroup.id" class="border-0 position-relative">
-      <div v-if="props.open" class="switch-container position-absolute">
-        <CFormSwitch
-          :id="`${props.seriesGroup.id}DailySwitch`"
-          v-model="isDaily"
-          label="New per day"
-        />
-      </div>
-      <CAccordionHeader class="border-top" @click="$emit('toggleOpen')">
+    <CAccordionItem :item-key="props.seriesGroup.id" class="position-relative rounded">
+      <CAccordionHeader class="rounded" @click.prevent="console.log('do nothing')">
         <span aria-describedby="labelDescriptor">{{ activeSeriesMetadata?.label }}</span>
         <span id="labelDescriptor" class="visually-hidden">{{ activeSeriesMetadata?.description }}</span>
         <TooltipHelp :help-text="activeSeriesMetadata?.description" :classes="['ms-2', 'mb-1', 'smaller-icon']" />
@@ -29,7 +22,11 @@
           :series-index="seriesIndex"
           :group-index="props.groupIndex"
           :y-units="yUnits"
-          :chart-height="open ? chartHeightPx : minChartHeightPx"
+          :chart-height="open ? gridAdjustedChartHeightPx : minChartHeightPx"
+          :show-interventions="props.showInterventions"
+          :show-capacities="props.showCapacities"
+          :all-lines-colored="props.allLinesColored"
+          :diffing-against-baseline="props.diffingAgainstBaseline"
           @mousemove="onMove(seriesId)"
           @touchmove="onMove(seriesId)"
           @touchstart="onMove(seriesId)"
@@ -53,6 +50,11 @@ const props = defineProps<{
   hideTooltips: boolean
   chartHeightPx: number
   minChartHeightPx: number
+  showInterventions: boolean
+  showCapacities: boolean
+  gridView: boolean
+  allLinesColored: boolean
+  diffingAgainstBaseline: boolean
 }>();
 
 const emit = defineEmits<{
@@ -64,11 +66,16 @@ const emit = defineEmits<{
   chartDestroyed: [seriesId: string]
 }>();
 
+const gridAdjustedChartHeightPx = computed(() => props.gridView ? props.chartHeightPx * 2 : props.chartHeightPx);
+
 const appStore = useAppStore();
 
 const accordionStyle = {
   "--cui-accordion-btn-focus-box-shadow": "none",
   "--cui-accordion-bg": "rgba(255, 255, 255, 0.7)",
+  // "min-width": "49%",
+  "padding-bottom": "1rem",
+  "padding-right": "1rem",
 };
 
 // Since we are using a switch we assume there are only two roles, and "total" role precedes "daily" role
@@ -104,18 +111,6 @@ const onMove = (seriesId: string) => {
 
 <style lang="scss">
 .accordion.time-series {
-  .switch-container {
-    z-index: 5; // Must be in front of button or clicks will close the accordion
-    right: 4rem;
-    top: 0.3rem;
-  }
-
-  .form-switch label {
-    margin-bottom: 0;
-    // margin-right: 0.5rem;
-    font-size: smaller;
-  }
-
   .collapsing {
     transition: height .2s ease;
   }
@@ -130,6 +125,8 @@ const onMove = (seriesId: string) => {
     padding-bottom: 0.3rem;
     color: var(--cui-black) !important;
     background-color: var(--cui-light) !important;
+    border-top-left-radius: var(--cui-border-radius) !important;
+    border-top-right-radius: var(--cui-border-radius) !important;
   }
 
   .accordion-item {

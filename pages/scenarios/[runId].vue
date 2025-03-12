@@ -1,11 +1,21 @@
 <template>
   <div id="resultsPage">
-    <div class="d-flex flex-wrap mb-3 gap-3">
-      <h1 class="fs-2 mb-0 pt-1">
-        Results
+    <div class="d-flex gap-3">
+      <h1 class="fs-4 mb-3 pt-1" style="min-width: 500px">
+        Exploring outcomes by global vaccine investment
       </h1>
       <DownloadExcel />
       <CodeSnippet />
+      <div class="d-inline-block">
+        <div>
+          <CButton
+            color="light"
+            class="btn-scenario-header"
+          >
+            <CIcon icon="cilShare" size="lg" class="text-secondary" />
+          </CButton>
+        </div>
+      </div>
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
         <CIconSvg size="xxl">
           <img src="/icons/rotate-device.svg">
@@ -15,7 +25,7 @@
           Rotate your mobile device to landscape for the best experience.
         </p>
       </CAlert>
-      <div v-show="appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="card horizontal-card parameters-card">
+      <!-- <div v-show="appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="card horizontal-card parameters-card">
         <CRow>
           <div
             v-show="!appStore.largeScreen"
@@ -54,7 +64,7 @@
             </div>
           </CCol>
         </CRow>
-      </div>
+      </div> -->
     </div>
     <CSpinner v-show="showSpinner" class="ms-3 mb-3 mt-3" />
     <CAlert v-if="appStore.currentScenario.status.data?.runSuccess === false" color="danger">
@@ -84,11 +94,314 @@
       </p>
     </CAlert>
     <CRow v-else-if="appStore.currentScenario.result.data" class="results-cards-container">
-      <div class="col-12 col-xl-6">
-        <CostsCard />
-      </div>
-      <div class="col-12 col-xl-6">
-        <TimeSeriesCard />
+      <div class="col-12">
+        <CTabs activeItemKey="costs">
+          <CTabList variant="tabs">
+            <CTab itemKey="home" class="ms-3">Overview</CTab>
+            <CTab itemKey="costs" class="d-flex align-items-center card-header px-4">
+              <CIcon icon="cilBarChart" size="lg" class="mb-1 text-secondary" />
+              <p class="fs-6 m-0 ms-3 chart-header">
+                Losses
+              </p>
+            </CTab>
+            <CTab itemKey="timeseries" class="d-flex align-items-center card-header px-4">
+              <CIcon icon="cilChartLine" size="xl" class="mb-1 text-secondary" />
+              <p class="fs-6 m-0 ms-3 chart-header">
+                Time series
+              </p>
+            </CTab>
+          </CTabList>
+          <CTabContent>
+            <CTabPanel class="p-3" itemKey="home">
+              <CWidgetStatsA class="mb-3" color="warning">
+                <template #value>Prevalence
+                </template>
+                <template #title>Baseline scenario</template>
+                <template #action>
+                  <CDropdown placement="bottom-end">
+                    <CDropdownToggle
+                      color="transparent"
+                      class="p-0 text-white"
+                      :caret="false"
+                    >
+                      <CIcon icon="cil-options" class="text-high-emphasis-inverse" />
+                    </CDropdownToggle>
+                  </CDropdown>
+                </template>
+                <template #chart>
+                  <CChart
+                    type="line"
+                    class="mt-3"
+                    style="height: 70px"
+                    :data="{
+                      labels: [
+                        'January',
+                        'February',
+                        'March',
+                        'April',
+                        'May',
+                        'June',
+                        'July',
+                      ],
+                      datasets: [
+                        {
+                          label: 'My First dataset',
+                          backgroundColor: 'rgba(255,255,255,.2)',
+                          borderColor: 'rgba(255,255,255,.55)',
+                          data: [78, 81, 80, 45, 34, 12, 40],
+                          fill: true,
+                        },
+                      ],
+                    }"
+                    :options="{
+                      plugins: {
+                        legend: {
+                          display: false,
+                        },
+                      },
+                      maintainAspectRatio: false,
+                      scales: {
+                        x: {
+                          display: false,
+                        },
+                        y: {
+                          display: false,
+                        },
+                      },
+                      elements: {
+                        line: {
+                          borderWidth: 2,
+                          tension: 0.4,
+                        },
+                        point: {
+                          radius: 0,
+                          hitRadius: 10,
+                          hoverRadius: 4,
+                        },
+                      },
+                    }"
+                  />
+                </template>
+              </CWidgetStatsA>
+              <CWidgetStatsA class="mb-3" color="info">
+                <template #value>Dead
+                </template>
+                <template #title>Baseline scenario</template>
+                <template #action>
+                  <CDropdown placement="bottom-end">
+                    <CDropdownToggle
+                      color="transparent"
+                      class="p-0 text-white"
+                      :caret="false"
+                    >
+                      <CIcon icon="cil-options" class="text-high-emphasis-inverse" />
+                    </CDropdownToggle>
+                  </CDropdown>
+                </template>
+                <template #chart>
+                  <CChart
+                    type="line"
+                    class="mt-3"
+                    style="height: 70px"
+                    :data="{
+                      labels: [
+                        'January',
+                        'February',
+                        'March',
+                        'April',
+                        'May',
+                        'June',
+                        'July',
+                      ],
+                      datasets: [
+                        {
+                          label: 'My First dataset',
+                          backgroundColor: 'rgba(255,255,255,.2)',
+                          borderColor: 'rgba(255,255,255,.55)',
+                          data: [78, 81, 80, 45, 34, 12, 40],
+                          fill: true,
+                        },
+                      ],
+                    }"
+                    :options="{
+                      plugins: {
+                        legend: {
+                          display: false,
+                        },
+                      },
+                      maintainAspectRatio: false,
+                      scales: {
+                        x: {
+                          display: false,
+                        },
+                        y: {
+                          display: false,
+                        },
+                      },
+                      elements: {
+                        line: {
+                          borderWidth: 2,
+                          tension: 0.4,
+                        },
+                        point: {
+                          radius: 0,
+                          hitRadius: 10,
+                          hoverRadius: 4,
+                        },
+                      },
+                    }"
+                  />
+                </template>
+              </CWidgetStatsA>
+              <CWidgetStatsA class="mb-3" color="primary">
+                <template #value>Vaccinated
+                </template>
+                <template #title>Baseline scenario</template>
+                <template #action>
+                  <CDropdown placement="bottom-end">
+                    <CDropdownToggle
+                      color="transparent"
+                      class="p-0 text-white"
+                      :caret="false"
+                    >
+                      <CIcon icon="cil-options" class="text-high-emphasis-inverse" />
+                    </CDropdownToggle>
+                  </CDropdown>
+                </template>
+                <template #chart>
+                  <CChart
+                    type="line"
+                    class="mt-3"
+                    style="height: 70px"
+                    :data="{
+                      labels: [
+                        'January',
+                        'February',
+                        'March',
+                        'April',
+                        'May',
+                        'June',
+                        'July',
+                      ],
+                      datasets: [
+                        {
+                          label: 'My First dataset',
+                          backgroundColor: 'rgba(255,255,255,.2)',
+                          borderColor: 'rgba(255,255,255,.55)',
+                          data: [78, 81, 80, 45, 34, 12, 40],
+                          fill: true,
+                        },
+                      ],
+                    }"
+                    :options="{
+                      plugins: {
+                        legend: {
+                          display: false,
+                        },
+                      },
+                      maintainAspectRatio: false,
+                      scales: {
+                        x: {
+                          display: false,
+                        },
+                        y: {
+                          display: false,
+                        },
+                      },
+                      elements: {
+                        line: {
+                          borderWidth: 2,
+                          tension: 0.4,
+                        },
+                        point: {
+                          radius: 0,
+                          hitRadius: 10,
+                          hoverRadius: 4,
+                        },
+                      },
+                    }"
+                  />
+                </template>
+              </CWidgetStatsA>
+              <CWidgetStatsA class="mb-3" color="danger">
+                <template #value>Prevalence
+                </template>
+                <template #title>Baseline scenario</template>
+                <template #action>
+                  <CDropdown placement="bottom-end">
+                    <CDropdownToggle
+                      color="transparent"
+                      class="p-0 text-white"
+                      :caret="false"
+                    >
+                      <CIcon icon="cil-options" class="text-high-emphasis-inverse" />
+                    </CDropdownToggle>
+                  </CDropdown>
+                </template>
+                <template #chart>
+                  <CChart
+                    type="line"
+                    class="mt-3"
+                    style="height: 70px"
+                    :data="{
+                      labels: [
+                        'January',
+                        'February',
+                        'March',
+                        'April',
+                        'May',
+                        'June',
+                        'July',
+                      ],
+                      datasets: [
+                        {
+                          label: 'My First dataset',
+                          backgroundColor: 'rgba(255,255,255,.2)',
+                          borderColor: 'rgba(255,255,255,.55)',
+                          data: [78, 81, 80, 45, 34, 12, 40],
+                          fill: true,
+                        },
+                      ],
+                    }"
+                    :options="{
+                      plugins: {
+                        legend: {
+                          display: false,
+                        },
+                      },
+                      maintainAspectRatio: false,
+                      scales: {
+                        x: {
+                          display: false,
+                        },
+                        y: {
+                          display: false,
+                        },
+                      },
+                      elements: {
+                        line: {
+                          borderWidth: 2,
+                          tension: 0.4,
+                        },
+                        point: {
+                          radius: 0,
+                          hitRadius: 10,
+                          hoverRadius: 4,
+                        },
+                      },
+                    }"
+                  />
+                </template>
+              </CWidgetStatsA>
+            </CTabPanel>
+            <CTabPanel class="p-0" itemKey="costs">
+              <CostsCard />
+            </CTabPanel>
+            <CTabPanel class="p-0" itemKey="timeseries">
+              <TimeSeriesCard />
+            </CTabPanel>
+          </CTabContent>
+        </CTabs>
       </div>
     </CRow>
   </div>
@@ -96,6 +409,7 @@
 
 <script lang="ts" setup>
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
+import { CChart } from '@coreui/vue-chartjs';
 import getCountryISO2 from "country-iso-3-to-2";
 import type { Parameter } from "~/types/parameterTypes";
 
@@ -204,6 +518,16 @@ onUnmounted(() => {
 }
 
 #resultsPage {
+  .nav-tabs {
+    // background: rgba(255, 255, 255, 0.5); // Only for interaction with .nav-link.active background color
+
+  }
+
+  .nav-tabs .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.36) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.36) !important;
+  }
+
   .card {
     background: rgba(255, 255, 255, 0.5);
 
@@ -242,5 +566,10 @@ onUnmounted(() => {
   .chart-header {
     height: fit-content;
   }
+}
+
+.popover {
+  --cui-popover-body-padding-x: 0rem;
+  --cui-popover-body-padding-y: 0rem;
 }
 </style>

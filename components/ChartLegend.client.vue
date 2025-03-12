@@ -1,17 +1,15 @@
 <template>
-  <div class="legend-container m-1 d-flex flex-column gap-1">
-    <div
-      v-for="item in items"
-      :key="item.label"
-      :class="`legend-item legend-item-${item.shape}`"
+  <div
+    v-for="item in items"
+    :key="item.label"
+    :class="`legend-item legend-item-${item.shape}`"
+  >
+    <i :style="iStyle(item)" />
+    <span
+      :style="{ lineHeight: `${props.rowHeightRem}rem` }"
     >
-      <i :style="iStyle(item)" />
-      <span
-        :style="{ lineHeight: `${props.rowHeightRem}rem` }"
-      >
-        {{ item.label }}
-      </span>
-    </div>
+      {{ item.label }}
+    </span>
   </div>
 </template>
 
@@ -51,7 +49,7 @@ const iStyle = (item: LegendItem) => {
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .legend-container {
   padding: 0.2rem;
 }

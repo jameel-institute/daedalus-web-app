@@ -27,6 +27,10 @@ const props = defineProps<{
   yUnits: string
   chartHeight: number
   seriesRole: string
+  showInterventions: boolean
+  showCapacities: boolean
+  allLinesColored: boolean
+  diffingAgainstBaseline: boolean
 }>();
 
 const emit = defineEmits<{
@@ -40,6 +44,10 @@ exportDataInitialize(Highcharts);
 offlineExportingInitialize(Highcharts);
 
 const appStore = useAppStore();
+
+const nonBaselineOpacity = props.allLinesColored ? 1 : 0.5;
+const nonBaselineDashStyle = props.allLinesColored && !props.diffingAgainstBaseline ? "ShortDash" : "Solid";
+const nonBaselineWidth = props.diffingAgainstBaseline ? 2 : 1.5;
 
 // Get a unique index for this series, across all groups and series
 const uniqueSeriesIndex = props.groupIndex * 2 + props.seriesIndex;
@@ -63,14 +71,21 @@ const data = computed((): TimeSeriesDataPoint[] => {
   return appStore.timeSeriesData![props.seriesId].map((value, index) => [index + 1, value]);
 });
 
-const usePlotLines = props.seriesId === "hospitalised"; // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
+const randomlyTransformedData = (): TimeSeriesDataPoint[] => {
+  const random = 0.5 + Math.random();
+  return appStore.timeSeriesData![props.seriesId].map((value, index) => {
+    const randomValue = value * random;
+    const val = props.diffingAgainstBaseline ? randomValue - value : randomValue;
+    return [index + 1, val];
+  });
+};
 
-// The y-axis automatically rescales to the data (ignoring the plotLines). We want the plotLines
-// to remain visible, so we limit the y-axis' ability to rescale, by defining a minimum range. This way the
-// plotLines remain visible even when the maximum data value is less than the maximum plotline value.
-const minRange = computed(() => usePlotLines
-  ? appStore.capacitiesData?.reduce((acc, { value }) => Math.max(acc, value), 0)
-  : undefined);
+const nonBaselineData = [randomlyTransformedData(), randomlyTransformedData(), randomlyTransformedData()];
+
+const usePlotLines = props.seriesId === "hospitalised" && props.showCapacities && !props.diffingAgainstBaseline; // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
+
+const greatestValueOfData = Math.max(...[...nonBaselineData[0], ...nonBaselineData[1], ...nonBaselineData[2]].map(([, value]) => value));
+const lowestValueOfData = Math.min(...[...nonBaselineData[0], ...nonBaselineData[1], ...nonBaselineData[2]].map(([, value]) => value));
 
 const capacitiesPlotLines = computed(() => {
   const lines = new Array<Highcharts.AxisPlotLinesOptions>();
@@ -89,11 +104,13 @@ const capacitiesPlotLines = computed(() => {
         style: {
           color: plotLinesColor,
         },
+        align: "right", // Gets it out of the way of the most interesting part of the data (1st wave)
       },
-      width: 2,
+      width: 1.5,
+      dashStyle: "ShortDot",
       value,
       zIndex: 4, // Render plot line and label in front of the series line
-    });
+    } as Highcharts.AxisPlotLinesOptions);
   });
 
   return lines;
@@ -101,7 +118,7 @@ const capacitiesPlotLines = computed(() => {
 
 const interventionsPlotBands = computed(() => {
   const bands = new Array<Highcharts.AxisPlotBandsOptions>();
-  const usePlotBands = ["hospitalised", "new_hospitalised", "prevalence", "new_infected"].includes(props.seriesId); // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
+  const usePlotBands = props.showInterventions && ["hospitalised", "new_hospitalised", "prevalence", "new_infected"].includes(props.seriesId); // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
   if (!usePlotBands) {
     return bands;
   }
@@ -201,20 +218,53 @@ const chartInitialOptions = () => {
       title: {
         text: "",
       },
-      min: 0,
-      minRange: minRange.value,
+      min: lowestValueOfData * 1.1,
+      max: greatestValueOfData * 1.1,
       plotLines: capacitiesPlotLines.value,
     },
     series: [{
-      data: data.value,
+      data: nonBaselineData[0],
       name: seriesMetadata.value!.label,
-      type: props.seriesRole === "total" ? "area" : "line",
-      color: timeSeriesColors[props.groupIndex],
-      fillOpacity: 0.3,
+      type: "line",
+      lineWidth: nonBaselineWidth,
+      opacity: nonBaselineOpacity,
+      color: props.allLinesColored ? timeSeriesColors[3] : "grey",
+      dashStyle: nonBaselineDashStyle,
       marker: {
         enabled: false,
       },
-    }],
+    }, {
+      data: nonBaselineData[1],
+      name: seriesMetadata.value!.label,
+      type: "line",
+      lineWidth: nonBaselineWidth,
+      opacity: nonBaselineOpacity,
+      color: props.allLinesColored ? timeSeriesColors[2] : "grey",
+      dashStyle: nonBaselineDashStyle,
+      marker: {
+        enabled: false,
+      },
+    }, {
+      data: nonBaselineData[2],
+      name: seriesMetadata.value!.label,
+      type: "line",
+      lineWidth: nonBaselineWidth,
+      opacity: nonBaselineOpacity,
+      color: props.allLinesColored ? timeSeriesColors[1] : "grey",
+      dashStyle: nonBaselineDashStyle,
+      marker: {
+        enabled: false,
+      },
+    }, { // "With no z index, the series defined last are on top"
+      data: data.value,
+      name: seriesMetadata.value!.label,
+      type: "line",
+      color: { prevalence: "rgb(0, 0, 205)", hospitalised: "rgb(236, 115, 0)", vaccinated: "green", dead: "darkred" }[props.seriesId] || timeSeriesColors[0],
+      lineWidth: 3,
+      marker: {
+        enabled: false,
+      },
+    }].filter((_, index) => index !== 3 || !props.diffingAgainstBaseline),
   } as Highcharts.Options;
 };
 
@@ -223,6 +273,14 @@ watch(() => chartContainer.value, () => {
     chart = Highcharts.chart(chartContainerId.value, chartInitialOptions());
     emit("chartCreated", props.seriesId, chart);
   }
+});
+
+watch(() => interventionsPlotBands.value, () => {
+  chart.xAxis[0].update({ plotBands: interventionsPlotBands.value });
+});
+
+watch(() => capacitiesPlotLines.value, () => {
+  chart.yAxis[0].update({ plotLines: capacitiesPlotLines.value });
 });
 
 onUnmounted(() => {
