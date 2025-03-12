@@ -27,7 +27,7 @@
         v-on="on"
       >
         <CButton color="light" class="parameters-button">
-          Parameters
+          Edit
         </CButton>
         <CIcon icon="cilPencil" class="form-icon link-secondary" />
       </span>

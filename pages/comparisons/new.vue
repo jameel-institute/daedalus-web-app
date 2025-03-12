@@ -1,10 +1,13 @@
 <template>
   <div>
     <div :class="`overlay ${appStore.largeScreen ? 'large-screen' : ''}`">
-      <div id="previousScenario" v-show="appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="card horizontal-card parameters-card ms-auto">
+      <div v-show="appStore.currentScenario?.parameters && appStore.metadata?.parameters" id="previousScenario" class="card horizontal-card parameters-card ms-auto">
         <CCol class="col-auto">
-          <div class="card-footer h-100 align-content-center" style="border-top: 0; border-right: 0; border-bottom: 0">
-            {{ chosenParamId === '' ? 'Previous scenario' : 'Other parameters' }}
+          <div class="card-footer h-100 align-content-center d-flex" style="border-top: 0; border-right: 0; border-bottom: 0">
+            <span class="fs- pt-2">Fixed parameters (baseline scenario)</span>
+            <div class="ms-auto">
+              <EditParameters />
+            </div>
           </div>
         </CCol>
         <CCol class="col-sm">
@@ -33,16 +36,20 @@
           </div>
         </CCol>
       </div>
-      <h3>Compare scenarios</h3>
-      <p>
+      <div class="d-flex">
+        <CIconSvg class="icon me-2" style="height: 1.3rem; width: 1.3rem; margin-top: 0.2rem;">
+          <img src="/icons/axis-black.png">
+        </CIconSvg>
+        <h3>Compare scenarios</h3>
+      </div>
+      <CFormLabel class="fs-5">
         Which parameter would you like to explore?
-      </p>
+      </CFormLabel>
       <!-- Could do drop down, but that requires another click to open the dropdown. -->
       <div class="d-flex gap-2 flex-wrap">
         <CButton
-          v-for="para in appStore.metadata?.parameters"
+          v-for="para in appStore.metadata?.parameters.filter((p) => chosenParamId === '' || chosenParamId === p.id)"
           :key="para.id"
-          :disabled="chosenParamId !== '' && chosenParamId !== para.id"
           href="#"
           color="light"
           variant="outline"
@@ -56,15 +63,22 @@
           </span>
         </CButton>
       </div>
+      <!-- TODO: make input initialise with option from baseline scenario pre-selected. -->
       <div v-if="chosenParamId">
-        <CFormLabel class="mt-3">
+        <CFormLabel v-if="chosenParamId === 'hospital_capacity'" class="mt-3 fs-5">
+          Choose which {{ chosenParam?.label.toLocaleLowerCase() }} scenarios to include in the comparison. You can choose from the presets or add a custom option.
+        </CFormLabel>
+        <CFormLabel v-else-if="chosenParamId === 'country'" class="mt-3 fs-5">
+          Choose which countries to include in the comparison. You can select from the dropdown or by clicking on the map.
+        </CFormLabel>
+        <CFormLabel v-else class="mt-3 fs-5">
           Choose which {{ chosenParam?.label.toLocaleLowerCase() }} scenarios to include in comparison
         </CFormLabel>
         <VueSelect
           v-if="paramOptions"
           v-model="selectedOptions"
           :options="paramOptions"
-          placeholder="Select an option"
+          placeholder="Select options"
           :is-multi="true"
           :is-clearable="false"
         >
@@ -80,6 +94,60 @@
             </div>
           </template>
         </VueSelect>
+        <div v-if="chosenParamId === 'hospital_capacity'" class="mt-3">
+          <!-- <p>How it looks when you type in your own option</p>
+          <img src="~assets/img/vue3select multiple select taggable.png" height="100px"> -->
+          <CFormLabel class="mt-3">
+            Add a custom {{ chosenParam?.label.toLocaleLowerCase() }} option
+          </CFormLabel>
+          <div class="d-flex flex-wrap">
+            <CButton
+              style="border: none; position: relative; top: 0rem;"
+              type="button"
+              color="primary"
+              shape="rounded-pill"
+              class="btn-sm px-3 ms-2 align-self-start pt-2"
+              :title="`Add new custom ${chosenParam?.label?.toLowerCase()} option`"
+              :disabled="newCustomOption === unitedKingdomValues.default.toString()"
+              @click="() => { userProvidedNumericOptions.push(Number(newCustomOption)); addToSelected(newCustomOption) /* selectedOptions.push(newCustomOption) */ }"
+            >
+              <span class="me-2 position-relative" style="top: -0.2rem;">Add</span>
+              <CIcon icon="cilPlus" size="lg" />
+            </CButton>
+            <CButton
+              style="border: none;"
+              type="button"
+              color="secondary"
+              variant="ghost"
+              shape="rounded-pill"
+              :class="`${newCustomOption === unitedKingdomValues.default.toString() ? 'invisible' : ''} btn-sm mx-2 align-self-start`"
+              :aria-label="`Reset new ${chosenParam?.label?.toLowerCase()} to default`"
+              :title="`Reset new ${chosenParam?.label?.toLowerCase()} to default`"
+              @click="() => { newCustomOption = unitedKingdomValues.default.toString() }"
+            >
+              <CIcon icon="cilActionUndo" size="sm" />
+            </CButton>
+            <div class="flex-grow-1">
+              <CFormInput
+                :id="chosenParamId"
+                v-model="newCustomOption"
+                type="number"
+                :min="unitedKingdomValues.min"
+                :max="unitedKingdomValues.max"
+                :step="100"
+                :size="undefined"
+                :tooltip-feedback="true"
+              />
+              <CFormRange
+                :id="chosenParamId"
+                v-model="newCustomOption"
+                :min="unitedKingdomValues.min"
+                :max="unitedKingdomValues.max"
+                :step="100"
+              />
+            </div>
+          </div>
+        </div>
         <div class="d-flex">
           <CButton
             id="run-button"
@@ -87,7 +155,7 @@
             :size="appStore.largeScreen ? 'lg' : undefined"
             type="submit"
             class="mt-3 ms-auto"
-            :disabled="selectedOptions.length === 0"
+            :disabled="selectedOptions.length < 2"
           >
             Compare
             <CIcon icon="cilArrowRight" />
@@ -99,7 +167,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Parameter } from "~/types/parameterTypes";
+import type { Parameter, ValueData } from "~/types/parameterTypes";
 import getCountryISO2 from "country-iso-3-to-2";
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import VueSelect from "vue3-select-component";
@@ -114,8 +182,32 @@ const countryFlagIcon = computed(() => {
 });
 const chosenParamId = ref("");
 const chosenParam = computed(() => appStore.metadata?.parameters.find(p => p.id === chosenParamId.value));
-const paramOptions = computed(() => chosenParam.value?.options?.map(o => ({ value: o.id, label: o.label, description: o.description })));
-const selectedOptions = ref([]);
+
+const unitedKingdomValues = ref<ValueData>({
+  min: 23600,
+  default: 26200,
+  max: 34100,
+});
+const newCustomOption = ref(unitedKingdomValues.value.default.toString());
+const userProvidedNumericOptions = ref<number[]>([]);
+
+const paramOptions = computed(() => {
+  if (chosenParamId.value !== "hospital_capacity") {
+    return chosenParam.value?.options?.map(o => ({ value: o.id, label: o.label, description: o.description }));
+  } else {
+    const options = [];
+    options.push({ value: unitedKingdomValues.value.min, label: unitedKingdomValues.value.min.toString(), description: "Minimum value for United Kingdom" });
+    options.push({ value: unitedKingdomValues.value.default, label: unitedKingdomValues.value.default.toString(), description: "Default value for United Kingdom" });
+    options.push({ value: unitedKingdomValues.value.max, label: unitedKingdomValues.value.max, description: "Maximum value for United Kingdom" });
+
+    userProvidedNumericOptions.value.forEach((o) => {
+      options.push({ value: o, label: o.toString(), description: "Custom value" });
+    });
+
+    return options.sort((a, b) => a.value - b.value);
+  }
+});
+const selectedOptions = ref<any[]>([]);
 
 const paramDisplayText = (param: Parameter) => {
   if (appStore.currentScenario?.parameters && appStore.currentScenario?.parameters[param.id]) {
@@ -128,6 +220,12 @@ const paramDisplayText = (param: Parameter) => {
     }
     return param.options ? param.options.find(({ id }) => id === rawVal)!.label : rawVal;
   }
+};
+
+const addToSelected = (custom: string) => {
+  console.log(selectedOptions.value);
+  selectedOptions.value.push(Number(custom));
+  console.log(selectedOptions.value);
 };
 
 watch(() => chosenParamId.value, () => {
@@ -170,7 +268,7 @@ onMounted(() => {
 
 #previousScenario {
   position: absolute;
-  right: -78rem;
+  right: -50rem;
 }
 
 .overlay {
