@@ -63,8 +63,87 @@
           </span>
         </CButton>
       </div>
-      <!-- TODO: make input initialise with option from baseline scenario pre-selected. -->
       <div v-if="chosenParamId">
+        <CFormLabel class="mt-3 fs-5">
+          Set the {{ chosenParam?.label.toLocaleLowerCase() }} for the baseline scenario.
+          <span v-if="chosenParamId === 'hospital_capacity'">You can choose from the presets or add a custom option.</span>
+        </CFormLabel>
+        <VueSelect
+          v-if="paramOptions"
+          v-model="chosenBaselineOption"
+          :options="paramOptions"
+          placeholder="Select option"
+        >
+          <template #option="{ option }">
+            <div class="parameter-option">
+              <span>{{ option.label }}</span>
+              <div
+                v-if="option.description"
+                class="text-secondary"
+              >
+                <small>{{ option.description }}</small>
+              </div>
+            </div>
+          </template>
+        </VueSelect>
+        <p class="small text-secondary">This is the scenario that will be compared against.</p>
+        <div v-if="chosenParamId === 'hospital_capacity'" class="mt-3">
+          <!-- <p>How it looks when you type in your own option</p>
+          <img src="~assets/img/vue3select multiple select taggable.png" height="100px"> -->
+          <CFormLabel class="mt-3">
+            Add a custom {{ chosenParam?.label.toLocaleLowerCase() }} option
+          </CFormLabel>
+          <div class="d-flex flex-wrap">
+            <CButton
+              style="border: none; position: relative; top: 0rem;"
+              type="button"
+              color="primary"
+              shape="rounded-pill"
+              class="btn-sm px-3 ms-2 align-self-start pt-2"
+              :title="`Add new custom ${chosenParam?.label?.toLowerCase()} option`"
+              :disabled="newCustomOption === unitedKingdomValues.default.toString()"
+              @click="() => { userProvidedNumericOptions.push(Number(newCustomOption)); addToSelected(newCustomOption) /* selectedOptions.push(newCustomOption) */ }"
+            >
+              <span class="me-2 position-relative" style="top: -0.2rem;">Add</span>
+              <CIcon icon="cilPlus" size="lg" />
+            </CButton>
+            <CButton
+              style="border: none;"
+              type="button"
+              color="secondary"
+              variant="ghost"
+              shape="rounded-pill"
+              :class="`${newCustomOption === unitedKingdomValues.default.toString() ? 'invisible' : ''} btn-sm mx-2 align-self-start`"
+              :aria-label="`Reset new ${chosenParam?.label?.toLowerCase()} to default`"
+              :title="`Reset new ${chosenParam?.label?.toLowerCase()} to default`"
+              @click="() => { newCustomOption = unitedKingdomValues.default.toString() }"
+            >
+              <CIcon icon="cilActionUndo" size="sm" />
+            </CButton>
+            <div class="flex-grow-1">
+              <CFormInput
+                :id="chosenParamId"
+                v-model="newCustomOption"
+                type="number"
+                :min="unitedKingdomValues.min"
+                :max="unitedKingdomValues.max"
+                :step="100"
+                :size="undefined"
+                :tooltip-feedback="true"
+              />
+              <CFormRange
+                :id="chosenParamId"
+                v-model="newCustomOption"
+                :min="unitedKingdomValues.min"
+                :max="unitedKingdomValues.max"
+                :step="100"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- TODO: make input initialise with option from baseline scenario pre-selected. -->
+      <div v-if="chosenParamId && chosenBaselineOption">
         <CFormLabel v-if="chosenParamId === 'hospital_capacity'" class="mt-3 fs-5">
           Choose which {{ chosenParam?.label.toLocaleLowerCase() }} scenarios to include in the comparison. You can choose from the presets or add a custom option.
         </CFormLabel>
@@ -82,6 +161,13 @@
           :is-multi="true"
           :is-clearable="false"
         >
+          <template #tag="{ option, removeOption }">
+            <span>
+              {{ option.label }} hi?
+              <span v-if="option.value === chosenBaselineOption"> (baseline)</span>
+              <button v-else type="button" @click="removeOption">&times;</button>
+            </span>
+          </template>
           <template #option="{ option }">
             <div class="parameter-option">
               <span>{{ option.label }}</span>
@@ -180,6 +266,7 @@ const countryFlagIcon = computed(() => {
   const titleCaseISO2 = countryISO2?.toLowerCase().replace(/^(.)/, match => match.toUpperCase());
   return countryISO2 ? `cif${titleCaseISO2}` : "";
 });
+const chosenBaselineOption = ref("");
 const chosenParamId = ref("");
 const chosenParam = computed(() => appStore.metadata?.parameters.find(p => p.id === chosenParamId.value));
 
@@ -232,6 +319,10 @@ watch(() => chosenParamId.value, () => {
   if (chosenParamId.value === "country") {
     appStore.globe.interactive = true;
   }
+});
+
+watch(() => chosenBaselineOption.value, () => {
+  selectedOptions.value = [chosenParamId.value === "hospital_capacity" ? Number(chosenBaselineOption.value) : chosenBaselineOption.value];
 });
 
 onMounted(() => {
