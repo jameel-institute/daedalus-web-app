@@ -96,7 +96,7 @@ export const createRotateAnimation = (chart: am5map.MapChart) => {
 // When a polygon is activated (clicked), make sure the previously activated polygon is deactivated.
 export const handlePolygonActive = (target: am5map.MapPolygon, prevPolygonRef: Ref<am5map.MapPolygon | undefined>) => {
   if (prevPolygonRef.value && prevPolygonRef.value !== target) {
-    prevPolygonRef.value.set("active", false);
+    // prevPolygonRef.value.set("active", false);
   }
   prevPolygonRef.value = target;
 };

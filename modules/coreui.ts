@@ -52,6 +52,36 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/grid/CContainer",
     });
     addComponent({
+      name: "CDropdown",
+      export: "CDropdown",
+      filePath: "@coreui/vue/src/components/dropdown/CDropdown",
+    });
+    addComponent({
+      name: "CDropdownDivider",
+      export: "CDropdownDivider",
+      filePath: "@coreui/vue/src/components/dropdown/CDropdownDivider",
+    });
+    addComponent({
+      name: "CDropdownHeader",
+      export: "CDropdownHeader",
+      filePath: "@coreui/vue/src/components/dropdown/CDropdownHeader",
+    });
+    addComponent({
+      name: "CDropdownItem",
+      export: "CDropdownItem",
+      filePath: "@coreui/vue/src/components/dropdown/CDropdownItem",
+    });
+    addComponent({
+      name: "CDropdownMenu",
+      export: "CDropdownMenu",
+      filePath: "@coreui/vue/src/components/dropdown/CDropdownMenu",
+    });
+    addComponent({
+      name: "CDropdownToggle",
+      export: "CDropdownToggle",
+      filePath: "@coreui/vue/src/components/dropdown/CDropdownToggle",
+    });
+    addComponent({
       name: "CForm",
       export: "CForm",
       filePath: "@coreui/vue/src/components/form/CForm",

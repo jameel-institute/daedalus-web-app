@@ -326,9 +326,9 @@ watch(() => highlightedCountrySeries.value, async (newSeries, oldSeries) => {
     if (oldSeries) {
       stopDisplayingAllDisputedAreas();
       animateSeriesColourChange(oldSeries, defaultLandColour);
-      setTimeout(() => {
-        removeSeries(chart, oldSeries);
-      }, geoPointZoomDuration);
+      // setTimeout(() => {
+      //   removeSeries(chart, oldSeries);
+      // }, geoPointZoomDuration);
     }
     if (newSeries) {
       await highlightCountry();

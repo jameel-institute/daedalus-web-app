@@ -1,5 +1,5 @@
 <template>
-  <div class="d-inline-block ms-auto">
+  <div class="d-inline-block">
     <div v-if="appStore.currentScenario.parameters && appStore.currentScenario.result.data">
       <CTooltip content="Download as Excel file" placement="top">
         <template #toggler="{ togglerId, on }">
