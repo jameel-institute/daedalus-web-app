@@ -3,7 +3,7 @@
     <CIconSvg v-if="iconDetails.custom" class="icon parameter-icon">
       <img :src="customIconPath()">
     </CIconSvg>
-    <CIcon v-else :icon="iconDetails.icon" class="parameter-icon text-secondary" />
+    <CIcon v-else :icon="iconDetails.icon" class="parameter-icon text-muted" />
   </span>
 </template>
 

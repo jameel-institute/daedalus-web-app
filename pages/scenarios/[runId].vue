@@ -4,6 +4,63 @@
       <h1 class="fs-2 mb-0 pt-1">
         Results
       </h1>
+      <div class="d-inline-block ms-auto">
+        <CButton
+          color="primary"
+          class="btn-scenario-header fs-6 d-flex"
+          @click="() => { modalVisible = true; }"
+        >
+          <CIconSvg class="icon m-0 align-self-center" style="height: 1.2rem; width: 1.2rem;">
+            <img src="~/assets/img/axes-white.png" alt="Icon for comparing scenarios">
+          </CIconSvg>
+          <span class="ms-2 align-self-end">Compare against other scenarios</span>
+        </CButton>
+      </div>
+      <!-- TODO: Use 'size' prop to widen modal when selecting country -->
+      <CModal
+        id="chooseAxisModal"
+        :visible="modalVisible"
+        aria-labelledby="chooseAxisModalTitle"
+        @close="() => { modalVisible = false; chosenAxis = ''; }"
+      >
+        <CModalHeader>
+          <CModalTitle id="chooseAxisModalTitle">
+            <CIconSvg class="icon me-2" style="height: 1.3rem; width: 1.3rem;">
+              <img src="~/assets/img/axes-black.png" alt="Icon for comparing scenarios">
+            </CIconSvg>
+            <span class="pt-1 pe-1">Start a comparison against this baseline</span>
+          </CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <p class="fs-5 form-label">
+            Which parameter would you like to explore?
+          </p>
+          <div class="d-flex gap-2 flex-wrap">
+            <CButton
+              v-for="para in appStore.metadata?.parameters.filter((p) => !chosenAxis || chosenAxis === p.id)"
+              :id="chosenAxis === para.id ? 'chosenAxisBtn' : ''"
+              :key="para.id"
+              :class="`border ${chosenAxis === para.id ? 'bg-primary bg-opacity-10 border-primary-subtle' : ''}`"
+              color="light"
+              @click="(e) => { chosenAxis = chosenAxis === '' ? para.id : ''; }"
+            >
+              <ParameterIcon :parameter="para" />
+              <span class="ms-2">{{ para.label }}</span>
+              <span v-if="chosenAxis === para.id" id="closeX" class="text-muted ms-2">
+                <CIcon icon="cilX" />
+              </span>
+            </CButton>
+          </div>
+          <div v-if="chosenAxis" class="mt-3">
+            <p class="fs-5 form-label">
+              Compare baseline scenario
+              <span class="multi-value d-inline-block">
+                <span class="multi-value-label px-2 fs-6">{{ readableBaselineOption }}</span>
+              </span> against:
+            </p>
+          </div>
+        </CModalBody>
+      </CModal>
       <DownloadExcel />
       <CodeSnippet />
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
@@ -15,7 +72,7 @@
           Rotate your mobile device to landscape for the best experience.
         </p>
       </CAlert>
-      <div v-show="appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="card horizontal-card parameters-card">
+      <div v-show="appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="card horizontal-card">
         <CRow>
           <div
             v-show="!appStore.largeScreen"
@@ -41,7 +98,7 @@
                       <span class="ms-1">
                         {{ paramDisplayText(parameter) }}
                       </span>
-                      <CIcon v-if="parameter.id === appStore.globeParameter?.id && countryFlagIcon" :icon="countryFlagIcon" class="parameter-icon text-secondary ms-1" />
+                      <CIcon v-if="parameter.id === appStore.globeParameter?.id && countryFlagIcon" :icon="countryFlagIcon" class="parameter-icon ms-1" />
                     </span>
                   </template>
                 </CTooltip>
@@ -97,7 +154,7 @@
 <script lang="ts" setup>
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import getCountryISO2 from "country-iso-3-to-2";
-import type { Parameter } from "~/types/parameterTypes";
+import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 
 const appStore = useAppStore();
 
@@ -109,6 +166,33 @@ const showSpinner = computed(() => !appStore.currentScenario.result.data
   && appStore.currentScenario.status.data?.runSuccess !== false
   && appStore.currentScenario.runId,
 );
+const modalVisible = ref(false);
+const chosenAxis = ref("");
+const chosenAxisParameter = computed(() => {
+  return appStore.metadata?.parameters.find(p => p.id === chosenAxis.value);
+});
+
+const chosenAxisIsNumeric = computed(() => {
+  return chosenAxisParameter.value?.parameterType === TypeOfParameter.Numeric;
+});
+
+const baselineOption = computed(() => {
+  if (chosenAxisIsNumeric.value) {
+    return appStore.currentScenario.parameters[chosenAxis.value];
+  } else {
+    return chosenAxisParameter.value.options.find((o) => {
+      return o.id === appStore.currentScenario.parameters[chosenAxis.value];
+    });
+  }
+});
+
+const readableBaselineOption = computed(() => {
+  if (chosenAxisIsNumeric.value) {
+    return baselineOption.value;
+  } else {
+    return `${baselineOption.value?.label}`;
+  }
+});
 
 const paramDisplayText = (param: Parameter) => {
   if (appStore.currentScenario?.parameters && appStore.currentScenario?.parameters[param.id]) {
@@ -231,16 +315,17 @@ onUnmounted(() => {
         --cui-gutter-x: 0;
       }
     }
-
-    &.parameters-card {
-      .btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active, .btn.show {
-        background-color: var(--cui-btn-color); // Overrides a style in _theme.scss
-      }
-    }
   }
 
-  .chart-header {
-    height: fit-content;
+  .modal-dialog {
+    max-width: 35rem;
   }
+
+  #chooseAxisModal {
+    transition: background-color 0.2s;
+  }
+
+  --vs-multi-value-background-color: var(--cui-primary-bg-subtle);
+  --vs-multi-value-border-radius: 0.25rem;
 }
 </style>

@@ -211,6 +211,7 @@ import {
   cilPencil,
   cilPlus,
   cilShieldAlt,
+  cilX,
 } from "@coreui/icons";
 
 export const iconsSet = {
@@ -229,6 +230,7 @@ export const iconsSet = {
   cilPlus,
   cilShieldAlt,
   cilInfo,
+  cilX,
   cifAd,
   cifAe,
   cifAf,

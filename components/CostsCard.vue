@@ -3,7 +3,7 @@
     <!-- Todo: Make height dynamic. Matching header of time series. -->
     <div class="card-header d-flex justify-content-between">
       <div class="d-flex align-items-center">
-        <CIcon icon="cilChartPie" size="xl" class="mb-1 text-secondary" />
+        <CIcon icon="cilChartPie" size="xl" class="mb-1 text-muted" />
         <h2 class="fs-5 m-0 ms-3 chart-header">
           Losses
         </h2>

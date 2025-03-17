@@ -2,11 +2,11 @@
   <Teleport to="body">
     <CModal
       :visible="modalVisible"
-      aria-labelledby="modalTitle"
+      aria-labelledby="editParamsModalTitle"
       @close="() => { modalVisible = false }"
     >
       <CModalHeader>
-        <CModalTitle id="modalTitle">
+        <CModalTitle id="editParamsModalTitle">
           Edit parameters
         </CModalTitle>
       </CModalHeader>
@@ -29,7 +29,7 @@
         <CButton color="light" class="parameters-button">
           Parameters
         </CButton>
-        <CIcon icon="cilPencil" class="form-icon link-secondary" />
+        <CIcon icon="cilPencil" class="form-icon text-muted" />
       </span>
     </template>
   </CTooltip>

@@ -72,7 +72,7 @@
                   <span>{{ option.label }}</span>
                   <div
                     v-if="option.description"
-                    :class="option.value === formData[parameter.id] ? 'text-dark' : 'text-secondary'"
+                    :class="option.value === formData[parameter.id] ? 'text-dark' : 'text-muted'"
                   >
                     <small>{{ option.description }}</small>
                   </div>

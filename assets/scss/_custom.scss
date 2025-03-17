@@ -11,13 +11,36 @@
 }
 
 .btn-scenario-header {
-  padding-bottom: 0;
   height: 2.6rem;
-  border: 1px solid rgba(8, 10, 12, 0.17)!important; // copying from card
   border-radius: 0.375rem; // copying from card
 
-  &:active,
-  &:not(:hover) {
-    background: $light-background!important;
+  svg, img {
+    margin-top: 0.2rem;
   }
+
+  &.btn-light {
+    background: $light-background;
+    border: 1px solid rgba(8, 10, 12, 0.17); // copying from card
+  }
+}
+
+// Copying from 'Vue 3 Select Component' library in order to use the same styling elsewhere
+.multi-value {
+  display: flex;
+  min-width: 0px;
+  margin: var(--vs-multi-value-margin);
+  border-radius: var(--vs-multi-value-border-radius);
+  background: var(--vs-multi-value-background-color);
+}
+.multi-value-label {
+  padding: var(--vs-multi-value-label-padding);
+  border: var(--vs-multi-value-border);
+  border-radius: var(--vs-multi-value-border-radius);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--vs-multi-value-label-font-size);
+  font-weight: var(--vs-multi-value-label-font-weight);
+  line-height: var(--vs-multi-value-label-line-height);
+  color: var(--vs-multi-value-label-text-color);
 }
