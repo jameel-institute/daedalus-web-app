@@ -21,6 +21,9 @@ HERE=$(realpath "$(dirname $0)")
 
 "$HERE"/run-dependencies "$@"
 
+# Apply the migrations to the database (development mode)
+npm run db:dev:migrate
+
 # Wait for Ctrl+C
 echo "Ready to use. Press Ctrl+C to teardown."
 sleep infinity
