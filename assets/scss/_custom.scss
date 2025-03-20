@@ -24,23 +24,100 @@
   }
 }
 
-// Copying from 'Vue 3 Select Component' library in order to use the same styling elsewhere
-.multi-value {
-  display: flex;
-  min-width: 0px;
-  margin: var(--vs-multi-value-margin);
-  border-radius: var(--vs-multi-value-border-radius);
-  background: var(--vs-multi-value-background-color);
+.pulse {
+  animation: pulse-animation 0.5s 1;
+
+  &.infinite {
+    animation: pulse-animation 0.5s infinite;
+  }
 }
-.multi-value-label {
-  padding: var(--vs-multi-value-label-padding);
-  border: var(--vs-multi-value-border);
-  border-radius: var(--vs-multi-value-border-radius);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: var(--vs-multi-value-label-font-size);
-  font-weight: var(--vs-multi-value-label-font-weight);
-  line-height: var(--vs-multi-value-label-line-height);
-  color: var(--vs-multi-value-label-text-color);
+
+@keyframes pulse-animation {
+  0% {
+    box-shadow: 0 0 0 0px rgba(0, 0, 255, 0.25);
+  }
+  90% {
+    box-shadow: 0 0 0 13.5px rgba(0, 0, 255, 0.01);
+  }
+  100% {
+    box-shadow: 0 0 0 15px rgba(0, 0, 255, 0);
+  }
+}
+
+// Global customization 'Vue 3 Select Component', overriding styles applied to :root pseudoclass.
+:root body {
+  --vs-font-size: 1.25rem;
+  --vs-input-outline: transparent;
+  --vs-border-radius: 0.25rem;
+  --vs-line-height: 0.9;
+  --vs-menu-height: 400px;
+  --vs-padding: 0;
+  --vs-option-font-size: var(--vs-font-size);
+  --vs-option-text-color: var(--vs-text-color);
+  --vs-option-hover-color: var(--cui-tertiary-bg);
+  --vs-option-focused-color: var(--vs-option-hover-color);
+  --vs-option-selected-color: var(--cui-primary-bg-subtle);
+  --vs-option-padding: 0.5rem 0.4rem;
+
+  --vs-multi-value-bg: var(--cui-primary-bg-subtle);
+  --vs-multi-value-text-color: var(--cui-primary);
+  --vs-multi-value-font-size: 1rem;
+  --vs-multi-value-padding: 0.25rem 0.4rem;
+  --vs-multi-value-xmark-size: var(--vs-font-size);
+  --vs-multi-value-xmark-color: var(--cui-secondary);
+  --vs-indicators-gap: 0.375rem;
+
+  .multi-value {
+    border-radius: var(--vs-border-radius);
+  }
+
+  .vue-select  {
+    border-radius: 1rem;
+
+    .control {
+      border-style: none;
+    }
+
+    .menu {
+      border-radius: 0.5rem;
+    }
+
+    .value-container {
+      &.multi {
+        // Set min-height to ensure it doesn't change depending on whether there are currently any values selected.
+        min-height: 2.25rem;
+
+        .search-input {
+          position: relative;
+          left: 6px; // Emulate the margin between multi-value tags, without triggering flex wrapping.
+        }
+      }
+
+      // This prevents default styling where search text appears after width of current value (in single-value selects).
+      &:not(.multi) .search-input {
+        position: absolute;
+        left: 0;
+        width: 100%;
+      }
+
+      .multi-value svg {
+        margin-left: 0.2rem;
+        margin-right: -0.25rem;
+      }
+    }
+
+    &.open {
+      // This fixes an issue where the open select contracted in width because .single-value items had absolute position
+      .single-value {
+        position: relative !important;
+      }
+
+      // Ensure that the input for typing your search query is at least a minimum width, so that,
+      // if the available space for it is very little (namely when there are many options selected in the multi-select),
+      // it both wraps onto the next line and also allows enough width for you to actually be able to read what you have typed.
+      &.typing .value-container.multi .search-input {
+        min-width: 5rem;
+      }
+    }
+  }
 }

@@ -2,7 +2,7 @@ import type { AsyncDataRequestStatus } from "#app";
 import type { Metadata, ScenarioResultData, ScenarioStatusData, TimeSeriesGroup, VersionData } from "@/types/apiResponseTypes";
 import type { AppState } from "@/types/storeTypes";
 import type { FetchError } from "ofetch";
-import { type Parameter, TypeOfParameter } from "@/types/parameterTypes";
+import { type Parameter, type ParameterSet, TypeOfParameter } from "@/types/parameterTypes";
 import { debounce } from "perfect-debounce";
 import { defineStore } from "pinia";
 import { ExcelScenarioDownload } from "~/download/excelScenarioDownload";
@@ -24,6 +24,13 @@ const emptyScenario = {
 };
 Object.freeze(emptyScenario);
 
+const emptyComparison = {
+  axis: undefined,
+  baseline: undefined,
+  scenarios: undefined,
+};
+Object.freeze(emptyComparison);
+
 export const useAppStore = defineStore("app", {
   state: (): AppState => ({
     globe: {
@@ -38,6 +45,7 @@ export const useAppStore = defineStore("app", {
     downloading: false,
     downloadError: undefined,
     currentScenario: { ...emptyScenario },
+    currentComparison: { ...emptyComparison },
   }),
   getters: {
     globeParameter: (state): Parameter | undefined => state.metadata?.parameters.find(param => param.parameterType === TypeOfParameter.GlobeSelect),
@@ -126,6 +134,25 @@ export const useAppStore = defineStore("app", {
     },
     clearScenario() {
       this.currentScenario = { ...emptyScenario };
+    },
+    clearComparison() {
+      this.currentComparison = { ...emptyComparison };
+    },
+    setComparison(axis: string, baselineParameters: ParameterSet, selectedScenarioOptions: string[]) {
+      this.clearComparison();
+      this.currentComparison.axis = axis;
+      this.currentComparison.baseline = baselineParameters[axis];
+      this.clearScenario();
+      const allScenarioOptions = [this.currentComparison.baseline, ...selectedScenarioOptions];
+      this.currentComparison.scenarios = allScenarioOptions.map((opt) => {
+        return {
+          ...emptyScenario,
+          parameters: {
+            ...baselineParameters,
+            [axis]: opt,
+          },
+        };
+      });
     },
     async downloadExcel() {
       this.downloadError = undefined;
