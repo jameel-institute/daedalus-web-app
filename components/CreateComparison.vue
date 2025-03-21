@@ -44,7 +44,7 @@
             <CIcon v-if="chosenAxisId === para.id" class="text-muted ms-2 cilx" icon="cilX" />
           </CButton>
         </div>
-        <div v-if="chosenAxisId && !chosenAxisParameter?.ordered" class="mt-3">
+        <div v-if="chosenAxisId && !chosenParameterAxis?.ordered && chosenParameterAxis?.parameterType !== TypeOfParameter.Numeric" class="mt-3">
           <div>
             <CFormLabel id="scenarioOptions" for="scenarioOptions" class="fs-5 form-label">
               Compare baseline scenario
@@ -62,49 +62,11 @@
               </CTooltip>
               against:
             </CFormLabel>
-            <!-- TODO: (jidea-229) For user-provided custom options, consider using displayedOptions prop to control inclusion in menu -->
-            <!-- TODO: (jidea-230) For country options, consider using getOptionLabel prop to insert country flag in menu option -->
-            <div class="position-relative">
-              <VueSelect
-                ref="vueSelectComponent"
-                v-model="selectedScenarioOptions"
-                input-id="scenarioOptions"
-                :is-menu-open="selectMenuOpen"
-                :aria="{ labelledby: `scenarioOptions`, required: true }"
-                class="form-control"
-                :class="scenarioSelectionInvalid && showValidationFeedback ? 'is-invalid' : ''"
-                :options="scenarioOptions"
-                :is-clearable="true"
-                :is-multi="true"
-                :close-on-select="false"
-                :placeholder="`Select up to ${MAX_COMPARISON_SCENARIOS - 1} options to compare against baseline`"
-                @menu-opened="selectMenuOpen = true"
-                @menu-closed="selectMenuOpen = false"
-                @option-selected="hideFeedback"
-                @option-deselected="hideFeedback"
-              >
-                <template #option="{ option }">
-                  <div class="parameter-option">
-                    <span>{{ option.label }}</span>
-                    <div
-                      v-if="option.description"
-                      class="text-muted"
-                    >
-                      <small>{{ option.description }}</small>
-                    </div>
-                  </div>
-                </template>
-                <template #clear>
-                  <span class="text-muted">Clear</span>
-                </template>
-                <template #no-options>
-                  {{ allScenariosSelected ? 'All available scenarios have already been selected.' : 'No options found.' }}
-                </template>
-              </VueSelect>
-              <div v-if="scenarioSelectionInvalid && showValidationFeedback" class="invalid-tooltip">
-                {{ scenarioSelectionInvalidFeedback }}
-              </div>
-            </div>
+            <ScenarioSelect
+              v-model:selected="selectedScenarioOptions"
+              :show-feedback="showFeedback"
+              :parameter-axis="chosenParameterAxis"
+            />
           </div>
           <div class="d-flex">
             <CButton
@@ -129,9 +91,9 @@
 
 <script setup lang="ts">
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
-import { type Parameter, type ParameterOption, TypeOfParameter } from "~/types/parameterTypes";
-import { paramOptsToSelectOpts } from "~/components/utils/parameters";
-import VueSelect from "vue3-select-component";
+import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
+import { MAX_COMPARISON_SCENARIOS } from "~/components/utils/comparisons";
+import { useScenarioOptions } from "~/composables/useScenarioOptions";
 
 const emit = defineEmits<{
   toggleEditParamsButtonPulse: [on: boolean]
@@ -139,22 +101,17 @@ const emit = defineEmits<{
 
 const appStore = useAppStore();
 
-const MIN_COMPARISON_SCENARIOS = 2;
-const MAX_COMPARISON_SCENARIOS = 6;
-const VALUE_CONTAINER_SELECTOR = ".value-container.multi";
-const SEARCH_INPUT_SELECTOR = "input.search-input";
-
-const modalVisible = ref(false);
-const selectMenuOpen = ref(false);
-const chosenAxisId = ref("");
 const selectedScenarioOptions = ref<string[]>([]);
+const modalVisible = ref(false);
+const chosenAxisId = ref("");
 const formSubmitting = ref(false);
-const showValidationFeedback = ref(false);
-const pulseOffTimer = ref<ReturnType<typeof setTimeout> | undefined>(undefined);
-const vueSelectControl = ref<HTMLElement | null>(null);
-const vueSelectComponentRef = useTemplateRef<ComponentPublicInstance>("vueSelectComponent");
+const showFeedback = ref(false);
+const pulseOffTimer = ref<ReturnType<typeof setTimeout>>();
 
-const hideFeedback = () => showValidationFeedback.value = false;
+const chosenParameterAxis = computed(() => appStore.metadata?.parameters.find(p => p.id === chosenAxisId.value));
+
+const { baselineOption, nonBaselineOptions } = useScenarioOptions(chosenParameterAxis);
+const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions);
 
 // To prevent race conditions, route all toggling-off through this function, so that only the last-created timer executes.
 const turnOffEditParamsButtonPulse = (delay: number) => {
@@ -174,61 +131,6 @@ const handleCloseModal = () => {
   turnOffEditParamsButtonPulse(2000);
 };
 
-const tooFewScenariosSelected = computed(() => selectedScenarioOptions.value.length + 1 < MIN_COMPARISON_SCENARIOS);
-const tooManyScenariosSelected = computed(() => selectedScenarioOptions.value.length + 1 > MAX_COMPARISON_SCENARIOS);
-
-const scenarioSelectionInvalid = computed(() => {
-  const invalid = tooFewScenariosSelected.value || tooManyScenariosSelected.value;
-  return invalid;
-});
-
-const scenarioSelectionInvalidFeedback = computed(() => {
-  if (tooFewScenariosSelected.value) {
-    return `Please select at least ${MIN_COMPARISON_SCENARIOS - 1} scenario to compare against the baseline.`;
-  } else if (tooManyScenariosSelected.value) {
-    return `You can compare up to ${MAX_COMPARISON_SCENARIOS - 1} scenarios against the baseline.`;
-  } else {
-    return "";
-  }
-});
-
-const chosenAxisParameter = computed(() => {
-  return appStore.metadata?.parameters.find(p => p.id === chosenAxisId.value);
-});
-
-const chosenAxisIsNumeric = computed(() => {
-  return chosenAxisParameter.value?.parameterType === TypeOfParameter.Numeric;
-});
-
-const baselineOption = computed(() => {
-  if (!appStore.currentScenario.parameters) {
-    return null;
-  }
-
-  if (chosenAxisIsNumeric.value) {
-    const baselineValue = appStore.currentScenario.parameters[chosenAxisId.value];
-    // TODO: (jidea-229) description should say whether the value is a default, min, max; or empty if user-provided.
-    // TODO: (jidea-229) For numeric options, do (locale-based) comma-separation of thousands.
-    return { id: baselineValue, label: baselineValue, description: "" } as ParameterOption;
-  } else {
-    return chosenAxisParameter.value?.options?.find((o) => {
-      return o.id === appStore.currentScenario.parameters![chosenAxisId.value];
-    });
-  }
-});
-
-const nonBaselineOptions = computed(() => {
-  return chosenAxisParameter.value?.options?.filter(o => o.id !== baselineOption.value?.id) || [];
-});
-
-const scenarioOptions = computed(() => {
-  return paramOptsToSelectOpts(nonBaselineOptions.value);
-});
-
-const allScenariosSelected = computed(() => {
-  return selectedScenarioOptions.value.length === nonBaselineOptions.value.length;
-});
-
 const handleChooseAxis = (axis: Parameter) => {
   if (chosenAxisId.value === "") {
     chosenAxisId.value = axis.id;
@@ -243,15 +145,20 @@ const handleChooseAxis = (axis: Parameter) => {
 };
 
 const formInvalid = computed(() => {
-  return scenarioSelectionInvalid.value || !chosenAxisParameter.value;
+  return scenarioSelectionInvalid.value || !chosenParameterAxis.value;
 });
+
+watch(selectedScenarioOptions, () => {
+  showFeedback.value = false;
+}, { deep: 1 });
 
 const submitForm = async () => {
   if (formInvalid.value) {
-    showValidationFeedback.value = true;
+    showFeedback.value = true;
     return;
   }
 
+  showFeedback.value = false;
   appStore.downloadError = undefined;
   formSubmitting.value = true;
 
@@ -259,9 +166,9 @@ const submitForm = async () => {
   // TODO: Check that the baseline option does in fact match the currentScenario
 
   const baselineParameters = appStore.currentScenario.parameters;
-  if (chosenAxisParameter.value && baselineParameters) {
+  if (chosenParameterAxis.value && baselineParameters) {
     appStore.setComparison(
-      chosenAxisParameter.value.id,
+      chosenParameterAxis.value.id,
       baselineParameters,
       selectedScenarioOptions.value,
     );
@@ -275,46 +182,11 @@ const submitForm = async () => {
     } });
   }
 };
-
-// If a click is detected in a row-end gap that is created due to flex-wrapping the option tags onto multiple rows,
-// treat it as a click on the search input, that is, open the options menu and focus the search input.
-const handleClickVueSelectControl = (event: MouseEvent) => {
-  // Only do anything if the click was not on any child element
-  if (event.target === vueSelectControl.value) {
-    vueSelectControl.value?.querySelector<HTMLInputElement>(SEARCH_INPUT_SELECTOR)?.focus();
-    selectMenuOpen.value = true;
-  }
-};
-
-watch(() => vueSelectComponentRef.value, () => {
-  const controlEl = vueSelectComponentRef.value?.$el.querySelector(VALUE_CONTAINER_SELECTOR);
-  if (controlEl) {
-    vueSelectControl.value = controlEl;
-    vueSelectControl.value?.addEventListener("click", handleClickVueSelectControl);
-  } else {
-    vueSelectControl.value?.removeEventListener("click", handleClickVueSelectControl);
-  }
-});
 </script>
 
 <style lang="scss" scoped>
 :deep(.modal-dialog) {
   max-width: 40rem;
-
-  --vs-menu-height: max(calc(100dvh - 25rem), 200px); // TODO: make this a sensibly calculated number e.g. page height minus distance to top of page minus margin
-}
-
-.axis-btn {
-  &:hover {
-    background-color: white;
-    border-color: var(--cui-primary-bg-subtle) !important;
-    transition: background-color 0.2s;
-    transition: border-color 0.2s;
-  }
-
-  .cilx {
-    margin-bottom: 0.1rem;
-  }
 }
 
 .multi-value.outside-select {
@@ -335,30 +207,16 @@ watch(() => vueSelectComponentRef.value, () => {
   outline: none;
 }
 
-:deep(.vue-select) {
-  .indicators-container .clear-button {
-    margin-left: 0.5rem;
-    width: unset;
-
-    &:hover {
-      opacity: 75%;
-    }
+.axis-btn {
+  &:hover {
+    background-color: white;
+    border-color: var(--cui-primary-bg-subtle) !important;
+    transition: background-color 0.2s;
+    transition: border-color 0.2s;
   }
 
-  &.open {
-    .indicators-container .clear-button {
-      display: none;
-    }
-  }
-
-  &.form-control.is-invalid {
-    // Calculate how much the menu needs to be moved down to accommodate the invalid tooltip:
-    // = tooltip font size + (2 * tooltip vertical padding) + tooltip margin + form-control bottom padding + arbitrary extra padding
-    --vs-menu-offset-top: calc(var(--cui-body-font-size) + (2 * 0.25rem) + 0.1rem + 0.375rem + 0.5rem);
-  }
-
-  .search-input::placeholder {
-    opacity: 0.5;
+  .cilx {
+    margin-bottom: 0.1rem;
   }
 }
 

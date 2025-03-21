@@ -39,6 +39,7 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@nuxt/test-utils/module", // https://nuxt.com/docs/getting-started/testing#setup
     "@nuxt/eslint",
+    "@vueuse/nuxt",
   ],
 
   vite: {

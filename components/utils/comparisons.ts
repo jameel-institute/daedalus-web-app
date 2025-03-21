@@ -1,0 +1,2 @@
+export const MIN_COMPARISON_SCENARIOS = 2;
+export const MAX_COMPARISON_SCENARIOS = 6;

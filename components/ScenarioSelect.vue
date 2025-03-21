@@ -1,0 +1,117 @@
+<template>
+  <div class="position-relative">
+    <!-- TODO: (jidea-229) For user-provided custom options, consider using displayedOptions prop to control inclusion in menu -->
+    <!-- TODO: (jidea-230) For country options, consider using getOptionLabel prop to insert country flag in menu option -->
+    <VueSelect
+      ref="vueSelectComponent"
+      v-model="selected"
+      input-id="scenarioOptions"
+      :is-menu-open="menuOpen"
+      :aria="{ labelledby: `scenarioOptions`, required: true }"
+      class="form-control"
+      :class="showFeedback ? 'is-invalid' : ''"
+      :options="nonBaselineSelectOptions"
+      :is-clearable="true"
+      :is-multi="true"
+      :close-on-select="false"
+      :placeholder="`Select up to ${MAX_COMPARISON_SCENARIOS - 1} options to compare against baseline`"
+      @menu-opened="menuOpen = true"
+      @menu-closed="menuOpen = false"
+    >
+      <template #option="{ option }">
+        <div class="parameter-option">
+          <span>{{ option.label }}</span>
+          <div
+            v-if="option.description"
+            class="text-muted"
+          >
+            <small>{{ option.description }}</small>
+          </div>
+        </div>
+      </template>
+      <template #clear>
+        <span class="text-muted">Clear</span>
+      </template>
+      <template #no-options>
+        {{ allScenariosSelected ? 'All available scenarios have already been selected.' : 'No options found.' }}
+      </template>
+    </VueSelect>
+    <div v-if="showFeedback" class="invalid-tooltip">
+      {{ feedback }}
+    </div>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import VueSelect from "vue3-select-component";
+import type { Parameter } from "~/types/parameterTypes";
+import { MAX_COMPARISON_SCENARIOS } from "~/components/utils/comparisons";
+import { useScenarioOptions } from "~/composables/useScenarioOptions";
+
+const { showFeedback, parameterAxis } = defineProps<{
+  showFeedback: boolean
+  parameterAxis: Parameter | undefined
+}>();
+
+const menuOpen = ref(false);
+
+const selected = defineModel("selected", { type: Array<string>, required: true });
+
+const { nonBaselineSelectOptions } = useScenarioOptions(() => parameterAxis);
+const { feedback } = useComparisonValidation(selected);
+
+const VALUE_CONTAINER_SELECTOR = ".value-container.multi";
+const SEARCH_INPUT_SELECTOR = "input.search-input";
+const vueSelectComponentRef = useTemplateRef<ComponentPublicInstance>("vueSelectComponent");
+const vueSelectControl = computed((): HTMLElement | null => {
+  return vueSelectComponentRef.value?.$el.querySelector(VALUE_CONTAINER_SELECTOR);
+});
+
+const allScenariosSelected = computed(() => {
+  return selected.value.length === nonBaselineSelectOptions.value.length;
+});
+
+const handleClickVueSelectControl = (event: MouseEvent) => {
+  // Only do anything if the click was not on any child element
+  if (event.target === vueSelectControl.value) {
+    // If a click is detected in a row-end gap that is created due to flex-wrapping the option tags onto multiple rows,
+    // treat it as a click on the search input, that is, open the options menu and focus the search input.
+    vueSelectControl.value?.querySelector<HTMLInputElement>(SEARCH_INPUT_SELECTOR)?.focus();
+    menuOpen.value = true;
+  }
+};
+
+const createClickHandler = () => {
+  useEventListener(vueSelectControl.value, "click", handleClickVueSelectControl);
+};
+
+onMounted(() => {
+  createClickHandler();
+  watch(() => vueSelectControl.value, createClickHandler);
+});
+</script>
+
+<style lang="scss" scoped>
+:deep(.vue-select) {
+  --vs-menu-height: max(calc(100dvh - 25rem), 200px);
+
+  .indicators-container .clear-button {
+    margin-left: 0.5rem;
+    width: unset;
+
+    &:hover {
+      opacity: 75%;
+    }
+  }
+
+  &.form-control.is-invalid {
+    // Calculate how much the menu needs to be moved down to accommodate the invalid tooltip:
+    // = tooltip font size + (2 * tooltip vertical padding) + tooltip margin + form-control bottom padding + arbitrary extra padding
+    --vs-menu-offset-top: calc(var(--cui-body-font-size) + (2 * 0.25rem) + 0.1rem + 0.375rem + 0.5rem);
+  }
+
+  .search-input::placeholder {
+    opacity: 0.5;
+  }
+}
+</style>
