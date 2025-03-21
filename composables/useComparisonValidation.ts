@@ -4,7 +4,7 @@ export const useComparisonValidation = (scenariosToCompareAgainstBaseline: Maybe
   const invalid = ref<boolean>(false);
   const feedback = ref<string>();
 
-  const { trigger: triggerValidation } = watchTriggerable(scenariosToCompareAgainstBaseline, () => {
+  watch(scenariosToCompareAgainstBaseline, () => {
     const scenarioOptions = toValue(scenariosToCompareAgainstBaseline);
     invalid.value = false;
     if (scenarioOptions.length + 1 < MIN_COMPARISON_SCENARIOS) {
@@ -14,8 +14,7 @@ export const useComparisonValidation = (scenariosToCompareAgainstBaseline: Maybe
       invalid.value = true;
       feedback.value = `You can compare up to ${MAX_COMPARISON_SCENARIOS - 1} scenarios against the baseline.`;
     }
-  }, { deep: 1 });
-  triggerValidation(); // Initial validation, to ensure input is validated if inputs are never changed
+  }, { deep: 1, immediate: true });
 
   return { invalid, feedback };
 };

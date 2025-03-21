@@ -73,7 +73,7 @@ const allScenariosSelected = computed(() => {
 });
 
 onMounted(() => {
-  const { trigger: createClickHandler } = watchTriggerable(vueSelectControl, () => {
+  watch(vueSelectControl, () => {
     useEventListener(vueSelectControl.value, "click", (event: MouseEvent) => {
       // Only do anything if the click was on the parent element
       if (event.target === vueSelectControl.value) {
@@ -83,8 +83,7 @@ onMounted(() => {
         vueSelectControl.value?.querySelector<HTMLInputElement>(SEARCH_INPUT_SELECTOR)?.focus();
       }
     });
-  });
-  createClickHandler();
+  }, { immediate: true });
 });
 </script>
 
