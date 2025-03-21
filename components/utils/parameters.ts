@@ -8,11 +8,11 @@ export interface ParameterSelectOption extends Option<string> {
 }
 
 export const paramOptsToSelectOpts = (options: Array<ParameterOption>): ParameterSelectOption[] => {
-  return options?.map(({ id, label, description }) => {
+  return options.map(({ id, label, description }) => {
     return {
       value: id,
       label,
       description: description ?? "",
     };
-  }) || [];
+  });
 };

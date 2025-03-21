@@ -4,9 +4,7 @@
       <h1 class="fs-2 mb-0 pt-1">
         Results
       </h1>
-      <CreateComparison
-        @toggle-edit-params-button-pulse="handleToggleEditParamsButtonPulse"
-      />
+      <CreateComparison @toggle-edit-params-button-pulse="handleToggleEditParamsButtonPulse" />
       <DownloadExcel />
       <CodeSnippet />
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>

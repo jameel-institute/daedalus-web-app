@@ -46,7 +46,7 @@
         </div>
         <div v-if="chosenAxisId && !chosenParameterAxis?.ordered && chosenParameterAxis?.parameterType !== TypeOfParameter.Numeric" class="mt-3">
           <div>
-            <CFormLabel id="scenarioOptions" for="scenarioOptions" class="fs-5 form-label">
+            <CFormLabel :id="FORM_LABEL_ID" :for="FORM_LABEL_ID" class="fs-5 form-label">
               Compare baseline scenario
               <CTooltip
                 content="To change the baseline, exit the overlay and edit the current scenario's parameters."
@@ -66,6 +66,7 @@
               v-model:selected="selectedScenarioOptions"
               :show-feedback="showFeedback"
               :parameter-axis="chosenParameterAxis"
+              :label-id="FORM_LABEL_ID"
             />
           </div>
           <div class="d-flex">
@@ -101,6 +102,7 @@ const emit = defineEmits<{
 
 const appStore = useAppStore();
 
+const FORM_LABEL_ID = "scenarioOptions";
 const selectedScenarioOptions = ref<string[]>([]);
 const modalVisible = ref(false);
 const chosenAxisId = ref("");
@@ -174,7 +176,7 @@ const submitForm = async () => {
     );
 
     // Record comparison information in URL query parameters to enable link sharing
-    // Those URL query params will need to be validated, since users might type anything into the URL bar: jidea-253
+    // TODO: (jidea-253) Those URL query params will need to be validated, since users might type anything into the URL bar
     await navigateTo({ path: "/comparison", query: {
       ...baselineParameters,
       axis: chosenAxisId.value,

@@ -49,6 +49,7 @@
 import { CIcon } from "@coreui/icons-vue";
 import getCountryISO2 from "country-iso-3-to-2";
 import type { Parameter } from "~/types/parameterTypes";
+import { humanReadableNumber } from "./utils/formatters";
 
 const props = defineProps<{
   pulseEditButton: boolean
@@ -62,10 +63,12 @@ const paramDisplayText = (param: Parameter) => {
 
     const rawValIsNumberString = Number.parseInt(rawVal).toString() === rawVal;
     if (rawValIsNumberString) {
-      // TODO: Localize number formatting.
-      return new Intl.NumberFormat().format(Number.parseInt(rawVal));
+      return humanReadableNumber(rawVal);
+    } else if (param.options) {
+      return param.options.find(({ id }) => id === rawVal)!.label;
+    } else {
+      return rawVal;
     }
-    return param.options ? param.options.find(({ id }) => id === rawVal)!.label : rawVal;
   }
 };
 

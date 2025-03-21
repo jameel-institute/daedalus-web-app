@@ -7,7 +7,7 @@
       v-model="selected"
       input-id="scenarioOptions"
       :is-menu-open="menuOpen"
-      :aria="{ labelledby: `scenarioOptions`, required: true }"
+      :aria="{ labelledby: labelId, required: true }"
       class="form-control"
       :class="showFeedback ? 'is-invalid' : ''"
       :options="nonBaselineSelectOptions"
@@ -33,7 +33,7 @@
         <span class="text-muted">Clear</span>
       </template>
       <template #no-options>
-        {{ allScenariosSelected ? 'All available scenarios have already been selected.' : 'No options found.' }}
+        {{ allScenariosSelected ? 'All options selected.' : 'No options found.' }}
       </template>
     </VueSelect>
     <div v-if="showFeedback" class="invalid-tooltip">
@@ -48,9 +48,10 @@ import type { Parameter } from "~/types/parameterTypes";
 import { MAX_COMPARISON_SCENARIOS } from "~/components/utils/comparisons";
 import { useScenarioOptions } from "~/composables/useScenarioOptions";
 
-const { showFeedback, parameterAxis } = defineProps<{
+const { showFeedback, parameterAxis, labelId } = defineProps<{
   showFeedback: boolean
   parameterAxis: Parameter | undefined
+  labelId: string
 }>();
 
 const menuOpen = ref(false);
@@ -62,32 +63,28 @@ const { feedback } = useComparisonValidation(selected);
 
 const VALUE_CONTAINER_SELECTOR = ".value-container.multi";
 const SEARCH_INPUT_SELECTOR = "input.search-input";
-const vueSelectComponentRef = useTemplateRef<ComponentPublicInstance>("vueSelectComponent");
+const vueSelect = useTemplateRef<ComponentPublicInstance>("vueSelectComponent");
 const vueSelectControl = computed((): HTMLElement | null => {
-  return vueSelectComponentRef.value?.$el.querySelector(VALUE_CONTAINER_SELECTOR);
+  return vueSelect.value?.$el.querySelector(VALUE_CONTAINER_SELECTOR);
 });
 
 const allScenariosSelected = computed(() => {
   return selected.value.length === nonBaselineSelectOptions.value.length;
 });
 
-const handleClickVueSelectControl = (event: MouseEvent) => {
-  // Only do anything if the click was not on any child element
-  if (event.target === vueSelectControl.value) {
-    // If a click is detected in a row-end gap that is created due to flex-wrapping the option tags onto multiple rows,
-    // treat it as a click on the search input, that is, open the options menu and focus the search input.
-    vueSelectControl.value?.querySelector<HTMLInputElement>(SEARCH_INPUT_SELECTOR)?.focus();
-    menuOpen.value = true;
-  }
-};
-
-const createClickHandler = () => {
-  useEventListener(vueSelectControl.value, "click", handleClickVueSelectControl);
-};
-
 onMounted(() => {
+  const { trigger: createClickHandler } = watchTriggerable(vueSelectControl, () => {
+    useEventListener(vueSelectControl.value, "click", (event: MouseEvent) => {
+      // Only do anything if the click was on the parent element
+      if (event.target === vueSelectControl.value) {
+        // If a click is detected in a row-end gap that is created due to flex-wrapping the option tags onto multiple rows,
+        // treat it as a click on the search input, that is, open the options menu and focus the search input.
+        menuOpen.value = true;
+        vueSelectControl.value?.querySelector<HTMLInputElement>(SEARCH_INPUT_SELECTOR)?.focus();
+      }
+    });
+  });
   createClickHandler();
-  watch(() => vueSelectControl.value, createClickHandler);
 });
 </script>
 
