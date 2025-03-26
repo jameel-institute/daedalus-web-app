@@ -55,6 +55,7 @@
                 @hide="turnOffEditParamsButtonPulse(3000);"
               >
                 <template #toggler="{ togglerId, on }">
+                  <!-- TODO: use humanReadableNumber formatter for numeric parameters -->
                   <span :aria-describedby="togglerId" class="multi-value d-inline-block outside-select" v-on="on">
                     {{ baselineOption?.label }}
                   </span>
