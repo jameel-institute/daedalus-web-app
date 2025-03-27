@@ -56,7 +56,7 @@ describe("scenario select", () => {
 
     // Assert option mark-up includes description text
     const businessClosuresOption = getOptionFromMenu(wrapper, "Business closures");
-    expect(businessClosuresOption!.element.textContent).toMatch(/A response strategy of mostly economic closures/);
+    expect(businessClosuresOption!.text()).toMatch(/A response strategy of mostly economic closures/);
   });
 
   it("can update the v-model prop", async () => {
@@ -80,12 +80,15 @@ describe("scenario select", () => {
     omicronOption!.trigger("click");
     await wrapper.vm.$nextTick();
 
+    expect(wrapper.props("selected")).toHaveLength(2);
     expect(wrapper.props("selected")).toEqual(expect.arrayContaining(["sars_cov_2_pre_alpha", "sars_cov_2_omicron"]));
 
     // Deselect 'pre-alpha' option
-    getOptionTagFromControl(wrapper, "wild-type");
+    const wildTypeOption = getOptionTagFromControl(wrapper, "wild-type");
+    wildTypeOption!.trigger("click");
     await wrapper.vm.$nextTick();
 
+    expect(wrapper.props("selected")).toHaveLength(1);
     expect(wrapper.props("selected")).toEqual(expect.arrayContaining(["sars_cov_2_omicron"]));
   });
 
@@ -136,7 +139,7 @@ describe("scenario select", () => {
     });
 
     const feedback = wrapper.find(".invalid-tooltip");
-    expect(feedback.element.textContent).toMatch(/Please select at least 1 scenario to compare against the baseline/i);
+    expect(feedback.text()).toMatch(/Please select at least 1 scenario to compare against the baseline/i);
 
     // Open menu and select all options
     wrapper.find(controlSelector).trigger("click");
@@ -146,7 +149,7 @@ describe("scenario select", () => {
     options.forEach(option => option.trigger("click"));
     await wrapper.vm.$nextTick();
 
-    expect(feedback.element.textContent).toMatch(/You can compare up to 5 scenarios against the baseline/i);
+    expect(feedback.text()).toMatch(/You can compare up to 5 scenarios against the baseline/i);
   });
 
   it("lets the user know if there are no more options to be selected", async () => {

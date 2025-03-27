@@ -64,7 +64,7 @@ describe("parameter form", () => {
       { value: "3", label: "Option 3", description: "Option 3 description" },
       { value: "4", label: "Option 4", description: "Option 4 description" },
       { value: "5", label: "Option 5", description: "Option 5 description" },
-      { value: "6", label: "Option 6", description: undefined },
+      { value: "6", label: "Option 6", description: "" },
     ]);
     expect(vueSelects[0].props("modelValue")).toBe("1");
 
@@ -79,8 +79,8 @@ describe("parameter form", () => {
     expect(renderedOptions[5].find("div.text-muted").exists()).toBe(false);
 
     expect(vueSelects[1].props("options")).toEqual([
-      { value: "CLD", label: "Cloud Nine", description: undefined },
-      { value: "HVN", label: "Heaven", description: undefined },
+      { value: "CLD", label: "Cloud Nine", description: "" },
+      { value: "HVN", label: "Heaven", description: "" },
     ]);
     expect(vueSelects[1].props("modelValue")).toBe("HVN");
 
@@ -129,13 +129,13 @@ describe("parameter form", () => {
       { value: "3", label: "Option 3", description: "Option 3 description" },
       { value: "4", label: "Option 4", description: "Option 4 description" },
       { value: "5", label: "Option 5", description: "Option 5 description" },
-      { value: "6", label: "Option 6", description: undefined },
+      { value: "6", label: "Option 6", description: "" },
     ]);
     expect(vueSelects[0].props("modelValue")).toBe("3");
 
     expect(vueSelects[1].props("options")).toEqual([
-      { value: "CLD", label: "Cloud Nine", description: undefined },
-      { value: "HVN", label: "Heaven", description: undefined },
+      { value: "CLD", label: "Cloud Nine", description: "" },
+      { value: "HVN", label: "Heaven", description: "" },
     ]);
     expect(vueSelects[1].props("modelValue")).toBe("CLD");
 

@@ -319,7 +319,7 @@ const numericParameterFeedback = (param: Parameter) => {
   }
 };
 
-const pulse = (parameterId) => {
+const pulse = (parameterId: string) => {
   pulsingParameters.value.push(parameterId);
   setTimeout(() => {
     pulsingParameters.value = pulsingParameters.value.filter(item => item !== parameterId); // Remove the pulse animation to allow it to be triggered again in the future.

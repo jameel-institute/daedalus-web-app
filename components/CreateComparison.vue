@@ -30,7 +30,7 @@
         <p class="fs-5 form-label">
           Which parameter would you like to explore?
         </p>
-        <div class="d-flex gap-2 flex-wrap">
+        <div id="axisOptions" class="d-flex gap-2 flex-wrap">
           <CButton
             v-for="para in appStore.metadata?.parameters.filter((p) => !chosenAxisId || chosenAxisId === p.id)"
             :key="para.id"
@@ -56,7 +56,11 @@
               >
                 <template #toggler="{ togglerId, on }">
                   <!-- TODO: use humanReadableNumber formatter for numeric parameters -->
-                  <span :aria-describedby="togglerId" class="multi-value d-inline-block outside-select" v-on="on">
+                  <span
+                    class="multi-value d-inline-block outside-select"
+                    :aria-describedby="togglerId"
+                    v-on="on"
+                  >
                     {{ baselineOption?.label }}
                   </span>
                 </template>

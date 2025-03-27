@@ -227,6 +227,13 @@ export const emptyScenario = {
 };
 Object.freeze(emptyScenario);
 
+const emptyComparison = {
+  axis: undefined,
+  baseline: undefined,
+  scenarios: undefined,
+};
+Object.freeze(emptyComparison);
+
 export const mockVersions = {
   daedalusModel: "1.2.3",
   daedalusApi: "4.5.6",
@@ -250,6 +257,7 @@ export const mockPinia = (
       metadata: includeMetadata ? { ...mockedMetadata } : undefined,
       metadataFetchError: undefined,
       metadataFetchStatus: includeMetadata ? "success" : undefined,
+      currentComparison: emptyComparison,
       currentScenario: emptyScenario,
       downloading: false,
       downloadError: undefined,

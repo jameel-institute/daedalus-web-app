@@ -103,10 +103,8 @@ describe("costs pie", () => {
 
   it("should set pie size depending on screen size", async () => {
     const chartSpy = vi.spyOn(Highcharts, "chart");
-    const testPinia = mockPinia();
-    const appStore = useAppStore(testPinia);
     await mountSuspended(CostsPie, {
-      global: { stubs, plugins: [testPinia] },
+      global: { stubs, plugins: [mockPinia()] },
       props: { hideTooltips: false },
     });
 
@@ -119,6 +117,7 @@ describe("costs pie", () => {
         }),
       }),
     );
+    const appStore = useAppStore();
     appStore.largeScreen = false;
 
     await flushPromises();

@@ -58,7 +58,7 @@ describe("globe", () => {
           parameters: [...selectParameters, { ...globeParameter, options: globeParameterOptions }, updatableNumericParameter],
         },
       });
-      const appStore = useAppStore(testPinia);
+      const appStore = useAppStore();
       const component = await mount(Globe, {
         global: { plugins: [testPinia] },
       });
@@ -101,14 +101,13 @@ describe("globe", () => {
     });
 
     it("updating highlightedCountry in store (as when a country is selected from the drop-down) should trigger a recolouring of and a rotation to that country", async () => {
-      const testPinia = mockPinia();
-      const appStore = useAppStore(testPinia);
       const component = await mount(Globe, {
-        global: { plugins: [testPinia] },
+        global: { plugins: [mockPinia()] },
       });
 
       const chart = component.vm.chart;
 
+      const appStore = useAppStore();
       appStore.globe.highlightedCountry = "GBR";
 
       await component.vm.$nextTick();
@@ -132,7 +131,6 @@ describe("globe", () => {
           parameters: [...selectParameters, { ...globeParameter, id: "country" }, updatableNumericParameter],
         },
       });
-      const appStore = useAppStore(testPinia);
 
       const component = await mount(Globe, {
         global: { plugins: [testPinia] },
@@ -143,6 +141,7 @@ describe("globe", () => {
 
       const zoomToGeoBoundsSpy = vi.spyOn(chart, "zoomToGeoBounds");
 
+      const appStore = useAppStore();
       appStore.currentScenario.parameters = { country: "NOR" };
 
       await component.vm.$nextTick();
@@ -161,7 +160,6 @@ describe("globe", () => {
           parameters: [...selectParameters, { ...globeParameter, id: "country" }, updatableNumericParameter],
         },
       });
-      const appStore = useAppStore(testPinia);
 
       const component = await mount(Globe, {
         global: { plugins: [testPinia] },
@@ -172,6 +170,7 @@ describe("globe", () => {
       const zoomToGeoBoundsSpy = vi.spyOn(chart, "zoomToGeoBounds");
       const goHomeSpy = vi.spyOn(chart, "goHome");
 
+      const appStore = useAppStore();
       appStore.currentScenario.parameters = { country: "NOR" };
 
       await component.vm.$nextTick();
@@ -203,14 +202,13 @@ describe("globe", () => {
     });
 
     it("updating highlightedCountry in store (as when a country is selected from the drop-down) should not trigger a rotation to that country", async () => {
-      const testPinia = mockPinia();
-      const appStore = useAppStore(testPinia);
       const component = await mount(Globe, {
-        global: { plugins: [testPinia] },
+        global: { plugins: [mockPinia()] },
       });
 
       const chart = component.vm.chart;
 
+      const appStore = useAppStore();
       appStore.globe.highlightedCountry = "GBR";
 
       await component.vm.$nextTick();
