@@ -15,7 +15,6 @@ const sampleUnloadedScenario = {
   runId: "123",
   parameters: { country: "USA" },
 };
-deepFreeze(sampleUnloadedScenario);
 const mockResultDataWithoutRunId = { ...mockResultData, runId: undefined };
 
 registerEndpoint("/api/versions", () => {
@@ -225,6 +224,60 @@ describe("app store", () => {
       await store.downloadExcel();
       expect(store.downloadError).toBe("test error message");
       expect(store.downloading).toBe(false);
+    });
+
+    it("can set the current comparison based on the axis, baseline parameter, and selected scenario options", async () => {
+      const store = useAppStore();
+      store.setComparison("vaccine", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["none", "low"]);
+
+      expect(store.currentComparison).toEqual({
+        axis: "vaccine",
+        baseline: "high",
+        scenarios: [
+          {
+            runId: undefined,
+            parameters: { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" },
+            result: {
+              data: undefined,
+              fetchError: undefined,
+              fetchStatus: undefined,
+            },
+            status: {
+              data: undefined,
+              fetchError: undefined,
+              fetchStatus: undefined,
+            },
+          },
+          {
+            runId: undefined,
+            parameters: { country: "USA", hospital_capacity: "54321", vaccine: "none", response: "elimination" },
+            result: {
+              data: undefined,
+              fetchError: undefined,
+              fetchStatus: undefined,
+            },
+            status: {
+              data: undefined,
+              fetchError: undefined,
+              fetchStatus: undefined,
+            },
+          },
+          {
+            runId: undefined,
+            parameters: { country: "USA", hospital_capacity: "54321", vaccine: "low", response: "elimination" },
+            result: {
+              data: undefined,
+              fetchError: undefined,
+              fetchStatus: undefined,
+            },
+            status: {
+              data: undefined,
+              fetchError: undefined,
+              fetchStatus: undefined,
+            },
+          },
+        ],
+      });
     });
 
     describe("getters", () => {
