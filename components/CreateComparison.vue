@@ -106,7 +106,6 @@ const emit = defineEmits<{
 }>();
 
 const appStore = useAppStore();
-
 const FORM_LABEL_ID = "scenarioOptions";
 const selectedScenarioOptions = ref<string[]>([]);
 const modalVisible = ref(false);

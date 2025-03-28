@@ -22,8 +22,10 @@ const testPinia = mockPinia({
       fetchStatus: "success",
     },
   },
+  downloadError: "Test download error",
   metadata: mockMetadataResponseData as Metadata,
-}, false);
+}, false, { stubActions: false });
+
 const plugins = [testPinia];
 vi.mock("~/components/utils/comparisons", () => ({
   MAX_COMPARISON_SCENARIOS: 10,
@@ -195,20 +197,7 @@ describe("create comparison button and modal", () => {
   });
 
   it("on valid submission, sets the app store comparison, and navigates to the comparison scenario", async () => {
-    const testPinia2 = mockPinia({
-      currentScenario: {
-        ...emptyScenario,
-        parameters: mockResultData.parameters,
-        result: {
-          data: mockResultResponseData as ScenarioResultData,
-          fetchError: undefined,
-          fetchStatus: "success",
-        },
-      },
-      metadata: mockMetadataResponseData as Metadata,
-    }, false);
-    const plugins2 = [testPinia2];
-    const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins: plugins2 } });
+    const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
 
     await openModal(wrapper);
 
@@ -231,10 +220,38 @@ describe("create comparison button and modal", () => {
     await wrapper.vm.$nextTick();
 
     const appStore = useAppStore();
-    expect(appStore.setComparison).toHaveBeenCalledWith(
-      "country",
-      mockResultData.parameters,
-      ["USA"],
+    expect(appStore.currentComparison.axis).toEqual("country");
+    expect(appStore.currentComparison.baseline).toEqual("GBR");
+    expect(appStore.currentComparison.scenarios).toHaveLength(2);
+    expect(appStore.currentComparison.scenarios).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining(
+          {
+            runId: undefined,
+            parameters: {
+              country: "GBR",
+              pathogen: "sars_cov_1",
+              response: "none",
+              vaccine: "none",
+              hospital_capacity: "30500",
+            },
+            result: { data: undefined, fetchError: undefined, fetchStatus: undefined },
+            status: { data: undefined, fetchError: undefined, fetchStatus: undefined },
+          },
+        ),
+        expect.objectContaining({
+          runId: undefined,
+          parameters: {
+            country: "USA",
+            pathogen: "sars_cov_1",
+            response: "none",
+            vaccine: "none",
+            hospital_capacity: "30500",
+          },
+          result: { data: undefined, fetchError: undefined, fetchStatus: undefined },
+          status: { data: undefined, fetchError: undefined, fetchStatus: undefined },
+        }),
+      ]),
     );
 
     await flushPromises();

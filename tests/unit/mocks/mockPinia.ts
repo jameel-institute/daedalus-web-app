@@ -109,7 +109,7 @@ export const mockedMetadata = {
   parameters: [...selectParameters, globeParameter, updatableNumericParameter],
   results: resultsMetadata,
 } as unknown as Metadata;
-Object.freeze(mockedMetadata);
+deepFreeze(mockedMetadata);
 
 export const mockResultData = {
   runId: "successfulResponseRunId",
@@ -209,7 +209,7 @@ export const mockResultData = {
   },
   gdp: 19863038.6,
 };
-Object.freeze(mockResultData);
+deepFreeze(mockResultData);
 
 export const emptyScenario = {
   runId: undefined,
@@ -225,21 +225,21 @@ export const emptyScenario = {
     fetchStatus: undefined,
   },
 };
-Object.freeze(emptyScenario);
+deepFreeze(emptyScenario);
 
 const emptyComparison = {
   axis: undefined,
   baseline: undefined,
   scenarios: undefined,
 };
-Object.freeze(emptyComparison);
+deepFreeze(emptyComparison);
 
 export const mockVersions = {
   daedalusModel: "1.2.3",
   daedalusApi: "4.5.6",
   daedalusWebApp: "7.8.9",
 };
-Object.freeze(mockVersions);
+deepFreeze(mockVersions);
 
 export const mockPinia = (
   appState: Partial<AppState> = {},
@@ -254,7 +254,7 @@ export const mockPinia = (
       },
       largeScreen: true,
       versions: mockVersions,
-      metadata: includeMetadata ? { ...mockedMetadata } : undefined,
+      metadata: includeMetadata ? mockedMetadata : undefined,
       metadataFetchError: undefined,
       metadataFetchStatus: includeMetadata ? "success" : undefined,
       currentComparison: emptyComparison,
@@ -265,5 +265,9 @@ export const mockPinia = (
     },
   };
 
-  return createTestingPinia({ initialState, createSpy: vi.fn, ...testingOpts });
+  return createTestingPinia({
+    initialState: structuredClone(initialState),
+    createSpy: vi.fn,
+    ...testingOpts,
+  });
 };

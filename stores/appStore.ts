@@ -22,17 +22,17 @@ const emptyScenario = {
     fetchStatus: undefined,
   },
 };
-Object.freeze(emptyScenario);
+deepFreeze(emptyScenario);
 
 const emptyComparison = {
   axis: undefined,
   baseline: undefined,
   scenarios: undefined,
 };
-Object.freeze(emptyComparison);
+deepFreeze(emptyComparison);
 
 export const useAppStore = defineStore("app", {
-  state: (): AppState => ({
+  state: (): AppState => structuredClone({
     globe: {
       interactive: false,
       highlightedCountry: null,
@@ -44,8 +44,8 @@ export const useAppStore = defineStore("app", {
     metadataFetchStatus: undefined,
     downloading: false,
     downloadError: undefined,
-    currentScenario: { ...emptyScenario },
-    currentComparison: { ...emptyComparison },
+    currentScenario: emptyScenario,
+    currentComparison: emptyComparison,
   }),
   getters: {
     globeParameter: (state): Parameter | undefined => state.metadata?.parameters.find(param => param.parameterType === TypeOfParameter.GlobeSelect),
@@ -133,25 +133,24 @@ export const useAppStore = defineStore("app", {
       });
     },
     clearScenario() {
-      this.currentScenario = { ...emptyScenario };
+      this.currentScenario = structuredClone(emptyScenario);
     },
     clearComparison() {
-      this.currentComparison = { ...emptyComparison };
+      this.currentComparison = structuredClone(emptyComparison);
     },
     setComparison(axis: string, baselineParameters: ParameterSet, selectedScenarioOptions: string[]) {
       this.clearComparison();
       this.currentComparison.axis = axis;
       this.currentComparison.baseline = baselineParameters[axis];
-      this.clearScenario();
       const allScenarioOptions = [this.currentComparison.baseline, ...selectedScenarioOptions];
       this.currentComparison.scenarios = allScenarioOptions.map((opt) => {
-        return {
+        return structuredClone({
           ...emptyScenario,
           parameters: {
             ...baselineParameters,
             [axis]: opt,
           },
-        };
+        });
       });
     },
     async downloadExcel() {

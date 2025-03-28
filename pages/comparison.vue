@@ -48,6 +48,7 @@
 import type { Scenario } from "~/types/storeTypes";
 
 const appStore = useAppStore();
+appStore.clearScenario();
 
 const axis = computed(() => appStore.currentComparison.axis);
 
