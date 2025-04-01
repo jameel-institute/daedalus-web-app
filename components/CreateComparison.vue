@@ -171,14 +171,7 @@ const submitForm = async () => {
 
   const baselineParameters = appStore.currentScenario.parameters;
   if (chosenParameterAxis.value && baselineParameters) {
-    appStore.setComparison(
-      chosenParameterAxis.value.id,
-      baselineParameters,
-      selectedScenarioOptions.value,
-    );
-
-    // Record comparison information in URL query parameters to enable link sharing
-    // TODO: (jidea-253) Those URL query params will need to be validated, since users might type anything into the URL bar
+    // Record comparison information in URL query parameters, to facilitate link sharing
     await navigateTo({ path: "/comparison", query: {
       ...baselineParameters,
       axis: chosenAxisId.value,

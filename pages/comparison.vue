@@ -45,6 +45,7 @@
 </template>
 
 <script setup lang="ts">
+import type { ParameterSet } from "~/types/parameterTypes";
 import type { Scenario } from "~/types/storeTypes";
 
 const appStore = useAppStore();
@@ -61,6 +62,31 @@ const scenarioAxisValue = (scenario: Scenario) => {
 const scenarioIsBaseline = (scenario: Scenario) => {
   return scenarioAxisValue(scenario) === appStore.currentComparison.baseline;
 };
+
+watch(() => appStore.metadata, (newValue) => {
+  if (newValue) {
+    const query = useRoute().query;
+    // TODO: (jidea-253) These URL query params will need to be validated, since users might type anything into the URL bar
+
+    const parameterIds = newValue.parameters.map(p => p.id);
+    const selectedScenarios = Array.isArray(query.selectedScenarios)
+      ? query.selectedScenarios as string[]
+      : [query.selectedScenarios as string];
+
+    const parameterQueryParams = parameterIds.reduce((acc, id) => {
+      if (query[id]) {
+        acc[id] = query[id] as string;
+      }
+      return acc;
+    }, {} as ParameterSet);
+
+    appStore.setComparison(
+      query.axis as string,
+      parameterQueryParams,
+      selectedScenarios,
+    );
+  }
+}, { immediate: true });
 </script>
 
 <style scoped>

@@ -100,6 +100,10 @@ onMounted(() => {
     }
   }
 
+  ::placeholder {
+    font-size: var(--cui-body-font-size);
+  }
+
   &.form-control.is-invalid {
     // Calculate how much the menu needs to be moved down to accommodate the invalid tooltip:
     // = tooltip font size + (2 * tooltip vertical padding) + tooltip margin + form-control bottom padding + arbitrary extra padding
