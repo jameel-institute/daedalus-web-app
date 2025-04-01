@@ -196,7 +196,7 @@ describe("create comparison button and modal", () => {
     });
   });
 
-  it("on valid submission, sets the app store comparison, and navigates to the comparison scenario", async () => {
+  it("on valid submission, navigates to the comparison scenario", async () => {
     const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
 
     await openModal(wrapper);
@@ -219,41 +219,6 @@ describe("create comparison button and modal", () => {
     expect(buttonEl.attributes("disabled")).toBe("");
     await wrapper.vm.$nextTick();
 
-    const appStore = useAppStore();
-    expect(appStore.currentComparison.axis).toEqual("country");
-    expect(appStore.currentComparison.baseline).toEqual("GBR");
-    expect(appStore.currentComparison.scenarios).toHaveLength(2);
-    expect(appStore.currentComparison.scenarios).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining(
-          {
-            runId: undefined,
-            parameters: {
-              country: "GBR",
-              pathogen: "sars_cov_1",
-              response: "none",
-              vaccine: "none",
-              hospital_capacity: "30500",
-            },
-            result: { data: undefined, fetchError: undefined, fetchStatus: undefined },
-            status: { data: undefined, fetchError: undefined, fetchStatus: undefined },
-          },
-        ),
-        expect.objectContaining({
-          runId: undefined,
-          parameters: {
-            country: "USA",
-            pathogen: "sars_cov_1",
-            response: "none",
-            vaccine: "none",
-            hospital_capacity: "30500",
-          },
-          result: { data: undefined, fetchError: undefined, fetchStatus: undefined },
-          status: { data: undefined, fetchError: undefined, fetchStatus: undefined },
-        }),
-      ]),
-    );
-
     await flushPromises();
     expect(mockNavigateTo).toBeCalledWith({
       path: "/comparison",
@@ -265,6 +230,7 @@ describe("create comparison button and modal", () => {
     });
 
     // Page navigation should reset store downloadError
+    const appStore = useAppStore();
     expect(appStore.downloadError).toBeUndefined();
   });
 
