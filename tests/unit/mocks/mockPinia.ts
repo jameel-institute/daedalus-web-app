@@ -3,7 +3,6 @@ import sampleMetadataResponse from "@/mocks/responses/metadata.json";
 import { createTestingPinia, type TestingOptions } from "@pinia/testing";
 import type { Metadata, ResultsMetadata } from "~/types/apiResponseTypes";
 import { TypeOfParameter } from "~/types/parameterTypes";
-import { InterventionLevel } from "~/types/resultTypes";
 
 export const globeParameter = {
   id: "region",
@@ -158,13 +157,11 @@ export const mockResultData = {
   interventions: [
     {
       id: "school_closures",
-      level: InterventionLevel.Light,
       start: 1,
       end: 4,
     },
     {
       id: "business_closures",
-      level: InterventionLevel.Heavy,
       start: 3,
       end: 8,
     },
