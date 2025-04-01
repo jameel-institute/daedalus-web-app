@@ -45,43 +45,41 @@
           </CButton>
         </div>
         <div v-if="chosenAxisId && !chosenParameterAxis?.ordered && chosenParameterAxis?.parameterType !== TypeOfParameter.Numeric" class="mt-3">
-          <div>
-            <CFormLabel :id="FORM_LABEL_ID" :for="FORM_LABEL_ID" class="fs-5 form-label">
-              Compare baseline scenario
-              <CTooltip
-                content="To change the baseline, exit the overlay and edit the current scenario's parameters."
-                placement="top"
-                @show="() => { $emit('toggleEditParamsButtonPulse', true) }"
-                @hide="turnOffEditParamsButtonPulse(3000);"
-              >
-                <template #toggler="{ togglerId, on }">
-                  <!-- TODO: use humanReadableNumber formatter for numeric parameters -->
-                  <span
-                    class="multi-value d-inline-block outside-select"
-                    :aria-describedby="togglerId"
-                    v-on="on"
-                  >
-                    {{ baselineOption?.label }}
-                  </span>
-                </template>
-              </CTooltip>
-              against:
-            </CFormLabel>
+          <CFormLabel :id="FORM_LABEL_ID" :for="FORM_LABEL_ID" class="fs-5 form-label">
+            Compare baseline scenario
+            <CTooltip
+              content="To change the baseline, exit the overlay and edit the current scenario's parameters."
+              placement="top"
+              @show="() => { $emit('toggleEditParamsButtonPulse', true) }"
+              @hide="turnOffEditParamsButtonPulse(3000);"
+            >
+              <template #toggler="{ togglerId, on }">
+                <!-- TODO: use humanReadableNumber formatter for numeric parameters -->
+                <span
+                  class="multi-value d-inline-block outside-select"
+                  :aria-describedby="togglerId"
+                  v-on="on"
+                >
+                  {{ baselineOption?.label }}
+                </span>
+              </template>
+            </CTooltip>
+            against:
+          </CFormLabel>
+          <div class="d-flex gap-3">
             <ScenarioSelect
               v-model:selected="selectedScenarioOptions"
               :show-feedback="showFeedback"
               :parameter-axis="chosenParameterAxis"
               :label-id="FORM_LABEL_ID"
             />
-          </div>
-          <div class="d-flex">
             <CButton
               id="run-button"
               color="primary"
               :size="appStore.largeScreen ? 'lg' : undefined"
               type="submit"
               :disabled="formSubmitting"
-              class="ms-auto mt-3 align-self-start"
+              class="ms-auto align-self-start"
               @click="submitForm"
             >
               Compare

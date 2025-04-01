@@ -1,5 +1,5 @@
 <template>
-  <div class="position-relative">
+  <div class="position-relative flex-grow-1">
     <!-- TODO: (jidea-229) For user-provided custom options, consider using displayedOptions prop to control inclusion in menu -->
     <!-- TODO: (jidea-230) For country options, consider using getOptionLabel prop to insert country flag in menu option -->
     <VueSelect
