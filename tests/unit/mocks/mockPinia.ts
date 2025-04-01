@@ -69,39 +69,6 @@ export const updatableNumericParameter = {
     },
   },
 };
-export const countryAndPathogenParams = [
-  {
-    id: "country",
-    label: "Country",
-    parameterType: TypeOfParameter.GlobeSelect,
-    defaultOption: "THA",
-    ordered: false,
-    options: [
-      { id: "ARG", label: "Argentina" },
-      { id: "BRA", label: "Brazil" },
-      { id: "CHN", label: "China" },
-      { id: "DEU", label: "Germany" },
-      { id: "GBR", label: "United Kingdom" },
-    ],
-  },
-  {
-    id: "pathogen",
-    label: "Disease",
-    parameterType: TypeOfParameter.Select,
-    ordered: false,
-    options: [
-      { id: "sars_cov_1", label: "SARS 2004" },
-      { id: "sars_cov_2_pre_alpha", label: "Covid-19 wild-type" },
-      { id: "sars_cov_2_omicron", label: "Covid-19 Omicron" },
-      { id: "sars_cov_2_delta", label: "Covid-19 Delta" },
-      { id: "influenza_2009", label: "Influenza 2009 (Swine flu)" },
-      { id: "influenza_1957", label: "Influenza 1957" },
-      { id: "influenza_1918", label: "Influenza 1918 (Spanish flu)" },
-    ],
-    description:
-      "Select a disease to set model parameters for transmissibility, incubation period and severity based on known characteristics of that historical epidemic or epidemic wave",
-  },
-];
 
 const resultsMetadata = sampleMetadataResponse.data.results as ResultsMetadata;
 export const mockedMetadata = {
