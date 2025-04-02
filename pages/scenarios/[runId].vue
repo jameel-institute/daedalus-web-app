@@ -4,7 +4,7 @@
       <h1 class="fs-2 mb-0 pt-1">
         Results
       </h1>
-      <CreateComparison @toggle-edit-params-button-pulse="handleToggleEditParamsButtonPulse" />
+      <CreateComparison />
       <DownloadExcel />
       <CodeSnippet />
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
@@ -16,7 +16,7 @@
           Rotate your mobile device to landscape for the best experience.
         </p>
       </CAlert>
-      <ParameterInfoCard :pulse-edit-button="pulseEditParamsButton" />
+      <ParameterInfoCard />
     </div>
     <CSpinner v-show="showSpinner" class="ms-3 mb-3 mt-3" />
     <CAlert v-if="appStore.currentScenario.status.data?.runSuccess === false" color="danger">
@@ -64,7 +64,6 @@ const appStore = useAppStore();
 let statusInterval: NodeJS.Timeout;
 const jobSlow = ref(false);
 const jobReallySlow = ref(false);
-const pulseEditParamsButton = ref(false);
 const secondsSinceFirstStatusPoll = ref("0");
 const showSpinner = computed(() => !appStore.currentScenario.result.data
   && appStore.currentScenario.status.data?.runSuccess !== false
@@ -112,10 +111,6 @@ const pollForStatusEveryNSeconds = (seconds: number) => {
     };
     appStore.loadScenarioStatus();
   }, seconds * 1000);
-};
-
-const handleToggleEditParamsButtonPulse = (on: boolean) => {
-  pulseEditParamsButton.value = on;
 };
 
 onMounted(() => {

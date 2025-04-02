@@ -435,6 +435,26 @@ onMounted(() => {
   margin-top: 2rem; // Align button with height of labels when it shares a row with an input.
 }
 
+.pulse {
+  animation: pulse-animation 0.5s 1;
+
+  &.infinite {
+    animation: pulse-animation 0.5s infinite;
+  }
+}
+
+@keyframes pulse-animation {
+  0% {
+    box-shadow: 0 0 0 0px rgba(0, 0, 255, 0.25);
+  }
+  90% {
+    box-shadow: 0 0 0 13.5px rgba(0, 0, 255, 0.01);
+  }
+  100% {
+    box-shadow: 0 0 0 15px rgba(0, 0, 255, 0);
+  }
+}
+
 .select-container {
    margin-left: 0.7rem;
    margin-right: 0.55rem;

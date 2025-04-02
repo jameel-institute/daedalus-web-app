@@ -1,6 +1,7 @@
 import CreateComparison from "@/components/CreateComparison.vue";
 import { emptyScenario, mockPinia, mockResultData } from "@/tests/unit/mocks/mockPinia";
-import { flushPromises, type VueWrapper } from "@vue/test-utils";
+import { flushPromises } from "@vue/test-utils";
+import type { VueWrapper } from "@vue/test-utils";
 import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
 
 import type { Metadata, ScenarioResultData } from "~/types/apiResponseTypes";
@@ -232,91 +233,5 @@ describe("create comparison button and modal", () => {
     // Page navigation should reset store downloadError
     const appStore = useAppStore();
     expect(appStore.downloadError).toBeUndefined();
-  });
-
-  it("on closing the modal, triggers the edit params to stop pulsing", async () => {
-    const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
-
-    await openModal(wrapper);
-
-    wrapper.find(".btn-close").trigger("click");
-    await wrapper.vm.$nextTick();
-
-    expect(wrapper.emitted()).not.toHaveProperty("toggleEditParamsButtonPulse");
-
-    vi.advanceTimersByTime(2000);
-
-    expect(wrapper.emitted("toggleEditParamsButtonPulse")).toHaveLength(1);
-    // 'false' denotes stopping the pulse
-    expect(wrapper.emitted("toggleEditParamsButtonPulse")?.[0][0]).toEqual(false);
-  });
-
-  it("on showing the tooltip, triggers the edit params button to pulse", async () => {
-    const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
-
-    await openModal(wrapper);
-
-    getModalEl(wrapper).find("#axisOptions").findAll("button")[0].trigger("click");
-    await wrapper.vm.$nextTick();
-
-    const cTooltip = wrapper.findComponent({ name: "CTooltip" });
-    cTooltip.vm.$emit("show");
-
-    await wrapper.vm.$nextTick();
-
-    expect(wrapper.emitted("toggleEditParamsButtonPulse")).toHaveLength(1);
-    // 'true' denotes starting the pulse
-    expect(wrapper.emitted("toggleEditParamsButtonPulse")?.[0][0]).toEqual(true);
-    vi.advanceTimersByTime(10_000);
-    // no change
-    expect(wrapper.emitted("toggleEditParamsButtonPulse")).toHaveLength(1);
-  });
-
-  it("on hiding the tooltip, triggers the edit params button to stop pulsing, after a delay", async () => {
-    const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
-
-    await openModal(wrapper);
-
-    getModalEl(wrapper).find("#axisOptions").findAll("button")[0].trigger("click");
-    await wrapper.vm.$nextTick();
-
-    const cTooltip = wrapper.findComponent({ name: "CTooltip" });
-    cTooltip.vm.$emit("hide");
-    await wrapper.vm.$nextTick();
-
-    expect(wrapper.emitted()).not.toHaveProperty("toggleEditParamsButtonPulse");
-    vi.advanceTimersByTime(3000);
-
-    expect(wrapper.emitted("toggleEditParamsButtonPulse")).toHaveLength(1);
-    // 'false' denotes stopping the pulse
-    expect(wrapper.emitted("toggleEditParamsButtonPulse")?.[0][0]).toEqual(false);
-  });
-
-  it(`on closing the modal, if hiding the tooltip has not already triggered the edit params button to stop pulsing,`
-    + `it should restart the countdown and stop the pulse after a delay`, async () => {
-    const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
-
-    await openModal(wrapper);
-
-    getModalEl(wrapper).find("#axisOptions").findAll("button")[0].trigger("click");
-    await wrapper.vm.$nextTick();
-
-    const cTooltip = wrapper.findComponent({ name: "CTooltip" });
-    cTooltip.vm.$emit("hide");
-    await wrapper.vm.$nextTick();
-
-    vi.advanceTimersByTime(2500);
-    expect(wrapper.emitted()).not.toHaveProperty("toggleEditParamsButtonPulse");
-
-    wrapper.find(".btn-close").trigger("click");
-    await wrapper.vm.$nextTick();
-
-    vi.advanceTimersByTime(1500);
-    expect(wrapper.emitted()).not.toHaveProperty("toggleEditParamsButtonPulse");
-
-    vi.advanceTimersByTime(500);
-    expect(wrapper.emitted("toggleEditParamsButtonPulse")).toHaveLength(1);
-    // 'false' denotes stopping the pulse
-    expect(wrapper.emitted("toggleEditParamsButtonPulse")?.[0][0]).toEqual(false);
   });
 });

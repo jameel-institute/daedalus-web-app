@@ -4,7 +4,6 @@
       <div
         v-show="!appStore.largeScreen"
         class="card-header h-100 align-content-center"
-        :class="props.pulseEditButton ? 'pulse infinite' : ''"
       >
         <EditParameters />
       </div>
@@ -34,10 +33,7 @@
         </div>
       </CCol>
       <CCol v-show="appStore.largeScreen" class="col-auto">
-        <div
-          class="card-footer h-100 align-content-center"
-          :class="props.pulseEditButton ? 'pulse infinite' : ''"
-        >
+        <div class="card-footer h-100 align-content-center">
           <EditParameters />
         </div>
       </CCol>
@@ -50,10 +46,6 @@ import { CIcon } from "@coreui/icons-vue";
 import getCountryISO2 from "country-iso-3-to-2";
 import type { Parameter } from "~/types/parameterTypes";
 import { humanReadableNumber } from "./utils/formatters";
-
-const props = defineProps<{
-  pulseEditButton: boolean
-}>();
 
 const appStore = useAppStore();
 
