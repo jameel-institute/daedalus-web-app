@@ -11,7 +11,7 @@ RUN npm install -g npm@latest
 RUN npm ci
 
 # Generate the prisma client code
-RUN npm install prisma@6.1.0
+RUN npm install prisma@6.5.0
 RUN npx prisma generate
 
 RUN npm run build
