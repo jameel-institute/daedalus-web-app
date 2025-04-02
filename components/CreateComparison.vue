@@ -50,6 +50,8 @@
             <CTooltip
               content="To change the baseline, exit the overlay and edit the current scenario's parameters."
               placement="top"
+              @show="() => { $emit('toggleEditParamsButtonPulse', true) }"
+              @hide="turnOffEditParamsButtonPulse(3000);"
             >
               <template #toggler="{ togglerId, on }">
                 <!-- TODO: use humanReadableNumber formatter for numeric parameters -->
@@ -93,10 +95,13 @@
 
 <script setup lang="ts">
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
-import { TypeOfParameter } from "~/types/parameterTypes";
-import type { Parameter } from "~/types/parameterTypes";
+import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 import { MAX_COMPARISON_SCENARIOS } from "~/components/utils/comparisons";
 import { useScenarioOptions } from "~/composables/useScenarioOptions";
+
+const emit = defineEmits<{
+  toggleEditParamsButtonPulse: [on: boolean]
+}>();
 
 const appStore = useAppStore();
 const FORM_LABEL_ID = "scenarioOptions";
@@ -105,15 +110,29 @@ const modalVisible = ref(false);
 const chosenAxisId = ref("");
 const formSubmitting = ref(false);
 const showFeedback = ref(false);
+const pulseOffTimer = ref<ReturnType<typeof setTimeout>>();
 
 const chosenParameterAxis = computed(() => appStore.metadata?.parameters.find(p => p.id === chosenAxisId.value));
 
 const { baselineOption, nonBaselineOptions } = useScenarioOptions(chosenParameterAxis);
 const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions);
 
+// To prevent race conditions, route all toggling-off through this function, so that only the last-created timer executes.
+const turnOffEditParamsButtonPulse = (delay: number) => {
+  if (pulseOffTimer.value) {
+    clearTimeout(pulseOffTimer.value);
+  }
+  pulseOffTimer.value = setTimeout(() => {
+    emit("toggleEditParamsButtonPulse", false);
+  }, delay);
+};
+
 const handleCloseModal = () => {
   modalVisible.value = false;
   chosenAxisId.value = "";
+  // If 'edit parameters' button is still pulsing, don't stop it until after a couple of seconds,
+  // so that user can find it easily.
+  turnOffEditParamsButtonPulse(2000);
 };
 
 const handleChooseAxis = (axis: Parameter) => {
