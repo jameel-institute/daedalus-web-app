@@ -1,7 +1,7 @@
-import { humanReadableNumber } from "@/components/utils/formatters";
+import { humanReadableInteger } from "@/components/utils/formatters";
 
-describe("humanReadableNumber", () => {
+describe("humanReadableInteger", () => {
   it("should convert number strings into comma-separated numbers", () => {
-    expect(humanReadableNumber("12345")).toEqual("12,345");
+    expect(humanReadableInteger("12345")).toEqual("12,345");
   });
 });

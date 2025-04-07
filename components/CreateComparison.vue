@@ -52,7 +52,7 @@
               placement="top"
             >
               <template #toggler="{ togglerId, on }">
-                <!-- TODO: use humanReadableNumber formatter for numeric parameters -->
+                <!-- TODO: use humanReadableInteger formatter for numeric parameters -->
                 <span
                   class="multi-value d-inline-block outside-select"
                   :aria-describedby="togglerId"

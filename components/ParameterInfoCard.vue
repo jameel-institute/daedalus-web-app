@@ -45,7 +45,7 @@
 import { CIcon } from "@coreui/icons-vue";
 import getCountryISO2 from "country-iso-3-to-2";
 import type { Parameter } from "~/types/parameterTypes";
-import { humanReadableNumber } from "./utils/formatters";
+import { humanReadableInteger } from "./utils/formatters";
 
 const appStore = useAppStore();
 
@@ -53,9 +53,9 @@ const paramDisplayText = (param: Parameter) => {
   if (appStore.currentScenario?.parameters && appStore.currentScenario?.parameters[param.id]) {
     const rawVal = appStore.currentScenario.parameters[param.id].toString();
 
-    const rawValIsNumberString = Number.parseInt(rawVal).toString() === rawVal;
-    if (rawValIsNumberString) {
-      return humanReadableNumber(rawVal);
+    const rawValIsIntString = Number.parseInt(rawVal).toString() === rawVal;
+    if (rawValIsIntString) {
+      return humanReadableInteger(rawVal);
     } else if (param.options) {
       return param.options.find(({ id }) => id === rawVal)!.label;
     } else {
