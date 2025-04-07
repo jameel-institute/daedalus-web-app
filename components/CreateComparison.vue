@@ -37,7 +37,7 @@
             class="d-flex align-items-center axis-btn border"
             :class="chosenAxisId === para.id ? 'bg-primary bg-opacity-10 border-primary-subtle' : ''"
             color="light"
-            @click="handleChooseAxis(para)"
+            @click="handleClickAxis(para)"
           >
             <ParameterIcon :parameter="para" />
             <span class="ms-2">{{ para.label }}</span>
@@ -48,7 +48,7 @@
           <CFormLabel :id="FORM_LABEL_ID" :for="FORM_LABEL_ID" class="fs-5 form-label">
             Compare baseline scenario
             <CTooltip
-              content="To change the baseline, exit the overlay and edit the current scenario's parameters."
+              content="To change the baseline, click the x button above and edit the current scenario's parameters."
               placement="top"
             >
               <template #toggler="{ togglerId, on }">
@@ -117,7 +117,9 @@ const handleCloseModal = () => {
   chosenAxisId.value = "";
 };
 
-const handleChooseAxis = (axis: Parameter) => {
+const handleClickAxis = (axis: Parameter) => {
+  // If there is no chosen axis already, set the chosen axis to the one clicked.
+  // Otherwise, clicking the same axis again will clear it.
   if (chosenAxisId.value === "") {
     chosenAxisId.value = axis.id;
     // Pre-populate the scenario options input with all options if there aren't more than max
