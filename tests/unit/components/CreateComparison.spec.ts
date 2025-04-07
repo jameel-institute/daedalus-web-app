@@ -1,7 +1,7 @@
 import CreateComparison from "@/components/CreateComparison.vue";
 import { emptyScenario, mockPinia, mockResultData } from "@/tests/unit/mocks/mockPinia";
 import { flushPromises } from "@vue/test-utils";
-import type { VueWrapper } from "@vue/test-utils";
+import type { DOMWrapper, VueWrapper } from "@vue/test-utils";
 import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
 
 import type { Metadata, ScenarioResultData } from "~/types/apiResponseTypes";
@@ -51,6 +51,18 @@ const openModal = async (wrapper: VueWrapper) => {
   await wrapper.find("button").trigger("click");
 };
 
+const getCountryButton = (axisOptionsEl: DOMWrapper<Element>) => {
+  const countryButton = axisOptionsEl.findAll("button")[0];
+  expect(countryButton.text()).toEqual("Country");
+  return countryButton;
+};
+
+const getDiseaseButton = (axisOptionsEl: DOMWrapper<Element>) => {
+  const diseaseButton = axisOptionsEl.findAll("button")[1];
+  expect(diseaseButton.text()).toEqual("Disease");
+  return diseaseButton;
+};
+
 beforeEach(() => {
   vi.useFakeTimers();
 });
@@ -78,7 +90,7 @@ describe("create comparison button and modal", () => {
     expect(wrapper.find("button").exists()).toBe(false);
   });
 
-  it("renders fields, options, and validation feedback as expected", async () => {
+  it("renders the choice of axis options as expected", async () => {
     const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
 
     expect(getModalEl(wrapper).exists()).toBe(false);
@@ -101,20 +113,21 @@ describe("create comparison button and modal", () => {
     expect(axisButtons[4].text()).toEqual("Hospital surge capacity");
 
     axisButtons.forEach(button => expect(button.classes()).not.toContain("bg-primary"));
+  });
 
-    const countryButton = axisButtons[0];
-
+  it("reveals the scenario select once an axis is chosen, and re-hides it when axis is de-selected", async () => {
+    const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
+    await openModal(wrapper);
+    const modalEl = getModalEl(wrapper);
+    const axisOptionsEl = modalEl.find("#axisOptions");
+    const countryButton = getCountryButton(axisOptionsEl);
     await countryButton.trigger("click");
 
     expect(axisOptionsEl.findAll("button")).toHaveLength(1);
     expect(countryButton.classes()).toContain("bg-primary");
 
-    // Reveals the scenario selection section
     expect(modalEl.text()).toMatch(/Compare baseline scenario United Kingdom against:/);
     expect(getComboboxEl(wrapper).exists()).toBe(true);
-    // No country options are pre-selected
-    expect(wrapper.find("button.multi-value").exists()).toBe(false);
-    // TODO: Test tooltip
 
     // Click the already-selected parameter axis button to deselect it
     await countryButton.trigger("click");
@@ -123,16 +136,35 @@ describe("create comparison button and modal", () => {
     expect(modalEl.text()).not.toMatch(/Compare baseline scenario/);
     expect(getComboboxEl(wrapper).exists()).toBe(false);
     expect(axisOptionsEl.findAll("button")).toHaveLength(5);
-    axisButtons.forEach((button) => {
+    axisOptionsEl.findAll("button").forEach((button) => {
       expect(button.classes()).not.toContain("bg-primary");
     });
 
-    const diseaseButton = axisOptionsEl.findAll("button")[1];
+    const diseaseButton = getDiseaseButton(axisOptionsEl);
     await diseaseButton.trigger("click");
 
     expect(axisOptionsEl.findAll("button")).toHaveLength(1);
     expect(diseaseButton.classes()).toContain("bg-primary");
     expect(modalEl.text()).toMatch(/Compare baseline scenario SARS 2004 against:/);
+  });
+
+  it("renders the correct options for the select", async () => {
+    const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
+    await openModal(wrapper);
+    const modalEl = getModalEl(wrapper);
+    const axisOptionsEl = modalEl.find("#axisOptions");
+    const countryButton = getCountryButton(axisOptionsEl);
+    await countryButton.trigger("click");
+
+    // No country options are pre-selected
+    expect(wrapper.find("button.multi-value").exists()).toBe(false);
+
+    // Click the already-selected parameter axis button to deselect it
+    await countryButton.trigger("click");
+
+    const diseaseButton = getDiseaseButton(axisOptionsEl);
+    await diseaseButton.trigger("click");
+
     const comboboxEl = getComboboxEl(wrapper);
     expect(comboboxEl.exists()).toBe(true);
     // Disease options are all pre-selected because there are fewer of them than MAX_COMPARISON_SCENARIOS
@@ -141,6 +173,15 @@ describe("create comparison button and modal", () => {
     expect(selectedOptionsPills.map(el => el.text())).toEqual(expect.arrayContaining(
       ["Covid-19 wild-type", "Covid-19 Omicron", "Covid-19 Delta", "Influenza 2009 (Swine flu)", "Influenza 1957", "Influenza 1918 (Spanish flu)"],
     ));
+  });
+
+  it("renders the validation feedback as expected", async () => {
+    const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
+    await openModal(wrapper);
+    const modalEl = getModalEl(wrapper);
+    const axisOptionsEl = modalEl.find("#axisOptions");
+    const diseaseButton = getDiseaseButton(axisOptionsEl);
+    await diseaseButton.trigger("click");
 
     // Deselect all disease options
     await wrapper.find(".clear-button").trigger("click");
@@ -149,10 +190,12 @@ describe("create comparison button and modal", () => {
     expect(wrapper.find(".invalid-tooltip").exists()).toBe(false);
     await wrapper.find("button[type='submit']").trigger("click");
 
+    // Submit button is clicked, feedback is shown
     expect(wrapper.find(".invalid-tooltip").exists()).toBe(true);
     expect(wrapper.find(".vue-select").classes()).toContain("is-invalid");
 
     // Altering the selection removes the validation feedback
+    const comboboxEl = getComboboxEl(wrapper);
     await comboboxEl.trigger("click");
     await wrapper.findAll(".parameter-option").find(el => /wild-type/i.test(el.text()))!.trigger("click");
     expect(wrapper.find(".invalid-tooltip").exists()).toBe(false);
