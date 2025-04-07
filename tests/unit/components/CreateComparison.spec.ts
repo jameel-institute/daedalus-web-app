@@ -180,11 +180,8 @@ describe("create comparison button and modal", () => {
     await openModal(wrapper);
     const modalEl = getModalEl(wrapper);
     const axisOptionsEl = modalEl.find("#axisOptions");
-    const diseaseButton = getDiseaseButton(axisOptionsEl);
-    await diseaseButton.trigger("click");
-
-    // Deselect all disease options
-    await wrapper.find(".clear-button").trigger("click");
+    const countryButton = getCountryButton(axisOptionsEl);
+    await countryButton.trigger("click");
 
     // Until submit button is clicked, there is no feedback shown
     expect(wrapper.find(".invalid-tooltip").exists()).toBe(false);
@@ -197,7 +194,7 @@ describe("create comparison button and modal", () => {
     // Altering the selection removes the validation feedback
     const comboboxEl = getComboboxEl(wrapper);
     await comboboxEl.trigger("click");
-    await wrapper.findAll(".parameter-option").find(el => /wild-type/i.test(el.text()))!.trigger("click");
+    await wrapper.findAll(".parameter-option").find(el => /greece/i.test(el.text()))!.trigger("click");
     expect(wrapper.find(".invalid-tooltip").exists()).toBe(false);
   });
 

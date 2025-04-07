@@ -11,7 +11,7 @@
       class="form-control"
       :class="showFeedback ? 'is-invalid' : ''"
       :options="nonBaselineSelectOptions"
-      :is-clearable="true"
+      :is-clearable="false"
       :is-multi="true"
       :close-on-select="false"
       :placeholder="`Select up to ${MAX_SCENARIOS_COMPARED_TO_BASELINE} options to compare against baseline`"
@@ -28,9 +28,6 @@
             <small>{{ option.description }}</small>
           </div>
         </div>
-      </template>
-      <template #clear>
-        <span class="text-muted">Clear</span>
       </template>
       <template #no-options>
         {{ allScenariosSelected ? 'All options selected.' : 'No options found.' }}
@@ -90,15 +87,6 @@ onMounted(() => {
 <style lang="scss" scoped>
 :deep(.vue-select) {
   --vs-menu-height: max(calc(100dvh - 25rem), 200px);
-
-  .indicators-container .clear-button {
-    margin-left: 0.5rem;
-    width: unset;
-
-    &:hover {
-      opacity: 75%;
-    }
-  }
 
   ::placeholder {
     font-size: var(--cui-body-font-size);
