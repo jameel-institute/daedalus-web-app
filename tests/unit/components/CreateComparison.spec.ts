@@ -213,6 +213,8 @@ describe("create comparison button and modal", () => {
     await wrapper.vm.$nextTick();
     wrapper.findAll(".parameter-option").find(el => /United States/i.test(el.text()))!.trigger("click");
     await wrapper.vm.$nextTick();
+    wrapper.findAll(".parameter-option").find(el => /Thailand/i.test(el.text()))!.trigger("click");
+    await wrapper.vm.$nextTick();
 
     const buttonEl = wrapper.find("button[type='submit']");
     expect(buttonEl.attributes("disabled")).not.toBe("");
@@ -226,7 +228,7 @@ describe("create comparison button and modal", () => {
       query: {
         axis: "country",
         ...mockResultData.parameters,
-        selectedScenarios: ["USA"],
+        scenarios: "USA;THA",
       },
     });
 

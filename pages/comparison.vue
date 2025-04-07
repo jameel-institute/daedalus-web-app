@@ -69,9 +69,7 @@ watch(() => appStore.metadata, (newValue) => {
     // TODO: (jidea-253) These URL query params will need to be validated, since users might type anything into the URL bar
 
     const parameterIds = newValue.parameters.map(p => p.id);
-    const selectedScenarios = Array.isArray(query.selectedScenarios)
-      ? query.selectedScenarios as string[]
-      : [query.selectedScenarios as string];
+    const selectedScenarios = (query.scenarios as string).split(";");
 
     const parameterQueryParams = parameterIds.reduce((acc, id) => {
       if (query[id]) {

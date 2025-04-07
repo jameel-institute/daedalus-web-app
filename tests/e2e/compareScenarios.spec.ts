@@ -56,7 +56,7 @@ test("Can compare multiple scenarios", async ({ page, baseURL }) => {
     + `&vaccine=medium`
     + `&hospital_capacity=305000`
     + `&axis=pathogen`
-    + `&selectedScenarios=sars_cov_2_pre_alpha&selectedScenarios=sars_cov_2_omicron`,
+    + `&scenarios=sars_cov_2_pre_alpha;sars_cov_2_omicron`,
   );
   await expect(page.getByText("Comparison")).toBeVisible();
 
@@ -69,6 +69,7 @@ test("Can compare multiple scenarios", async ({ page, baseURL }) => {
   await expect(page.getByText("medium")).toHaveCount(3);
   await expect(page.getByText("305000")).toHaveCount(3);
 });
+
 test("Can compare multiple scenarios by following a link", async ({ page, baseURL }) => {
   await page.goto(`${baseURL}/comparison?`
     + `country=USA`
@@ -77,7 +78,7 @@ test("Can compare multiple scenarios by following a link", async ({ page, baseUR
     + `&vaccine=medium`
     + `&hospital_capacity=305000`
     + `&axis=pathogen`
-    + `&selectedScenarios=sars_cov_2_pre_alpha&selectedScenarios=sars_cov_2_omicron`,
+    + `&scenarios=sars_cov_2_pre_alpha;sars_cov_2_omicron`,
   );
   await expect(page.getByText("Comparison")).toBeVisible();
 

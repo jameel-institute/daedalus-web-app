@@ -21,7 +21,7 @@ describe("comparison page", () => {
         + `&vaccine=medium`
         + `&hospital_capacity=305000`
         + `&axis=pathogen`
-        + `&selectedScenarios=sars_cov_2_pre_alpha&selectedScenarios=sars_cov_2_omicron`,
+        + `&scenarios=sars_cov_2_pre_alpha;sars_cov_2_omicron`,
     });
 
     const text = component.text();
@@ -47,7 +47,7 @@ describe("comparison page", () => {
         + `&vaccine=medium`
         + `&hospital_capacity=305000`
         + `&axis=pathogen`
-        + `&selectedScenarios=sars_cov_2_pre_alpha`,
+        + `&scenarios=sars_cov_2_pre_alpha`,
     });
 
     const text = component.text();

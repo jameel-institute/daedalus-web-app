@@ -156,7 +156,7 @@ const submitForm = async () => {
     await navigateTo({ path: "/comparison", query: {
       ...baselineParameters,
       axis: chosenAxisId.value,
-      selectedScenarios: selectedScenarioOptions.value,
+      scenarios: selectedScenarioOptions.value.join(";"),
     } });
   }
 };
