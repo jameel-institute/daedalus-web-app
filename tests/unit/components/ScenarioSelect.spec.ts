@@ -95,7 +95,7 @@ describe("scenario select", () => {
     expect(wrapper.props("selected")).toEqual(expect.arrayContaining(["sars_cov_2_omicron"]));
   });
 
-  it(`initializes closed, opens when control is clicked, and stays open after selection is changed`, async () => {
+  it("initializes closed, opens when control is clicked, and stays open after selection is changed", async () => {
     const wrapper = mount(ScenarioSelect, {
       props: {
         showFeedback: false,
@@ -125,6 +125,31 @@ describe("scenario select", () => {
     await preAlphaOption!.trigger("click");
 
     expect(selectContainer.classes()).toContain("open");
+  });
+
+  it("selecting all options closes the menu", async () => {
+    const wrapper = mount(ScenarioSelect, {
+      props: {
+        showFeedback: false,
+        parameterAxis: pathogenParameter,
+        labelId: "formLabelId",
+        selected: ["sars_cov_2_pre_alpha"],
+      },
+      global: { stubs, plugins },
+    });
+
+    const comboBox = wrapper.find(controlSelector);
+    await comboBox.trigger("click");
+
+    const selectContainer = wrapper.find(".vue-select");
+    expect(selectContainer.classes()).toContain("open");
+
+    // Select all options
+    const menuOptions = wrapper.findAll(".parameter-option");
+    menuOptions.forEach(option => option.trigger("click"));
+    await wrapper.vm.$nextTick();
+
+    expect(selectContainer.classes()).not.toContain("open");
   });
 
   it("displays validation feedbacks when showFeedback is true", async () => {

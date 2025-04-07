@@ -64,9 +64,16 @@ const vueSelect = useTemplateRef<ComponentPublicInstance>("vueSelectComponent");
 const vueSelectControl = computed((): HTMLElement | null => {
   return vueSelect.value?.$el.querySelector(VALUE_CONTAINER_SELECTOR);
 });
+const searchInput = computed(() => vueSelectControl.value?.querySelector<HTMLInputElement>(SEARCH_INPUT_SELECTOR));
 
 const allScenariosSelected = computed(() => {
   return selected.value.length === nonBaselineSelectOptions.value.length;
+});
+
+watch(allScenariosSelected, (newValue) => {
+  if (newValue) {
+    menuOpen.value = false;
+  }
 });
 
 onMounted(() => {
@@ -77,7 +84,7 @@ onMounted(() => {
         // If a click is detected in a row-end gap that is created due to flex-wrapping the option tags onto multiple rows,
         // treat it as a click on the search input, that is, open the options menu and focus the search input.
         menuOpen.value = true;
-        vueSelectControl.value?.querySelector<HTMLInputElement>(SEARCH_INPUT_SELECTOR)?.focus();
+        searchInput.value?.focus();
       }
     });
   }, { immediate: true });
