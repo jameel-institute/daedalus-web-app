@@ -70,6 +70,10 @@ describe("scenario select", () => {
       global: { stubs, plugins },
     });
 
+    // sars_cov_2_pre_alpha option tag is present
+    expect(wrapper.findAll("button.multi-value")).toHaveLength(1);
+    expect(wrapper.findAll("button.multi-value")[0].text()).toMatch(/wild-type/i);
+
     // Open menu
     await wrapper.find(controlSelector).trigger("click");
 
@@ -79,6 +83,9 @@ describe("scenario select", () => {
 
     expect(wrapper.props("selected")).toHaveLength(2);
     expect(wrapper.props("selected")).toEqual(expect.arrayContaining(["sars_cov_2_pre_alpha", "sars_cov_2_omicron"]));
+    // omicron option tag is now present
+    expect(wrapper.findAll("button.multi-value")).toHaveLength(2);
+    expect(wrapper.findAll("button.multi-value")[1].text()).toMatch(/omicron/i);
 
     // Deselect 'pre-alpha' option
     const wildTypeOption = getOptionTagFromControl(wrapper, "wild-type");

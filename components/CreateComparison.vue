@@ -67,7 +67,7 @@
           <div class="d-flex gap-3">
             <ScenarioSelect
               v-model:selected="selectedScenarioOptions"
-              :show-feedback="showFeedback"
+              :show-feedback="showFormValidationFeedback"
               :parameter-axis="chosenParameterAxis"
               :label-id="FORM_LABEL_ID"
             />
@@ -104,7 +104,8 @@ const selectedScenarioOptions = ref<string[]>([]);
 const modalVisible = ref(false);
 const chosenAxisId = ref("");
 const formSubmitting = ref(false);
-const showFeedback = ref(false);
+// Visible feedback will be shown on submitting an invalid form, and cleared when options are changed
+const showFormValidationFeedback = ref(false);
 
 const chosenParameterAxis = computed(() => appStore.metadata?.parameters.find(p => p.id === chosenAxisId.value));
 
@@ -119,10 +120,10 @@ const handleCloseModal = () => {
 const handleChooseAxis = (axis: Parameter) => {
   if (chosenAxisId.value === "") {
     chosenAxisId.value = axis.id;
-    // Pre-populate the scenario options input
-    selectedScenarioOptions.value = nonBaselineOptions.value.length > MAX_SCENARIOS_COMPARED_TO_BASELINE
-      ? [] // TODO: (jidea-230) pre-populate country parameter to nearby countries
-      : nonBaselineOptions.value.map(o => o.id);
+    // Pre-populate the scenario options input with all options if there aren't more than max
+    selectedScenarioOptions.value = nonBaselineOptions.value.length <= MAX_SCENARIOS_COMPARED_TO_BASELINE
+      ? nonBaselineOptions.value.map(o => o.id)
+      : []; // TODO: (jidea-230) pre-populate country parameter to nearby countries
   } else {
     chosenAxisId.value = "";
     selectedScenarioOptions.value = [];
@@ -134,16 +135,16 @@ const formInvalid = computed(() => {
 });
 
 watch(selectedScenarioOptions, () => {
-  showFeedback.value = false;
+  showFormValidationFeedback.value = false;
 }, { deep: 1 });
 
 const submitForm = async () => {
   if (formInvalid.value) {
-    showFeedback.value = true;
+    showFormValidationFeedback.value = true;
     return;
   }
 
-  showFeedback.value = false;
+  showFormValidationFeedback.value = false;
   formSubmitting.value = true;
 
   // TODO: (jidea-262) Start scenario runs
