@@ -51,8 +51,7 @@ describe("scenario select", () => {
     expect(comboBox.attributes("aria-required")).toBe("true");
     expect(comboBox.attributes("aria-description")).toBe("Select up to 5 options to compare against baseline");
 
-    wrapper.find(controlSelector).trigger("click");
-    await wrapper.vm.$nextTick();
+    await wrapper.find(controlSelector).trigger("click");
 
     // Assert option mark-up includes description text
     const businessClosuresOption = getOptionFromMenu(wrapper, "Business closures");
@@ -72,21 +71,18 @@ describe("scenario select", () => {
     });
 
     // Open menu
-    wrapper.find(controlSelector).trigger("click");
-    await wrapper.vm.$nextTick();
+    await wrapper.find(controlSelector).trigger("click");
 
     // Select 'omicron' option
     const omicronOption = getOptionFromMenu(wrapper, "omicron");
-    omicronOption!.trigger("click");
-    await wrapper.vm.$nextTick();
+    await omicronOption!.trigger("click");
 
     expect(wrapper.props("selected")).toHaveLength(2);
     expect(wrapper.props("selected")).toEqual(expect.arrayContaining(["sars_cov_2_pre_alpha", "sars_cov_2_omicron"]));
 
     // Deselect 'pre-alpha' option
     const wildTypeOption = getOptionTagFromControl(wrapper, "wild-type");
-    wildTypeOption!.trigger("click");
-    await wrapper.vm.$nextTick();
+    await wildTypeOption!.trigger("click");
 
     expect(wrapper.props("selected")).toHaveLength(1);
     expect(wrapper.props("selected")).toEqual(expect.arrayContaining(["sars_cov_2_omicron"]));
@@ -107,22 +103,19 @@ describe("scenario select", () => {
     expect(selectContainer.classes()).not.toContain("open");
 
     const comboBox = wrapper.find(controlSelector);
-    comboBox.trigger("click");
-    await wrapper.vm.$nextTick();
+    await comboBox.trigger("click");
 
     expect(selectContainer.classes()).toContain("open");
 
     // Select 'omicron' option
     const omicronOption = getOptionFromMenu(wrapper, "omicron");
-    omicronOption!.trigger("click");
-    await wrapper.vm.$nextTick();
+    await omicronOption!.trigger("click");
 
     expect(selectContainer.classes()).toContain("open");
 
     // Deselect 'pre-alpha' option
     const preAlphaOption = getOptionTagFromControl(wrapper, "wild-type");
-    preAlphaOption!.trigger("click");
-    await wrapper.vm.$nextTick();
+    await preAlphaOption!.trigger("click");
 
     expect(selectContainer.classes()).toContain("open");
   });
@@ -142,8 +135,7 @@ describe("scenario select", () => {
     expect(feedback.text()).toMatch(/Please select at least 1 scenario to compare against the baseline/i);
 
     // Open menu and select all options
-    wrapper.find(controlSelector).trigger("click");
-    await wrapper.vm.$nextTick();
+    await wrapper.find(controlSelector).trigger("click");
 
     const options = wrapper.findAll(".parameter-option");
     options.forEach(option => option.trigger("click"));
@@ -173,8 +165,7 @@ describe("scenario select", () => {
 
     // Deselect 'pre-alpha' option
     const preAlphaOption = getOptionTagFromControl(wrapper, "wild-type");
-    preAlphaOption!.trigger("click");
-    await wrapper.vm.$nextTick();
+    await preAlphaOption!.trigger("click");
 
     searchInput.setValue("query that will match no options");
     await wrapper.vm.$nextTick();

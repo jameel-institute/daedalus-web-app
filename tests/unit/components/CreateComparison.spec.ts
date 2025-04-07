@@ -48,8 +48,7 @@ const getComboboxEl = (wrapper: VueWrapper) => {
 };
 
 const openModal = async (wrapper: VueWrapper) => {
-  wrapper.find("button").trigger("click");
-  await wrapper.vm.$nextTick();
+  await wrapper.find("button").trigger("click");
 };
 
 beforeEach(() => {
@@ -105,8 +104,7 @@ describe("create comparison button and modal", () => {
 
     const countryButton = axisButtons[0];
 
-    countryButton.trigger("click");
-    await wrapper.vm.$nextTick();
+    await countryButton.trigger("click");
 
     expect(axisOptionsEl.findAll("button")).toHaveLength(1);
     expect(countryButton.classes()).toContain("bg-primary");
@@ -119,8 +117,7 @@ describe("create comparison button and modal", () => {
     // TODO: Test tooltip
 
     // Click the already-selected parameter axis button to deselect it
-    countryButton.trigger("click");
-    await wrapper.vm.$nextTick();
+    await countryButton.trigger("click");
 
     // Hides the scenario selection section and reveals all parameter axis buttons
     expect(modalEl.text()).not.toMatch(/Compare baseline scenario/);
@@ -131,8 +128,7 @@ describe("create comparison button and modal", () => {
     });
 
     const diseaseButton = axisOptionsEl.findAll("button")[1];
-    diseaseButton.trigger("click");
-    await wrapper.vm.$nextTick();
+    await diseaseButton.trigger("click");
 
     expect(axisOptionsEl.findAll("button")).toHaveLength(1);
     expect(diseaseButton.classes()).toContain("bg-primary");
@@ -147,22 +143,18 @@ describe("create comparison button and modal", () => {
     ));
 
     // Deselect all disease options
-    wrapper.find(".clear-button").trigger("click");
-    await wrapper.vm.$nextTick();
+    await wrapper.find(".clear-button").trigger("click");
 
     // Until submit button is clicked, there is no feedback shown
     expect(wrapper.find(".invalid-tooltip").exists()).toBe(false);
     await wrapper.find("button[type='submit']").trigger("click");
-    await wrapper.vm.$nextTick();
 
     expect(wrapper.find(".invalid-tooltip").exists()).toBe(true);
     expect(wrapper.find(".vue-select").classes()).toContain("is-invalid");
 
     // Altering the selection removes the validation feedback
-    comboboxEl.trigger("click");
-    await wrapper.vm.$nextTick();
-    wrapper.findAll(".parameter-option").find(el => /wild-type/i.test(el.text()))!.trigger("click");
-    await wrapper.vm.$nextTick();
+    await comboboxEl.trigger("click");
+    await wrapper.findAll(".parameter-option").find(el => /wild-type/i.test(el.text()))!.trigger("click");
     expect(wrapper.find(".invalid-tooltip").exists()).toBe(false);
   });
 
@@ -174,14 +166,12 @@ describe("create comparison button and modal", () => {
     const modalEl = getModalEl(wrapper);
     const axisOptionsEl = modalEl.find("#axisOptions");
     const countryButton = axisOptionsEl.findAll("button")[0];
-    countryButton.trigger("click");
-    await wrapper.vm.$nextTick();
+    await countryButton.trigger("click");
 
     expect(axisOptionsEl.findAll("button")).toHaveLength(1);
     expect(countryButton.classes()).toContain("bg-primary");
 
-    wrapper.find(".btn-close").trigger("click");
-    await wrapper.vm.$nextTick();
+    await wrapper.find(".btn-close").trigger("click");
 
     expect(getModalEl(wrapper).exists()).toBe(false);
 
@@ -205,22 +195,17 @@ describe("create comparison button and modal", () => {
     const modalEl = getModalEl(wrapper);
     const axisOptionsEl = modalEl.find("#axisOptions");
     const countryButton = axisOptionsEl.findAll("button")[0];
-    countryButton.trigger("click");
-    await wrapper.vm.$nextTick();
+    await countryButton.trigger("click");
 
     const comboboxEl = getComboboxEl(wrapper);
-    comboboxEl.trigger("click");
-    await wrapper.vm.$nextTick();
-    wrapper.findAll(".parameter-option").find(el => /United States/i.test(el.text()))!.trigger("click");
-    await wrapper.vm.$nextTick();
-    wrapper.findAll(".parameter-option").find(el => /Thailand/i.test(el.text()))!.trigger("click");
-    await wrapper.vm.$nextTick();
+    await comboboxEl.trigger("click");
+    await wrapper.findAll(".parameter-option").find(el => /United States/i.test(el.text()))!.trigger("click");
+    await wrapper.findAll(".parameter-option").find(el => /Thailand/i.test(el.text()))!.trigger("click");
 
     const buttonEl = wrapper.find("button[type='submit']");
     expect(buttonEl.attributes("disabled")).not.toBe("");
     await buttonEl.trigger("click");
     expect(buttonEl.attributes("disabled")).toBe("");
-    await wrapper.vm.$nextTick();
 
     await flushPromises();
     expect(mockNavigateTo).toBeCalledWith({
