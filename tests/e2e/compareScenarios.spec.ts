@@ -24,7 +24,6 @@ test("Can compare multiple scenarios", async ({ page, baseURL }) => {
   await page.waitForURL(new RegExp(`${baseURL}/${scenarioPathMatcher}`));
   await expect(page.getByText("Simulate a new scenario")).not.toBeVisible();
 
-  // Run a second analysis with a different parameter, using the parameters form on the results page.
   await page.getByRole("button", { name: "Compare against other scenarios" }).first().click();
   await expect(page.getByRole("heading", { name: "Start a comparison against this baseline" })).toBeVisible();
 
@@ -39,13 +38,16 @@ test("Can compare multiple scenarios", async ({ page, baseURL }) => {
   // Open the select
   await scenarioSelect.click();
 
-  // await page.getByPlaceholder("Select up to 5 options to compare against baseline").click();
   await page.getByRole("option", { name: "Covid-19 wild-type" }).click();
   await page.getByRole("option", { name: "Covid-19 Omicron" }).click();
 
   // The two options should now be listed in the multi-select
   await expect(page.getByRole("button", { name: "Covid-19 wild-type" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Covid-19 Omicron" })).toBeVisible();
+
+  // and they should no longer be among the options
+  await expect(page.getByRole("option", { name: "Covid-19 wild-type" })).toHaveCount(0);
+  await expect(page.getByRole("option", { name: "Covid-19 Omicron" })).toHaveCount(0);
 
   await page.getByRole("button", { name: "Compare", exact: true }).click();
 

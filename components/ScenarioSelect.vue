@@ -14,7 +14,7 @@
       :is-clearable="true"
       :is-multi="true"
       :close-on-select="false"
-      :placeholder="`Select up to ${MAX_COMPARISON_SCENARIOS - 1} options to compare against baseline`"
+      :placeholder="`Select up to ${MAX_SCENARIOS_COMPARED_TO_BASELINE} options to compare against baseline`"
       @menu-opened="menuOpen = true"
       @menu-closed="menuOpen = false"
     >
@@ -45,7 +45,7 @@
 <script lang="ts" setup>
 import VueSelect from "vue3-select-component";
 import type { Parameter } from "~/types/parameterTypes";
-import { MAX_COMPARISON_SCENARIOS } from "~/components/utils/comparisons";
+import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
 import { useScenarioOptions } from "~/composables/useScenarioOptions";
 
 const { showFeedback, parameterAxis, labelId } = defineProps<{

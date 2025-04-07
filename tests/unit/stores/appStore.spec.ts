@@ -235,46 +235,16 @@ describe("app store", () => {
         baseline: "high",
         scenarios: [
           {
-            runId: undefined,
+            ...emptyScenario,
             parameters: { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" },
-            result: {
-              data: undefined,
-              fetchError: undefined,
-              fetchStatus: undefined,
-            },
-            status: {
-              data: undefined,
-              fetchError: undefined,
-              fetchStatus: undefined,
-            },
           },
           {
-            runId: undefined,
+            ...emptyScenario,
             parameters: { country: "USA", hospital_capacity: "54321", vaccine: "none", response: "elimination" },
-            result: {
-              data: undefined,
-              fetchError: undefined,
-              fetchStatus: undefined,
-            },
-            status: {
-              data: undefined,
-              fetchError: undefined,
-              fetchStatus: undefined,
-            },
           },
           {
-            runId: undefined,
+            ...emptyScenario,
             parameters: { country: "USA", hospital_capacity: "54321", vaccine: "low", response: "elimination" },
-            result: {
-              data: undefined,
-              fetchError: undefined,
-              fetchStatus: undefined,
-            },
-            status: {
-              data: undefined,
-              fetchError: undefined,
-              fetchStatus: undefined,
-            },
           },
         ],
       });

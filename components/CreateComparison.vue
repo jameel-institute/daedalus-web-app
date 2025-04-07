@@ -95,7 +95,7 @@
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import { TypeOfParameter } from "~/types/parameterTypes";
 import type { Parameter } from "~/types/parameterTypes";
-import { MAX_COMPARISON_SCENARIOS } from "~/components/utils/comparisons";
+import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
 import { useScenarioOptions } from "~/composables/useScenarioOptions";
 
 const appStore = useAppStore();
@@ -120,7 +120,7 @@ const handleChooseAxis = (axis: Parameter) => {
   if (chosenAxisId.value === "") {
     chosenAxisId.value = axis.id;
     // Pre-populate the scenario options input
-    selectedScenarioOptions.value = nonBaselineOptions.value.length + 1 > MAX_COMPARISON_SCENARIOS
+    selectedScenarioOptions.value = nonBaselineOptions.value.length > MAX_SCENARIOS_COMPARED_TO_BASELINE
       ? [] // TODO: (jidea-230) pre-populate country parameter to nearby countries
       : nonBaselineOptions.value.map(o => o.id);
   } else {

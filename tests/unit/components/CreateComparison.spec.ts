@@ -29,8 +29,8 @@ const testPinia = mockPinia({
 
 const plugins = [testPinia];
 vi.mock("~/components/utils/comparisons", () => ({
-  MAX_COMPARISON_SCENARIOS: 10,
-  MIN_COMPARISON_SCENARIOS: 2,
+  MAX_SCENARIOS_COMPARED_TO_BASELINE: 10,
+  MIN_SCENARIOS_COMPARED_TO_BASELINE: 1,
 }));
 
 // Need to do this in hoisted - see https://developer.mamezou-tech.com/en/blogs/2024/02/12/nuxt3-unit-testing-mock/
