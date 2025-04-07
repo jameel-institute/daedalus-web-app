@@ -359,7 +359,6 @@ const submitForm = async () => {
     appStore.globe.highlightedCountry = formData.value[appStore.globeParameter.id];
   }
 
-  appStore.downloadError = undefined;
   formSubmitting.value = true;
 
   const response = await $fetch<NewScenarioData>("/api/scenarios", {

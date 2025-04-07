@@ -50,6 +50,7 @@ import type { Scenario } from "~/types/storeTypes";
 
 const appStore = useAppStore();
 appStore.clearScenario();
+appStore.downloadError = undefined;
 
 const axis = computed(() => appStore.currentComparison.axis);
 

@@ -299,9 +299,7 @@ describe("parameter form", () => {
       props: { inModal: false },
       global: {
         stubs,
-        plugins: [mockPinia({
-          downloadError: "test error",
-        })],
+        plugins: [mockPinia()],
       },
     });
 
@@ -312,10 +310,6 @@ describe("parameter form", () => {
 
     await flushPromises();
     expect(mockNavigateTo).toBeCalledWith("/scenarios/randomId");
-
-    // submit should also reset download error
-    const store = (component.vm as any).appStore;
-    expect(store.downloadError).toBeUndefined();
   });
 
   it("displays CAlert with error message when metadataFetchStatus is 'error'", async () => {

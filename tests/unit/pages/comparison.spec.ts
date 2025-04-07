@@ -61,4 +61,27 @@ describe("comparison page", () => {
     expect(text.match(/medium/g)).toHaveLength(2);
     expect(text.match(/305000/g)).toHaveLength(2);
   });
+
+  it("resets appStore.downloadError when the page is loaded", async () => {
+    await mountSuspended(Comparison, {
+      global: {
+        plugins: [mockPinia({
+          metadata: mockMetadataResponseData as Metadata,
+          versions: mockVersions,
+          downloadError: "Some error",
+        }, false, { stubActions: false })],
+      },
+      route: `/comparisons?`
+        + `country=USA`
+        + `&pathogen=sars_cov_1`
+        + `&response=elimination`
+        + `&vaccine=medium`
+        + `&hospital_capacity=305000`
+        + `&axis=pathogen`
+        + `&scenarios=sars_cov_2_pre_alpha`,
+    });
+
+    const appStore = useAppStore();
+    expect(appStore.downloadError).toBeUndefined();
+  });
 });

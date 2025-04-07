@@ -259,9 +259,5 @@ describe("create comparison button and modal", () => {
         scenarios: "USA;THA",
       },
     });
-
-    // Page navigation should reset store downloadError
-    const appStore = useAppStore();
-    expect(appStore.downloadError).toBeUndefined();
   });
 });

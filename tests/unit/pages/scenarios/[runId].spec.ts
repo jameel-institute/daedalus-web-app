@@ -89,6 +89,31 @@ describe("scenario result page", () => {
     expect(component.text()).toContain("United Kingdom");
   });
 
+  it("resets appStore.downloadError when the page is loaded", async () => {
+    mockRoute.mockReturnValue({
+      params: {
+        runId: successfulRunId,
+      },
+    });
+
+    await mountSuspended(ScenariosIdPage, {
+      global: {
+        stubs,
+        plugins: [mockPinia({
+          currentScenario: {
+            ...emptyScenario,
+            parameters: mockResultData.parameters,
+          },
+          metadata: mockMetadataResponseData as Metadata,
+          downloadError: "Some error",
+        }, false, { stubActions: false })],
+      },
+    });
+
+    const appStore = useAppStore();
+    expect(appStore.downloadError).toBeUndefined();
+  });
+
   // Also end-to-end tested in tests/e2e/slowAnalysis.spec.ts
   it("shows alerts when analysis is taking a long time and when it is taking a really long time", async () => {
     mockRoute.mockReturnValue({

@@ -75,6 +75,7 @@ const runIdFromRoute = route.params.runId as string;
 if (appStore.currentScenario.runId && runIdFromRoute !== appStore.currentScenario.runId) {
   appStore.clearScenario(); // Required so that previous parameters aren't hanging around in the store.
 }
+appStore.downloadError = undefined;
 appStore.currentScenario.runId = runIdFromRoute;
 
 // Use useAsyncData to store the time once, during server-side rendering: avoids client render re-writing value.

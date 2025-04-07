@@ -144,7 +144,6 @@ const submitForm = async () => {
   }
 
   showFeedback.value = false;
-  appStore.downloadError = undefined;
   formSubmitting.value = true;
 
   // TODO: (jidea-262) Start scenario runs
