@@ -20,11 +20,31 @@
     >
       <template #option="{ option }">
         <div class="parameter-option">
-          <span>{{ option.label }}</span>
+          <div class="d-flex gap-3 me-2">
+            <span id="optionLabel">
+              {{ option.label }}
+            </span>
+            <span class="flex-grow-1">
+              <CFormRange
+                v-if="parameterAxis?.parameterType === TypeOfParameter.Numeric"
+                :id="option.label"
+                :disabled="true"
+                :min="parseInt(nonBaselineOptions[0].id)"
+                :max="parseInt(nonBaselineOptions[(nonBaselineOptions.length - 1)].id)"
+                :step="100"
+                :model-value="option.value"
+              />
+            </span>
+          </div>
           <div
             v-if="option.description"
             class="text-muted"
           >
+            <CIcon
+              v-if="option.value === defaultNumericOption?.id"
+              icon="cilStar"
+              class="text-muted me-1"
+            />
             <small>{{ option.description }}</small>
           </div>
         </div>
@@ -41,6 +61,8 @@
 
 <script lang="ts" setup>
 import VueSelect from "vue3-select-component";
+import { CIcon } from "@coreui/icons-vue";
+import { TypeOfParameter } from "~/types/parameterTypes";
 import type { Parameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
 import { useScenarioOptions } from "~/composables/useScenarioOptions";
@@ -55,7 +77,7 @@ const menuOpen = ref(false);
 
 const selected = defineModel("selected", { type: Array<string>, required: true });
 
-const { nonBaselineSelectOptions } = useScenarioOptions(() => parameterAxis);
+const { nonBaselineSelectOptions, defaultNumericOption, nonBaselineOptions } = useScenarioOptions(() => parameterAxis);
 const { feedback } = useComparisonValidation(selected);
 
 const VALUE_CONTAINER_SELECTOR = ".value-container.multi";
