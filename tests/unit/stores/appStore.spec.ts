@@ -15,7 +15,6 @@ const sampleUnloadedScenario = {
   runId: "123",
   parameters: { country: "USA" },
 };
-Object.freeze(sampleUnloadedScenario);
 const mockResultDataWithoutRunId = { ...mockResultData, runId: undefined };
 
 registerEndpoint("/api/versions", () => {
@@ -101,7 +100,7 @@ describe("app store", () => {
 
     it("can retrieve a scenario's status from the R API", async () => {
       const store = useAppStore();
-      store.currentScenario = { ...sampleUnloadedScenario };
+      store.currentScenario = structuredClone(sampleUnloadedScenario);
       await store.loadScenarioStatus();
 
       await waitFor(() => {
@@ -121,7 +120,7 @@ describe("app store", () => {
 
     it("can load a scenario's results from the R API", async () => {
       const store = useAppStore();
-      store.currentScenario = { ...sampleUnloadedScenario };
+      store.currentScenario = structuredClone(sampleUnloadedScenario);
       await store.loadScenarioResult();
 
       await waitFor(() => {
@@ -176,7 +175,7 @@ describe("app store", () => {
       });
     });
 
-    const mockExcelScenarioDownload = (mockDownload = () => {}) => {
+    const mockExcelScenarioDownload = (mockDownload = () => { }) => {
       // Mock ExelScenarioDownload constructor and return mock
       // instance with given download mock implementation
       const mockExcelScenarioDownloadObj = {
@@ -227,6 +226,30 @@ describe("app store", () => {
       expect(store.downloading).toBe(false);
     });
 
+    it("can set the current comparison based on the axis, baseline parameter, and selected scenario options", async () => {
+      const store = useAppStore();
+      store.setComparison("vaccine", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["none", "low"]);
+
+      expect(store.currentComparison).toEqual({
+        axis: "vaccine",
+        baseline: "high",
+        scenarios: [
+          {
+            ...emptyScenario,
+            parameters: { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" },
+          },
+          {
+            ...emptyScenario,
+            parameters: { country: "USA", hospital_capacity: "54321", vaccine: "none", response: "elimination" },
+          },
+          {
+            ...emptyScenario,
+            parameters: { country: "USA", hospital_capacity: "54321", vaccine: "low", response: "elimination" },
+          },
+        ],
+      });
+    });
+
     describe("getters", () => {
       it("can get the globe parameter", async () => {
         const store = useAppStore();
@@ -244,7 +267,7 @@ describe("app store", () => {
 
       it("can get the time series data", async () => {
         const store = useAppStore();
-        store.currentScenario = { ...sampleUnloadedScenario };
+        store.currentScenario = structuredClone(sampleUnloadedScenario);
 
         expect(store.timeSeriesData).toEqual(undefined);
         await store.loadScenarioResult();
@@ -256,7 +279,7 @@ describe("app store", () => {
 
       it("can get the capacities data", async () => {
         const store = useAppStore();
-        store.currentScenario = { ...sampleUnloadedScenario };
+        store.currentScenario = structuredClone(sampleUnloadedScenario);
 
         expect(store.capacitiesData).toEqual(undefined);
         await store.loadScenarioResult();
@@ -268,7 +291,7 @@ describe("app store", () => {
 
       it("can get the interventions data", async () => {
         const store = useAppStore();
-        store.currentScenario = { ...sampleUnloadedScenario };
+        store.currentScenario = structuredClone(sampleUnloadedScenario);
 
         expect(store.interventionsData).toEqual(undefined);
         await store.loadScenarioResult();
@@ -280,7 +303,7 @@ describe("app store", () => {
 
       it("can get the costs data and 'total' cost data", async () => {
         const store = useAppStore();
-        store.currentScenario = { ...sampleUnloadedScenario };
+        store.currentScenario = structuredClone(sampleUnloadedScenario);
 
         expect(store.costsData).toEqual(undefined);
         expect(store.totalCost).toEqual(undefined);
@@ -314,6 +337,7 @@ describe("app store", () => {
           ]);
         });
       });
+
       it("getCostLabel returns the label for cost id", async () => {
         const store = useAppStore();
         store.metadata = mockedMetadata;
@@ -322,6 +346,7 @@ describe("app store", () => {
 
         expect(costLabel).toEqual("Closures");
       });
+
       it("getCostLabel returns cost id if not found in metadata", async () => {
         const store = useAppStore();
         store.metadata = mockedMetadata;

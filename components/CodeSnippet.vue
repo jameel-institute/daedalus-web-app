@@ -12,17 +12,17 @@
             v-on="on"
             @click="() => { modalVisible = true; }"
           >
-            <CIcon icon="cilCode" size="lg" class="text-secondary" />
+            <CIcon icon="cilCode" size="lg" class="text-muted" />
           </CButton>
         </template>
       </CTooltip>
       <CModal
         :visible="modalVisible"
-        aria-labelledby="modalTitle"
+        aria-labelledby="codeSnippetModalTitle"
         @close="() => { modalVisible = false }"
       >
         <CModalHeader>
-          <CModalTitle id="modalTitle">
+          <CModalTitle id="codeSnippetModalTitle">
             DAEDALUS code snippet
           </CModalTitle>
         </CModalHeader>

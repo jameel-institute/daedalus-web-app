@@ -1,6 +1,5 @@
 import ScenariosIdPage from "@/pages/scenarios/[runId].vue";
 import { emptyScenario, mockPinia, mockResultData } from "@/tests/unit/mocks/mockPinia";
-
 import { mockNuxtImport, mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 import { mockMetadataResponseData } from "~/tests/unit/mocks/mockResponseData";
@@ -77,7 +76,7 @@ afterAll(() => {
 });
 
 describe("scenario result page", () => {
-  it("shows the parameters that were used to run the scenario", async () => {
+  it("renders as expected", async () => {
     mockRoute.mockReturnValue({
       params: {
         runId: longRunningRunId,
@@ -88,10 +87,31 @@ describe("scenario result page", () => {
 
     expect(component.text()).toContain("Parameters");
     expect(component.text()).toContain("United Kingdom");
-    expect(component.text()).toContain("SARS 2004");
-    expect(component.text()).toContain("No closures");
-    expect(component.text()).toContain("None");
-    expect(component.text()).toContain("30,500");
+  });
+
+  it("resets appStore.downloadError when the page is loaded", async () => {
+    mockRoute.mockReturnValue({
+      params: {
+        runId: successfulRunId,
+      },
+    });
+
+    await mountSuspended(ScenariosIdPage, {
+      global: {
+        stubs,
+        plugins: [mockPinia({
+          currentScenario: {
+            ...emptyScenario,
+            parameters: mockResultData.parameters,
+          },
+          metadata: mockMetadataResponseData as Metadata,
+          downloadError: "Some error",
+        }, false, { stubActions: false })],
+      },
+    });
+
+    const appStore = useAppStore();
+    expect(appStore.downloadError).toBeUndefined();
   });
 
   // Also end-to-end tested in tests/e2e/slowAnalysis.spec.ts

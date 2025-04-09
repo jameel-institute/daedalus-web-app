@@ -13,7 +13,6 @@ describe("edit parameters", () => {
       });
       expect(component.findComponent({ name: "CModal" }).props("visible")).toBe(false);
       await component.findComponent({ name: "CButton" }).trigger("click");
-      await nextTick();
       expect(component.findComponent({ name: "CModal" }).props("visible")).toBe(true);
       await component.findComponent({ name: "CModal" }).vm.$emit("close");
       await nextTick();

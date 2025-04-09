@@ -61,9 +61,8 @@
               v-model="formData![parameter.id]"
               :input-id="parameter.id"
               :aria="{ labelledby: `${parameter.id}-label`, required: true }"
-              class="form-control"
-              :class="[pulsingParameters.includes(parameter.id) ? 'pulse' : '']"
-              :options="parameter.options.map((o) => ({ value: o.id, label: o.label, description: o.description }))"
+              :class="`form-control ${pulsingParameters.includes(parameter.id) ? 'pulse' : ''}`"
+              :options="paramOptsToSelectOpts(parameter.options || [])"
               :is-clearable="false"
               @option-selected="handleChange(parameter)"
             >
@@ -72,7 +71,7 @@
                   <span>{{ option.label }}</span>
                   <div
                     v-if="option.description"
-                    :class="option.value === formData[parameter.id] ? 'text-dark' : 'text-secondary'"
+                    :class="option.value === formData[parameter.id] ? 'text-dark' : 'text-muted'"
                   >
                     <small>{{ option.description }}</small>
                   </div>
@@ -136,6 +135,7 @@
         :size="appStore.largeScreen ? 'lg' : undefined"
         type="submit"
         :disabled="runButtonDisabled"
+        class="ms-auto align-self-start"
         @click="submitForm"
       >
         Run
@@ -158,6 +158,7 @@ import { TypeOfParameter } from "@/types/parameterTypes";
 import { CIcon } from "@coreui/icons-vue";
 import VueSelect from "vue3-select-component";
 import ParameterHeader from "~/components/ParameterHeader.vue";
+import { paramOptsToSelectOpts } from "~/components/utils/parameters";
 
 const props = defineProps<{
   inModal: boolean
@@ -222,11 +223,11 @@ const runButtonDisabled = computed(() => {
 });
 
 const optionsAreTerse = (param: Parameter) => {
-  const eachOptionIsASingleWord = param.options.every((option) => {
+  const eachOptionIsASingleWord = param.options?.every((option) => {
     return !option.label.includes(" ");
   });
 
-  return param.options.length <= 5 && eachOptionIsASingleWord;
+  return param.options && param.options.length <= 5 && eachOptionIsASingleWord;
 };
 
 const renderAsRadios = (param: Parameter) => {
@@ -318,7 +319,7 @@ const numericParameterFeedback = (param: Parameter) => {
   }
 };
 
-const pulse = (parameterId) => {
+const pulse = (parameterId: string) => {
   pulsingParameters.value.push(parameterId);
   setTimeout(() => {
     pulsingParameters.value = pulsingParameters.value.filter(item => item !== parameterId); // Remove the pulse animation to allow it to be triggered again in the future.
@@ -358,7 +359,6 @@ const submitForm = async () => {
     appStore.globe.highlightedCountry = formData.value[appStore.globeParameter.id];
   }
 
-  appStore.downloadError = undefined;
   formSubmitting.value = true;
 
   const response = await $fetch<NewScenarioData>("/api/scenarios", {
@@ -431,13 +431,15 @@ onMounted(() => {
 
 #run-button {
   min-width: 6rem;
-  margin-left: auto;
-  align-self: flex-start;
   margin-top: 2rem; // Align button with height of labels when it shares a row with an input.
 }
 
 .pulse {
   animation: pulse-animation 0.5s 1;
+
+  &.infinite {
+    animation: pulse-animation 0.5s infinite;
+  }
 }
 
 @keyframes pulse-animation {
@@ -459,44 +461,5 @@ onMounted(() => {
 
 .numeric-header {
   padding-right: 2.2rem;
-}
-
-.vue-select {
-  --vs-font-size: 1.25rem;
-  --vs-input-outline: transparent;
-  --vs-border-radius: 4px;
-  --vs-line-height: 0.9;
-  --vs-menu-height: 400px;
-  --vs-padding: 0;
-  --vs-option-font-size: var(--vs-font-size);
-  --vs-option-text-color: var(--vs-text-color);
-  --vs-option-hover-color: var(--cui-tertiary-bg);
-  --vs-option-focused-color: var(--vs-option-hover-color);
-  --vs-option-selected-color: var(--cui-primary-bg-subtle);
-  --vs-option-padding: 0 8px;
-}
-
-.vue-select  {
-  border-radius: 1rem!important;
-}
-
-:deep(.vue-select .control) {
-  border-style: none;
-}
-
-:deep(.vue-select .menu) {
-  border-radius: 0.5rem!important;
-}
-
-// This prevents odd default styling where search text appears after width of current value
-:deep(.vue-select .search-input) {
-  position: absolute;
-  left: 0;
-  width: 100%;
-}
-
-// This fixes an issue where the open select contracted in width because .single-value items had absolute position
-:deep(.open .single-value) {
-  position: relative!important;
 }
 </style>

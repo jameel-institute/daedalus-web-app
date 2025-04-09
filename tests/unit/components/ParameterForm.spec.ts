@@ -64,7 +64,7 @@ describe("parameter form", () => {
       { value: "3", label: "Option 3", description: "Option 3 description" },
       { value: "4", label: "Option 4", description: "Option 4 description" },
       { value: "5", label: "Option 5", description: "Option 5 description" },
-      { value: "6", label: "Option 6", description: undefined },
+      { value: "6", label: "Option 6", description: "" },
     ]);
     expect(vueSelects[0].props("modelValue")).toBe("1");
 
@@ -74,13 +74,13 @@ describe("parameter form", () => {
     expect(renderedOptions[0].find("span").text()).toBe("Option 1");
     expect(renderedOptions[0].find("div.text-dark").text()).toBe("Option 1 description");
     expect(renderedOptions[1].find("span").text()).toBe("Option 2");
-    expect(renderedOptions[1].find("div.text-secondary").text()).toBe("Option 2 description");
+    expect(renderedOptions[1].find("div.text-muted").text()).toBe("Option 2 description");
     expect(renderedOptions[5].find("span").text()).toBe("Option 6");
-    expect(renderedOptions[5].find("div.text-secondary").exists()).toBe(false);
+    expect(renderedOptions[5].find("div.text-muted").exists()).toBe(false);
 
     expect(vueSelects[1].props("options")).toEqual([
-      { value: "CLD", label: "Cloud Nine", description: undefined },
-      { value: "HVN", label: "Heaven", description: undefined },
+      { value: "CLD", label: "Cloud Nine", description: "" },
+      { value: "HVN", label: "Heaven", description: "" },
     ]);
     expect(vueSelects[1].props("modelValue")).toBe("HVN");
 
@@ -129,13 +129,13 @@ describe("parameter form", () => {
       { value: "3", label: "Option 3", description: "Option 3 description" },
       { value: "4", label: "Option 4", description: "Option 4 description" },
       { value: "5", label: "Option 5", description: "Option 5 description" },
-      { value: "6", label: "Option 6", description: undefined },
+      { value: "6", label: "Option 6", description: "" },
     ]);
     expect(vueSelects[0].props("modelValue")).toBe("3");
 
     expect(vueSelects[1].props("options")).toEqual([
-      { value: "CLD", label: "Cloud Nine", description: undefined },
-      { value: "HVN", label: "Heaven", description: undefined },
+      { value: "CLD", label: "Cloud Nine", description: "" },
+      { value: "HVN", label: "Heaven", description: "" },
     ]);
     expect(vueSelects[1].props("modelValue")).toBe("CLD");
 
@@ -299,9 +299,7 @@ describe("parameter form", () => {
       props: { inModal: false },
       global: {
         stubs,
-        plugins: [mockPinia({
-          downloadError: "test error",
-        })],
+        plugins: [mockPinia()],
       },
     });
 
@@ -312,10 +310,6 @@ describe("parameter form", () => {
 
     await flushPromises();
     expect(mockNavigateTo).toBeCalledWith("/scenarios/randomId");
-
-    // submit should also reset download error
-    const store = (component.vm as any).appStore;
-    expect(store.downloadError).toBeUndefined();
   });
 
   it("displays CAlert with error message when metadataFetchStatus is 'error'", async () => {

@@ -5,17 +5,10 @@ import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
 import { checkTimeSeriesDataPoints, numberOfTimePoints } from "./helpers/checkTimeSeriesDataPoints";
 import { checkValueIsInRange } from "./helpers/checkValueIsInRange";
+import { parameterLabels, scenarioPathMatcher } from "./helpers/constants";
 
-const parameterLabels = {
-  country: "Country",
-  pathogen: "Disease",
-  response: "Response",
-  vaccine: "Global vaccine investment",
-  hospital_capacity: "Hospital surge capacity",
-};
 const philippinesMinimumHospitalCapacity = "16300";
 const philippinesMinimumHospitalCapacityFormatted = "16,300";
-const scenarioPathMatcher = "scenarios/[a-f0-9]{32}";
 
 test.beforeAll(async () => {
   checkRApiServer();

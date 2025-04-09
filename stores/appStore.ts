@@ -2,7 +2,7 @@ import type { AsyncDataRequestStatus } from "#app";
 import type { Metadata, ScenarioResultData, ScenarioStatusData, TimeSeriesGroup, VersionData } from "@/types/apiResponseTypes";
 import type { AppState } from "@/types/storeTypes";
 import type { FetchError } from "ofetch";
-import { type Parameter, TypeOfParameter } from "@/types/parameterTypes";
+import { type Parameter, type ParameterSet, TypeOfParameter } from "@/types/parameterTypes";
 import { debounce } from "perfect-debounce";
 import { defineStore } from "pinia";
 import { ExcelScenarioDownload } from "~/download/excelScenarioDownload";
@@ -22,10 +22,17 @@ const emptyScenario = {
     fetchStatus: undefined,
   },
 };
-Object.freeze(emptyScenario);
+deepFreeze(emptyScenario);
+
+const emptyComparison = {
+  axis: undefined,
+  baseline: undefined,
+  scenarios: undefined,
+};
+deepFreeze(emptyComparison);
 
 export const useAppStore = defineStore("app", {
-  state: (): AppState => ({
+  state: (): AppState => structuredClone({
     globe: {
       interactive: false,
       highlightedCountry: null,
@@ -37,7 +44,8 @@ export const useAppStore = defineStore("app", {
     metadataFetchStatus: undefined,
     downloading: false,
     downloadError: undefined,
-    currentScenario: { ...emptyScenario },
+    currentScenario: emptyScenario,
+    currentComparison: emptyComparison,
   }),
   getters: {
     globeParameter: (state): Parameter | undefined => state.metadata?.parameters.find(param => param.parameterType === TypeOfParameter.GlobeSelect),
@@ -125,7 +133,25 @@ export const useAppStore = defineStore("app", {
       });
     },
     clearScenario() {
-      this.currentScenario = { ...emptyScenario };
+      this.currentScenario = structuredClone(emptyScenario);
+    },
+    clearComparison() {
+      this.currentComparison = structuredClone(emptyComparison);
+    },
+    setComparison(axis: string, baselineParameters: ParameterSet, selectedScenarioOptions: string[]) {
+      this.clearComparison();
+      this.currentComparison.axis = axis;
+      this.currentComparison.baseline = baselineParameters[axis];
+      const allScenarioOptions = [this.currentComparison.baseline, ...selectedScenarioOptions];
+      this.currentComparison.scenarios = allScenarioOptions.map((opt) => {
+        return structuredClone({
+          ...emptyScenario,
+          parameters: {
+            ...baselineParameters,
+            [axis]: opt,
+          },
+        });
+      });
     },
     async downloadExcel() {
       this.downloadError = undefined;

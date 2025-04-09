@@ -127,7 +127,7 @@
       or otherwise, arising from, out of or in connection with the software or
       the use or other dealings in the software.
     </p>
-    <h3>Dashboard icon attributions</h3>
+    <h3>Icon attributions</h3>
     <p>
       <strong>rotate-device.svg</strong><br>
       Icon by
@@ -159,6 +159,15 @@
       in Apache License via
       <a href="https://www.svgrepo.com/" target="_blank">SVG Repo</a>
     </p>
+
+    <p>
+      <strong>axes-white.png</strong>, <strong>axes-black.png</strong><br>
+      Icon by
+      <a href="https://www.flaticon.com/free-icon/arrows_10436878" target="_blank">LAFS</a>
+      in Flaticon License via
+      <a href="https://www.flaticon.com/" target="_blank">Flaticon</a>
+    </p>
+
     <h3>World map disclaimer and attribution</h3>
     <p>
       The country borders shown on the world map in DAEDALUS Explore are reflective of boundaries as

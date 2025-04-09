@@ -4,6 +4,7 @@
       <h1 class="fs-2 mb-0 pt-1">
         Results
       </h1>
+      <CreateComparison />
       <DownloadExcel />
       <CodeSnippet />
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
@@ -15,46 +16,7 @@
           Rotate your mobile device to landscape for the best experience.
         </p>
       </CAlert>
-      <div v-show="appStore.currentScenario?.parameters && appStore.metadata?.parameters" class="card horizontal-card parameters-card">
-        <CRow>
-          <div
-            v-show="!appStore.largeScreen"
-            class="card-header h-100 align-content-center"
-          >
-            <EditParameters />
-          </div>
-          <CCol class="col-sm">
-            <div class="card-body py-2">
-              <p class="card-text d-flex gap-3 flex-wrap">
-                <CTooltip
-                  v-for="(parameter) in appStore.metadata?.parameters"
-                  :key="parameter.id"
-                  :content="parameter.label"
-                  placement="top"
-                >
-                  <template #toggler="{ id, on }">
-                    <span
-                      :aria-describedby="id"
-                      v-on="on"
-                    >
-                      <ParameterIcon :parameter="parameter" />
-                      <span class="ms-1">
-                        {{ paramDisplayText(parameter) }}
-                      </span>
-                      <CIcon v-if="parameter.id === appStore.globeParameter?.id && countryFlagIcon" :icon="countryFlagIcon" class="parameter-icon text-secondary ms-1" />
-                    </span>
-                  </template>
-                </CTooltip>
-              </p>
-            </div>
-          </CCol>
-          <CCol v-show="appStore.largeScreen" class="col-auto">
-            <div class="card-footer h-100 align-content-center">
-              <EditParameters />
-            </div>
-          </CCol>
-        </CRow>
-      </div>
+      <ParameterInfoCard />
     </div>
     <CSpinner v-show="showSpinner" class="ms-3 mb-3 mt-3" />
     <CAlert v-if="appStore.currentScenario.status.data?.runSuccess === false" color="danger">
@@ -95,9 +57,7 @@
 </template>
 
 <script lang="ts" setup>
-import { CIcon, CIconSvg } from "@coreui/icons-vue";
-import getCountryISO2 from "country-iso-3-to-2";
-import type { Parameter } from "~/types/parameterTypes";
+import { CIconSvg } from "@coreui/icons-vue";
 
 const appStore = useAppStore();
 
@@ -110,32 +70,13 @@ const showSpinner = computed(() => !appStore.currentScenario.result.data
   && appStore.currentScenario.runId,
 );
 
-const paramDisplayText = (param: Parameter) => {
-  if (appStore.currentScenario?.parameters && appStore.currentScenario?.parameters[param.id]) {
-    const rawVal = appStore.currentScenario.parameters[param.id].toString();
-
-    const rawValIsNumberString = Number.parseInt(rawVal).toString() === rawVal;
-    if (rawValIsNumberString) {
-      // TODO: Localize number formatting.
-      return new Intl.NumberFormat().format(Number.parseInt(rawVal));
-    }
-    return param.options ? param.options.find(({ id }) => id === rawVal)!.label : rawVal;
-  }
-};
-
 const route = useRoute();
 const runIdFromRoute = route.params.runId as string;
 if (appStore.currentScenario.runId && runIdFromRoute !== appStore.currentScenario.runId) {
   appStore.clearScenario(); // Required so that previous parameters aren't hanging around in the store.
 }
+appStore.downloadError = undefined;
 appStore.currentScenario.runId = runIdFromRoute;
-
-const countryFlagIcon = computed(() => {
-  const countryISO3 = appStore.currentScenario?.parameters?.country;
-  const countryISO2 = getCountryISO2(countryISO3);
-  const titleCaseISO2 = countryISO2?.toLowerCase().replace(/^(.)/, match => match.toUpperCase());
-  return countryISO2 ? `cif${titleCaseISO2}` : "";
-});
 
 // Use useAsyncData to store the time once, during server-side rendering: avoids client render re-writing value.
 const { data: timeOfFirstStatusPoll } = await useAsyncData<number>("timeOfFirstStatusPoll", async () => {
@@ -231,16 +172,6 @@ onUnmounted(() => {
         --cui-gutter-x: 0;
       }
     }
-
-    &.parameters-card {
-      .btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active, .btn.show {
-        background-color: var(--cui-btn-color); // Overrides a style in _theme.scss
-      }
-    }
-  }
-
-  .chart-header {
-    height: fit-content;
   }
 }
 </style>

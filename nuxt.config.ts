@@ -39,6 +39,7 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@nuxt/test-utils/module", // https://nuxt.com/docs/getting-started/testing#setup
     "@nuxt/eslint",
+    "@vueuse/nuxt",
   ],
 
   vite: {
@@ -72,5 +73,5 @@ export default defineNuxtConfig({
     },
   },
 
-  compatibilityDate: "2024-12-11",
+  compatibilityDate: "2025-04-01",
 });

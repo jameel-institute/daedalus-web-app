@@ -63,7 +63,6 @@ describe("time series", () => {
 
     const firstAccordionHeader = component.find(".accordion-header");
     await firstAccordionHeader.trigger("click");
-    await component.vm.$nextTick();
 
     // Check the open prop of the first TimeSeries component
     expect(timeSeriesGroups[0].props().open).toBe(false);
@@ -71,7 +70,6 @@ describe("time series", () => {
     expect(timeSeriesGroups[2].props().open).toBe(true);
 
     await firstAccordionHeader.trigger("click");
-    await component.vm.$nextTick();
     timeSeriesGroups.forEach((timeSeriesComponent) => {
       expect(timeSeriesComponent.props().open).toBe(true);
     });

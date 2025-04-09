@@ -17,6 +17,13 @@ export interface Scenario {
     fetchStatus: AsyncDataRequestStatus | undefined
   }
 }
+
+export interface Comparison {
+  axis: string | undefined
+  baseline: string | undefined
+  scenarios: Scenario[] | undefined
+}
+
 export interface AppState {
   globe: {
     interactive: boolean
@@ -30,4 +37,5 @@ export interface AppState {
   downloading: boolean
   downloadError: string | undefined
   currentScenario: Scenario // Represents the scenario currently being viewed
+  currentComparison: Comparison // Represents the multi-scenario comparison currently being viewed
 };
