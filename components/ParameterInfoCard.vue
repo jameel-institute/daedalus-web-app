@@ -45,7 +45,7 @@
 import { CIcon } from "@coreui/icons-vue";
 import getCountryISO2 from "country-iso-3-to-2";
 import type { Parameter } from "~/types/parameterTypes";
-import { humanReadableInteger } from "./utils/formatters";
+import { humanReadableInteger } from "~/components/utils/formatters";
 
 const appStore = useAppStore();
 
