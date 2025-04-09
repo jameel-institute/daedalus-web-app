@@ -9,14 +9,8 @@ export interface ScenarioCapacity {
   value: number
 }
 
-export enum InterventionLevel {
-  Light = "light",
-  Heavy = "heavy",
-}
-
 export interface ScenarioIntervention {
   id: string
-  level: InterventionLevel
   start: number
   end: number
 }
