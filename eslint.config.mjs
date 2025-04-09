@@ -44,5 +44,12 @@ export default withNuxt(
         "perfectionist/sort-imports": "off",
       },
     },
+  ).override(
+    "antfu/imports/rules",
+    {
+      rules: {
+        "import/consistent-type-specifier-style": "off",
+      },
+    },
   ),
 );
