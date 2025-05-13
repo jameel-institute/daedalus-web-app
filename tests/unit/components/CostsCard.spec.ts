@@ -44,7 +44,7 @@ describe("costs card", () => {
     const averageVsl = formatCurrency(mockResultResponseData.average_vsl);
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
 
-    const container = component.find(`#costsPieContainer`);
+    const container = component.find(`#costsChartContainer`);
     expect(container.classes()).not.toContain("hide-tooltips");
 
     expect(component.find(`#gdpContainer`).text()).toContain("44.9%");
@@ -61,20 +61,20 @@ describe("costs card", () => {
   it("should show the tooltips when the mouse is over the cost pie container, and not otherwise", async () => {
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
 
-    const costsPieComponent = component.findComponent({ name: "CostsPie.client" });
-    expect(costsPieComponent.props().hideTooltips).toBe(false);
+    const costsChartComponent = component.findComponent({ name: "CostsChart.client" });
+    expect(costsChartComponent.props().hideTooltips).toBe(false);
 
-    const container = component.find(`#costsPieContainer`);
+    const container = component.find(`#costsChartContainer`);
 
     await container.trigger("mouseover");
-    expect(costsPieComponent.props().hideTooltips).toBe(false);
+    expect(costsChartComponent.props().hideTooltips).toBe(false);
 
     await container.trigger("mouseleave");
     await waitFor(() => {
-      expect(costsPieComponent.props().hideTooltips).toBe(true);
+      expect(costsChartComponent.props().hideTooltips).toBe(true);
     }, { timeout: 1000 });
 
     await container.trigger("mouseover");
-    expect(costsPieComponent.props().hideTooltips).toBe(false);
+    expect(costsChartComponent.props().hideTooltips).toBe(false);
   });
 });

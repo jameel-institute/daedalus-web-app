@@ -1,4 +1,4 @@
-import { costsPieTooltipText, plotBandsColor, timeSeriesColors } from "~/components/utils/highCharts";
+import { costsChartTooltipText, plotBandsColor, timeSeriesColors } from "~/components/utils/highCharts";
 
 describe("plotBandsColor", () => {
   it("should be in the correct rgba format", () => {
@@ -49,19 +49,19 @@ describe("costs pie tooltip text", () => {
   };
 
   it("should return the correct text for the top-level ('Total') tooltip", () => {
-    expect(costsPieTooltipText(totalNode, 121100)).toBe(
+    expect(costsChartTooltipText(totalNode, 121100)).toBe(
       `<b>Total</b><br/>\n$1.2 billion<br/>\n1.0% of 2018 national GDP`,
     );
   });
 
   it("should return the correct text for the direct children of the top-level ('Total') tooltip", () => {
-    expect(costsPieTooltipText(lifeYearsNode, 9990)).toBe(
+    expect(costsChartTooltipText(lifeYearsNode, 9990)).toBe(
       `<b>Life years</b><br/>\n$999.0 million<br/>\n10.0% of 2018 national GDP`,
     );
   });
 
   it("should return the correct text for the grand-children of the top-level ('Total') tooltip", () => {
-    expect(costsPieTooltipText(workingAgeAdultsNode, 222222)).toBe(
+    expect(costsChartTooltipText(workingAgeAdultsNode, 222222)).toBe(
       `<b>Life years: Working-age adults</b><br/>\n$222.2 million<br/>\n0.1% of 2018 national GDP`,
     );
   });

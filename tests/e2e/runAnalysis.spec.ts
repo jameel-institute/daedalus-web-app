@@ -94,9 +94,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
 
   await expect(page.locator("#costsChartContainer rect").first()).toBeVisible();
 
-  const costsPieDataStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
-  const costsPieData = JSON.parse(costsPieDataStr!);
-  expect(costsPieData).toHaveLength(12);
+  const costsChartDataStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
+  const costsChartData = JSON.parse(costsChartDataStr!);
+  expect(costsChartData).toHaveLength(12);
 
   const expectedCostData = [
     { id: "total", parent: "", name: "Total", value: 16_000_000 },
@@ -114,7 +114,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   ];
 
   expectedCostData.forEach((expectedCost) => {
-    const cost = costsPieData.find((cost: any) => cost.id === expectedCost.id);
+    const cost = costsChartData.find((cost: any) => cost.id === expectedCost.id);
     expect(cost.name).toEqual(expectedCost.name);
     expect(cost.parent).toBe(expectedCost.parent);
     checkValueIsInRange(cost.value, expectedCost.value, 0.5);
@@ -176,11 +176,11 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   expect(prevalenceTimeSeries2LastY).not.toEqual(prevalenceTimeSeries1LastY);
 
   // Test that the second analysis' costs pie chart has different data from the first.
-  const costsPie2DataStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
-  const costsPie2Data = JSON.parse(costsPie2DataStr!);
-  expect(costsPie2Data).toHaveLength(12);
-  costsPie2Data.forEach((cost: any, index: number) => {
-    expect(cost.value).not.toEqual(costsPieData[index].value);
+  const costsChart2DataStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
+  const costsChart2Data = JSON.parse(costsChart2DataStr!);
+  expect(costsChart2Data).toHaveLength(12);
+  costsChart2Data.forEach((cost: any, index: number) => {
+    expect(cost.value).not.toEqual(costsChartData[index].value);
   });
 
   // Test that the user can navigate to previously-run analyses, including when the page is initially rendered server-side.

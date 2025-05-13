@@ -1,6 +1,6 @@
 import type { AsyncDataRequestStatus } from "#app";
 import type { ScenarioResultData } from "@/types/apiResponseTypes";
-import CostsPie from "@/components/CostsPie.client.vue";
+import CostsChart from "~/components/CostsChart.client.vue";
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
@@ -61,7 +61,7 @@ vi.mock("highcharts", async (importOriginal) => {
 
 describe("costs pie", () => {
   it("should render the costs pie chart container", async () => {
-    const component = await mountSuspended(CostsPie, {
+    const component = await mountSuspended(CostsChart, {
       global: { stubs, plugins: [mockPinia()] },
       props: { hideTooltips: false },
     });
@@ -77,7 +77,7 @@ describe("costs pie", () => {
   });
 
   it("should populate the cost data into the chart when the data is loaded after the component is mounted", async () => {
-    await mountSuspended(CostsPie, {
+    await mountSuspended(CostsChart, {
       global: { stubs, plugins: [mockPinia({}, true, { stubActions: false })] },
       props: { hideTooltips: false },
     });
@@ -91,7 +91,7 @@ describe("costs pie", () => {
   });
 
   it("should populate the cost data into the chart when the data is loaded before the component is mounted", async () => {
-    await mountSuspended(CostsPie, {
+    await mountSuspended(CostsChart, {
       global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithCostData }, true, { stubActions: false })] },
       props: { hideTooltips: false },
     });
@@ -103,7 +103,7 @@ describe("costs pie", () => {
 
   it("should set pie size depending on screen size", async () => {
     const chartSpy = vi.spyOn(Highcharts, "chart");
-    await mountSuspended(CostsPie, {
+    await mountSuspended(CostsChart, {
       global: { stubs, plugins: [mockPinia()] },
       props: { hideTooltips: false },
     });
@@ -128,7 +128,7 @@ describe("costs pie", () => {
   it("should initialise the chart with the correct options", async () => {
     const chartSpy = vi.spyOn(Highcharts, "chart");
 
-    await mountSuspended(CostsPie, {
+    await mountSuspended(CostsChart, {
       global: { stubs, plugins: [mockPinia()] },
       props: { hideTooltips: false },
     });
@@ -162,7 +162,7 @@ describe("costs pie", () => {
   });
 
   it("should destroy the chart when the component is unmounted", async () => {
-    const component = await mountSuspended(CostsPie, {
+    const component = await mountSuspended(CostsChart, {
       global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithCostData })] },
       props: { hideTooltips: false },
     });

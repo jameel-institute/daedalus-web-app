@@ -1,6 +1,6 @@
 <template>
   <div class="position-relative">
-    <CostsLegend />
+    <!-- <CostsLegend /> -->
     <div
       :id="chartContainerId"
       ref="chartContainer"
@@ -15,7 +15,7 @@ import * as Highcharts from "highcharts";
 import accessibilityInitialize from "highcharts/modules/accessibility";
 import sunburstInitialize from "highcharts/modules/sunburst";
 import throttle from "lodash.throttle";
-import { costsPieColors, costsPieTooltipText } from "./utils/highCharts";
+import { costsChartColors, costsChartTooltipText } from "./utils/highCharts";
 
 const props = defineProps<{
   hideTooltips: boolean
@@ -191,7 +191,7 @@ const chartInitialOptions = () => {
         showFullPath: false,
       },
     },
-    colors: costsPieColors,
+    colors: costsChartColors,
     title: {
       text: "",
       style: {
@@ -201,7 +201,7 @@ const chartInitialOptions = () => {
     series: [chartSeries()],
     tooltip: {
       pointFormatter() {
-        return costsPieTooltipText(this, appStore.currentScenario.result.data!.gdp);
+        return costsChartTooltipText(this, appStore.currentScenario.result.data!.gdp);
       },
     },
   } as Highcharts.Options;

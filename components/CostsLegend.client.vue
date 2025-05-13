@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import type { ScenarioCost } from "~/types/resultTypes";
-import { costsPieColors, type LegendItem, LegendShape } from "./utils/highCharts";
+import { costsChartColors, type LegendItem, LegendShape } from "./utils/highCharts";
 
 const appStore = useAppStore();
 
@@ -18,8 +18,8 @@ const costLabel = (cost: ScenarioCost) => {
 
 const items = computed((): LegendItem[] => {
   const costsWithColors = appStore.totalCost?.children?.map((cost: ScenarioCost, index: number) => {
-    // The first color in costsPieColors is used by the Total cost, is transparent, and not included in the legend.
-    return { color: costsPieColors[index + 1], label: costLabel(cost), shape: LegendShape.Circle, value: cost.value };
+    // The first color in costsChartColors is used by the Total cost, is transparent, and not included in the legend.
+    return { color: costsChartColors[index + 1], label: costLabel(cost), shape: LegendShape.Circle, value: cost.value };
   }) || [];
 
   const sortedCosts = costsWithColors.sort((a: { value: number }, b: { value: number }) => b.value - a.value);

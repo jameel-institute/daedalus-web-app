@@ -49,16 +49,16 @@
           </p>
         </div>
       </div>
-      <div class="pie-table-container">
-        <div class="flex-grow-1">
-          <CostsTable data-testid="costs-table" />
-        </div>
-        <CostsPie
-          id="costsPieContainer"
+      <div class="chart-and-table-container">
+        <CostsChart
+          id="costsChartContainer"
           :hide-tooltips="hideTooltips"
           @mouseleave="onMouseLeavePie"
           @mouseover="hideTooltips = false"
         />
+        <div class="flex-grow-1">
+          <CostsTable data-testid="costs-table" />
+        </div>
       </div>
       <p class="fw-lighter vsl-display">
         * Value of statistical life: ${{ formatCurrency(appStore.currentScenario.result.data!.average_vsl) }} Int'l$
@@ -106,14 +106,14 @@ const onMouseLeavePie = () => {
     display: flex;
     flex-direction: column;
   }
-  .pie-table-container {
+  .chart-and-table-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 1rem;
   }
-  .pie-table-container > :nth-child(2) {
+  .chart-and-table-container > :nth-child(2) {
     flex-grow: 1;
     display: flex;
     justify-content: center;
