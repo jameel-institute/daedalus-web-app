@@ -149,7 +149,7 @@ const onMouseLeavePie = () => {
 
     #gdpTotalCostPercentSymbolContainer {
       align-self: flex-end;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.7rem;
 
       #gdpTotalCostPercentageSymbol {
         font-size: 3rem;
@@ -165,7 +165,7 @@ const onMouseLeavePie = () => {
 
   #usdContainer {
     line-height: 1;
-    margin-top: 1rem;
+    margin-top: 1.2rem;
 
     #usdSymbol {
       font-size: 2rem;
