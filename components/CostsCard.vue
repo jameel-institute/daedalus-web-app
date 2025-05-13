@@ -120,7 +120,7 @@ const onMouseLeavePie = () => {
   }
 
   .card-header {
-    height: 66.375px; // Hard-coded to match the height of the time series card header
+    height: 46.375px; // Hard-coded to match the height of the time series card header
     border-bottom: var(--cui-border-width) solid var(--cui-border-color);
   }
 
