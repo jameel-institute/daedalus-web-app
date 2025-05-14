@@ -1,35 +1,34 @@
 <template>
-  <div class="position-relative">
-    <!-- <CostsLegend /> -->
-    <div
-      :id="chartContainerId"
-      ref="chartContainer"
-      :class="[props.hideTooltips ? hideTooltipsClassName : '']"
-      :data-summary="JSON.stringify(costsData)"
-    />
-  </div>
+  <div
+    :id="chartContainerId"
+    ref="chartContainer"
+    :class="[props.hideTooltips ? hideTooltipsClassName : '']"
+    :data-summary="JSON.stringify(costsData)"
+  />
 </template>
 
 <script lang="ts" setup>
 import * as Highcharts from "highcharts";
 import accessibilityInitialize from "highcharts/modules/accessibility";
-import sunburstInitialize from "highcharts/modules/sunburst";
+
+import exportDataInitialize from "highcharts/modules/export-data";
+import exportingInitialize from "highcharts/modules/exporting";
+import offlineExportingInitialize from "highcharts/modules/offline-exporting";
+
 import throttle from "lodash.throttle";
-import { costsChartColors, costsChartTooltipText } from "./utils/highCharts";
+import { colorBlindSafeColors, costsChartTooltipText, getColorVariants } from "./utils/highCharts";
 
 const props = defineProps<{
   hideTooltips: boolean
 }>();
 
 accessibilityInitialize(Highcharts);
-sunburstInitialize(Highcharts);
 
-interface pieCost {
-  id: string
-  parent: string
-  name: string
-  value?: number // If value is not provided, Highcharts calculates the children's sum itself.
-}
+exportingInitialize(Highcharts);
+exportDataInitialize(Highcharts);
+offlineExportingInitialize(Highcharts);
+
+const sharedTooltips = false;
 
 const appStore = useAppStore();
 const chartContainerId = "costsChartContainer";
@@ -37,118 +36,46 @@ const hideTooltipsClassName = "hide-tooltips";
 const chartBackgroundColor = "transparent";
 const chartBackgroundColorOnExporting = "white";
 let chart: Highcharts.Chart;
-const costsData = ref<pieCost[]>([]); // This is only implemented as ref for testing purposes, via the data-summary attribute.
-const pieSize = computed(() => appStore.largeScreen ? 450 : 300);
+const costsData = ref([]); // This is only implemented as ref for testing purposes, via the data-summary attribute.
+const chartWidth = computed(() => appStore.largeScreen ? 700 : 600);
+const chartHeight = computed(() => appStore.largeScreen ? 450 : 300);
 const chartContainer = ref<HTMLElement | null>(null);
 
-// Prioritise showing labels for larger slices over smaller slices, where labels would otherwise overlap.
-const lowerLevelsDataLabelFilter: Highcharts.DataLabelsFilterOptionsObject = {
-  property: "innerArcLength",
-  operator: ">",
-  value: 16,
-};
+// There are 3 levels of data breakdown for costs: total, GDP/life-years/education, and a further breakdown.
+// The levels are 'ragged' - i.e. not all items on a level will have the same number of children as each other.
+// We don't display the top level in the chart.
+// Each column corresponds to a second-level cost, and the third level is shown as a stacked break-down within the column.
+// Since Highchart treats series as the fundamental concept, and series are orthogonal to columns,
+// we have to wrangle our data to match, as well as implement color logic and legend logic ourselves.
+const getSeries = (): Highcharts.SeriesColumnOptions[] | undefined => {
+  // We need as many series as there are breakdowns in the most broken-down column.
+  const numberOfSeries = appStore.totalCost?.children?.reduce((max, cost) => {
+    return Math.max(max, cost.children?.length || 0);
+  }, 0) || 0;
 
-const defaultDataLabelStyle: Highcharts.CSSObject = {
-  fontSize: "1rem",
-  fontWeight: "500",
-  textOutline: "none",
-  textShadow: "0px 0px 4px black",
-  color: "white",
-};
-const topLevelDataLabelStyle: Highcharts.CSSObject = {
-  fontSize: "0.8rem",
-  textShadow: "none",
-  textOutline: "none",
-  color: "var(--cui-card-color)",
-  backgroundColor: "green",
-};
-
-const levelSizesWhen3Levels = {
-  inner: 1,
-  mid: 2,
-  outer: 1,
-};
-const levelSizesWhen2Levels = {
-  inner: 2,
-  outer: 1,
-};
-
-const chartLevelsOptions = (isDrillingDown: boolean = false): Array<Highcharts.PlotSunburstLevelsOptions> => [{
-  level: 1,
-  levelIsConstant: false,
-  levelSize: {
-    unit: "weight",
-    value: isDrillingDown ? 0 : levelSizesWhen3Levels.inner,
-  },
-  dataLabels: {
-    style: isDrillingDown ? defaultDataLabelStyle : topLevelDataLabelStyle,
-  },
-}, {
-  level: 2,
-  colorByPoint: true,
-  levelSize: {
-    unit: "weight",
-    value: isDrillingDown ? levelSizesWhen2Levels.inner : levelSizesWhen3Levels.mid,
-  },
-}, {
-  level: 3,
-  colorVariation: {
-    key: "brightness",
-    to: -0.75,
-  },
-  dataLabels: {
-    enabled: isDrillingDown,
-    filter: lowerLevelsDataLabelFilter,
-    style: {
-      fontWeight: "400",
-      fontSize: "0.8rem",
-    },
-  },
-  levelSize: {
-    unit: "weight",
-    value: isDrillingDown ? levelSizesWhen2Levels.outer : levelSizesWhen3Levels.outer,
-  },
-}];
-
-const chartSeries = () => {
-  return {
-    type: "sunburst",
-    data: costsData.value, // Empty at initialisation, populated later
-    name: "Root",
-    allowDrillToNode: true,
-    borderRadius: 0,
-    borderWidth: 0.5,
-    borderColor: "white",
-    cursor: "pointer",
-    events: {
-      click(event) {
-        // When the clicked chart 'point' is in the second level of the sunburst,
-        // that means some drilling down or up (traversing up and down the chart) is triggered.
-        const isDrilling = event.point.node.level !== 1 && event.point.node.children.length > 0; // No drill-down if no children to drill down to;
-        if (!isDrilling) {
-          return;
-        }
-        const isDrillingUp = event.point.drillId === appStore.totalCost?.id;
-        const isDrillingDown = isDrilling && !isDrillingUp;
-        chart.update({ series: { levels: chartLevelsOptions(isDrillingDown) } });
-      },
-    },
-    dataLabels: {
-      rotation: 0,
-      rotationMode: "auto", // Without this, labels sometimes appear in the top left at random. https://github.com/highcharts/highcharts/issues/18953
-      formatter() {
-        if (this.point.index === 0) {
-          return "Losses";
-        } else {
-          return this.point.name;
+  // Each series' data is an array of each second-level cost's Nth child.
+  // For example, the first series should comprise the first child of GDP, first child of life-years, and the first child of education.
+  const series: Highcharts.SeriesColumnOptions[] = [];
+  for (let stackRowIndex = 0; stackRowIndex < numberOfSeries; stackRowIndex++) {
+    series.push({
+      type: "column",
+      data: appStore.totalCost?.children?.map((cost, columnIndex) => {
+        const subCost = cost.children?.[stackRowIndex];
+        // If we did not care about varying the colors within the column, we could just use the 'colorByPoint' option.
+        const columnBaseColor = colorBlindSafeColors[columnIndex].hex;
+        const colorVariants = getColorVariants(columnBaseColor, Math.max(cost.children?.length || 1));
+        // If there is no Nth child for some cost, we still need to create a breakdown for the stack with a y-value of 0,
+        // to ensure that any subsequent data points will belong to the correct column.
+        return {
+          y: subCost?.value || 0,
+          name: appStore.getCostLabel(subCost?.id || ""),
+          color: colorVariants[stackRowIndex],
         };
-      },
-      style: defaultDataLabelStyle,
-      allowOverlap: false,
-    },
-    levels: chartLevelsOptions(),
-    animation: false,
-  } as Highcharts.SeriesSunburstOptions;
+      }) || [],
+    });
+  }
+
+  return series;
 };
 
 const chartInitialOptions = () => {
@@ -157,12 +84,9 @@ const chartInitialOptions = () => {
       text: "Highcharts",
     },
     chart: {
-      spacing: [0, 0, 0, 0],
-      options3d: {
-        enabled: true,
-      },
-      height: pieSize.value,
-      width: pieSize.value,
+      // spacing: [0, 0, 0, 0],
+      height: chartHeight.value,
+      width: chartWidth.value,
       backgroundColor: chartBackgroundColor,
       events: {
         fullscreenOpen() {
@@ -176,92 +100,137 @@ const chartInitialOptions = () => {
         fontFamily: "ImperialSansText, sans-serif", // TODO: Make the font-family derive from a globally configurable constant
       },
     },
-    exporting: { enabled: false },
-    navigation: {
-      breadcrumbs: {
-        events: {
-          click() {
-            chart.update({ series: { levels: chartLevelsOptions(false) } });
-          },
+    exporting: {
+      // TODO: update filename/title/subtitle.
+      filename: `Losses in ${appStore.currentScenario.parameters?.country}`,
+      chartOptions: {
+        title: {
+          text: `Losses in ${appStore.currentScenario.parameters?.country}`,
         },
-        position: {
-          verticalAlign: "bottom",
-          align: "center",
+        // subtitle: {
+        //   text: seriesMetadata.value!.description,
+        // },
+        chart: {
+          backgroundColor: chartBackgroundColorOnExporting,
+          height: 500, // TODO.
         },
-        showFullPath: false,
+      },
+      buttons: {
+        contextButton: {
+          height: 20,
+          width: 22,
+          symbolSize: 12,
+          symbolY: 10,
+          symbolX: 12,
+          symbolStrokeWidth: 2,
+          // Omit 'printChart' and 'viewData' from menu items
+          menuItems: ["downloadCSV", "downloadXLS", "separator", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG", "separator", "viewFullscreen"],
+          useHTML: true,
+        },
+      },
+      menuItemDefinitions: {
+        downloadCSV: {
+          text: "Download CSV for this chart",
+        },
+        downloadXLS: {
+          text: "Download XLS for this chart",
+        },
       },
     },
-    colors: costsChartColors,
     title: {
       text: "",
       style: {
         color: "white",
       },
     },
-    series: [chartSeries()],
-    tooltip: {
-      pointFormatter() {
-        return costsChartTooltipText(this, appStore.currentScenario.result.data!.gdp);
+    xAxis: {
+      categories: appStore.totalCost?.children?.map(cost => appStore.getCostLabel(cost.id)),
+    },
+    yAxis: { // TODO: allow changing results to % of national GDP (see costsChartTooltipText func)
+      min: 0,
+      title: {
+        text: "Losses in billions USD",
       },
+      stackLabels: {
+        enabled: true,
+        formatter() {
+          const abbr = abbreviateMillionsDollars(this.total, 1);
+          return `$${abbr.amount} ${abbr.unit}`;
+        },
+      },
+      labels: {
+        formatter() {
+          if (this.value === 0) {
+            return "0";
+          }
+          const abbr = expressMillionsDollarsAsBillions(this.value as number, 0, true);
+          return `${abbr.amount}`;
+        },
+      },
+    },
+    series: getSeries(), // Empty at initialisation, populated later. TODO: see if there is a reason for doing it like that.
+    legend: {
+      enabled: false,
+    },
+    tooltip: {
+      shared: sharedTooltips, // TODO: toggle this (and below distance) for scientist demo. https://www.highcharts.com/docs/chart-concepts/tooltip
+      distance: sharedTooltips ? 128 : undefined, // necessary for SHARED tooltips to not obscure stack labels or stack-blocks.
+      formatter(this) {
+        return costsChartTooltipText(this, sharedTooltips, appStore.currentScenario.result.data!.gdp);
+      },
+    },
+    plotOptions: {
+      column: {
+        colorByPoint: true, // Colors accrue to (stacked) columns, not to series (which are orthogonal to columns)
+        // borderRadius: 0,
+        // borderWidth: 0.5,
+        // cursor: "pointer",
+        dataLabels: {
+          // formatter() {
+          //   if (this.point.index === 0) {
+          //     return "Losses";
+          //   } else {
+          //     return this.point.name;
+          //   };
+          // },
+          // style: defaultDataLabelStyle,
+          allowOverlap: false,
+        },
+        stacking: "normal",
+        groupPadding: 0.05,
+        // animation: false,
+      } as Highcharts.SeriesColumnOptions,
     },
   } as Highcharts.Options;
 };
 
-const populateCostsDataIntoPie = () => {
-  if (!appStore.totalCost) {
-    return;
-  }
-  const data = [{
-    id: appStore.totalCost.id,
-    parent: "",
-    name: appStore.getCostLabel(appStore.totalCost.id),
-    value: appStore.totalCost?.value,
-  }];
-  // Iterate over first level of children before recursing into the next level,
-  // so that earlier pieCostsColors are assigned to top-level children before
-  // the next level of children. (Using recursion changes the color assignment order.)
-  appStore.totalCost.children?.forEach((cost) => {
-    data.push({
-      id: cost.id,
-      parent: appStore.totalCost!.id,
-      name: appStore.getCostLabel(cost.id),
-      value: cost.value,
-    });
-  });
+// TODO - restore these functions if it seems to be needed.
+// const populateCostsDataIntoPie = () => {
+//   if (!appStore.totalCost) {
+//     return;
+//   }
 
-  // Iterate over second level of children, for a total of 3 levels.
-  // For now, we are hard-coding an expectation of 3 levels.
-  appStore.totalCost.children?.forEach((cost) => {
-    // Omit sub-costs with a value of zero
-    cost.children?.filter(subCost => subCost.value !== 0)?.forEach((subCost) => {
-      data.push({
-        id: subCost.id,
-        parent: cost.id,
-        name: appStore.getCostLabel(subCost.id),
-        value: subCost.value,
-      });
-    });
-  });
-  costsData.value = data;
-  chart.series[0].setData(costsData.value);
-};
+//   const series = getSeries();
 
-watch(() => appStore.costsData, () => {
-  if (appStore.costsData) {
-    populateCostsDataIntoPie();
-  }
-});
+//   chart.series[0].setData(costsData.value);
+// };
+// watch(() => appStore.costsData, () => {
+//   if (appStore.costsData) {
+//     populateCostsDataIntoPie();
+//   }
+// });
 
 watch(() => appStore.largeScreen, throttle(() => {
   if (chart) {
-    chart.setSize(pieSize.value, pieSize.value, { duration: 250 });
+    chart.setSize(chartWidth.value, chartHeight.value, { duration: 250 });
   }
 }, 25));
 
 watch(() => chartContainer.value, () => {
-  chart = Highcharts.chart(chartContainerId, chartInitialOptions());
-  if (appStore.costsData) {
-    populateCostsDataIntoPie();
+  if (appStore.costsData && !chart && chartContainer.value) {
+    // TODO - for tests.
+    // costsData.value = series?.map(series => series.data?.map((point) => point?.y));
+    chart = Highcharts.chart(chartContainerId, chartInitialOptions());
   }
 });
 
@@ -275,7 +244,7 @@ onUnmounted(() => {
 <style lang="scss">
 #costsChartContainer {
   font-weight: normal !important;
-  z-index: 10; // Above timeseries, below costs pie legend
+  z-index: 10; // Above timeseries
 
   .highcharts-tooltip {
     transition: filter 0.2s;

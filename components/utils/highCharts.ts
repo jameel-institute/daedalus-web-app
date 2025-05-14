@@ -10,13 +10,30 @@ export const plotLinesColor = "#FF0000"; // red;
 export const timeSeriesColors = originalHighchartsColors!.slice(1);
 
 // Colours from Bang Wong palette, see https://davidmathlogic.com/colorblind
-const colorBlindSafeColors = [
+export const colorBlindSafeColors = [
   { name: "Vermillion", hex: "#d55e00" },
   { name: "Bluish green", hex: "#009e73" },
   { name: "Sky blue", hex: "#56b4e9" },
 ];
 
-export const costsChartColors = ["rgba(1,1,1,0)"].concat(Array.from<string>(colorBlindSafeColors.map(color => color.hex))); // Make the center circle translucent
+// Create a range of N colors varying in brightness
+export const getColorVariants = (colorHex: string, numberOfVariants: number) => {
+  const rgb = hexRgb(colorHex);
+  const colors = [];
+  const minBrightness = 0.5; // 50% brightness
+  const maxBrightness = 1.0; // 100% brightness
+  for (let i = 0; i < numberOfVariants; i++) {
+    const factor = i / (numberOfVariants - 1);
+    const brightness = minBrightness + (maxBrightness - minBrightness) * factor;
+    const newColor = `rgba(
+      ${Math.round(rgb.red * brightness)},
+      ${Math.round(rgb.green * brightness)},
+      ${Math.round(rgb.blue * brightness)},
+      ${rgb.alpha})`;
+    colors.push(newColor);
+  }
+  return colors;
+};
 
 export interface LegendItem {
   color: string
@@ -30,12 +47,27 @@ export enum LegendShape {
   Circle = "circle",
 }
 
-export const costsChartTooltipText = (point: Highcharts.Point, nationalGdp: number) => {
-  const abbr = abbreviateMillionsDollars(point.value);
-  // The 'Total' cost/point has an 'i' of 0. When queried for the i of its own, non-existent parent, it returns -1.
-  const pointIsTotal = point.node.i === 0;
-  const parentIsTotal = point.node.parentNode.i === 0;
-  const header = pointIsTotal || parentIsTotal ? point.name : [point.node.parentNode.name, point.name].join(": ");
-  const base = `<b>${header}</b><br/>\n$${abbr.amount} ${abbr.unit}`;
-  return `${base}<br/>\n${((point.value / nationalGdp) * 100).toFixed(1)}% of 2018 national GDP`;
+const columnChartTooltipPointFormatter = (yValue: number, color: string, name: string) => {
+  const abbr = abbreviateMillionsDollars(yValue || 0, 2, true);
+  return `<span style="font-size: 0.8rem;">`
+    + `<span style="color:${color}; font-size: 1.3rem;">●</span> `
+    + `<span style="font-size: 0.8rem;">${name}<span style="font-size: 0.9rem;">: <b>$${abbr.amount} ${abbr.unit}</b>`
+    + `</span><br/>`;
+};
+
+export const costsChartTooltipText = (context: Highcharts.TooltipFormatterContextObject, sharedTooltipsMode: boolean, nationalGdp: number) => {
+  const abbreviatedTotal = abbreviateMillionsDollars(context.total, 1);
+  let headerText = `${context.x}: <b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b>`;
+  if (context.total > 0) {
+    headerText = `${headerText}</br>(<b>${((context.total / nationalGdp) * 100).toFixed(1)}%</b> of 2018 national GDP)`;
+  }
+
+  let pointsText;
+  if (sharedTooltipsMode) {
+    pointsText = context.points?.filter(point => point.point.name).map(point => columnChartTooltipPointFormatter(point.y, point.color, point.key))?.join("");
+  } else {
+    pointsText = columnChartTooltipPointFormatter(context.y, context.color, context.point.name);
+  }
+
+  return `<span style="font-size: 0.8rem;">${headerText}<br/><br/>${pointsText}</span>`;
 };
