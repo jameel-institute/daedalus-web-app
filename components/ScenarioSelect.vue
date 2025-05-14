@@ -1,6 +1,7 @@
 <template>
   <div class="position-relative flex-grow-1">
-    <!-- TODO: (jidea-229) For user-provided custom options, consider using displayedOptions prop to control inclusion in menu -->
+    <!-- TODO: (jidea-229) For user-provided custom options, consider using hideSelectedOptons prop, introduced in a later
+      VueSelect version, to control inclusion in menu. https://github.com/TotomInc/vue3-select-component/issues/233 -->
     <!-- TODO: (jidea-230) For country options, consider using getOptionLabel prop to insert country flag in menu option -->
     <VueSelect
       ref="vueSelectComponent"
