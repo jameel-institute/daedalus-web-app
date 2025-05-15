@@ -17,6 +17,7 @@ import offlineExportingInitialize from "highcharts/modules/offline-exporting";
 
 import throttle from "lodash.throttle";
 import { colorBlindSafeColors, costsChartTooltipText, getColorVariants } from "./utils/highCharts";
+import { gdpReference } from "./utils/formatters";
 
 const props = defineProps<{
   hideTooltips: boolean
@@ -28,8 +29,6 @@ accessibilityInitialize(Highcharts);
 exportingInitialize(Highcharts);
 exportDataInitialize(Highcharts);
 offlineExportingInitialize(Highcharts);
-
-const sharedTooltips = false;
 
 const appStore = useAppStore();
 const chartContainerId = "costsChartContainer";
@@ -61,9 +60,21 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] | undefined => {
       type: "column",
       data: appStore.totalCost?.children?.map((cost, columnIndex) => {
         const subCost = cost.children?.[stackRowIndex];
+        if (!subCost) {
+          // If there is no Nth child for some cost, we still need to create a breakdown for the stack with a y-value of 0,
+          // to ensure that any subsequent data points will belong to the correct column.
+          return {
+            y: 0,
+            custom: {
+              includeInTooltips: false,
+            },
+          } as Highcharts.PointOptionsObject;
+        }
         // If we did not care about varying the colors within the column, we could just use the 'colorByPoint' option.
         const columnBaseColor = colorBlindSafeColors[columnIndex].hex;
-        const colorVariants = getColorVariants(columnBaseColor, Math.max(cost.children?.length || 1));
+        const numberOfColorVariants = Math.max(cost.children?.length || 1);
+        const colorVariants = getColorVariants(columnBaseColor, numberOfColorVariants);
+
         // If there is no Nth child for some cost, we still need to create a breakdown for the stack with a y-value of 0,
         // to ensure that any subsequent data points will belong to the correct column.
 
@@ -74,6 +85,9 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] | undefined => {
           y: value,
           name: appStore.getCostLabel(subCost?.id || ""),
           color: colorVariants[stackRowIndex],
+          custom: {
+            includeInTooltips: true,
+          } as Highcharts.PointOptionsObject,
         };
       }) || [],
     });
@@ -84,13 +98,14 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] | undefined => {
 
 const yAxisOptions = () => {
   return {
+    gridLineColor: "lightgrey",
     min: 0,
     title: {
-      text: props.isGdp ? "Losses as % of 2018 national GDP" : "Losses in billions USD",
+      text: props.isGdp ? `Losses as % ${gdpReference}` : "Losses in billions USD",
     },
     stackLabels: {
       enabled: true,
-      formatter: props.isGdp
+      formatter: props.isGdp // TODO: check that it's OK to put this check inside the formatter (then we don't need to update these options in a watcher)
         ? function () {
           return `${this.total.toFixed(1)}% of GDP`;
         }
@@ -114,14 +129,14 @@ const yAxisOptions = () => {
 
 const tooltipOptions = () => {
   return {
-    shared: sharedTooltips, // TODO: toggle this (and below distance) for scientist demo. https://www.highcharts.com/docs/chart-concepts/tooltip
-    distance: sharedTooltips ? 128 : undefined, // necessary for SHARED tooltips to not obscure stack labels or stack-blocks.
+    shared: true,
+    distance: 128, // necessary for shared tooltips to not obscure stack labels or grand-child costs within a stack.
     formatter: props.isGdp
       ? function (this) {
-        return costsChartTooltipText(this, true, sharedTooltips, appStore.currentScenario.result.data!.gdp);
+        return costsChartTooltipText(this, true, appStore.currentScenario.result.data!.gdp);
       }
       : function (this) {
-        return costsChartTooltipText(this, false, sharedTooltips, appStore.currentScenario.result.data!.gdp);
+        return costsChartTooltipText(this, false, appStore.currentScenario.result.data!.gdp);
       },
   } as Highcharts.TooltipOptions;
 };
@@ -133,7 +148,7 @@ const chartInitialOptions = () => {
     },
     chart: {
       // spacing: [0, 0, 0, 0],
-      height: chartParentEl.value?.clientHeight,
+      height: Math.max(chartParentEl.value?.clientHeight || 0, 400),
       width: chartParentEl.value?.clientWidth,
       backgroundColor: chartBackgroundColor,
       events: {
@@ -165,6 +180,9 @@ const chartInitialOptions = () => {
       },
       buttons: {
         contextButton: {
+          theme: {
+            fill: "transparent",
+          },
           height: 20,
           width: 22,
           symbolSize: 12,

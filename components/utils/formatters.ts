@@ -3,3 +3,13 @@
 export const humanReadableInteger = (num: string): string => {
   return new Intl.NumberFormat().format(Number.parseInt(num));
 };
+
+export const gdpReferenceYear = "2018";
+export const gdpReference = `of ${gdpReferenceYear} national GDP`;
+
+export const humanReadablePercentOfGdp = (num: number): { percent: string, reference: string } => {
+  return {
+    percent: `${num.toFixed(1)}%`,
+    reference: gdpReference,
+  };
+};

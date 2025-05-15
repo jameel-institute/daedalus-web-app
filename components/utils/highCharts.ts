@@ -1,6 +1,7 @@
 import { abbreviateMillionsDollars } from "#imports";
 import hexRgb from "hex-rgb";
 import * as Highcharts from "highcharts";
+import { humanReadablePercentOfGdp } from "./formatters";
 
 const originalHighchartsColors = Highcharts.getOptions().colors!;
 const colorRgba = hexRgb(originalHighchartsColors[0] as string);
@@ -32,7 +33,7 @@ export const getColorVariants = (colorHex: string, numberOfVariants: number) => 
       ${rgb.alpha})`;
     colors.push(newColor);
   }
-  return colors;
+  return colors.reverse();
 };
 
 export interface LegendItem {
@@ -47,39 +48,49 @@ export enum LegendShape {
   Circle = "circle",
 }
 
-const columnChartTooltipPointFormatter = (yValue: number, color: string, name: string, valuesGivenAsPercentGdp: boolean) => {
-  if (valuesGivenAsPercentGdp) {
-    return `<span style="font-size: 0.8rem;">`
-      + `<span style="color:${color}; font-size: 1.3rem;">●</span> `
-      + `<span style="font-size: 0.8rem;">${name}<span style="font-size: 0.9rem;">: <b>${yValue.toFixed(1)}%</b>`
-      + `</span><br/>`;
-  } else {
-    const abbr = abbreviateMillionsDollars(yValue || 0, 1, true);
-    return `<span style="font-size: 0.8rem;">`
-      + `<span style="color:${color}; font-size: 1.3rem;">●</span> `
-      + `<span style="font-size: 0.8rem;">${name}<span style="font-size: 0.9rem;">: <b>$${abbr.amount} ${abbr.unit}</b>`
-      + `</span><br/>`;
+const columnChartTooltipPointFormatter = (point: Highcharts.TooltipFormatterContextObject, valuesGivenAsPercentGdp: boolean) => {
+  if (!point.y && point.y !== 0) {
+    return "";
   }
+
+  let valueDisplay;
+  if (valuesGivenAsPercentGdp) {
+    valueDisplay = humanReadablePercentOfGdp(point.y).percent;
+  } else {
+    const abbr = abbreviateMillionsDollars(point.y || 0, 1, true);
+    valueDisplay = `$${abbr.amount} ${abbr.unit}`;
+  }
+
+  return `<span style="font-size: 0.8rem;">`
+    + `<span style="color:${point.color}; font-size: 1.3rem;">●</span> `
+    + `<span style="font-size: 0.8rem;">${point.key}<span style="font-size: 0.9rem;">: <b>${valueDisplay}</b>`
+    + `</span><br/>`;
 };
 
-export const costsChartTooltipText = (context: Highcharts.TooltipFormatterContextObject, valuesGivenAsPercentGdp: boolean, sharedTooltipsMode: boolean, nationalGdp: number) => {
-  let headerText = "";
+export const costsChartTooltipText = (context: Highcharts.TooltipFormatterContextObject, valuesGivenAsPercentGdp: boolean, nationalGdp: number) => {
+  if (!context.total && context.total !== 0) {
+    return "";
+  }
+
+  let headerText = `${context.x} losses: `;
   if (valuesGivenAsPercentGdp) {
-    headerText = `${context.x}: <b>${context.total?.toFixed(1)}%</b> of 2018 national GDP`;
+    const percentOfGdp = humanReadablePercentOfGdp(context.total);
+    headerText = `${headerText}<b>${percentOfGdp.percent}</b> ${percentOfGdp.reference}`;
   } else {
     const abbreviatedTotal = abbreviateMillionsDollars(context.total, 1);
-    headerText = `${context.x}: <b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b>`;
+    headerText = `${headerText}<b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b>`;
     if (context.total && context.total > 0) {
-      headerText = `${headerText}</br>(<b>${((context.total / nationalGdp) * 100).toFixed(1)}%</b> of 2018 national GDP)`;
+      const percentOfGdp = humanReadablePercentOfGdp(((context.total / nationalGdp) * 100));
+      headerText = `${headerText}</br>(${percentOfGdp.percent} ${percentOfGdp.reference})`;
     }
   }
 
-  let pointsText;
-  if (sharedTooltipsMode) {
-    pointsText = context.points?.filter(point => point.point.name).map(point => columnChartTooltipPointFormatter(point.y, point.color, point.key, valuesGivenAsPercentGdp))?.join("");
-  } else {
-    pointsText = columnChartTooltipPointFormatter(context.y, context.color, context.point.name, valuesGivenAsPercentGdp);
-  }
+  const pointsText = context.points
+    ?.filter(point => point.point.custom.includeInTooltips)
+    .map((point) => {
+      return columnChartTooltipPointFormatter(point, valuesGivenAsPercentGdp);
+    })
+    ?.join("");
 
   return `<span style="font-size: 0.8rem;">${headerText}<br/><br/>${pointsText}</span>`;
 };

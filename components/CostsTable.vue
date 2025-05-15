@@ -2,15 +2,16 @@
   <table v-if="appStore.totalCost" class="table rounded table-hover table-sm">
     <thead class="border-bottom-2 border-black">
       <tr>
-        <th />
-        <th>{{ isGdp ? "% of 2018 GDP" : "$, millions" }}</th>
+        <th style="cursor: pointer" @click="accordioned = !accordioned">
+          <CIcon icon="cilPlus" />
+          <span class="text-muted ps-1">{{ accordioned ? "Expand" : "Collapse" }} all</span>
+        </th>
+        <th>{{ isGdp ? `% of ${gdpReference} GDP` : "$, millions" }}</th>
       </tr>
     </thead>
     <tbody>
       <template
-        v-for="childCost in appStore.totalCost.children?.toSorted(
-          (a, b) => b.value - a.value,
-        )"
+        v-for="(childCost) in appStore.totalCost.children"
         :key="childCost.id"
       >
         <tr>
@@ -19,7 +20,7 @@
           </td>
           <td>{{ displayValue(childCost.value) }}</td>
         </tr>
-        <template v-if="childCost.children">
+        <template v-if="childCost.children && !accordioned">
           <tr
             v-for="grandChildCost in childCost.children"
             :key="grandChildCost.id"
@@ -37,10 +38,14 @@
 </template>
 
 <script lang="ts" setup>
+import { CIcon } from "@coreui/icons-vue";
+import { gdpReference } from "./utils/formatters";
+
 const props = defineProps<{
   isGdp: boolean
 }>();
 
+const accordioned = ref(true);
 const appStore = useAppStore();
 
 const displayValue = (valueInDollarTerms: number): string => {
