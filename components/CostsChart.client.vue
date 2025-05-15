@@ -38,9 +38,8 @@ const chartBackgroundColor = "transparent";
 const chartBackgroundColorOnExporting = "white";
 let chart: Highcharts.Chart;
 const costsData = ref([]); // This is only implemented as ref for testing purposes, via the data-summary attribute.
-const chartWidth = computed(() => appStore.largeScreen ? 700 : 600);
-const chartHeight = computed(() => appStore.largeScreen ? 450 : 300);
 const chartContainer = ref<HTMLElement | null>(null);
+const chartParentEl = computed(() => chartContainer.value?.parentElement);
 
 // There are 3 levels of data breakdown for costs: total, GDP/life-years/education, and a further breakdown.
 // The levels are 'ragged' - i.e. not all items on a level will have the same number of children as each other.
@@ -134,8 +133,8 @@ const chartInitialOptions = () => {
     },
     chart: {
       // spacing: [0, 0, 0, 0],
-      height: chartHeight.value,
-      width: chartWidth.value,
+      height: chartParentEl.value?.clientHeight,
+      width: chartParentEl.value?.clientWidth,
       backgroundColor: chartBackgroundColor,
       events: {
         fullscreenOpen() {
@@ -243,8 +242,9 @@ const chartInitialOptions = () => {
 // });
 
 watch(() => appStore.largeScreen, throttle(() => {
-  if (chart) {
-    chart.setSize(chartWidth.value, chartHeight.value, { duration: 250 });
+  // Todo: actually, watch resize events.
+  if (chart && chartParentEl.value) {
+    chart.setSize(chartParentEl.value.clientWidth, chartParentEl.value.clientHeight, { duration: 250 });
   }
 }, 25));
 

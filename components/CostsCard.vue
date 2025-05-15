@@ -55,6 +55,7 @@
             </span>
           </p>
         </div>
+        <CostsLegend />
       </div>
       <div class="chart-and-table-container">
         <CostsChart
