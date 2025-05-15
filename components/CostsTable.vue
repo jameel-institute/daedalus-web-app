@@ -3,7 +3,7 @@
     <thead class="border-bottom-2 border-black">
       <tr>
         <th />
-        <th>$, millions</th>
+        <th>{{ isGdp ? "% of 2018 GDP" : "$, millions" }}</th>
       </tr>
     </thead>
     <tbody>
@@ -17,7 +17,7 @@
           <td class="ps-2">
             {{ appStore.getCostLabel(childCost.id) }}<span v-if="childCost.id === 'life_years'">*</span>
           </td>
-          <td>{{ formatCurrency(childCost.value) }}</td>
+          <td>{{ displayValue(childCost.value) }}</td>
         </tr>
         <template v-if="childCost.children">
           <tr
@@ -28,7 +28,7 @@
             <td class="ps-4">
               {{ appStore.getCostLabel(grandChildCost.id) }}
             </td>
-            <td>{{ formatCurrency(grandChildCost.value) }}</td>
+            <td>{{ displayValue(grandChildCost.value) }}</td>
           </tr>
         </template>
       </template>
@@ -37,7 +37,19 @@
 </template>
 
 <script lang="ts" setup>
+const props = defineProps<{
+  isGdp: boolean
+}>();
+
 const appStore = useAppStore();
+
+const displayValue = (valueInDollarTerms: number): string => {
+  if (props.isGdp) {
+    return `${((valueInDollarTerms / appStore.currentScenario.result.data!.gdp) * 100).toFixed(1)}%`;
+  } else {
+    return formatCurrency(valueInDollarTerms);
+  }
+};
 </script>
 
 <style scoped>

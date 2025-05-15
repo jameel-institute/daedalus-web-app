@@ -20,6 +20,7 @@ import { colorBlindSafeColors, costsChartTooltipText, getColorVariants } from ".
 
 const props = defineProps<{
   hideTooltips: boolean
+  isGdp: boolean
 }>();
 
 accessibilityInitialize(Highcharts);
@@ -66,8 +67,12 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] | undefined => {
         const colorVariants = getColorVariants(columnBaseColor, Math.max(cost.children?.length || 1));
         // If there is no Nth child for some cost, we still need to create a breakdown for the stack with a y-value of 0,
         // to ensure that any subsequent data points will belong to the correct column.
+
+        const valueInDollarTerms = subCost?.value || 0;
+        const value = props.isGdp ? (valueInDollarTerms / appStore.currentScenario.result.data!.gdp) * 100 : valueInDollarTerms;
+
         return {
-          y: subCost?.value || 0,
+          y: value,
           name: appStore.getCostLabel(subCost?.id || ""),
           color: colorVariants[stackRowIndex],
         };
@@ -76,6 +81,50 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] | undefined => {
   }
 
   return series;
+};
+
+const yAxisOptions = () => {
+  return {
+    min: 0,
+    title: {
+      text: props.isGdp ? "Losses as % of 2018 national GDP" : "Losses in billions USD",
+    },
+    stackLabels: {
+      enabled: true,
+      formatter: props.isGdp
+        ? function () {
+          return `${this.total.toFixed(1)}% of GDP`;
+        }
+        : function () {
+          const abbr = abbreviateMillionsDollars(this.total, 1);
+          return `$${abbr.amount} ${abbr.unit}`;
+        },
+    },
+    labels: {
+      formatter: props.isGdp
+        ? function () {
+          return `${this.value}%`;
+        }
+        : function () {
+          const abbr = expressMillionsDollarsAsBillions(this.value as number, 0, true);
+          return `${abbr.amount}`;
+        },
+    },
+  } as Highcharts.YAxisOptions;
+};
+
+const tooltipOptions = () => {
+  return {
+    shared: sharedTooltips, // TODO: toggle this (and below distance) for scientist demo. https://www.highcharts.com/docs/chart-concepts/tooltip
+    distance: sharedTooltips ? 128 : undefined, // necessary for SHARED tooltips to not obscure stack labels or stack-blocks.
+    formatter: props.isGdp
+      ? function (this) {
+        return costsChartTooltipText(this, true, sharedTooltips, appStore.currentScenario.result.data!.gdp);
+      }
+      : function (this) {
+        return costsChartTooltipText(this, false, sharedTooltips, appStore.currentScenario.result.data!.gdp);
+      },
+  } as Highcharts.TooltipOptions;
 };
 
 const chartInitialOptions = () => {
@@ -146,39 +195,12 @@ const chartInitialOptions = () => {
     xAxis: {
       categories: appStore.totalCost?.children?.map(cost => appStore.getCostLabel(cost.id)),
     },
-    yAxis: { // TODO: allow changing results to % of national GDP (see costsChartTooltipText func)
-      min: 0,
-      title: {
-        text: "Losses in billions USD",
-      },
-      stackLabels: {
-        enabled: true,
-        formatter() {
-          const abbr = abbreviateMillionsDollars(this.total, 1);
-          return `$${abbr.amount} ${abbr.unit}`;
-        },
-      },
-      labels: {
-        formatter() {
-          if (this.value === 0) {
-            return "0";
-          }
-          const abbr = expressMillionsDollarsAsBillions(this.value as number, 0, true);
-          return `${abbr.amount}`;
-        },
-      },
-    },
+    yAxis: yAxisOptions(),
     series: getSeries(), // Empty at initialisation, populated later. TODO: see if there is a reason for doing it like that.
     legend: {
       enabled: false,
     },
-    tooltip: {
-      shared: sharedTooltips, // TODO: toggle this (and below distance) for scientist demo. https://www.highcharts.com/docs/chart-concepts/tooltip
-      distance: sharedTooltips ? 128 : undefined, // necessary for SHARED tooltips to not obscure stack labels or stack-blocks.
-      formatter(this) {
-        return costsChartTooltipText(this, sharedTooltips, appStore.currentScenario.result.data!.gdp);
-      },
-    },
+    tooltip: tooltipOptions(),
     plotOptions: {
       column: {
         colorByPoint: true, // Colors accrue to (stacked) columns, not to series (which are orthogonal to columns)
@@ -231,6 +253,17 @@ watch(() => chartContainer.value, () => {
     // TODO - for tests.
     // costsData.value = series?.map(series => series.data?.map((point) => point?.y));
     chart = Highcharts.chart(chartContainerId, chartInitialOptions());
+  }
+});
+
+// watch the isGdp prop
+watch(() => props.isGdp, () => {
+  if (chart) {
+    chart.update({
+      yAxis: yAxisOptions(),
+      series: getSeries(),
+      tooltip: tooltipOptions(),
+    });
   }
 });
 

@@ -47,26 +47,38 @@ export enum LegendShape {
   Circle = "circle",
 }
 
-const columnChartTooltipPointFormatter = (yValue: number, color: string, name: string) => {
-  const abbr = abbreviateMillionsDollars(yValue || 0, 2, true);
-  return `<span style="font-size: 0.8rem;">`
-    + `<span style="color:${color}; font-size: 1.3rem;">●</span> `
-    + `<span style="font-size: 0.8rem;">${name}<span style="font-size: 0.9rem;">: <b>$${abbr.amount} ${abbr.unit}</b>`
-    + `</span><br/>`;
+const columnChartTooltipPointFormatter = (yValue: number, color: string, name: string, valuesGivenAsPercentGdp: boolean) => {
+  if (valuesGivenAsPercentGdp) {
+    return `<span style="font-size: 0.8rem;">`
+      + `<span style="color:${color}; font-size: 1.3rem;">●</span> `
+      + `<span style="font-size: 0.8rem;">${name}<span style="font-size: 0.9rem;">: <b>${yValue.toFixed(1)}%</b>`
+      + `</span><br/>`;
+  } else {
+    const abbr = abbreviateMillionsDollars(yValue || 0, 1, true);
+    return `<span style="font-size: 0.8rem;">`
+      + `<span style="color:${color}; font-size: 1.3rem;">●</span> `
+      + `<span style="font-size: 0.8rem;">${name}<span style="font-size: 0.9rem;">: <b>$${abbr.amount} ${abbr.unit}</b>`
+      + `</span><br/>`;
+  }
 };
 
-export const costsChartTooltipText = (context: Highcharts.TooltipFormatterContextObject, sharedTooltipsMode: boolean, nationalGdp: number) => {
-  const abbreviatedTotal = abbreviateMillionsDollars(context.total, 1);
-  let headerText = `${context.x}: <b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b>`;
-  if (context.total > 0) {
-    headerText = `${headerText}</br>(<b>${((context.total / nationalGdp) * 100).toFixed(1)}%</b> of 2018 national GDP)`;
+export const costsChartTooltipText = (context: Highcharts.TooltipFormatterContextObject, valuesGivenAsPercentGdp: boolean, sharedTooltipsMode: boolean, nationalGdp: number) => {
+  let headerText = "";
+  if (valuesGivenAsPercentGdp) {
+    headerText = `${context.x}: <b>${context.total?.toFixed(1)}%</b> of 2018 national GDP`;
+  } else {
+    const abbreviatedTotal = abbreviateMillionsDollars(context.total, 1);
+    headerText = `${context.x}: <b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b>`;
+    if (context.total && context.total > 0) {
+      headerText = `${headerText}</br>(<b>${((context.total / nationalGdp) * 100).toFixed(1)}%</b> of 2018 national GDP)`;
+    }
   }
 
   let pointsText;
   if (sharedTooltipsMode) {
-    pointsText = context.points?.filter(point => point.point.name).map(point => columnChartTooltipPointFormatter(point.y, point.color, point.key))?.join("");
+    pointsText = context.points?.filter(point => point.point.name).map(point => columnChartTooltipPointFormatter(point.y, point.color, point.key, valuesGivenAsPercentGdp))?.join("");
   } else {
-    pointsText = columnChartTooltipPointFormatter(context.y, context.color, context.point.name);
+    pointsText = columnChartTooltipPointFormatter(context.y, context.color, context.point.name, valuesGivenAsPercentGdp);
   }
 
   return `<span style="font-size: 0.8rem;">${headerText}<br/><br/>${pointsText}</span>`;

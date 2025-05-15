@@ -7,6 +7,13 @@
         <h2 class="fs-5 m-0 ms-3 chart-header">
           Losses
         </h2>
+        <div class="ms-5 mt-2">
+          <CFormSwitch
+            id="unitSwitch"
+            v-model="isGdp"
+            label="Show losses as % of GDP"
+          />
+        </div>
       </div>
     </div>
     <div id="costsCardBody" class="card-body">
@@ -53,11 +60,12 @@
         <CostsChart
           id="costsChartContainer"
           :hide-tooltips="hideTooltips"
-          @mouseleave="onMouseLeavePie"
+          :is-gdp="isGdp"
+          @mouseleave="onMouseLeaveChart"
           @mouseover="hideTooltips = false"
         />
         <div class="flex-grow-1">
-          <CostsTable data-testid="costs-table" />
+          <CostsTable data-testid="costs-table" :is-gdp="isGdp" />
         </div>
       </div>
       <p class="fw-lighter vsl-display">
@@ -73,6 +81,7 @@ import { CIcon } from "@coreui/icons-vue";
 
 const appStore = useAppStore();
 const hideTooltips = ref(false);
+const isGdp = ref(false);
 
 // Display the 'headline' total cost in terms of a percentage of annual national GDP
 const gdpTotalCostPercent = computed(() => ((appStore.totalCost!.value / appStore.currentScenario!.result!.data!.gdp) * 100).toFixed(1));
@@ -85,7 +94,7 @@ const totalCostAbbr = computed(() => {
   }
 });
 
-const onMouseLeavePie = () => {
+const onMouseLeaveChart = () => {
   setTimeout(() => {
     hideTooltips.value = true;
   }, 300);
