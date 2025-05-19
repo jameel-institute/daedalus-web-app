@@ -1,37 +1,46 @@
 <template>
-  <table v-if="appStore.totalCost" class="table rounded table-hover table-sm">
+  <table v-if="appStore.totalCost?.children" class="table rounded table-hover table-sm" aria-label="Costs table">
     <thead class="border-bottom-2 border-black">
       <tr>
-        <th style="cursor: pointer" @click="accordioned = !accordioned">
-          <CIcon icon="cilPlus" />
-          <span class="text-muted ps-1">{{ accordioned ? "Expand" : "Collapse" }} all</span>
+        <th>
+          <CButton
+            v-if="appStore.totalCost.children.length > 0"
+            class="btn p-0 text-decoration-none text-muted"
+            color="link"
+            :aria-expanded="accordioned"
+            :aria-label="accordioned ? 'Expand costs table' : 'Collapse costs table'"
+            aria-controls="costs-table-body"
+            @click="() => { accordioned = !accordioned; }"
+          >
+            <CIcon :icon="accordioned ? 'cilPlus' : 'cilMinus'" />
+            <span class="ps-1">{{ accordioned ? "Expand" : "Collapse" }} all</span>
+          </CButton>
         </th>
-        <th>{{ isGdp ? `% of ${gdpReference} GDP` : "$, millions" }}</th>
+        <th>{{ basis === CostBasis.PercentGDP ? `% of ${gdpReferenceYear} GDP` : "$, millions" }}</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody id="costs-table-body">
       <template
         v-for="(childCost) in appStore.totalCost.children"
         :key="childCost.id"
       >
         <tr>
-          <td class="ps-2">
+          <td class="ps-2 w-75">
             {{ appStore.getCostLabel(childCost.id) }}<span v-if="childCost.id === 'life_years'">*</span>
           </td>
           <td>{{ displayValue(childCost.value) }}</td>
         </tr>
-        <template v-if="childCost.children && !accordioned">
-          <tr
-            v-for="grandChildCost in childCost.children"
-            :key="grandChildCost.id"
-            class="nested-row fw-lighter"
-          >
-            <td class="ps-4">
-              {{ appStore.getCostLabel(grandChildCost.id) }}
-            </td>
-            <td>{{ displayValue(grandChildCost.value) }}</td>
-          </tr>
-        </template>
+        <tr
+          v-for="grandChildCost in childCost.children"
+          v-show="!accordioned"
+          :key="grandChildCost.id"
+          class="nested-row fw-lighter"
+        >
+          <td class="ps-4">
+            {{ appStore.getCostLabel(grandChildCost.id) }}
+          </td>
+          <td>{{ displayValue(grandChildCost.value) }}</td>
+        </tr>
       </template>
     </tbody>
   </table>
@@ -39,20 +48,25 @@
 
 <script lang="ts" setup>
 import { CIcon } from "@coreui/icons-vue";
-import { gdpReference } from "./utils/formatters";
+import { costAsPercentOfGdp, gdpReferenceYear, humanReadablePercentOfGdp } from "./utils/formatters";
+import { CostBasis } from "~/types/unitTypes";
 
 const props = defineProps<{
-  isGdp: boolean
+  basis: CostBasis
 }>();
 
 const accordioned = ref(true);
 const appStore = useAppStore();
 
 const displayValue = (valueInDollarTerms: number): string => {
-  if (props.isGdp) {
-    return `${((valueInDollarTerms / appStore.currentScenario.result.data!.gdp) * 100).toFixed(1)}%`;
-  } else {
-    return formatCurrency(valueInDollarTerms);
+  switch (props.basis) {
+    case CostBasis.PercentGDP:
+    {
+      const percentOfGdp = costAsPercentOfGdp(valueInDollarTerms, appStore.currentScenario.result.data?.gdp);
+      return humanReadablePercentOfGdp(percentOfGdp).percent;
+    }
+    case CostBasis.USD:
+      return formatCurrency(valueInDollarTerms);
   }
 };
 </script>

@@ -7,13 +7,6 @@
         <h2 class="fs-5 m-0 ms-3 chart-header">
           Losses
         </h2>
-        <div class="ms-5 mt-2">
-          <CFormSwitch
-            id="unitSwitch"
-            v-model="isGdp"
-            label="Show losses as % of GDP"
-          />
-        </div>
       </div>
     </div>
     <div id="costsCardBody" class="card-body">
@@ -55,17 +48,24 @@
             </span>
           </p>
         </div>
+        <div class="ms-auto me-2 d-flex align-items-center">
+          <CFormSwitch
+            id="unitSwitch"
+            v-model="basisIsGdp"
+            label="Show losses as % of GDP"
+          />
+        </div>
       </div>
       <div class="chart-and-table-container">
         <CostsChart
           id="costsChartContainer"
           :hide-tooltips="hideTooltips"
-          :is-gdp="isGdp"
+          :basis="costBasis"
           @mouseleave="onMouseLeaveChart"
           @mouseover="hideTooltips = false"
         />
         <div class="flex-grow-1">
-          <CostsTable data-testid="costs-table" :is-gdp="isGdp" />
+          <CostsTable data-testid="costs-table" :basis="costBasis" />
         </div>
       </div>
       <p class="fw-lighter vsl-display">
@@ -76,16 +76,27 @@
 </template>
 
 <script lang="ts" setup>
-import { gdpReferenceYear } from "@/components/utils/formatters";
+import { costAsPercentOfGdp, gdpReferenceYear, humanReadablePercentOfGdp } from "@/components/utils/formatters";
 import { abbreviateMillionsDollars } from "@/utils/money";
 import { CIcon } from "@coreui/icons-vue";
+import { CostBasis } from "~/types/unitTypes";
 
 const appStore = useAppStore();
 const hideTooltips = ref(false);
-const isGdp = ref(false);
+const costBasis = ref<CostBasis>(CostBasis.USD);
+
+const basisIsGdp = computed({
+  get: () => costBasis.value === CostBasis.PercentGDP,
+  set: (value: boolean) => {
+    costBasis.value = value ? CostBasis.PercentGDP : CostBasis.USD;
+  },
+});
 
 // Display the 'headline' total cost in terms of a percentage of annual national GDP
-const gdpTotalCostPercent = computed(() => ((appStore.totalCost!.value / appStore.currentScenario!.result!.data!.gdp) * 100).toFixed(1));
+const gdpTotalCostPercent = computed(() => {
+  const totalAsPercentOfGdp = costAsPercentOfGdp(appStore.totalCost?.value, appStore.currentScenario.result.data?.gdp);
+  return humanReadablePercentOfGdp(totalAsPercentOfGdp).percent;
+});
 
 const totalCostAbbr = computed(() => {
   if (appStore.totalCost) {

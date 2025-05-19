@@ -5,11 +5,17 @@ export const humanReadableInteger = (num: string): string => {
 };
 
 export const gdpReferenceYear = "2018";
-export const gdpReference = `of ${gdpReferenceYear} national GDP`;
+
+export const costAsPercentOfGdp = (cost: number | undefined, nationalGdp: number | undefined): number => {
+  if (!cost || !nationalGdp) {
+    return 0;
+  }
+  return (cost / nationalGdp) * 100;
+};
 
 export const humanReadablePercentOfGdp = (num: number): { percent: string, reference: string } => {
   return {
     percent: `${num.toFixed(1)}%`,
-    reference: gdpReference,
+    reference: `of ${gdpReferenceYear} national GDP`,
   };
 };

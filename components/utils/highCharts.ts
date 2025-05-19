@@ -1,7 +1,8 @@
 import { abbreviateMillionsDollars } from "#imports";
 import hexRgb from "hex-rgb";
 import * as Highcharts from "highcharts";
-import { humanReadablePercentOfGdp } from "./formatters";
+import { costAsPercentOfGdp, humanReadablePercentOfGdp } from "./formatters";
+import { CostBasis } from "~/types/unitTypes";
 
 const originalHighchartsColors = Highcharts.getOptions().colors!;
 const colorRgba = hexRgb(originalHighchartsColors[0] as string);
@@ -21,8 +22,8 @@ export const colorBlindSafeColors = [
 export const getColorVariants = (colorHex: string, numberOfVariants: number) => {
   const rgb = hexRgb(colorHex);
   const colors = [];
-  const minBrightness = 0.5; // 50% brightness
-  const maxBrightness = 1.0; // 100% brightness
+  const minBrightness = 0.75; // 75% brightness
+  const maxBrightness = 1.25; // 125% brightness
   for (let i = 0; i < numberOfVariants; i++) {
     const factor = i / (numberOfVariants - 1);
     const brightness = minBrightness + (maxBrightness - minBrightness) * factor;
@@ -48,13 +49,53 @@ export enum LegendShape {
   Circle = "circle",
 }
 
-const columnChartTooltipPointFormatter = (point: Highcharts.TooltipFormatterContextObject, valuesGivenAsPercentGdp: boolean) => {
+export const contextButtonOptions = {
+  height: 20,
+  width: 22,
+  symbolSize: 12,
+  symbolY: 10,
+  symbolX: 12,
+  symbolStrokeWidth: 2,
+  // Omit 'printChart' and 'viewData' from menu items
+  menuItems: ["downloadCSV", "downloadXLS", "separator", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG", "separator", "viewFullscreen"],
+  useHTML: true,
+};
+
+export const menuItemDefinitionOptions = {
+  downloadCSV: {
+    text: "Download CSV for this chart",
+  },
+  downloadXLS: {
+    text: "Download XLS for this chart",
+  },
+};
+
+export const chartBackgroundColorOnExporting = "white";
+const chartBackgroundColor = "transparent";
+const chartStyle = {
+  fontFamily: "ImperialSansText, sans-serif",
+};
+const chartEventsOptions = {
+  fullscreenOpen() {
+    this.update({ chart: { backgroundColor: chartBackgroundColorOnExporting } });
+  },
+  fullscreenClose() {
+    this.update({ chart: { backgroundColor: chartBackgroundColor } });
+  },
+};
+export const chartOptions = {
+  backgroundColor: chartBackgroundColor,
+  events: chartEventsOptions,
+  style: chartStyle,
+};
+
+const costsChartTooltipPointFormatter = (point: Highcharts.TooltipFormatterContextObject, costBasis: CostBasis) => {
   if (!point.y && point.y !== 0) {
     return "";
   }
 
   let valueDisplay;
-  if (valuesGivenAsPercentGdp) {
+  if (costBasis === CostBasis.PercentGDP) {
     valueDisplay = humanReadablePercentOfGdp(point.y).percent;
   } else {
     const abbr = abbreviateMillionsDollars(point.y || 0, 1, true);
@@ -67,20 +108,20 @@ const columnChartTooltipPointFormatter = (point: Highcharts.TooltipFormatterCont
     + `</span><br/>`;
 };
 
-export const costsChartTooltipText = (context: Highcharts.TooltipFormatterContextObject, valuesGivenAsPercentGdp: boolean, nationalGdp: number) => {
+export const costsChartTooltipText = (context: Highcharts.TooltipFormatterContextObject, costBasis: CostBasis, nationalGdp: number) => {
   if (!context.total && context.total !== 0) {
     return "";
   }
 
   let headerText = `${context.x} losses: `;
-  if (valuesGivenAsPercentGdp) {
+  if (costBasis === CostBasis.PercentGDP) {
     const percentOfGdp = humanReadablePercentOfGdp(context.total);
     headerText = `${headerText}<b>${percentOfGdp.percent}</b> ${percentOfGdp.reference}`;
   } else {
     const abbreviatedTotal = abbreviateMillionsDollars(context.total, 1);
     headerText = `${headerText}<b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b>`;
     if (context.total && context.total > 0) {
-      const percentOfGdp = humanReadablePercentOfGdp(((context.total / nationalGdp) * 100));
+      const percentOfGdp = humanReadablePercentOfGdp(costAsPercentOfGdp(context.total, nationalGdp));
       headerText = `${headerText}</br>(${percentOfGdp.percent} ${percentOfGdp.reference})`;
     }
   }
@@ -88,9 +129,28 @@ export const costsChartTooltipText = (context: Highcharts.TooltipFormatterContex
   const pointsText = context.points
     ?.filter(point => point.point.custom.includeInTooltips)
     .map((point) => {
-      return columnChartTooltipPointFormatter(point, valuesGivenAsPercentGdp);
+      return costsChartTooltipPointFormatter(point, costBasis);
     })
     ?.join("");
 
   return `<span style="font-size: 0.8rem;">${headerText}<br/><br/>${pointsText}</span>`;
+};
+
+// Labels for (stacked) columns
+export const costsChartStackLabelFormatter = (value: number, costBasis: CostBasis) => {
+  if (costBasis === CostBasis.PercentGDP) {
+    return `${value.toFixed(1)}% of GDP`;
+  } else if (costBasis === CostBasis.USD) {
+    const abbr = expressMillionsDollarsAsBillions(value, 1);
+    return `$${abbr.amount} ${abbr.unit}`;
+  }
+};
+
+// Labels for yAxis ticks
+export const costsChartLabelFormatter = (value: string | number, costBasis: CostBasis) => {
+  if (costBasis === CostBasis.PercentGDP) {
+    return `${value}%`;
+  } else if (costBasis === CostBasis.USD) {
+    return Object.values(expressMillionsDollarsAsBillions(value as number, 0, true)).join(" ");
+  }
 };
