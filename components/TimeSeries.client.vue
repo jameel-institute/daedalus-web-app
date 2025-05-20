@@ -2,7 +2,7 @@
   <div
     :id="chartContainerId"
     ref="chartContainer"
-    :class="`chart-container time-series ${props.hideTooltips ? 'hide-tooltips' : ''}`"
+    class="chart-container time-series"
     :style="{ zIndex, height: 'fit-content' }"
     :data-summary="JSON.stringify({ firstDataPoint: data[0], lastDataPoint: data[data.length - 1], dataLength: data.length })"
   />
@@ -21,7 +21,6 @@ import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, me
 
 const props = defineProps<{
   seriesId: string
-  hideTooltips: boolean
   seriesIndex: number // Probably 0 or 1 as time series come in pairs
   groupIndex: number // Probably 0 to about 4
   yUnits: string
@@ -105,12 +104,6 @@ const interventionsPlotBands = computed(() => {
 
   return bands;
 });
-
-// Override the reset function as per synchronisation demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
-// Seems to be required in order for tooltips to hang around more than about a second.
-Highcharts.Pointer.prototype.reset = () => {
-  return undefined;
-};
 
 const chartInitialOptions = () => {
   return {
@@ -208,13 +201,6 @@ watch(() => props.chartHeight, () => {
   width: 100%;
   position: relative; /* Required for z-index to work */
   left: -20px;
-
-  &.hide-tooltips {
-    .highcharts-tooltip, .highcharts-tracker, .highcharts-crosshair {
-      filter: opacity(0);
-      transition: filter 0.2s;
-    }
-  }
 }
 
 .accordion.time-series {

@@ -1,11 +1,9 @@
 <template>
-  <div class="w-100" @mouseleave="reset">
-    <div
-      id="costsChartContainer"
-      ref="chartContainer"
-      :data-summary="JSON.stringify(seriesData)"
-    />
-  </div>
+  <div
+    id="costsChartContainer"
+    ref="chartContainer"
+    :data-summary="JSON.stringify(seriesData)"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -16,7 +14,7 @@ import "highcharts/modules/export-data";
 import "highcharts/modules/offline-exporting";
 
 import throttle from "lodash.throttle";
-import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartLabelFormatter, costsChartStackLabelFormatter, costsChartTooltipText, getColorVariants, menuItemDefinitionOptions, resetHoveredChart } from "./utils/highCharts";
+import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartLabelFormatter, costsChartStackLabelFormatter, costsChartTooltipText, getColorVariants, menuItemDefinitionOptions } from "./utils/highCharts";
 import { costAsPercentOfGdp, gdpReferenceYear } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 
@@ -193,8 +191,6 @@ watch(() => props.basis, () => {
     });
   }
 });
-
-const reset = () => setTimeout(() => resetHoveredChart(chart), 100);
 
 const setChartDimensions = throttle(() => {
   if (chart && chartParentEl.value) {

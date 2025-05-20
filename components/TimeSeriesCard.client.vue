@@ -16,11 +16,9 @@
         :series-group="seriesGroup"
         :group-index="index"
         :open="openedAccordions.includes(seriesGroup.id)"
-        :hide-tooltips="hideTooltips"
         :chart-height-px="chartHeightPx"
         :min-chart-height-px="minChartHeightPx"
-        @hide-all-tooltips="hideAllTooltips"
-        @show-all-tooltips="hideTooltips = false"
+        @hide-all-tooltips="hideAllTooltipsAndCrosshairs"
         @chart-created="chartCreated"
         @chart-destroyed="chartDestroyed"
         @sync-tooltips-and-crosshairs="syncTooltipsAndCrosshairs"
@@ -33,12 +31,16 @@
 <script setup lang="ts">
 import { CIcon } from "@coreui/icons-vue";
 import throttle from "lodash.throttle";
+import * as Highcharts from "highcharts";
 
 const appStore = useAppStore();
 
 const charts = ref<Record<string, Highcharts.Chart>>({});
-const hideTooltips = ref(false);
 const { openedAccordions, chartHeightPx, minChartHeightPx } = useTimeSeriesAccordionHeights();
+
+const initializeAccordions = () => {
+  openedAccordions.value = appStore.timeSeriesGroups?.map(({ id }) => id) || [];
+};
 
 const chartCreated = (seriesId: string, chart: Highcharts.Chart) => {
   charts.value = {
@@ -74,18 +76,27 @@ const syncTooltipsAndCrosshairs = throttle((seriesId) => {
   };
 }, 100, { leading: true });
 
-const initializeAccordions = () => {
-  openedAccordions.value = appStore.timeSeriesGroups?.map(({ id }) => id) || [];
-};
+// Prevent tooltips/crosshairs from disappearing when the mouse leaves a chart container
+Highcharts.wrap(
+  Highcharts.Pointer.prototype,
+  "onContainerMouseLeave",
+  function (this: Highcharts.Chart, proceed, ...args) {
+    if (!Object.values(charts.value).includes(this)) {
+      proceed.apply(this, args);
+    }
+  },
+);
 
-const hideAllTooltips = () => {
+const hideAllTooltipsAndCrosshairs = () => {
   setTimeout(() => {
-    hideTooltips.value = true;
+    Object.values(charts.value).forEach((chart) => {
+      chart.pointer.reset(false, 0);
+    });
   }, 500);
 };
 
 const toggleOpen = (seriesGroupId: string) => {
-  hideAllTooltips();
+  hideAllTooltipsAndCrosshairs();
   if (openedAccordions.value.includes(seriesGroupId)) {
     openedAccordions.value = openedAccordions.value.filter(id => id !== seriesGroupId);
   } else {

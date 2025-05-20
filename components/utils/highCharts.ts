@@ -162,14 +162,3 @@ export const costsChartLabelFormatter = (value: string | number, costBasis: Cost
     return Object.values(expressMillionsDollarsAsBillions(value as number, 0, true)).join(" ");
   }
 };
-
-export const resetHoveredChart = (chart: Highcharts.Chart) => {
-  // Unfocus hovered datapoints
-  chart.hoverPoints?.forEach((point) => {
-    point.setState("normal");
-  });
-  chart.series.forEach((series) => {
-    series.setState("normal");
-  });
-  chart.tooltip.hide();
-};
