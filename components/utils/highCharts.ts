@@ -89,7 +89,7 @@ export const chartOptions = {
   style: chartStyle,
 };
 
-const costsChartTooltipPointFormatter = (point: Highcharts.TooltipFormatterContextObject, costBasis: CostBasis) => {
+const costsChartTooltipPointFormatter = (point: Highcharts.Point, costBasis: CostBasis) => {
   if (!point.y && point.y !== 0) {
     return "";
   }
@@ -108,25 +108,33 @@ const costsChartTooltipPointFormatter = (point: Highcharts.TooltipFormatterConte
     + `</span><br/>`;
 };
 
-export const costsChartTooltipText = (context: Highcharts.TooltipFormatterContextObject, costBasis: CostBasis, nationalGdp: number) => {
-  if (!context.total && context.total !== 0) {
+interface TooltipPointInstance extends Highcharts.Point {
+  points: Array<Highcharts.Point>
+}
+
+// The TS declarations for the context object aren't correct:
+// https://github.com/highcharts/highcharts/issues/22281#issuecomment-2516994341
+// The interface appears to be the same as the now defunct Highcharts.TooltipFormatterContextObject class.
+export const costsChartTooltipText = (context: Highcharts.Point, costBasis: CostBasis, nationalGdp: number) => {
+  const tooltipPointInstance = context as TooltipPointInstance;
+  if (!tooltipPointInstance.total && tooltipPointInstance.total !== 0) {
     return "";
   }
 
-  let headerText = `${context.x} losses: `;
+  let headerText = `${tooltipPointInstance.x} losses: `;
   if (costBasis === CostBasis.PercentGDP) {
-    const percentOfGdp = humanReadablePercentOfGdp(context.total);
+    const percentOfGdp = humanReadablePercentOfGdp(tooltipPointInstance.total);
     headerText = `${headerText}<b>${percentOfGdp.percent}</b> ${percentOfGdp.reference}`;
   } else {
-    const abbreviatedTotal = abbreviateMillionsDollars(context.total, 1);
+    const abbreviatedTotal = abbreviateMillionsDollars(tooltipPointInstance.total, 1);
     headerText = `${headerText}<b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b>`;
-    if (context.total && context.total > 0) {
-      const percentOfGdp = humanReadablePercentOfGdp(costAsPercentOfGdp(context.total, nationalGdp));
+    if (tooltipPointInstance.total > 0) {
+      const percentOfGdp = humanReadablePercentOfGdp(costAsPercentOfGdp(tooltipPointInstance.total, nationalGdp));
       headerText = `${headerText}</br>(${percentOfGdp.percent} ${percentOfGdp.reference})`;
     }
   }
 
-  const pointsText = context.points
+  const pointsText = tooltipPointInstance.points
     ?.filter(point => point.point.custom.includeInTooltips)
     .map((point) => {
       return costsChartTooltipPointFormatter(point, costBasis);
@@ -153,4 +161,15 @@ export const costsChartLabelFormatter = (value: string | number, costBasis: Cost
   } else if (costBasis === CostBasis.USD) {
     return Object.values(expressMillionsDollarsAsBillions(value as number, 0, true)).join(" ");
   }
+};
+
+export const resetHoveredChart = (chart: Highcharts.Chart) => {
+  // Unfocus hovered datapoints
+  chart.hoverPoints?.forEach((point) => {
+    point.setState("normal");
+  });
+  chart.series.forEach((series) => {
+    series.setState("normal");
+  });
+  chart.tooltip.hide();
 };

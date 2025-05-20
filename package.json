@@ -39,7 +39,7 @@
     "country-iso-3-to-2": "^1.1.1",
     "eslint": "^9.12.0",
     "hex-rgb": "^5.0.0",
-    "highcharts": "^11.4.8",
+    "highcharts": "^12.2.0",
     "jssha": "^3.3.1",
     "lodash.throttle": "^4.1.1",
     "nuxt": "^3.17.3",

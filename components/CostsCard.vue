@@ -57,13 +57,7 @@
         </div>
       </div>
       <div class="chart-and-table-container">
-        <CostsChart
-          id="costsChartContainer"
-          :hide-tooltips="hideTooltips"
-          :basis="costBasis"
-          @mouseleave="onMouseLeaveChart"
-          @mouseover="hideTooltips = false"
-        />
+        <CostsChart id="costsChartContainer" :basis="costBasis" />
         <div class="flex-grow-1">
           <CostsTable data-testid="costs-table" :basis="costBasis" />
         </div>
@@ -82,7 +76,6 @@ import { CIcon } from "@coreui/icons-vue";
 import { CostBasis } from "~/types/unitTypes";
 
 const appStore = useAppStore();
-const hideTooltips = ref(false);
 const costBasis = ref<CostBasis>(CostBasis.USD);
 
 const basisIsGdp = computed({
@@ -105,12 +98,6 @@ const totalCostAbbr = computed(() => {
     return undefined;
   }
 });
-
-const onMouseLeaveChart = () => {
-  setTimeout(() => {
-    hideTooltips.value = true;
-  }, 300);
-};
 </script>
 
 <style lang="scss" scoped>

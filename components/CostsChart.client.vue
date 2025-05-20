@@ -1,38 +1,30 @@
 <template>
-  <div
-    id="costsChartContainer"
-    ref="chartContainer"
-    :class="[props.hideTooltips ? hideTooltipsClassName : '']"
-    :data-summary="JSON.stringify(seriesData)"
-  />
+  <div class="w-100" @mouseleave="reset">
+    <div
+      id="costsChartContainer"
+      ref="chartContainer"
+      :data-summary="JSON.stringify(seriesData)"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>
 import * as Highcharts from "highcharts";
-import accessibilityInitialize from "highcharts/modules/accessibility";
-
-import exportDataInitialize from "highcharts/modules/export-data";
-import exportingInitialize from "highcharts/modules/exporting";
-import offlineExportingInitialize from "highcharts/modules/offline-exporting";
+import "highcharts/modules/accessibility";
+import "highcharts/modules/exporting";
+import "highcharts/modules/export-data";
+import "highcharts/modules/offline-exporting";
 
 import throttle from "lodash.throttle";
-import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartLabelFormatter, costsChartStackLabelFormatter, costsChartTooltipText, getColorVariants, menuItemDefinitionOptions } from "./utils/highCharts";
+import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartLabelFormatter, costsChartStackLabelFormatter, costsChartTooltipText, getColorVariants, menuItemDefinitionOptions, resetHoveredChart } from "./utils/highCharts";
 import { costAsPercentOfGdp, gdpReferenceYear } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 
 const props = defineProps<{
-  hideTooltips: boolean
   basis: CostBasis
 }>();
 
-accessibilityInitialize(Highcharts);
-
-exportingInitialize(Highcharts);
-exportDataInitialize(Highcharts);
-offlineExportingInitialize(Highcharts);
-
 const appStore = useAppStore();
-const hideTooltipsClassName = "hide-tooltips";
 let chart: Highcharts.Chart;
 const seriesData = ref<Highcharts.SeriesColumnOptions[]>([]); // This only exists for testing purposes
 const chartContainer = ref<HTMLElement | null>(null);
@@ -202,6 +194,8 @@ watch(() => props.basis, () => {
   }
 });
 
+const reset = () => setTimeout(() => resetHoveredChart(chart), 100);
+
 const setChartDimensions = throttle(() => {
   if (chart && chartParentEl.value) {
     chart.setSize(chartParentEl.value.clientWidth, chartHeightPx, { duration: 250 });
@@ -230,12 +224,6 @@ onUnmounted(() => {
 
   .highcharts-tooltip {
     transition: filter 0.2s;
-  }
-
-  &.hide-tooltips {
-    .highcharts-tooltip {
-      filter: opacity(0);
-    }
   }
 
   .highcharts-point {

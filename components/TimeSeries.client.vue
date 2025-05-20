@@ -10,10 +10,10 @@
 
 <script setup lang="ts">
 import * as Highcharts from "highcharts";
-import accessibilityInitialize from "highcharts/modules/accessibility";
-import exportDataInitialize from "highcharts/modules/export-data";
-import exportingInitialize from "highcharts/modules/exporting";
-import offlineExportingInitialize from "highcharts/modules/offline-exporting";
+import "highcharts/modules/accessibility";
+import "highcharts/modules/exporting";
+import "highcharts/modules/export-data";
+import "highcharts/modules/offline-exporting";
 import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import type { TimeSeriesDataPoint } from "~/types/dataTypes";
@@ -33,11 +33,6 @@ const emit = defineEmits<{
   chartCreated: [seriesId: string, chart: Highcharts.Chart]
   chartDestroyed: [seriesId: string]
 }>();
-
-accessibilityInitialize(Highcharts);
-exportingInitialize(Highcharts);
-exportDataInitialize(Highcharts);
-offlineExportingInitialize(Highcharts);
 
 const appStore = useAppStore();
 
