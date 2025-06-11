@@ -64,7 +64,12 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    rApiBase: "", // Overriden by environment variable NUXT_R_API_BASE
+    rApiBase: "", // Default value. Can be overriden by environment variable NUXT_R_API_BASE
+    public: {
+      feature: {
+        comparison: false, // Default value. Can be overriden by environment variable NUXT_PUBLIC_FEATURE_COMPARISON
+      },
+    },
   },
 
   $test: {
