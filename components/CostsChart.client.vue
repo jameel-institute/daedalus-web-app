@@ -130,7 +130,7 @@ const chartInitialOptions = () => {
       text: "",
     },
     xAxis: {
-      categories: appStore.totalCost?.children?.map(cost => appStore.getCostLabel(cost.id)),
+      categories: costLabels.value,
     },
     yAxis: {
       gridLineColor: "lightgrey",
@@ -209,7 +209,7 @@ onBeforeUnmount(() => {
 onUnmounted(() => {
   // Destroy this chart, otherwise every time we navigate away and back to this page, another
   // chart is created, burdening the browser.
-  chart.destroy();
+  chart?.destroy();
 });
 </script>
 
