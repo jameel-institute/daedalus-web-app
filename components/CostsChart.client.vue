@@ -72,7 +72,7 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
           name: appStore.getCostLabel(subCost?.id || ""),
           color: columnColors.value[columnIndex][rowIndex],
           custom: {
-            includeInTooltips: !!subCost,
+            includeInTooltips: !!subCost?.id,
           },
         };
       }) || [],
@@ -186,7 +186,7 @@ watch(() => props.basis, () => {
         title: {
           text: yAxisTitle.value,
         },
-      }, // Required for y-axis label to update
+      },
       series: getSeries(),
     });
   }

@@ -19,6 +19,7 @@ export const colorBlindSafeColors = [
 ];
 
 // Create a range of N colors varying in brightness
+// NB This won't work well with colors that are already very light or very dark.
 export const getColorVariants = (colorHex: string, numberOfVariants: number) => {
   const rgb = hexRgb(colorHex);
   const colors = [];
@@ -27,11 +28,13 @@ export const getColorVariants = (colorHex: string, numberOfVariants: number) => 
   for (let i = 0; i < numberOfVariants; i++) {
     const factor = i / (numberOfVariants - 1);
     const brightness = minBrightness + (maxBrightness - minBrightness) * factor;
-    const newColor = `rgba(
-      ${Math.round(rgb.red * brightness)},
-      ${Math.round(rgb.green * brightness)},
-      ${Math.round(rgb.blue * brightness)},
-      ${rgb.alpha})`;
+    let r = Math.round(rgb.red * brightness);
+    let g = Math.round(rgb.green * brightness);
+    let b = Math.round(rgb.blue * brightness);
+    r = Math.max(0, Math.min(255, r));
+    g = Math.max(0, Math.min(255, g));
+    b = Math.max(0, Math.min(255, b));
+    const newColor = `rgba(${r},${g},${b},${rgb.alpha})`;
     colors.push(newColor);
   }
   return colors.reverse();
@@ -89,7 +92,15 @@ export const chartOptions = {
   style: chartStyle,
 };
 
-const costsChartTooltipPointFormatter = (point: Highcharts.Point, costBasis: CostBasis) => {
+// The TS declarations for the context object aren't correct, so we declare our own interface:
+// https://github.com/highcharts/highcharts/issues/22281#issuecomment-2516994341
+// The interface appears to be the same as the now defunct Highcharts.TooltipFormatterContextObject class.
+interface TooltipPointInstance extends Highcharts.Point {
+  points?: Array<TooltipPointInstance>
+  point?: Highcharts.Point & { custom: { includeInTooltips: boolean } }
+}
+
+const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis: CostBasis) => {
   if (!point.y && point.y !== 0) {
     return "";
   }
@@ -105,23 +116,18 @@ const costsChartTooltipPointFormatter = (point: Highcharts.Point, costBasis: Cos
   return `<span style="font-size: 0.8rem;">`
     + `<span style="color:${point.color}; font-size: 1.3rem;">●</span> `
     + `<span style="font-size: 0.8rem;">${point.key}<span style="font-size: 0.9rem;">: <b>${valueDisplay}</b>`
-    + `</span><br/>`;
+    + `</span></span><br/>`;
 };
 
-interface TooltipPointInstance extends Highcharts.Point {
-  points: Array<Highcharts.Point>
-}
-
-// The TS declarations for the context object aren't correct:
-// https://github.com/highcharts/highcharts/issues/22281#issuecomment-2516994341
-// The interface appears to be the same as the now defunct Highcharts.TooltipFormatterContextObject class.
-export const costsChartTooltipText = (context: Highcharts.Point, costBasis: CostBasis, nationalGdp: number) => {
+// Tooltip text for a stacked column (shared tooltip for all points in the stack)
+export const costsChartTooltipText = (context: unknown, costBasis: CostBasis, nationalGdp: number) => {
   const tooltipPointInstance = context as TooltipPointInstance;
-  if (!tooltipPointInstance.total && tooltipPointInstance.total !== 0) {
+
+  if (tooltipPointInstance.total === undefined) {
     return "";
   }
 
-  let headerText = `${tooltipPointInstance.x} losses: `;
+  let headerText = `${tooltipPointInstance.category} losses: `;
   if (costBasis === CostBasis.PercentGDP) {
     const percentOfGdp = humanReadablePercentOfGdp(tooltipPointInstance.total);
     headerText = `${headerText}<b>${percentOfGdp.percent}</b> ${percentOfGdp.reference}`;
@@ -135,7 +141,7 @@ export const costsChartTooltipText = (context: Highcharts.Point, costBasis: Cost
   }
 
   const pointsText = tooltipPointInstance.points
-    ?.filter(point => point.point.custom.includeInTooltips)
+    ?.filter(point => point.point?.custom.includeInTooltips)
     .map((point) => {
       return costsChartTooltipPointFormatter(point, costBasis);
     })
