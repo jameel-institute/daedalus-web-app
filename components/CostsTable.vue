@@ -63,7 +63,7 @@ const displayValue = (valueInDollarTerms: number): string => {
     case CostBasis.PercentGDP:
     {
       const percentOfGdp = costAsPercentOfGdp(valueInDollarTerms, appStore.currentScenario.result.data?.gdp);
-      return humanReadablePercentOfGdp(percentOfGdp).percent;
+      return `${humanReadablePercentOfGdp(percentOfGdp).percent}%`;
     }
     case CostBasis.USD:
       return formatCurrency(valueInDollarTerms);

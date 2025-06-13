@@ -27,7 +27,7 @@ describe("app header", () => {
     document.documentElement.scrollTop = 100;
     window.dispatchEvent(new Event("scroll"));
     // Allow time for throttle to happen
-    await component.vm.$nextTick();
+    await nextTick();
 
     expect(header.element.classList).toContain("shadow-sm");
 

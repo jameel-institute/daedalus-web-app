@@ -107,7 +107,7 @@ const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis:
 
   let valueDisplay;
   if (costBasis === CostBasis.PercentGDP) {
-    valueDisplay = humanReadablePercentOfGdp(point.y).percent;
+    valueDisplay = `${humanReadablePercentOfGdp(point.y).percent}%`;
   } else {
     const abbr = abbreviateMillionsDollars(point.y || 0, 1, true);
     valueDisplay = `$${abbr.amount} ${abbr.unit}`;
@@ -130,13 +130,13 @@ export const costsChartTooltipText = (context: unknown, costBasis: CostBasis, na
   let headerText = `${tooltipPointInstance.category} losses: `;
   if (costBasis === CostBasis.PercentGDP) {
     const percentOfGdp = humanReadablePercentOfGdp(tooltipPointInstance.total);
-    headerText = `${headerText}<b>${percentOfGdp.percent}</b> ${percentOfGdp.reference}`;
+    headerText = `${headerText}<b>${percentOfGdp.percent}%</b> ${percentOfGdp.reference}`;
   } else {
     const abbreviatedTotal = abbreviateMillionsDollars(tooltipPointInstance.total, 1);
     headerText = `${headerText}<b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b>`;
     if (tooltipPointInstance.total > 0) {
       const percentOfGdp = humanReadablePercentOfGdp(costAsPercentOfGdp(tooltipPointInstance.total, nationalGdp));
-      headerText = `${headerText}</br>(${percentOfGdp.percent} ${percentOfGdp.reference})`;
+      headerText = `${headerText}</br>(${percentOfGdp.percent}% ${percentOfGdp.reference})`;
     }
   }
 

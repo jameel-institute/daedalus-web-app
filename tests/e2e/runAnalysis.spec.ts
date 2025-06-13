@@ -4,8 +4,8 @@ import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
 import { checkTimeSeriesDataPoints, numberOfTimePoints } from "./helpers/checkTimeSeriesDataPoints";
-import { checkValueIsInRange } from "./helpers/checkValueIsInRange";
 import { parameterLabels, scenarioPathMatcher } from "./helpers/constants";
+import { checkBarChartDataIsDifferent } from "./helpers/checkChartDataIsDifferent";
 
 const philippinesMinimumHospitalCapacity = "16300";
 const philippinesMinimumHospitalCapacityFormatted = "16,300";
@@ -87,38 +87,47 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   const prevalence1Data = JSON.parse(prevalence1DataStr!);
   const prevalenceTimeSeries1LastY = prevalence1Data.lastDataPoint[1];
 
-  await checkTimeSeriesDataPoints(page.locator("#prevalence-container"), [1, 331.0026], [numberOfTimePoints, 110_000]);
-  await checkTimeSeriesDataPoints(page.locator("#hospitalised-container"), [1, 0], [numberOfTimePoints, 55_000]);
-  await checkTimeSeriesDataPoints(page.locator("#dead-container"), [1, 0], [numberOfTimePoints, 800_000]);
-  await checkTimeSeriesDataPoints(page.locator("#vaccinated-container"), [1, 0], [numberOfTimePoints, 200_000_000]);
+  // TODO: These tests may be more robust if we assert on the peak values rather than first and last data points?
+  await checkTimeSeriesDataPoints(page.locator("#prevalence-container"), [1, 33], [numberOfTimePoints, 770_000]);
+  await checkTimeSeriesDataPoints(page.locator("#new_infected-container"), [1, 0], [numberOfTimePoints, 210_000]);
+  await checkTimeSeriesDataPoints(page.locator("#hospitalised-container"), [1, 0], [numberOfTimePoints, 260_000]);
+  await checkTimeSeriesDataPoints(page.locator("#new_hospitalised-container"), [1, 0], [numberOfTimePoints, 21_000]);
+  await checkTimeSeriesDataPoints(page.locator("#dead-container"), [1, 0], [numberOfTimePoints, 11_000_000]);
+  await checkTimeSeriesDataPoints(page.locator("#new_dead-container"), [1, 0], [numberOfTimePoints, 2900]);
+  await checkTimeSeriesDataPoints(page.locator("#vaccinated-container"), [1, 0], [numberOfTimePoints, 190_000_000]);
+  await checkTimeSeriesDataPoints(page.locator("#new_vaccinated-container"), [1, 0], [numberOfTimePoints, 1_100_000]);
 
   await expect(page.locator("#costsChartContainer rect").first()).toBeVisible();
 
-  const costsChartDataStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
-  const costsChartData = JSON.parse(costsChartDataStr!);
-  expect(costsChartData).toHaveLength(12);
+  const costsChartDataUsdStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
+  const costsChartDataUsd = JSON.parse(costsChartDataUsdStr!);
 
-  const expectedCostData = [
-    { id: "total", parent: "", name: "Total", value: 16_000_000 },
-    { id: "gdp", parent: "total", name: "GDP", value: 8_000_000 },
-    { id: "education", parent: "total", name: "Education", value: 6_000_000 },
-    { id: "life_years", parent: "total", name: "Life years", value: 2_250_000 },
-    { id: "gdp_closures", parent: "gdp", name: "Closures", value: 8_000_000 },
-    { id: "gdp_absences", parent: "gdp", name: "Absences", value: 50_000 },
-    { id: "education_closures", parent: "education", name: "Closures", value: 6_000_000 },
-    { id: "education_absences", parent: "education", name: "Absences", value: 100 },
-    { id: "life_years_pre_school", parent: "life_years", name: "Preschool-age children", value: 250_000 },
-    { id: "life_years_school_age", parent: "life_years", name: "School-age children", value: 1_200_000 },
-    { id: "life_years_working_age", parent: "life_years", name: "Working-age adults", value: 600_000 },
-    { id: "life_years_retirement_age", parent: "life_years", name: "Retirement-age adults", value: 220_000 },
-  ];
+  // Though there are 3 columns (vertical), there should be 4 series (horizontal).
+  // Each series will have 3 data points, one for each column.
+  expect(costsChartDataUsd).toHaveLength(4);
+  expect(costsChartDataUsd[0].data.length).toBe(3);
+  expect(costsChartDataUsd[0].data.map((dataPoint: any) => dataPoint.name)).toEqual(["Closures", "Closures", "Preschool-age children"]);
+  expect(costsChartDataUsd[0].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([true, true, true]);
+  expect(costsChartDataUsd[0].data.map((dataPoint: any) => dataPoint.y)).toEqual([5036129.947, 3795392.8739, 1612011.0511]);
+  expect(costsChartDataUsd[1].data.length).toBe(3);
+  expect(costsChartDataUsd[1].data.map((dataPoint: any) => dataPoint.name)).toEqual(["Absences", "Absences", "School-age children"]);
+  expect(costsChartDataUsd[1].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([true, true, true]);
+  expect(costsChartDataUsd[1].data.map((dataPoint: any) => dataPoint.y)).toEqual([414332.1848, 7760.9471, 15079332.5422]);
+  expect(costsChartDataUsd[2].data.length).toBe(3);
+  expect(costsChartDataUsd[2].data.map((dataPoint: any) => dataPoint.name)).toEqual(["", "", "Working-age adults"]);
+  expect(costsChartDataUsd[2].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([false, false, true]);
+  expect(costsChartDataUsd[2].data.map((dataPoint: any) => dataPoint.y)).toEqual([0, 0, 5756167.4768]);
+  expect(costsChartDataUsd[3].data.length).toBe(3);
+  expect(costsChartDataUsd[3].data.map((dataPoint: any) => dataPoint.name)).toEqual(["", "", "Retirement-age adults"]);
+  expect(costsChartDataUsd[3].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([false, false, true]);
+  expect(costsChartDataUsd[3].data.map((dataPoint: any) => dataPoint.y)).toEqual([0, 0, 3903636.132]);
 
-  expectedCostData.forEach((expectedCost) => {
-    const cost = costsChartData.find((cost: any) => cost.id === expectedCost.id);
-    expect(cost.name).toEqual(expectedCost.name);
-    expect(cost.parent).toBe(expectedCost.parent);
-    checkValueIsInRange(cost.value, expectedCost.value, 0.5);
-  });
+  // Check that after toggling the cost basis we see different data.
+  await page.getByLabel("Show losses as % of GDP").check();
+  const costsChartDataGdpStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
+  const costsChartDataGdp = JSON.parse(costsChartDataGdpStr!);
+  expect(costsChartDataGdp).toHaveLength(4);
+  checkBarChartDataIsDifferent(costsChartDataUsd, costsChartDataGdp);
 
   // Run a second analysis with a different parameter, using the parameters form on the results page.
   await page.getByRole("button", { name: "Parameters" }).first().click();
@@ -164,7 +173,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   const closeButton = page.getByLabel("Edit parameters").getByLabel("Close");
   await closeButton.click();
 
-  // Test that the second analysis results page has visible charts of both types.
+  // Test that the second analysis results page has visible time series and bar charts.
   await expect(page.locator("#prevalence-container")).toBeVisible({ timeout: 20000 });
   await expect(page.locator("#prevalence-container .highcharts-xaxis-labels")).toBeVisible();
   await expect(page.locator("#costsChartContainer rect").first()).toBeVisible();
@@ -175,13 +184,12 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   const prevalenceTimeSeries2LastY = prevalence2Data.lastDataPoint[1];
   expect(prevalenceTimeSeries2LastY).not.toEqual(prevalenceTimeSeries1LastY);
 
-  // Test that the second analysis' costs pie chart has different data from the first.
+  // Test that the second analysis' costs bar chart has different data from the first analysis.
   const costsChart2DataStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
   const costsChart2Data = JSON.parse(costsChart2DataStr!);
-  expect(costsChart2Data).toHaveLength(12);
-  costsChart2Data.forEach((cost: any, index: number) => {
-    expect(cost.value).not.toEqual(costsChartData[index].value);
-  });
+  expect(costsChart2Data).toHaveLength(4);
+  checkBarChartDataIsDifferent(costsChartDataUsd, costsChart2Data);
+  checkBarChartDataIsDifferent(costsChartDataGdp, costsChart2Data);
 
   // Test that the user can navigate to previously-run analyses, including when the page is initially rendered server-side.
   await page.goto(urlOfFirstAnalysis);

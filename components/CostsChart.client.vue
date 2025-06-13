@@ -83,6 +83,9 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
   return series;
 };
 
+const costLabels = computed(() =>
+  appStore.totalCost?.children?.map(cost => appStore.getCostLabel(cost.id)) || []);
+
 const chartHeightPx = 400;
 const yAxisTitle = computed(() => props.basis === CostBasis.PercentGDP ? `Losses as % of ${gdpReferenceYear} national GDP` : "Losses in billions USD");
 
@@ -173,8 +176,6 @@ const chartInitialOptions = () => {
 
 watch(() => chartContainer.value, () => {
   if (appStore.costsData && !chart && chartContainer.value) {
-    // TODO - for tests.
-    // seriesData.value = series?.map(series => series.data?.map((point) => point?.y));
     chart = Highcharts.chart("costsChartContainer", chartInitialOptions());
   }
 });

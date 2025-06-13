@@ -2,8 +2,8 @@ import type { ScenarioResultData } from "@/types/apiResponseTypes";
 import CostsCard from "@/components/CostsCard.vue";
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { waitFor } from "@testing-library/vue";
 import { mockResultResponseData } from "../mocks/mockResponseData";
+import { CostBasis } from "~/types/unitTypes";
 
 const stubs = {
   CIcon: true,
@@ -22,6 +22,8 @@ const plugins = [mockPinia(
       },
     },
   },
+  true,
+  { stubActions: false },
 )];
 
 vi.mock("highcharts", async (importOriginal) => {
@@ -32,15 +34,14 @@ vi.mock("highcharts", async (importOriginal) => {
     chart: () => ({
       destroy: vi.fn(),
       setSize: vi.fn(),
+      update: vi.fn(),
       series: [{ setData: vi.fn() }],
     }),
-    _modules: actual._modules,
-    win: actual.win,
   };
 });
 
 describe("costs card", () => {
-  it("should render the costs pie chart container, the total cost, costs table, vsl and total cost in terms of % of GDP", async () => {
+  it("should render the costs chart container, the total cost, costs table, vsl and total cost in terms of % of GDP", async () => {
     const averageVsl = formatCurrency(mockResultResponseData.average_vsl);
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
 
@@ -58,23 +59,17 @@ describe("costs card", () => {
     expect(totalCostPara.text()).toBe("8.9T");
   });
 
-  it("should show the tooltips when the mouse is over the cost pie container, and not otherwise", async () => {
+  it("should change the cost basis when the toggle is clicked", async () => {
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
 
-    const costsChartComponent = component.findComponent({ name: "CostsChart.client" });
-    expect(costsChartComponent.props().hideTooltips).toBe(false);
+    const costsTableComponent = component.findComponent({ name: "CostsTable" });
+    expect(costsTableComponent.props("basis")).toBe(CostBasis.USD);
 
-    const container = component.find(`#costsChartContainer`);
+    const switchComponent = component.findComponent({ name: "CFormSwitch" });
+    switchComponent.vm.$emit("update:modelValue", true);
 
-    await container.trigger("mouseover");
-    expect(costsChartComponent.props().hideTooltips).toBe(false);
+    await nextTick();
 
-    await container.trigger("mouseleave");
-    await waitFor(() => {
-      expect(costsChartComponent.props().hideTooltips).toBe(true);
-    }, { timeout: 1000 });
-
-    await container.trigger("mouseover");
-    expect(costsChartComponent.props().hideTooltips).toBe(false);
+    expect(costsTableComponent.props("basis")).toBe(CostBasis.PercentGDP);
   });
 });
