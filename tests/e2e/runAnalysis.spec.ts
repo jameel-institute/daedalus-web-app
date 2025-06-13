@@ -87,10 +87,15 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   const prevalence1Data = JSON.parse(prevalence1DataStr!);
   const prevalenceTimeSeries1LastY = prevalence1Data.lastDataPoint[1];
 
-  await checkTimeSeriesDataPoints(page.locator("#prevalence-container"), [1, 331.0026], [numberOfTimePoints, 110_000]);
-  await checkTimeSeriesDataPoints(page.locator("#hospitalised-container"), [1, 0], [numberOfTimePoints, 55_000]);
-  await checkTimeSeriesDataPoints(page.locator("#dead-container"), [1, 0], [numberOfTimePoints, 800_000]);
-  await checkTimeSeriesDataPoints(page.locator("#vaccinated-container"), [1, 0], [numberOfTimePoints, 200_000_000]);
+  // TODO: These tests may be more robust if we assert on the peak values rather than first and last data points?
+  await checkTimeSeriesDataPoints(page.locator("#prevalence-container"), [1, 33], [numberOfTimePoints, 770_000]);
+  await checkTimeSeriesDataPoints(page.locator("#new_infected-container"), [1, 0], [numberOfTimePoints, 210_000]);
+  await checkTimeSeriesDataPoints(page.locator("#hospitalised-container"), [1, 0], [numberOfTimePoints, 260_000]);
+  await checkTimeSeriesDataPoints(page.locator("#new_hospitalised-container"), [1, 0], [numberOfTimePoints, 21_000]);
+  await checkTimeSeriesDataPoints(page.locator("#dead-container"), [1, 0], [numberOfTimePoints, 11_000_000]);
+  await checkTimeSeriesDataPoints(page.locator("#new_dead-container"), [1, 0], [numberOfTimePoints, 2900]);
+  await checkTimeSeriesDataPoints(page.locator("#vaccinated-container"), [1, 0], [numberOfTimePoints, 190_000_000]);
+  await checkTimeSeriesDataPoints(page.locator("#new_vaccinated-container"), [1, 0], [numberOfTimePoints, 1_100_000]);
 
   await expect(page.locator("#costsChartContainer rect").first()).toBeVisible();
 
@@ -99,18 +104,18 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   expect(costsPieData).toHaveLength(12);
 
   const expectedCostData = [
-    { id: "total", parent: "", name: "Total", value: 16_000_000 },
-    { id: "gdp", parent: "total", name: "GDP", value: 8_000_000 },
-    { id: "education", parent: "total", name: "Education", value: 6_000_000 },
-    { id: "life_years", parent: "total", name: "Life years", value: 2_250_000 },
-    { id: "gdp_closures", parent: "gdp", name: "Closures", value: 8_000_000 },
-    { id: "gdp_absences", parent: "gdp", name: "Absences", value: 50_000 },
-    { id: "education_closures", parent: "education", name: "Closures", value: 6_000_000 },
-    { id: "education_absences", parent: "education", name: "Absences", value: 100 },
-    { id: "life_years_pre_school", parent: "life_years", name: "Preschool-age children", value: 250_000 },
-    { id: "life_years_school_age", parent: "life_years", name: "School-age children", value: 1_200_000 },
-    { id: "life_years_working_age", parent: "life_years", name: "Working-age adults", value: 600_000 },
-    { id: "life_years_retirement_age", parent: "life_years", name: "Retirement-age adults", value: 220_000 },
+    { id: "total", parent: "", name: "Total", value: 36_000_000 },
+    { id: "gdp", parent: "total", name: "GDP", value: 5_500_000 },
+    { id: "education", parent: "total", name: "Education", value: 3_800_000 },
+    { id: "life_years", parent: "total", name: "Life years", value: 26_400_000 },
+    { id: "gdp_closures", parent: "gdp", name: "Closures", value: 5_000_000 },
+    { id: "gdp_absences", parent: "gdp", name: "Absences", value: 410_000 },
+    { id: "education_closures", parent: "education", name: "Closures", value: 3_800_000 },
+    { id: "education_absences", parent: "education", name: "Absences", value: 7800 },
+    { id: "life_years_pre_school", parent: "life_years", name: "Preschool-age children", value: 1_600_000 },
+    { id: "life_years_school_age", parent: "life_years", name: "School-age children", value: 15_000_000 },
+    { id: "life_years_working_age", parent: "life_years", name: "Working-age adults", value: 5_800_000 },
+    { id: "life_years_retirement_age", parent: "life_years", name: "Retirement-age adults", value: 3_900_000 },
   ];
 
   expectedCostData.forEach((expectedCost) => {
