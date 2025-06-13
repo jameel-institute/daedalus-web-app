@@ -162,14 +162,14 @@ const chartInitialOptions = () => {
       shared: true,
       distance: 128, // necessary for shared tooltips to not obscure stack labels or grand-child costs within a stack.
       formatter() {
-        return costsChartTooltipText(this, props.basis, appStore.currentScenario.result.data!.gdp);
+        return this.total ? costsChartTooltipText(this, props.basis, appStore.currentScenario.result.data!.gdp) : "";
       },
     },
     plotOptions: {
       column: {
         stacking: "normal",
         groupPadding: 0.05,
-      } as Highcharts.SeriesColumnOptions,
+      },
     },
   } as Highcharts.Options;
 };

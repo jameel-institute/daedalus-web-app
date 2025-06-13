@@ -3,6 +3,7 @@ import hexRgb from "hex-rgb";
 import * as Highcharts from "highcharts";
 import { costAsPercentOfGdp, humanReadablePercentOfGdp } from "./formatters";
 import { CostBasis } from "~/types/unitTypes";
+import type { ExportingButtonsOptionsObject, ExportingMenuObject } from "highcharts";
 
 const originalHighchartsColors = Highcharts.getOptions().colors!;
 const colorRgba = hexRgb(originalHighchartsColors[0] as string);
@@ -62,7 +63,7 @@ export const contextButtonOptions = {
   // Omit 'printChart' and 'viewData' from menu items
   menuItems: ["downloadCSV", "downloadXLS", "separator", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG", "separator", "viewFullscreen"],
   useHTML: true,
-};
+} as ExportingButtonsOptionsObject;
 
 export const menuItemDefinitionOptions = {
   downloadCSV: {
@@ -71,40 +72,36 @@ export const menuItemDefinitionOptions = {
   downloadXLS: {
     text: "Download XLS for this chart",
   },
-};
+} as Highcharts.Dictionary<ExportingMenuObject>;
 
 export const chartBackgroundColorOnExporting = "white";
 const chartBackgroundColor = "transparent";
-const chartStyle = {
-  fontFamily: "ImperialSansText, sans-serif",
-};
-const chartEventsOptions = {
-  fullscreenOpen() {
-    this.update({ chart: { backgroundColor: chartBackgroundColorOnExporting } });
-  },
-  fullscreenClose() {
-    this.update({ chart: { backgroundColor: chartBackgroundColor } });
-  },
-};
 export const chartOptions = {
   backgroundColor: chartBackgroundColor,
-  events: chartEventsOptions,
-  style: chartStyle,
-};
+  events: {
+    fullscreenOpen() {
+      this.update({ chart: { backgroundColor: chartBackgroundColorOnExporting } });
+    },
+    fullscreenClose() {
+      this.update({ chart: { backgroundColor: chartBackgroundColor } });
+    },
+  },
+  style: {
+    fontFamily: "ImperialSansText, sans-serif",
+  },
+} as Highcharts.ChartOptions;
 
 // The TS declarations for the context object aren't correct, so we declare our own interface:
 // https://github.com/highcharts/highcharts/issues/22281#issuecomment-2516994341
 // The interface appears to be the same as the now defunct Highcharts.TooltipFormatterContextObject class.
 interface TooltipPointInstance extends Highcharts.Point {
   points?: Array<TooltipPointInstance>
-  point?: Highcharts.Point & { custom: { includeInTooltips: boolean } }
+  point?: Highcharts.Point & { custom: { includeInTooltips: boolean }, y: number }
+  total: number
+  y: number
 }
 
 const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis: CostBasis) => {
-  if (!point.y && point.y !== 0) {
-    return "";
-  }
-
   let valueDisplay;
   if (costBasis === CostBasis.PercentGDP) {
     valueDisplay = `${humanReadablePercentOfGdp(point.y).percent}%`;
@@ -122,10 +119,6 @@ const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis:
 // Tooltip text for a stacked column (shared tooltip for all points in the stack)
 export const costsChartTooltipText = (context: unknown, costBasis: CostBasis, nationalGdp: number) => {
   const tooltipPointInstance = context as TooltipPointInstance;
-
-  if (tooltipPointInstance.total === undefined) {
-    return "";
-  }
 
   let headerText = `${tooltipPointInstance.category} losses: `;
   if (costBasis === CostBasis.PercentGDP) {

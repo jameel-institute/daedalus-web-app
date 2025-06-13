@@ -48,4 +48,25 @@ describe("money utils", () => {
       },
     );
   });
+
+  describe("expressMillionsDollarsAsBillions", () => {
+    it("should always return in billions, even if millions/trillions would be more abbreviated", () => {
+      expect(expressMillionsDollarsAsBillions(1_234_567_890_123.456, 3, false)).toEqual({
+        amount: "1234567890.123",
+        unit: "billion",
+      });
+
+      expect(expressMillionsDollarsAsBillions(1.234, 1, true)).toEqual({
+        amount: "0.0",
+        unit: "B",
+      });
+    });
+
+    it("uses comma-formatting when the precision requested is 0", () => {
+      expect(expressMillionsDollarsAsBillions(1_234_567.01234, 0, false)).toEqual({
+        amount: "1,235",
+        unit: "billion",
+      });
+    });
+  });
 });
