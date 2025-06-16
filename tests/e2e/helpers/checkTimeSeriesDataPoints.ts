@@ -3,7 +3,7 @@ import { expect } from "@playwright/test";
 import type { TimeSeriesDataPoint } from "~/types/dataTypes";
 import { checkValueIsInRange } from "./checkValueIsInRange";
 
-export const numberOfTimePoints = 601;
+export const numberOfTimePoints = 600;
 
 export const checkTimeSeriesDataPoints = async (
   locator: Locator,
