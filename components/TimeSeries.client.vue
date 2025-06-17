@@ -29,7 +29,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  chartCreated: [seriesId: string, chart: Highcharts.Chart]
+  chartCreated: [seriesId: string, chartIndex: number]
   chartDestroyed: [seriesId: string]
 }>();
 
@@ -176,7 +176,7 @@ const chartInitialOptions = () => {
 watch(() => chartContainer.value, () => {
   if (!chart) {
     chart = Highcharts.chart(chartContainerId.value, chartInitialOptions());
-    emit("chartCreated", props.seriesId, chart);
+    emit("chartCreated", props.seriesId, chart.index);
   }
 });
 

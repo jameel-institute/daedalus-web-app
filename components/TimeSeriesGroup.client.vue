@@ -33,7 +33,7 @@
           @touchmove="onMove(seriesId)"
           @touchstart="onMove(seriesId)"
           @mouseleave="$emit('hideAllTooltips')"
-          @chart-created="(seriesId, chart) => $emit('chartCreated', seriesId, chart)"
+          @chart-created="(seriesId, chartIndex) => $emit('chartCreated', seriesId, chartIndex)"
           @chart-destroyed="(seriesId) => $emit('chartDestroyed', seriesId)"
         />
       </CAccordionBody>
@@ -56,7 +56,7 @@ const emit = defineEmits<{
   hideAllTooltips: []
   syncTooltipsAndCrosshairs: [seriesId: string]
   toggleOpen: []
-  chartCreated: [seriesId: string, chart: Highcharts.Chart]
+  chartCreated: [seriesId: string, chartIndex: number]
   chartDestroyed: [seriesId: string]
 }>();
 

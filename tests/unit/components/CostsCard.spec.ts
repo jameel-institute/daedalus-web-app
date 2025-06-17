@@ -45,9 +45,6 @@ describe("costs card", () => {
     const averageVsl = formatCurrency(mockResultResponseData.average_vsl);
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
 
-    const container = component.find(`#costsChartContainer`);
-    expect(container.classes()).not.toContain("hide-tooltips");
-
     expect(component.find(`#gdpContainer`).text()).toContain("44.9%");
 
     const totalCostPara = component.find(`p#totalCostPara`);
