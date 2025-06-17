@@ -218,17 +218,5 @@ onUnmounted(() => {
 #costsChartContainer {
   font-weight: normal !important;
   z-index: 10; // Above timeseries
-
-  .highcharts-tooltip {
-    transition: filter 0.2s;
-  }
-
-  .highcharts-point {
-    opacity: 1 !important; // Avoid transparency on hover over pie slices
-  }
-
-  .highcharts-container {
-    margin-left: auto;
-  }
 }
 </style>
