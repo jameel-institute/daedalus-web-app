@@ -1,7 +1,7 @@
 import type { Locator } from "playwright/test";
 import { expect } from "@playwright/test";
 import type { TimeSeriesDataPoint } from "~/types/dataTypes";
-import { checkValueIsInRange } from "./checkValueIsInRange";
+import checkValueIsInRange from "./checkValueIsInRange";
 
 export const numberOfTimePoints = 601;
 

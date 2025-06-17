@@ -5,7 +5,7 @@ import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
 import { checkTimeSeriesDataPoints, numberOfTimePoints } from "./helpers/checkTimeSeriesDataPoints";
 import { parameterLabels, scenarioPathMatcher } from "./helpers/constants";
-import { checkBarChartDataIsDifferent } from "./helpers/checkChartDataIsDifferent";
+import checkBarChartDataIsDifferent from "./helpers/checkBarChartDataIsDifferent";
 
 const philippinesMinimumHospitalCapacity = "16300";
 const philippinesMinimumHospitalCapacityFormatted = "16,300";
