@@ -62,14 +62,18 @@ describe("costs card", () => {
   it("should change the cost basis when the toggle is clicked", async () => {
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
 
-    const costsTableComponent = component.findComponent({ name: "CostsTable" });
-    expect(costsTableComponent.props("basis")).toBe(CostBasis.USD);
+    const costsChartComponent = component.findComponent({ name: "CostsChart.client" });
+    expect(costsChartComponent.props("basis")).toBe(CostBasis.USD);
+
+    // const costsTableComponent = component.findComponent({ name: "CostsTable" });
+    // expect(costsTableComponent.props("basis")).toBe(CostBasis.USD);
 
     const switchComponent = component.findComponent({ name: "CFormSwitch" });
     switchComponent.vm.$emit("update:modelValue", true);
 
     await nextTick();
 
-    expect(costsTableComponent.props("basis")).toBe(CostBasis.PercentGDP);
+    expect(costsChartComponent.props("basis")).toBe(CostBasis.PercentGDP);
+    // expect(costsTableComponent.props("basis")).toBe(CostBasis.PercentGDP);
   });
 });
