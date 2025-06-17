@@ -97,7 +97,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await checkTimeSeriesDataPoints(page.locator("#vaccinated-container"), [1, 0], [numberOfTimePoints, 190_000_000]);
   await checkTimeSeriesDataPoints(page.locator("#new_vaccinated-container"), [1, 0], [numberOfTimePoints, 1_100_000]);
 
-  await expect(page.locator("#costsChartContainer rect").first()).toBeVisible();
+  await expect(page.locator("#costsChartContainer text.highcharts-credits").first()).toBeVisible();
 
   const costsChartDataUsdStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
   const costsChartDataUsd = JSON.parse(costsChartDataUsdStr!);
@@ -176,7 +176,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   // Test that the second analysis results page has visible time series and bar charts.
   await expect(page.locator("#prevalence-container")).toBeVisible({ timeout: 20000 });
   await expect(page.locator("#prevalence-container .highcharts-xaxis-labels")).toBeVisible();
-  await expect(page.locator("#costsChartContainer rect").first()).toBeVisible();
+  await expect(page.locator("#costsChartContainer text.highcharts-credits").first()).toBeVisible();
 
   // Test that one of the time series charts for the second analysis has different data from the first analysis.
   const prevalence2DataStr = await page.locator("#prevalence-container").getAttribute("data-summary");
