@@ -73,7 +73,7 @@
       <div class="chart-and-table-container">
         <CostsChart id="costsChartContainer" />
         <div class="flex-grow-1">
-          <CostsTable data-testid="costs-table" />
+          <CostsTable data-testid="costs-table" :basis="costBasis" />
         </div>
       </div>
       <p class="fw-lighter vsl-display">
