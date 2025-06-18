@@ -53,7 +53,6 @@ vi.mock("highcharts", async (importOriginal) => {
     charts: actual.charts,
     _modules: actual._modules,
     win: actual.win,
-    wrap: actual.wrap,
     Pointer: actual.Pointer,
   };
 });

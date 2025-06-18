@@ -2,7 +2,7 @@
   <div
     :id="chartContainerId"
     ref="chartContainer"
-    class="chart-container time-series"
+    :class="`chart-container time-series ${props.hideTooltips ? 'hide-tooltips' : ''}`"
     :style="{ zIndex, height: 'fit-content' }"
     :data-summary="JSON.stringify({ firstDataPoint: data[0], lastDataPoint: data[data.length - 1], dataLength: data.length })"
   />
@@ -11,16 +11,17 @@
 <script setup lang="ts">
 import * as Highcharts from "highcharts";
 import "highcharts/modules/accessibility";
-import "highcharts/modules/exporting";
 import "highcharts/modules/export-data";
+import "highcharts/modules/exporting";
 import "highcharts/modules/offline-exporting";
 import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import type { TimeSeriesDataPoint } from "~/types/dataTypes";
-import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions, plotBandsColor, plotLinesColor, timeSeriesColors } from "./utils/highCharts";
+import { plotBandsColor, plotLinesColor, timeSeriesColors } from "./utils/highCharts";
 
 const props = defineProps<{
   seriesId: string
+  hideTooltips: boolean
   seriesIndex: number // Probably 0 or 1 as time series come in pairs
   groupIndex: number // Probably 0 to about 4
   yUnits: string
@@ -29,7 +30,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  chartCreated: [seriesId: string, chartIndex: number]
+  chartCreated: [seriesId: string, chart: Highcharts.Chart]
   chartDestroyed: [seriesId: string]
 }>();
 
@@ -45,6 +46,8 @@ const chartContainerId = computed(() => `${props.seriesId}-container`);
 const chartContainer = ref<HTMLDivElement | null>(null);
 
 let chart: Highcharts.Chart;
+const chartBackgroundColor = "transparent";
+const chartBackgroundColorOnExporting = "white";
 
 const seriesMetadata = computed((): DisplayInfo | undefined => {
   return appStore.metadata?.results?.time_series.find(({ id }) => id === props.seriesId);
@@ -105,16 +108,33 @@ const interventionsPlotBands = computed(() => {
   return bands;
 });
 
+// Override the reset function as per synchronisation demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
+// Seems to be required in order for tooltips to hang around more than about a second.
+Highcharts.Pointer.prototype.reset = () => {
+  return undefined;
+};
+
 const chartInitialOptions = () => {
   return {
     credits: {
       enabled: false, // Omit credits to allow us to reduce margin and save vertical space on page. We must credit Highcharts elsewhere.
     },
     chart: {
-      ...chartOptions,
       height: props.chartHeight,
       marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
       marginBottom: 35,
+      backgroundColor: chartBackgroundColor,
+      events: {
+        fullscreenOpen() {
+          this.update({ chart: { backgroundColor: chartBackgroundColorOnExporting } });
+        },
+        fullscreenClose() {
+          this.update({ chart: { backgroundColor: chartBackgroundColor } });
+        },
+      },
+      style: {
+        fontFamily: "ImperialSansText, sans-serif", // TODO: Make the font-family derive from a globally configurable constant
+      },
     },
     exporting: {
       filename: `${seriesMetadata.value!.label} in ${appStore.currentScenario.parameters?.country}`,
@@ -131,12 +151,32 @@ const chartInitialOptions = () => {
         },
       },
       buttons: {
-        contextButton: contextButtonOptions,
+        contextButton: {
+          height: 20,
+          width: 22,
+          symbolSize: 12,
+          symbolY: 10,
+          symbolX: 12,
+          symbolStrokeWidth: 2,
+          // Omit 'printChart' and 'viewData' from menu items
+          menuItems: ["downloadCSV", "downloadXLS", "separator", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG", "separator", "viewFullscreen"],
+          useHTML: true,
+        },
       },
-      menuItemDefinitions: menuItemDefinitionOptions,
+      menuItemDefinitions: {
+        downloadCSV: {
+          text: "Download CSV for this chart",
+        },
+        downloadXLS: {
+          text: "Download XLS for this chart",
+        },
+      },
     },
     title: {
       text: "",
+      style: {
+        fontWeight: "500",
+      },
     },
     legend: {
       enabled: false,
@@ -176,7 +216,7 @@ const chartInitialOptions = () => {
 watch(() => chartContainer.value, () => {
   if (!chart) {
     chart = Highcharts.chart(chartContainerId.value, chartInitialOptions());
-    emit("chartCreated", props.seriesId, chart.index);
+    emit("chartCreated", props.seriesId, chart);
   }
 });
 
@@ -201,6 +241,13 @@ watch(() => props.chartHeight, () => {
   width: 100%;
   position: relative; /* Required for z-index to work */
   left: -20px;
+
+  &.hide-tooltips {
+    .highcharts-tooltip, .highcharts-tracker, .highcharts-crosshair {
+      filter: opacity(0);
+      transition: filter 0.2s;
+    }
+  }
 }
 
 .accordion.time-series {

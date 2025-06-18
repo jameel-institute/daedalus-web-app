@@ -25,6 +25,7 @@
           :key="seriesId"
           :series-role="seriesRole as string"
           :series-id="seriesId"
+          :hide-tooltips="props.hideTooltips"
           :series-index="seriesIndex"
           :group-index="props.groupIndex"
           :y-units="yUnits"
@@ -33,7 +34,8 @@
           @touchmove="onMove(seriesId)"
           @touchstart="onMove(seriesId)"
           @mouseleave="$emit('hideAllTooltips')"
-          @chart-created="(seriesId, chartIndex) => $emit('chartCreated', seriesId, chartIndex)"
+          @mouseover="$emit('showAllTooltips')"
+          @chart-created="(seriesId, chart) => $emit('chartCreated', seriesId, chart)"
           @chart-destroyed="(seriesId) => $emit('chartDestroyed', seriesId)"
         />
       </CAccordionBody>
@@ -48,15 +50,17 @@ const props = defineProps<{
   seriesGroup: TimeSeriesGroup
   groupIndex: number
   open: boolean
+  hideTooltips: boolean
   chartHeightPx: number
   minChartHeightPx: number
 }>();
 
 const emit = defineEmits<{
   hideAllTooltips: []
+  showAllTooltips: []
   syncTooltipsAndCrosshairs: [seriesId: string]
   toggleOpen: []
-  chartCreated: [seriesId: string, chartIndex: number]
+  chartCreated: [seriesId: string, chart: Highcharts.Chart]
   chartDestroyed: [seriesId: string]
 }>();
 
