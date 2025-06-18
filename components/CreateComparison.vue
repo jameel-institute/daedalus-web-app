@@ -96,7 +96,6 @@ import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import { TypeOfParameter } from "~/types/parameterTypes";
 import type { Parameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
-import { useScenarioOptions } from "~/composables/useScenarioOptions";
 
 const appStore = useAppStore();
 const FORM_LABEL_ID = "scenarioOptions";

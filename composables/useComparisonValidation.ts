@@ -1,6 +1,6 @@
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE, MIN_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
 
-export const useComparisonValidation = (scenariosToCompareAgainstBaseline: MaybeRefOrGetter<Array<string>>) => {
+export default (scenariosToCompareAgainstBaseline: MaybeRefOrGetter<Array<string>>) => {
   const tooFewScenarios = computed(() => toValue(scenariosToCompareAgainstBaseline).length < MIN_SCENARIOS_COMPARED_TO_BASELINE);
   const tooManyScenarios = computed(() => toValue(scenariosToCompareAgainstBaseline).length > MAX_SCENARIOS_COMPARED_TO_BASELINE);
   const invalid = computed(() => {
