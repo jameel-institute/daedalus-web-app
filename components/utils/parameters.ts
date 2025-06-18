@@ -1,4 +1,4 @@
-import type { ParameterOption } from "~/types/parameterTypes";
+import type { Parameter, ParameterOption } from "~/types/parameterTypes";
 import type { Option } from "vue3-select-component";
 
 export interface ParameterSelectOption extends Option<string> {
@@ -14,5 +14,26 @@ export const paramOptsToSelectOpts = (options: Array<ParameterOption>): Paramete
       label,
       description: description ?? "",
     };
+  });
+};
+
+const getIndexOfOption = (options: Array<ParameterOption> = [], optionId: string): number => {
+  return options.findIndex(option => option.id === optionId);
+};
+
+// If the parameter is ordered, sort the options based on their order in the metadata.
+export const sortOptions = (parameter: Parameter, optionsToSort: string[]) => {
+  if (parameter.parameterType === "numeric") {
+    return optionsToSort.sort((a, b) => {
+      return Number.parseInt(a) - Number.parseInt(b);
+    });
+  }
+
+  if (!parameter.ordered || parameter.options === undefined) {
+    return optionsToSort;
+  }
+
+  return optionsToSort.sort((a, b) => {
+    return getIndexOfOption(parameter.options, a) - getIndexOfOption(parameter.options, b);
   });
 };
