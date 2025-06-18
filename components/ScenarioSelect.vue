@@ -44,7 +44,6 @@
 import VueSelect from "vue3-select-component";
 import type { Parameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
-import { useScenarioOptions } from "~/composables/useScenarioOptions";
 
 const { showFeedback, parameterAxis, labelId } = defineProps<{
   showFeedback: boolean
