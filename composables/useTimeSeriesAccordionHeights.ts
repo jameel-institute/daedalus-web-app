@@ -1,4 +1,4 @@
-export const useTimeSeriesAccordionHeights = () => {
+export default () => {
   const appStore = useAppStore();
   const openedAccordions = ref<string[]>([]);
   const accordionBodyYPadding = 8;

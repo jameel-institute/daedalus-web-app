@@ -1,7 +1,7 @@
 import { type Parameter, type ParameterOption, TypeOfParameter } from "~/types/parameterTypes";
 import { paramOptsToSelectOpts } from "~/components/utils/parameters";
 
-export const useScenarioOptions = (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
+export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
   const appStore = useAppStore();
 
   const baselineOption = computed(() => {
