@@ -8,11 +8,12 @@ describe("money utils", () => {
       [1.234567890123, { amount: "1.2", unit: "million" }],
       [0.4567890123, { amount: "0.5", unit: "million" }],
       [9_876_543_210.01234, { amount: "9876.54", unit: "trillion" }, 2],
+      [9_876_543_210.01234, { amount: "9,877", unit: "trillion" }, 0],
       [5_555_555.01234, { amount: "5.6", unit: "T" }, 1, true],
       [3_333.01234, { amount: "3.3", unit: "B" }, undefined, true],
       [9.01234, { amount: "9.012", unit: "M" }, 3, true],
     ])(
-      "should convert %d to %o",
+      "should convert values express in millions of dollars to configurable human-readable format",
       (amount, expected, precision = 1, abbreviateUnits = false) => {
         expect(
           abbreviateMillionsDollars(amount, precision, abbreviateUnits),
