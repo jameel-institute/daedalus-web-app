@@ -43,6 +43,7 @@
     <div v-if="showFeedback" class="invalid-tooltip">
       {{ feedback }}
     </div>
+    <!-- TODO: add some help text like 'You can choose from the presets or add a custom option.' for numeric -->
   </div>
 </template>
 
