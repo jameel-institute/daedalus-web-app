@@ -16,11 +16,9 @@
         :series-group="seriesGroup"
         :group-index="index"
         :open="openedAccordions.includes(seriesGroup.id)"
-        :hide-tooltips="hideTooltips"
         :chart-height-px="chartHeightPx"
         :min-chart-height-px="minChartHeightPx"
-        @hide-all-tooltips="hideAllTooltips"
-        @show-all-tooltips="hideTooltips = false"
+        @hide-all-tooltips="hideAllTooltipsAndCrosshairs"
         @chart-created="chartCreated"
         @chart-destroyed="chartDestroyed"
         @sync-tooltips-and-crosshairs="syncTooltipsAndCrosshairs"
@@ -33,24 +31,33 @@
 <script setup lang="ts">
 import { CIcon } from "@coreui/icons-vue";
 import throttle from "lodash.throttle";
+import * as Highcharts from "highcharts";
 
 const appStore = useAppStore();
 
-const charts = ref<Record<string, Highcharts.Chart>>({});
-const hideTooltips = ref(false);
+const chartIndices = ref<Record<string, number>>({});
 const { openedAccordions, chartHeightPx, minChartHeightPx } = useTimeSeriesAccordionHeights();
 
-const chartCreated = (seriesId: string, chart: Highcharts.Chart) => {
-  charts.value = {
-    ...charts.value,
-    [seriesId]: chart,
+const getChartBySeriesId = (seriesId: string): Highcharts.Chart | undefined => {
+  const chartIndex = chartIndices.value[seriesId];
+  return Highcharts.charts[chartIndex];
+};
+
+const allCharts = computed((): Highcharts.Chart[] => {
+  return Object.values(chartIndices.value).map(chartIndex => Highcharts.charts[chartIndex]).filter(chart => !!chart);
+});
+
+const chartCreated = (seriesId: string, chartIndex: number) => {
+  chartIndices.value = {
+    ...chartIndices.value,
+    [seriesId]: chartIndex,
   };
 };
 
 const chartDestroyed = (seriesId: string) => {
-  const newCharts = { ...charts.value };
+  const newCharts = { ...chartIndices.value };
   delete newCharts[seriesId];
-  charts.value = newCharts;
+  chartIndices.value = newCharts;
 };
 
 /**
@@ -58,39 +65,61 @@ const chartDestroyed = (seriesId: string) => {
  * Demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
  */
 const syncTooltipsAndCrosshairs = throttle((seriesId) => {
-  const triggeringChart = charts.value[seriesId];
-  if (triggeringChart?.hoverPoint) {
-    Object.values(charts.value).forEach((chart) => {
-      if (!chart.series) {
+  const triggeringChart = getChartBySeriesId(seriesId);
+  const hoverPoint = triggeringChart?.hoverPoint;
+  if (hoverPoint) {
+    allCharts.value.forEach((chart) => {
+      if (!chart?.series) {
         return;
       }
       // Get the point with the same x as the hovered point
-      const point = chart.series[0].getValidPoints().find(({ x }) => x === triggeringChart.hoverPoint!.x);
+      const point = chart.series[0].getValidPoints().find(({ x }) => x === hoverPoint.x);
 
-      if (point && point !== triggeringChart.hoverPoint) {
+      if (point && point !== hoverPoint) {
         point.onMouseOver();
       }
     });
   };
 }, 100, { leading: true });
 
-const initializeAccordions = () => {
-  openedAccordions.value = appStore.timeSeriesGroups?.map(({ id }) => id) || [];
-};
+/**
+ * Here, we use Highcharts' 'wrap' utility to make the onContainerMouseLeave method of the Pointer class
+ * ignore onContainerMouseLeave events for charts that are managed by this TimeSeriesCard, which appears
+ * to be necessary to prevent tooltips and crosshairs from disappearing when the mouse moves *within* a chart,
+ * not (as might be expected) when it leaves the chart container.
+ * That seems to be a side-effect of syncTooltipsAndCrosshairs calling point.onMouseOver().
+ */
+Highcharts.wrap(
+  Highcharts.Pointer.prototype,
+  "onContainerMouseLeave",
+  function (this: Highcharts.Pointer, proceed, ...args) {
+    const indices = Object.values(chartIndices.value);
+    const index = this.chart.index;
+    if (!indices.includes(index)) {
+      proceed.apply(this, args);
+    }
+  },
+);
 
-const hideAllTooltips = () => {
+const hideAllTooltipsAndCrosshairs = () => {
   setTimeout(() => {
-    hideTooltips.value = true;
+    allCharts.value.forEach((chart) => {
+      chart.pointer.reset(false, 0);
+    });
   }, 500);
 };
 
 const toggleOpen = (seriesGroupId: string) => {
-  hideAllTooltips();
+  hideAllTooltipsAndCrosshairs();
   if (openedAccordions.value.includes(seriesGroupId)) {
     openedAccordions.value = openedAccordions.value.filter(id => id !== seriesGroupId);
   } else {
     openedAccordions.value = [...openedAccordions.value, seriesGroupId];
   }
+};
+
+const initializeAccordions = () => {
+  openedAccordions.value = appStore.timeSeriesGroups?.map(({ id }) => id) || [];
 };
 
 onMounted(() => {
