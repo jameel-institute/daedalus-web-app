@@ -55,4 +55,20 @@ describe("sortOptions", () => {
     const optionsToSort = ["1", "3", "2"];
     expect(sortOptions(parameter, optionsToSort)).toEqual(["1", "2", "3"]);
   });
+
+  it("should handle semi-ordered parameters by putting 'none' first", () => {
+    const parameter = {
+      id: "myUnorderedParameter",
+      ordered: false,
+      label: "My Unordered Parameter",
+      parameterType: TypeOfParameter.Select,
+      options: [
+        { id: "a", label: "Option A" },
+        { id: "none", label: "None" },
+        { id: "b", label: "Option B" },
+      ],
+    };
+    const optionsToSort = ["b", "none", "a"];
+    expect(sortOptions(parameter, optionsToSort)).toEqual(["none", "b", "a"]);
+  });
 });
