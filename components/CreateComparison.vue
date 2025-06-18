@@ -44,7 +44,7 @@
             <CIcon v-if="chosenAxisId === para.id" class="text-muted ms-2 cilx" icon="cilX" />
           </CButton>
         </div>
-        <div v-if="chosenAxisId && !chosenParameterAxis?.ordered && chosenParameterAxis?.parameterType !== TypeOfParameter.Numeric" class="mt-3">
+        <div v-if="chosenAxisId" class="mt-3">
           <CFormLabel :id="FORM_LABEL_ID" :for="FORM_LABEL_ID" class="fs-5 form-label">
             Compare baseline scenario
             <CTooltip
@@ -52,13 +52,12 @@
               placement="top"
             >
               <template #toggler="{ togglerId, on }">
-                <!-- TODO: use humanReadableInteger formatter for numeric parameters -->
                 <span
                   class="multi-value d-inline-block outside-select"
                   :aria-describedby="togglerId"
                   v-on="on"
                 >
-                  {{ baselineOption?.label }}
+                  {{ baselineOption?.label && chosenParameterAxis?.parameterType === TypeOfParameter.Numeric ? humanReadableInteger(baselineOption.label) : baselineOption?.label }}
                 </span>
               </template>
             </CTooltip>
@@ -95,6 +94,7 @@
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import { TypeOfParameter } from "~/types/parameterTypes";
 import type { Parameter } from "~/types/parameterTypes";
+import { humanReadableInteger } from "~/components/utils/formatters";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
 
 const appStore = useAppStore();
@@ -108,7 +108,7 @@ const showFormValidationFeedback = ref(false);
 
 const chosenParameterAxis = computed(() => appStore.metadata?.parameters.find(p => p.id === chosenAxisId.value));
 
-const { baselineOption, nonBaselineOptions } = useScenarioOptions(chosenParameterAxis);
+const { baselineOption, nonBaselineOptions, dependentValues } = useScenarioOptions(chosenParameterAxis);
 const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions);
 
 const handleCloseModal = () => {
@@ -121,10 +121,14 @@ const handleClickAxis = (axis: Parameter) => {
   // Otherwise, clicking the same axis again will clear it.
   if (chosenAxisId.value === "") {
     chosenAxisId.value = axis.id;
-    // Pre-populate the scenario options input with all options if there aren't more than max
-    selectedScenarioOptions.value = nonBaselineOptions.value.length <= MAX_SCENARIOS_COMPARED_TO_BASELINE
-      ? nonBaselineOptions.value.map(o => o.id)
-      : []; // TODO: (jidea-230) pre-populate country parameter to nearby countries
+    if (chosenParameterAxis.value?.parameterType === TypeOfParameter.Numeric && dependentValues.value) {
+      selectedScenarioOptions.value = Object.values(dependentValues.value).map(o => o.toString());
+    } else if (nonBaselineOptions.value.length <= MAX_SCENARIOS_COMPARED_TO_BASELINE) {
+      // Pre-populate the scenario options input with all options if there aren't more than max
+      selectedScenarioOptions.value = nonBaselineOptions.value.map(o => o.id);
+    } else {
+      selectedScenarioOptions.value = []; // TODO: (jidea-230) pre-populate country parameter to nearby countries
+    }
   } else {
     chosenAxisId.value = "";
     selectedScenarioOptions.value = [];
