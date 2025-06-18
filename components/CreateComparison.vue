@@ -44,7 +44,7 @@
             <CIcon v-if="chosenAxisId === para.id" class="text-muted ms-2 cilx" icon="cilX" />
           </CButton>
         </div>
-        <div v-if="chosenAxisId && !chosenParameterAxis?.ordered && chosenParameterAxis?.parameterType !== TypeOfParameter.Numeric" class="mt-3">
+        <div v-if="chosenParameterAxis && baselineOption && !chosenParameterAxis?.ordered" class="mt-3">
           <CFormLabel :id="FORM_LABEL_ID" :for="FORM_LABEL_ID" class="fs-5 form-label">
             Compare baseline scenario
             <CTooltip
@@ -58,7 +58,7 @@
                   :aria-describedby="togglerId"
                   v-on="on"
                 >
-                  {{ baselineOption?.label }}
+                  {{ formatOptionLabel(chosenParameterAxis, baselineOption?.label) }}
                 </span>
               </template>
             </CTooltip>
@@ -93,7 +93,7 @@
 
 <script setup lang="ts">
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
-import { TypeOfParameter } from "~/types/parameterTypes";
+import { formatOptionLabel } from "./utils/formatters";
 import type { Parameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
 
@@ -109,7 +109,7 @@ const showFormValidationFeedback = ref(false);
 const chosenParameterAxis = computed(() => appStore.metadata?.parameters.find(p => p.id === chosenAxisId.value));
 
 const { baselineOption, nonBaselineOptions } = useScenarioOptions(chosenParameterAxis);
-const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions);
+const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions, chosenParameterAxis);
 
 const handleCloseModal = () => {
   modalVisible.value = false;

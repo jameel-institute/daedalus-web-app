@@ -1,7 +1,5 @@
 <template>
   <div class="position-relative flex-grow-1">
-    <!-- TODO: (jidea-229) For user-provided custom options, consider using hideSelectedOptons prop, introduced in a later
-      VueSelect version, to control inclusion in menu. https://github.com/TotomInc/vue3-select-component/issues/233 -->
     <!-- TODO: (jidea-230) For country options, consider using getOptionLabel prop to insert country flag in menu option -->
     <VueSelect
       ref="vueSelectComponent"
@@ -11,13 +9,18 @@
       :aria="{ labelledby: labelId, required: true }"
       class="form-control"
       :class="showFeedback ? 'is-invalid' : ''"
-      :options="nonBaselineSelectOptions"
+      :get-option-label="(option) => formatOptionLabel(parameterAxis, option.label)"
+      :options="options"
       :is-clearable="false"
       :is-multi="true"
+      :is-taggable="parameterIsNumeric"
       :close-on-select="false"
       :placeholder="`Select up to ${MAX_SCENARIOS_COMPARED_TO_BASELINE} options to compare against baseline`"
+      @option-created="(value) => handleCreateOption(value)"
+      @option-deselected="(option) => handleDeselectOption(option)"
       @menu-opened="menuOpen = true"
       @menu-closed="menuOpen = false"
+      @search="(input) => handleInput(input)"
     >
       <template #option="{ option }">
         <div class="parameter-option">
@@ -33,6 +36,9 @@
       <template #no-options>
         {{ allScenariosSelected ? 'All options selected.' : 'No options found.' }}
       </template>
+      <template #taggable-no-options="{ option }">
+        Add custom option: {{ formatOptionLabel(parameterAxis, option) }}
+      </template>
     </VueSelect>
     <div v-if="showFeedback" class="invalid-tooltip">
       {{ feedback }}
@@ -42,33 +48,62 @@
 
 <script lang="ts" setup>
 import VueSelect from "vue3-select-component";
-import type { Parameter } from "~/types/parameterTypes";
+import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
+import type { ParameterSelectOption } from "./utils/parameters";
+import { formatOptionLabel, stringIsInteger } from "./utils/formatters";
 
 const { showFeedback, parameterAxis, labelId } = defineProps<{
   showFeedback: boolean
-  parameterAxis: Parameter | undefined
+  parameterAxis: Parameter
   labelId: string
 }>();
 
 const menuOpen = ref(false);
 
 const selected = defineModel("selected", { type: Array<string>, required: true });
+const previousInput = ref<string>("");
 
 const { nonBaselineSelectOptions } = useScenarioOptions(() => parameterAxis);
-const { feedback } = useComparisonValidation(selected);
+const { feedback } = useComparisonValidation(selected, () => parameterAxis);
 
 const VALUE_CONTAINER_SELECTOR = ".value-container.multi";
 const SEARCH_INPUT_SELECTOR = "input.search-input";
+const customOptions = ref<ParameterSelectOption[]>([]); // for user-defined options
 const vueSelect = useTemplateRef<ComponentPublicInstance>("vueSelectComponent");
-const vueSelectControl = computed((): HTMLElement | null => {
-  return vueSelect.value?.$el.querySelector(VALUE_CONTAINER_SELECTOR);
-});
+const vueSelectControl = computed((): HTMLElement | null => vueSelect.value?.$el.querySelector(VALUE_CONTAINER_SELECTOR));
 const searchInput = computed(() => vueSelectControl.value?.querySelector<HTMLInputElement>(SEARCH_INPUT_SELECTOR));
+const allScenariosSelected = computed(() => selected.value.length === nonBaselineSelectOptions.value.length);
+const options = computed(() => [...nonBaselineSelectOptions.value, ...customOptions.value]);
+const parameterIsNumeric = computed(() => parameterAxis?.parameterType === TypeOfParameter.Numeric);
 
-const allScenariosSelected = computed(() => {
-  return selected.value.length === nonBaselineSelectOptions.value.length;
-});
+const handleCreateOption = (value: string) => {
+  customOptions.value.push({
+    value,
+    label: value,
+    description: "",
+  });
+  selected.value.push(value);
+};
+
+const handleDeselectOption = (option: ParameterSelectOption | null) => {
+  customOptions.value = customOptions.value.filter(o => o.value !== option?.value);
+};
+
+const handleInput = (newInput: string) => {
+  if (!parameterIsNumeric.value) {
+    return;
+  }
+
+  if (newInput !== "" && !stringIsInteger(newInput) && searchInput.value) {
+    // If the input is not a valid integer, reset the input to the previous valid value
+    searchInput.value.value = previousInput.value;
+    searchInput.value.dispatchEvent(new Event("input"));
+    return;
+  }
+
+  previousInput.value = newInput;
+};
 
 watch(allScenariosSelected, (newValue) => {
   if (newValue) {
