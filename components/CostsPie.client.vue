@@ -12,17 +12,14 @@
 
 <script lang="ts" setup>
 import * as Highcharts from "highcharts";
-import accessibilityInitialize from "highcharts/modules/accessibility";
-import sunburstInitialize from "highcharts/modules/sunburst";
+import "highcharts/modules/accessibility";
+import "highcharts/modules/sunburst";
 import throttle from "lodash.throttle";
 import { costsPieColors, costsPieTooltipText } from "./utils/highCharts";
 
 const props = defineProps<{
   hideTooltips: boolean
 }>();
-
-accessibilityInitialize(Highcharts);
-sunburstInitialize(Highcharts);
 
 interface pieCost {
   id: string
