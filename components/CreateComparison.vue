@@ -44,7 +44,7 @@
             <CIcon v-if="chosenAxisId === para.id" class="text-muted ms-2 cilx" icon="cilX" />
           </CButton>
         </div>
-        <div v-if="chosenParameterAxis && baselineOption && !chosenParameterAxis?.ordered" class="mt-3">
+        <div v-if="chosenParameterAxis && baselineOption" class="mt-3">
           <CFormLabel :id="FORM_LABEL_ID" :for="FORM_LABEL_ID" class="fs-5 form-label">
             Compare baseline scenario
             <CTooltip

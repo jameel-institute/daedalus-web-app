@@ -53,6 +53,7 @@ import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
 import type { ParameterSelectOption } from "./utils/parameters";
 import { formatOptionLabel, stringIsInteger } from "./utils/formatters";
+import { sortOptions } from "./utils/parameters";
 
 const { showFeedback, parameterAxis, labelId } = defineProps<{
   showFeedback: boolean
@@ -62,7 +63,11 @@ const { showFeedback, parameterAxis, labelId } = defineProps<{
 
 const menuOpen = ref(false);
 
-const selected = defineModel("selected", { type: Array<string>, required: true });
+const selected = defineModel("selected", {
+  type: Array<string>,
+  required: true,
+  get: value => sortOptions(parameterAxis, value),
+});
 const previousInput = ref<string>("");
 
 const { nonBaselineSelectOptions } = useScenarioOptions(() => parameterAxis);
