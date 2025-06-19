@@ -91,17 +91,21 @@
                 v-model="formData[parameter.id]"
                 :aria-label="parameter.label"
                 type="number"
-                :class="`${pulsingParameters.includes(parameter.id) ? 'pulse' : ''}`"
+                :class="[
+                  pulsingParameters.includes(parameter.id) ? 'pulse' : '',
+                  warningFields?.includes(parameter.id) ? 'has-warning' : '',
+                ]"
                 :min="min(parameter)"
                 :max="max(parameter)"
                 :step="parameter.step"
                 :size="appStore.largeScreen ? 'lg' : undefined"
                 :feedback-invalid="numericParameterFeedback(parameter)"
                 :data-valid="!invalidFields?.includes(parameter.id)"
-                :invalid="invalidFields?.includes(parameter.id) && showValidations"
+                :invalid="showFeedback(parameter)"
                 :valid="!invalidFields?.includes(parameter.id) && showValidations"
                 :tooltip-feedback="true"
                 @change="handleChange(parameter)"
+                @input="handleInput"
               />
               <CFormRange
                 :id="parameter.id"
@@ -151,6 +155,7 @@
 </template>
 
 <script lang="ts" setup>
+import { debounce } from "perfect-debounce";
 import type { NewScenarioData } from "@/types/apiResponseTypes";
 import type { Parameter, ParameterSet, ValueData } from "@/types/parameterTypes";
 import type { FetchError } from "ofetch";
@@ -168,6 +173,7 @@ const appStore = useAppStore();
 
 const formSubmitting = ref(false);
 const showValidations = ref(false);
+const showWarnings = ref(false);
 const mounted = ref(false);
 
 const paramMetadata = computed(() => appStore.metadata?.parameters);
@@ -262,26 +268,28 @@ const max = (param: Parameter) => {
 
 const invalidFields = computed(() => {
   if (!formData.value && paramMetadata.value) {
-    return paramMetadata.value.map(param => param.id);
+    return paramMetadata.value.map(p => p.id);
   }
 
-  const invalids = new Array<string>();
-  paramMetadata.value?.forEach((param) => {
-    if (formData.value![param.id] === "") {
-      invalids.push(param.id);
-    };
+  return paramMetadata.value?.filter(p => formData.value![p.id] === "")?.map(p => p.id);
+});
 
+const warningFields = computed(() => {
+  return paramMetadata.value?.filter((param) => {
     if (param.parameterType === TypeOfParameter.Numeric && param.updateNumericFrom) {
       const inputVal = Number.parseInt(formData.value![param.id]);
 
-      if (inputVal < min(param)! || inputVal > max(param)!) {
-        invalids.push(param.id);
-      }
+      return inputVal < min(param)! || inputVal > max(param)!;
+    } else {
+      return false;
     };
-  });
-
-  return invalids;
+  }).map(param => param.id);
 });
+
+const showFeedback = (param: Parameter) => {
+  return !!(warningFields.value?.includes(param.id) && showWarnings.value)
+    || !!(invalidFields.value?.includes(param.id) && showValidations.value);
+};
 
 // Since some defaults depend on the values of other fields, this function should not be used to initialize form values.
 const defaultValue = (param: Parameter) => {
@@ -311,11 +319,13 @@ const resetParam = (param: Parameter) => {
 const numericParameterFeedback = (param: Parameter) => {
   if (param.updateNumericFrom) {
     const dependedOnParamId = param.updateNumericFrom.parameterId;
-    const dependedOnParamOptionLabel = paramMetadata.value!.find(param => param.id === dependedOnParamId)!
+    const dependedOnParamLabel = paramMetadata.value!.find(param => param.id === dependedOnParamId)!
       .options
-      .find(option => option.id === formData.value![dependedOnParamId])
+      ?.find(option => option.id === formData.value![dependedOnParamId])
       ?.label;
-    return `${min(param)} to ${max(param)} is the allowed ${param.label.toLowerCase()} range for ${dependedOnParamOptionLabel}.`;
+
+    return `NB: This value is outside the estimated range for ${dependedOnParamLabel} (${min(param)}–${max(param)}).`
+      + ` Proceed with caution.`;
   }
 };
 
@@ -327,6 +337,8 @@ const pulse = (parameterId: string) => {
 };
 
 const handleChange = (param: Parameter) => {
+  showWarnings.value = true;
+
   if (dependentParameters.value[param.id] === undefined || dependentParameters.value[param.id]?.length === 0) {
     return;
   }
@@ -344,6 +356,15 @@ const handleChange = (param: Parameter) => {
   if (param.parameterType === TypeOfParameter.GlobeSelect) {
     appStore.globe.highlightedCountry = formData.value![param.id];
   };
+};
+
+const handleInput = () => {
+  // Stop showing warnings while the user is typing
+  showWarnings.value = false;
+
+  debounce(() => {
+    showWarnings.value = true;
+  }, 500)();
 };
 
 const submitForm = async () => {
@@ -461,5 +482,18 @@ onMounted(() => {
 
 .numeric-header {
   padding-right: 2.2rem;
+}
+
+:deep(.form-control.is-invalid.has-warning) {
+  border-color: $warning;
+  box-shadow: 0 0 0 0.25rem rgba(var(--cui-warning-rgb), 0.25);
+
+  // Undo stylings related to the validation icon, which looks like: (!)
+  background-image: unset;
+  padding-right: 0.75rem;
+}
+
+:deep(.form-control.has-warning ~ .invalid-tooltip) {
+  background-color: $warning;
 }
 </style>

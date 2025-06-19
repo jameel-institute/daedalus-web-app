@@ -85,7 +85,8 @@
       {{ feedback }}
     </div>
     <div v-else-if="showWarning" class="invalid-tooltip bg-warning">
-      Some of the selected values lie outside of the estimated range for {{ dependedOnParamLabel }} ({{ dependentValues?.min }}–{{ dependentValues?.max }}).
+      {{ valuesOutOfRange.length === 1 ? 'One' : 'Some' }} of the values ({{ valuesOutOfRange.join(", ") }})
+      {{ valuesOutOfRange.length === 1 ? 'lies' : 'lie' }} outside of the estimated range for {{ dependedOnParamLabel }} ({{ dependentValues?.min }}–{{ dependentValues?.max }}).
       Proceed with caution.
     </div>
   </div>
@@ -116,7 +117,7 @@ const selected = defineModel("selected", {
 const previousInput = ref<string>("");
 const currentInput = ref<string>("");
 
-const { nonBaselineSelectOptions } = useScenarioOptions(() => parameterAxis);
+const { baselineOption, nonBaselineSelectOptions } = useScenarioOptions(() => parameterAxis);
 const { feedback, dependentValues, dependedOnParamLabel } = useComparisonValidation(selected, () => parameterAxis);
 
 const VALUE_CONTAINER_SELECTOR = ".value-container.multi";
@@ -138,13 +139,20 @@ const filterBy = (_option: ParameterSelectOption, label: string, search: string)
   return label.toLowerCase().includes(search.toLowerCase());
 };
 
-const numericValueIsOutOfRange = (value: string) => {
+const numericValueIsOutOfRange = (value: string | undefined) => {
+  if (!value) {
+    return false;
+  }
   const val = Number.parseInt(value);
   return val < dependentValues.value!.min || val > dependentValues.value!.max;
 };
 
+const valuesOutOfRange = computed(() => {
+  return (selected.value.concat(baselineOption.value?.id ?? [])).filter(o => numericValueIsOutOfRange(o));
+});
+
 const showWarning = computed(() => {
-  return parameterIsNumeric.value && options.value.some(o => numericValueIsOutOfRange(o.value));
+  return parameterIsNumeric.value && valuesOutOfRange.value.length > 0;
 });
 
 const optionAlreadySelected = (value: string) => {

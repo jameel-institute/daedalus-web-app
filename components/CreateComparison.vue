@@ -54,6 +54,9 @@
               <template #toggler="{ togglerId, on }">
                 <!-- TODO: use humanReadableInteger formatter for numeric parameters -->
                 <span
+                  :class="{
+                    'bg-warning text-white': chosenParameterAxis.parameterType === TypeOfParameter.Numeric && numericValueIsOutOfRange(baselineOption.id),
+                  }"
                   class="multi-value d-inline-block outside-select"
                   :aria-describedby="togglerId"
                   v-on="on"
@@ -93,7 +96,7 @@
 
 <script setup lang="ts">
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
-import type { Parameter } from "~/types/parameterTypes";
+import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
 
 const appStore = useAppStore();
@@ -108,7 +111,14 @@ const showFormValidationFeedback = ref(false);
 const chosenParameterAxis = computed(() => appStore.metadata?.parameters.find(p => p.id === chosenAxisId.value));
 
 const { baselineOption, nonBaselineOptions } = useScenarioOptions(chosenParameterAxis);
-const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions, chosenParameterAxis);
+const { invalid: scenarioSelectionInvalid, dependentValues } = useComparisonValidation(selectedScenarioOptions, chosenParameterAxis);
+
+// begin duplicated logic
+const numericValueIsOutOfRange = (value: string) => {
+  const val = Number.parseInt(value);
+  return val < dependentValues.value!.min || val > dependentValues.value!.max;
+};
+// end duplicated logic
 
 const handleCloseModal = () => {
   modalVisible.value = false;
