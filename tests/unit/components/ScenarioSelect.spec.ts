@@ -20,7 +20,9 @@ const plugins = [mockPinia({
 }, false)];
 
 const controlSelector = ".value-container.multi";
-const pathogenParameter = mockMetadataResponseData.parameters.find(p => p.id === "pathogen");
+const pathogenParameter = mockMetadataResponseData.parameters.find(p => p.id === "pathogen")!;
+const responseParameter = mockMetadataResponseData.parameters.find(p => p.id === "response")!;
+const vaccineParameter = mockMetadataResponseData.parameters.find(p => p.id === "vaccine")!;
 
 const getOptionFromMenu = (wrapper: VueWrapper, optionText: string) => {
   const matcher = new RegExp(optionText, "i");
@@ -37,7 +39,7 @@ describe("scenario select", () => {
     const wrapper = mount(ScenarioSelect, {
       props: {
         showFeedback: false,
-        parameterAxis: mockMetadataResponseData.parameters.find(p => p.id === "response"),
+        parameterAxis: responseParameter,
         labelId: "formLabelId",
         selected: ["school_closures"],
       },
@@ -93,6 +95,32 @@ describe("scenario select", () => {
 
     expect(wrapper.props("selected")).toHaveLength(1);
     expect(wrapper.props("selected")).toEqual(expect.arrayContaining(["sars_cov_2_omicron"]));
+  });
+
+  it("can sort the v-model prop when the parameter metadata deems its options to have a defined order", async () => {
+    const wrapper = mount(ScenarioSelect, {
+      props: {
+        "showFeedback": false,
+        "parameterAxis": vaccineParameter,
+        "labelId": "formLabelId",
+        "selected": ["medium"],
+        "onUpdate:selected": (e: string[]) => wrapper.setProps({ selected: e }),
+      },
+      global: { stubs, plugins },
+    });
+
+    // Open menu
+    await wrapper.find(controlSelector).trigger("click");
+
+    // Select 'high' option
+    const highOption = getOptionFromMenu(wrapper, "high");
+    await highOption!.trigger("click");
+
+    // Select 'low' option
+    const lowOption = getOptionFromMenu(wrapper, "low");
+    await lowOption!.trigger("click");
+
+    expect(wrapper.props("selected")).toEqual(["low", "medium", "high"]);
   });
 
   it("initializes closed, opens when control is clicked, and stays open after selection is changed", async () => {

@@ -44,16 +44,21 @@
 import VueSelect from "vue3-select-component";
 import type { Parameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
+import { sortOptions } from "./utils/parameters";
 
 const { showFeedback, parameterAxis, labelId } = defineProps<{
   showFeedback: boolean
-  parameterAxis: Parameter | undefined
+  parameterAxis: Parameter
   labelId: string
 }>();
 
 const menuOpen = ref(false);
 
-const selected = defineModel("selected", { type: Array<string>, required: true });
+const selected = defineModel("selected", {
+  type: Array<string>,
+  required: true,
+  get: value => sortOptions(parameterAxis, value),
+});
 
 const { nonBaselineSelectOptions } = useScenarioOptions(() => parameterAxis);
 const { feedback } = useComparisonValidation(selected);
