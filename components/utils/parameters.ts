@@ -30,7 +30,7 @@ export const sortOptions = (parameter: Parameter, optionsToSort: string[]) => {
   }
 
   if (!parameter.ordered || parameter.options === undefined) {
-    // Special case for unordered parameters where a 'none' option exists: such parameters can be considered semi-ordered.
+    // Special case for unordered parameters where a 'none' option exists: such parameters can be considered semi-ordered and 'none' will be placed at the start.
     return optionsToSort.sort((a, b) => Number(b === "none") - Number(a === "none"));
   }
 
