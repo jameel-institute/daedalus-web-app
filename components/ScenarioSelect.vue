@@ -8,16 +8,19 @@
       :is-menu-open="menuOpen"
       :aria="{ labelledby: labelId, required: true }"
       class="form-control"
-      :class="showFeedback ? 'is-invalid' : ''"
-      :get-option-label="(option) => formatOptionLabel(parameterAxis, option.label)"
+      :class="[
+        showFeedback ? 'is-invalid' : '',
+        showWarning ? 'has-warning' : '',
+      ]"
       :options="options"
       :is-clearable="false"
       :is-multi="true"
       :is-taggable="parameterIsNumeric"
+      :filter-by="filterBy"
       :close-on-select="false"
       :placeholder="`Select up to ${MAX_SCENARIOS_COMPARED_TO_BASELINE} options to compare against baseline`"
       @option-created="(value) => handleCreateOption(value)"
-      @option-deselected="(option) => handleDeselectOption(option)"
+      @option-deselected="(option) => option ? handleDeselectOption(option.value) : null"
       @menu-opened="menuOpen = true"
       @menu-closed="menuOpen = false"
       @search="(input) => handleInput(input)"
@@ -36,18 +39,60 @@
       <template #no-options>
         {{ allScenariosSelected ? 'All options selected.' : 'No options found.' }}
       </template>
-      <template #taggable-no-options="{ option }">
-        Add custom option: {{ formatOptionLabel(parameterAxis, option) }}
+      <template v-if="true" #tag="{ option, removeOption }">
+        <button
+          type="button"
+          class="multi-value"
+          :class="{
+            'bg-warning text-white': parameterIsNumeric && numericValueIsOutOfRange(option.value),
+          }"
+          @click="removeOption"
+        >
+          {{ option.label }}
+          <CIcon
+            size="sm"
+            class="text-secondary"
+            :class="{
+              'text-white': parameterIsNumeric && numericValueIsOutOfRange(option.value),
+            }"
+            icon="cilX"
+            style="margin-bottom: 0.3rem"
+          />
+        </button>
+      </template>
+      <template v-if="parameterIsNumeric" #menu-header>
+        <p v-if="!currentInput" class="m-2">
+          {{ `Type a number to add a custom option${
+            allScenariosSelected ? '' : `, or select a pre-defined value from the list below.`}`
+          }}
+        </p>
+      </template>
+      <template v-if="parameterIsNumeric" #taggable-no-options="{ option }">
+        <span class="small">
+          <span v-if="optionAlreadySelected(option)" class="text-secondary">
+            {{ formatOptionLabel(parameterAxis, option) }} is already selected.
+          </span>
+          <span v-else>
+            Press enter to add custom option: {{ formatOptionLabel(parameterAxis, option) }}
+            <p v-if="numericValueIsOutOfRange(option)" class="text-secondary small mb-0">
+              NB: This value is outside the estimated range for {{ dependedOnParamLabel }} ({{ dependentValues?.min }}–{{ dependentValues?.max }}).
+            </p>
+          </span>
+        </span>
       </template>
     </VueSelect>
     <div v-if="showFeedback" class="invalid-tooltip">
       {{ feedback }}
     </div>
-    <!-- TODO: add some help text like 'You can choose from the presets or add a custom option.' for numeric -->
+    <div v-else-if="showWarning" class="invalid-tooltip bg-warning">
+      Some of the selected values lie outside of the estimated range for {{ dependedOnParamLabel }} ({{ dependentValues?.min }}–{{ dependentValues?.max }}).
+      Proceed with caution.
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { CIcon } from "@coreui/icons-vue";
 import VueSelect from "vue3-select-component";
 import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
@@ -69,9 +114,10 @@ const selected = defineModel("selected", {
   get: value => sortOptions(parameterAxis, value),
 });
 const previousInput = ref<string>("");
+const currentInput = ref<string>("");
 
 const { nonBaselineSelectOptions } = useScenarioOptions(() => parameterAxis);
-const { feedback } = useComparisonValidation(selected, () => parameterAxis);
+const { feedback, dependentValues, dependedOnParamLabel } = useComparisonValidation(selected, () => parameterAxis);
 
 const VALUE_CONTAINER_SELECTOR = ".value-container.multi";
 const SEARCH_INPUT_SELECTOR = "input.search-input";
@@ -79,24 +125,69 @@ const customOptions = ref<ParameterSelectOption[]>([]); // for user-defined opti
 const vueSelect = useTemplateRef<ComponentPublicInstance>("vueSelectComponent");
 const vueSelectControl = computed((): HTMLElement | null => vueSelect.value?.$el.querySelector(VALUE_CONTAINER_SELECTOR));
 const searchInput = computed(() => vueSelectControl.value?.querySelector<HTMLInputElement>(SEARCH_INPUT_SELECTOR));
-const allScenariosSelected = computed(() => selected.value.length === nonBaselineSelectOptions.value.length);
+const allScenariosSelected = computed(() => nonBaselineSelectOptions.value.every(o => selected.value.includes(o.value)));
 const options = computed(() => [...nonBaselineSelectOptions.value, ...customOptions.value]);
 const parameterIsNumeric = computed(() => parameterAxis?.parameterType === TypeOfParameter.Numeric);
 
+const filterBy = (_option: ParameterSelectOption, label: string, search: string) => {
+  if (parameterIsNumeric.value) {
+    // Show all options if there is nothing in the 'search' input, otherwise list only the candidate custom input.
+    return !currentInput.value;
+  }
+  // Else use the default filter logic, which is defined here: https://vue3-select-component.vercel.app/props.html#filterby
+  return label.toLowerCase().includes(search.toLowerCase());
+};
+
+const numericValueIsOutOfRange = (value: string) => {
+  const val = Number.parseInt(value);
+  return val < dependentValues.value!.min || val > dependentValues.value!.max;
+};
+
+const showWarning = computed(() => {
+  return parameterIsNumeric.value && options.value.some(o => numericValueIsOutOfRange(o.value));
+});
+
+const optionAlreadySelected = (value: string) => {
+  return selected.value.includes(value);
+};
+
 const handleCreateOption = (value: string) => {
+  if (!parameterIsNumeric.value) {
+    return;
+  }
+
+  if (optionAlreadySelected(value)) {
+    return;
+  }
+
   customOptions.value.push({
     value,
-    label: value,
+    label: formatOptionLabel(parameterAxis, value),
     description: "",
   });
   selected.value.push(value);
 };
 
-const handleDeselectOption = (option: ParameterSelectOption | null) => {
-  customOptions.value = customOptions.value.filter(o => o.value !== option?.value);
+const handleDeselectOption = (value: string) => {
+  // Remove the option from custom options so that it isn't listed in the menu.
+  customOptions.value = customOptions.value.filter(o => o.value !== value);
 };
 
+// This watch is required, in addition to the deselection handler handleDeselectOption, because
+// *backspace* deselect does not trigger the option-deselected event:
+// https://github.com/TotomInc/vue3-select-component/issues/296
+watch(selected, (newValue, oldValue) => {
+  // If the oldValue is the same as the newValue except for a single option, we infer that
+  // that option has been deselected.
+  const deselectedOptions = oldValue?.filter(option => !newValue.includes(option));
+  if (deselectedOptions?.length === 1) {
+    handleDeselectOption(deselectedOptions[0]);
+  }
+}, { immediate: true });
+
 const handleInput = (newInput: string) => {
+  currentInput.value = newInput;
+
   if (!parameterIsNumeric.value) {
     return;
   }
@@ -141,9 +232,21 @@ onMounted(() => {
   }
 
   &.form-control.is-invalid {
-    // Calculate how much the menu needs to be moved down to accommodate the invalid tooltip:
+    // Calculate how much the menu needs to be moved down to accommodate the .invalid-tooltip:
     // = tooltip font size + (2 * tooltip vertical padding) + tooltip margin + form-control bottom padding + arbitrary extra padding
+    // Assumes a single line of text in the tooltip.
     --vs-menu-offset-top: calc(var(--cui-body-font-size) + (2 * 0.25rem) + 0.1rem + 0.375rem + 0.5rem);
+  }
+
+  &.form-control.has-warning {
+    // Calculate how much the menu needs to be moved down to accommodate the .invalid-tooltip:
+    // = tooltip font size + (2 * tooltip vertical padding) + tooltip margin + form-control bottom padding + arbitrary extra padding
+    // Assumes two lines of text in the tooltip.
+    --vs-menu-offset-top: calc(var(--cui-body-font-size) + (2 * 0.25rem) + 0.1rem + 0.375rem + 1.8rem);
+  }
+
+  &.form-control.has-warning ~ .invalid-tooltip {
+    display: block !important;
   }
 
   .search-input::placeholder {

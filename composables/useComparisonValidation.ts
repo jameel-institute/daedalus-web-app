@@ -18,6 +18,7 @@ export default (
   });
   const someNumericOptionsAreNaN = computed(() => parameterIsNumeric.value && NaNScenarios.value.length > 0);
 
+  // begin shared logic
   const dependedOnParamId = computed(() => toValue(parameter)?.updateNumericFrom?.parameterId);
   const dependedOnParamValue = computed(() => dependedOnParamId.value ? appStore.currentScenario.parameters?.[dependedOnParamId.value] : undefined);
   const dependentValues = computed(() => dependedOnParamValue.value ? toValue(parameter)?.updateNumericFrom?.values[dependedOnParamValue.value] : undefined);
@@ -30,20 +31,10 @@ export default (
         ?.label;
     }
   });
-  const outOfRangeNumericOptions = computed(() => {
-    if (dependentValues.value === undefined) {
-      return [];
-    }
-    return toValue(scenariosToCompareAgainstBaseline)
-      .map(Number.parseInt)
-      .filter((val: number) => val < dependentValues.value!.min || val > dependentValues.value!.max);
-  });
-  const someNumericOptionsOutOfRange = computed(() => {
-    return parameterIsNumeric.value && outOfRangeNumericOptions.value.length > 0;
-  });
+  // end shared logic
 
   const invalid = computed(() => {
-    return tooFewScenarios.value || tooManyScenarios.value || someNumericOptionsAreNaN.value || someNumericOptionsOutOfRange.value;
+    return tooFewScenarios.value || tooManyScenarios.value || someNumericOptionsAreNaN.value;
   });
   // TODO - refactor this whole file / ParameterForm so that they use shared logic around dependent parameters.
   // useScenarioOptions will also probably want to use this logic, so it should be moved to a shared composable. cf https://github.com/jameel-institute/daedalus-web-app/pull/111/files
@@ -55,10 +46,8 @@ export default (
     } else if (someNumericOptionsAreNaN.value) {
       const invalids = NaNScenarios.value.map((val: string) => humanReadableInteger(val));
       return `Some of the selected scenarios are not valid numbers: ${invalids.join(", ")}.`;
-    } else if (someNumericOptionsOutOfRange.value && dependentValues.value) {
-      return `${dependentValues.value.min} to ${dependentValues.value.max} is the allowed ${toValue(parameter)?.label.toLowerCase()} range for ${dependedOnParamLabel.value}.`;
     }
   });
 
-  return { invalid, feedback };
+  return { invalid, feedback, dependentValues, dependedOnParamLabel };
 };

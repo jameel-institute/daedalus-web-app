@@ -58,7 +58,7 @@
                   :aria-describedby="togglerId"
                   v-on="on"
                 >
-                  {{ formatOptionLabel(chosenParameterAxis, baselineOption?.label) }}
+                  {{ baselineOption?.label }}
                 </span>
               </template>
             </CTooltip>
@@ -93,7 +93,6 @@
 
 <script setup lang="ts">
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
-import { formatOptionLabel } from "./utils/formatters";
 import type { Parameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
 
@@ -168,22 +167,28 @@ const submitForm = async () => {
   max-width: 40rem;
 }
 
-.multi-value.outside-select {
-  margin: 0;
-  font-size: inherit;
-
-  // Below values copied from Vue 3 Select Component
+// Copied from v10.0.0 of the VueSelect component
+:deep(.multi-value) {
   appearance: none;
   display: flex;
   align-items: center;
   gap: var(--vs-multi-value-gap);
   padding: var(--vs-multi-value-padding);
+  margin: var(--vs-multi-value-margin);
   border: 0;
+  font-size: var(--vs-multi-value-font-size);
   font-weight: var(--vs-multi-value-font-weight);
   color: var(--vs-multi-value-text-color);
   line-height: var(--vs-multi-value-line-height);
   background: var(--vs-multi-value-bg);
   outline: none;
+  cursor: pointer;
+}
+
+.multi-value.outside-select {
+  margin: 0;
+  font-size: inherit;
+  --vs-multi-value-padding: 0.25rem 0.4rem;
 }
 
 .axis-btn {

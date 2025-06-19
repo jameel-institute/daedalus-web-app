@@ -1,27 +1,62 @@
 import { type Parameter, type ParameterOption, TypeOfParameter } from "~/types/parameterTypes";
 import { paramOptsToSelectOpts } from "~/components/utils/parameters";
+import { humanReadableInteger } from "~/components/utils/formatters";
 
 export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
   const appStore = useAppStore();
 
+  const axis = computed(() => toValue(parameterAxis));
+
   const baselineOption = computed(() => {
-    const axis = toValue(parameterAxis);
-    if (!appStore.currentScenario.parameters || !axis) {
+    if (!appStore.currentScenario.parameters || !axis.value) {
       return undefined;
-    } else if (axis.parameterType === TypeOfParameter.Numeric) {
-      const baselineValue = appStore.currentScenario.parameters[axis.id];
+    } else if (axis.value.parameterType === TypeOfParameter.Numeric) {
+      const baselineValue = appStore.currentScenario.parameters[axis.value.id];
       // TODO: (jidea-229) description should say whether the value is a default, min, max; or empty if user-provided.
-      // TODO: (jidea-229) For numeric options, do (locale-based) comma-separation of thousands.
-      return { id: baselineValue, label: baselineValue, description: "" } as ParameterOption;
-    } else {
-      return axis.options?.find((o) => {
-        return o.id === appStore.currentScenario.parameters![axis.id];
-      });
+      return { id: baselineValue, label: humanReadableInteger(baselineValue), description: "" } as ParameterOption;
+    } else if (axis.value.id && appStore.currentScenario.parameters) {
+      return axis.value.options?.find(o => o.id === appStore.currentScenario.parameters![axis.value!.id]);
+    }
+  });
+
+  // begin shared logic
+  const dependedOnParamId = computed(() => axis.value?.updateNumericFrom?.parameterId);
+  const dependedOnParamValue = computed(() => dependedOnParamId.value ? appStore.currentScenario.parameters?.[dependedOnParamId.value] : undefined);
+  const dependentValues = computed(() => dependedOnParamValue.value ? axis.value?.updateNumericFrom?.values[dependedOnParamValue.value] : undefined);
+  const dependedOnParamLabel = computed(() => {
+    if (dependedOnParamId.value && dependedOnParamValue.value && appStore.metadata?.parameters) {
+      return appStore.metadata?.parameters
+        .find(p => p.id === dependedOnParamId.value)
+        ?.options
+        ?.find(o => o.id === dependedOnParamValue.value)
+        ?.label;
+    }
+  });
+  // end shared logic
+
+  const predefinedNumericOptions = computed(() => {
+    if (dependentValues.value) {
+      const min = dependentValues.value.min.toString();
+      const defaultVal = dependentValues.value.default.toString();
+      const max = dependentValues.value.max.toString();
+
+      return [
+        { id: min, label: humanReadableInteger(min), description: `Minimum for ${dependedOnParamLabel.value}` },
+        { id: defaultVal, label: humanReadableInteger(defaultVal), description: `Default for ${dependedOnParamLabel.value}` },
+        { id: max, label: humanReadableInteger(max), description: `Maximum for ${dependedOnParamLabel.value}` },
+      ] as ParameterOption[];
     }
   });
 
   const nonBaselineOptions = computed(() => {
-    return toValue(parameterAxis)?.options?.filter(({ id }) => {
+    if (!axis.value) {
+      return [];
+    }
+    if (axis.value?.parameterType === TypeOfParameter.Numeric) {
+      return predefinedNumericOptions.value?.filter(o => o.id !== baselineOption.value?.id) || [];
+      // TODO - exclude any option that is equal to the baseline?
+    }
+    return axis.value?.options?.filter(({ id }) => {
       return baselineOption.value && id !== baselineOption.value?.id;
     }) || [];
   });
