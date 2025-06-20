@@ -38,7 +38,7 @@ describe("scenario select", () => {
   it("renders as expected", async () => {
     const wrapper = mount(ScenarioSelect, {
       props: {
-        showFeedback: false,
+        showValidationFeedback: false,
         parameterAxis: responseParameter,
         labelId: "formLabelId",
         selected: ["school_closures"],
@@ -63,7 +63,7 @@ describe("scenario select", () => {
   it("can update the v-model prop", async () => {
     const wrapper = mount(ScenarioSelect, {
       props: {
-        "showFeedback": false,
+        "showValidationFeedback": false,
         "parameterAxis": pathogenParameter,
         "labelId": "formLabelId",
         "selected": ["sars_cov_2_pre_alpha"],
@@ -100,7 +100,7 @@ describe("scenario select", () => {
   it("can sort the v-model prop when the parameter metadata deems its options to have a defined order", async () => {
     const wrapper = mount(ScenarioSelect, {
       props: {
-        "showFeedback": false,
+        "showValidationFeedback": false,
         "parameterAxis": vaccineParameter,
         "labelId": "formLabelId",
         "selected": ["medium"],
@@ -126,7 +126,7 @@ describe("scenario select", () => {
   it("initializes closed, opens when control is clicked, and stays open after selection is changed", async () => {
     const wrapper = mount(ScenarioSelect, {
       props: {
-        showFeedback: false,
+        showValidationFeedback: false,
         parameterAxis: pathogenParameter,
         labelId: "formLabelId",
         selected: ["sars_cov_2_pre_alpha"],
@@ -158,7 +158,7 @@ describe("scenario select", () => {
   it("selecting all options closes the menu", async () => {
     const wrapper = mount(ScenarioSelect, {
       props: {
-        showFeedback: false,
+        showValidationFeedback: false,
         parameterAxis: pathogenParameter,
         labelId: "formLabelId",
         selected: ["sars_cov_2_pre_alpha"],
@@ -180,10 +180,10 @@ describe("scenario select", () => {
     expect(selectContainer.classes()).not.toContain("open");
   });
 
-  it("displays validation feedbacks when showFeedback is true", async () => {
+  it("displays validation feedbacks when showValidationFeedback is true", async () => {
     const wrapper = mount(ScenarioSelect, {
       props: {
-        showFeedback: true,
+        showValidationFeedback: true,
         parameterAxis: pathogenParameter,
         labelId: "formLabelId",
         selected: [],
@@ -209,7 +209,7 @@ describe("scenario select", () => {
 
     const wrapper = mount(ScenarioSelect, {
       props: {
-        showFeedback: true,
+        showValidationFeedback: true,
         parameterAxis: pathogenParameter,
         labelId: "formLabelId",
         selected: allNonBaselineOptions.map(o => o.id),
