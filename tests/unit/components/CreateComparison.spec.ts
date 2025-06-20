@@ -47,10 +47,6 @@ const getComboboxEl = (wrapper: VueWrapper) => {
   return wrapper.find("[aria-labelledby='scenarioOptions']");
 };
 
-const getSearchInputEl = (wrapper: VueWrapper) => {
-  return wrapper.find("input.search-input");
-};
-
 const openModal = async (wrapper: VueWrapper) => {
   await wrapper.find("button").trigger("click");
 };
@@ -117,8 +113,8 @@ describe("create comparison button and modal", () => {
     expect(modalEl.exists()).toBe(true);
     expect(modalEl.isVisible()).toBe(true);
 
-    expect(modalEl.text()).toMatch(/Which parameter would you like to explore?/);
-    expect(modalEl.text()).not.toMatch(/Compare baseline scenario/);
+    expect(modalEl.text()).toContain("Which parameter would you like to explore?");
+    expect(modalEl.text()).not.toContain("Compare baseline scenario");
 
     const axisOptionsEl = modalEl.find("#axisOptions");
     const axisButtons = axisOptionsEl.findAll("button");
@@ -142,14 +138,14 @@ describe("create comparison button and modal", () => {
     expect(axisOptionsEl.findAll("button")).toHaveLength(1);
     expect(countryButton.classes()).toContain("bg-primary");
 
-    expect(modalEl.text()).toMatch(/Compare baseline scenario United Kingdom against:/);
+    expect(modalEl.text()).toContain("Compare baseline scenario United Kingdom against:");
     expect(getComboboxEl(wrapper).isVisible()).toBe(true);
 
     // Click the already-selected parameter axis button to deselect it
     await countryButton.trigger("click");
 
     // Hides the scenario selection section and reveals all parameter axis buttons
-    expect(modalEl.text()).not.toMatch(/Compare baseline scenario/);
+    expect(modalEl.text()).not.toContain("Compare baseline scenario");
     expect(getComboboxEl(wrapper).exists()).toBe(false);
     expect(axisOptionsEl.findAll("button")).toHaveLength(5);
     axisOptionsEl.findAll("button").forEach((button) => {
@@ -161,7 +157,7 @@ describe("create comparison button and modal", () => {
 
     expect(axisOptionsEl.findAll("button")).toHaveLength(1);
     expect(diseaseButton.classes()).toContain("bg-primary");
-    expect(modalEl.text()).toMatch(/Compare baseline scenario SARS 2004 against:/);
+    expect(modalEl.text()).toContain("Compare baseline scenario SARS 2004 against:");
 
     // Click the already-selected parameter axis button to deselect it
     await diseaseButton.trigger("click");
@@ -171,7 +167,7 @@ describe("create comparison button and modal", () => {
 
     expect(axisOptionsEl.findAll("button")).toHaveLength(1);
     expect(hospitalCapacityButton.classes()).toContain("bg-primary");
-    expect(modalEl.text()).toMatch(/Compare baseline scenario 30,500 against:/);
+    expect(modalEl.text()).toContain("Compare baseline scenario 30,500 against:");
   });
 
   it("renders the correct options for the select", async () => {
@@ -233,6 +229,8 @@ describe("create comparison button and modal", () => {
     expect(wrapper.find(".invalid-tooltip").exists()).toBe(false);
     expect(wrapper.find(".vue-select").classes()).not.toContain("is-invalid");
     await wrapper.find("button[type='submit']").trigger("click");
+    await flushPromises();
+    expect(mockNavigateTo).not.toHaveBeenCalled();
 
     // Submit button is clicked, feedback is shown
     expect(wrapper.find(".invalid-tooltip").isVisible()).toBe(true);
@@ -245,9 +243,13 @@ describe("create comparison button and modal", () => {
     expect(wrapper.find(".invalid-tooltip").exists()).toBe(false);
     expect(wrapper.find(".vue-select").classes()).not.toContain("is-invalid");
     expect(wrapper.find(".vue-select").classes()).not.toContain("has-warning");
+
+    await wrapper.find("button[type='submit']").trigger("click");
+    await flushPromises();
+    expect(mockNavigateTo).toHaveBeenCalled();
   });
 
-  it("renders the warning feedback as expected, when numeric values are out of range", async () => {
+  it("renders the warning feedback as expected, when numeric values are out of range, but allows form to submit", async () => {
     const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
     await openModal(wrapper);
     const modalEl = getModalEl(wrapper);
@@ -258,23 +260,28 @@ describe("create comparison button and modal", () => {
     expect(wrapper.find(".invalid-tooltip.bg-warning").exists()).toBe(false);
     expect(wrapper.find(".vue-select").classes()).not.toContain("has-warning");
 
-    const inputEl = getSearchInputEl(wrapper);
+    const inputEl = wrapper.find("input.search-input");
     await inputEl.setValue(123);
 
     const customMenuOption = wrapper.find(".taggable-no-options");
-    expect(customMenuOption.text()).toMatch(/Press enter to add custom option: 123/);
-    expect(customMenuOption.text()).toMatch(/This value is outside the estimated range for United Kingdom \(23600–34100\)/);
+    expect(customMenuOption.text()).toContain("Press enter to add custom option: 123");
+    expect(customMenuOption.text()).toContain("This value is outside the estimated range for United Kingdom \(23600–34100\)");
     await customMenuOption.trigger("click");
 
     expect(wrapper.find(".invalid-tooltip.bg-warning").isVisible()).toBe(true);
     expect(wrapper.find(".vue-select").classes()).toContain("has-warning");
-    expect(wrapper.find(".invalid-tooltip.bg-warning").text()).toMatch(/One of the values \(123\) lies outside of the estimated range for United Kingdom \(23600–34100\)/);
+    expect(wrapper.find(".invalid-tooltip.bg-warning").text()).toContain("One of the values \(123\) lies outside of the estimated range for United Kingdom \(23600–34100\)");
 
     // Altering the selection removes the validation feedback
     await wrapper.findAll("button.multi-value").find(el => /123/.test(el.text()))!.trigger("click");
 
     expect(wrapper.find(".invalid-tooltip").exists()).toBe(false);
     expect(wrapper.find(".vue-select").classes()).not.toContain("has-warning");
+
+    await wrapper.find("button[type='submit']").trigger("click");
+
+    await flushPromises();
+    expect(mockNavigateTo).toHaveBeenCalled();
   });
 
   it("clears the choice of axis when the modal is closed", async () => {
@@ -299,7 +306,7 @@ describe("create comparison button and modal", () => {
     const newModalEl = getModalEl(wrapper);
     const newaxisOptionsEl = newModalEl.find("#axisOptions");
 
-    expect(newModalEl.text()).not.toMatch(/Compare baseline scenario/);
+    expect(newModalEl.text()).not.toContain("Compare baseline scenario");
     expect(newaxisOptionsEl.findAll("button")).toHaveLength(5);
     newaxisOptionsEl.findAll("button").forEach((button) => {
       expect(button.classes()).not.toContain("bg-primary");

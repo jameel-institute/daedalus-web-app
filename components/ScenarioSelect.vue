@@ -1,6 +1,5 @@
 <template>
   <div class="position-relative flex-grow-1">
-    <!-- TODO: (jidea-230) For country options, consider using getOptionLabel prop to insert country flag in menu option -->
     <VueSelect
       ref="vueSelectComponent"
       v-model="selected"
@@ -27,6 +26,7 @@
     >
       <template #option="{ option }">
         <div class="parameter-option">
+          <!-- TODO: (jidea-230) For country options, consider inserting country flag in menu option -->
           <span>{{ option.label }}</span>
           <div
             v-if="option.description"
