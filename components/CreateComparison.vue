@@ -70,7 +70,7 @@
           <div class="d-flex gap-3">
             <ScenarioSelect
               v-model:selected="selectedScenarioOptions"
-              :show-feedback="showFormValidationFeedback"
+              :show-validation-feedback="showFormValidationFeedback"
               :parameter-axis="chosenParameterAxis"
               :label-id="FORM_LABEL_ID"
             />

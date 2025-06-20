@@ -9,7 +9,7 @@
       :aria="{ labelledby: labelId, required: true }"
       class="form-control"
       :class="[
-        showFeedback ? 'is-invalid' : '',
+        showValidationFeedback ? 'is-invalid' : '',
         showWarning ? 'has-warning' : '',
       ]"
       :options="options"
@@ -81,7 +81,7 @@
         </span>
       </template>
     </VueSelect>
-    <div v-if="showFeedback" class="invalid-tooltip">
+    <div v-if="showValidationFeedback" class="invalid-tooltip">
       {{ feedback }}
     </div>
     <div v-else-if="showWarning" class="invalid-tooltip bg-warning">
@@ -101,8 +101,8 @@ import type { ParameterSelectOption } from "./utils/parameters";
 import { formatOptionLabel, stringIsInteger } from "./utils/formatters";
 import { sortOptions } from "./utils/parameters";
 
-const { showFeedback, parameterAxis, labelId } = defineProps<{
-  showFeedback: boolean
+const { showValidationFeedback, parameterAxis, labelId } = defineProps<{
+  showValidationFeedback: boolean
   parameterAxis: Parameter
   labelId: string
 }>();

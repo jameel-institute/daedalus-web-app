@@ -266,13 +266,24 @@ const max = (param: Parameter) => {
   return getValueDataForDependentParam(param.id)?.max;
 };
 
-const invalidFields = computed(() => {
+const invalidFields = ref<string[]>([]);
+const recalculateInvalidFields = () => {
   if (!formData.value && paramMetadata.value) {
-    return paramMetadata.value.map(p => p.id);
+    invalidFields.value = paramMetadata.value.map(p => p.id);
+    return;
   }
 
-  return paramMetadata.value?.filter(p => formData.value![p.id] === "")?.map(p => p.id);
-});
+  invalidFields.value = paramMetadata.value?.filter((param) => {
+    const val = formData.value![param.id];
+    if (val === undefined || val === null || val === "") {
+      return true;
+    }
+    if (param.parameterType === TypeOfParameter.Numeric) {
+      return Number(val) < 0 || Number.isNaN(Number(val));
+    };
+    return false;
+  }).map(p => p.id) || [];
+};
 
 const warningFields = computed(() => {
   return paramMetadata.value?.filter((param) => {
@@ -410,9 +421,11 @@ watch(() => appStore.globe.highlightedCountry, (newValue, oldValue) => {
 });
 
 watch(formData, (newVal) => {
+  recalculateInvalidFields();
+
   if (newVal && paramMetadata.value && previousFullFormData.value) {
-    const invalid = paramMetadata.value.some(param => !newVal[param.id]);
-    if (invalid) {
+    const empty = paramMetadata.value.some(param => !newVal[param.id]);
+    if (empty) {
       formData.value = previousFullFormData.value;
     } else {
       previousFullFormData.value = { ...formData.value };
