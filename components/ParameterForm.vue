@@ -313,8 +313,7 @@ const numericParameterFeedback = (param: Parameter) => {
 
     if (dependedUponParam && range) {
       const selectedOption = dependedUponParam.options?.find(o => o.id === (formData.value ?? {})[dependedUponParam.id]);
-      return `NB: This value is outside the estimated range for `
-        + `${selectedOption?.label} (${range.min}–${range.max}).`
+      return `NB: This value is outside the estimated range for ${selectedOption?.label} (${range.min}–${range.max}).`
         + ` Proceed with caution.`;
     }
   }

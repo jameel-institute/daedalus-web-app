@@ -19,19 +19,17 @@ export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
     }
   });
 
-  // begin shared logic
-  const dependedOnParamId = computed(() => axis.value?.updateNumericFrom?.parameterId);
-  const dependedOnParamValue = computed(() => dependedOnParamId.value ? appStore.currentScenario.parameters?.[dependedOnParamId.value] : undefined);
   const dependedOnParamLabel = computed(() => {
-    if (dependedOnParamId.value && dependedOnParamValue.value && appStore.metadata?.parameters) {
+    const dependedOnParamId = axis.value?.updateNumericFrom?.parameterId;
+    const dependedOnParamValue = dependedOnParamId ? appStore.currentScenario.parameters?.[dependedOnParamId] : undefined;
+    if (dependedOnParamId && dependedOnParamValue && appStore.metadata?.parameters) {
       return appStore.metadata?.parameters
-        .find(p => p.id === dependedOnParamId.value)
+        .find(p => p.id === dependedOnParamId)
         ?.options
-        ?.find(o => o.id === dependedOnParamValue.value)
+        ?.find(o => o.id === dependedOnParamValue)
         ?.label;
     }
   });
-  // end shared logic
 
   const predefinedNumericOptions = computed(() => {
     const dependentRange = getRangeForDependentParam(axis.value, appStore.currentScenario.parameters);
@@ -68,6 +66,7 @@ export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
 
   return {
     baselineOption,
+    dependedOnParamLabel,
     nonBaselineOptions,
     nonBaselineSelectOptions,
   };

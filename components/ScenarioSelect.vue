@@ -117,8 +117,8 @@ const selected = defineModel("selected", {
 const previousInput = ref<string>("");
 const currentInput = ref<string>("");
 
-const { baselineOption, nonBaselineSelectOptions } = useScenarioOptions(() => parameterAxis);
-const { feedback, dependedOnParamLabel } = useComparisonValidation(selected, () => parameterAxis);
+const { baselineOption, dependedOnParamLabel, nonBaselineSelectOptions } = useScenarioOptions(() => parameterAxis);
+const { feedback } = useComparisonValidation(selected, () => parameterAxis);
 
 const VALUE_CONTAINER_SELECTOR = ".value-container.multi";
 const SEARCH_INPUT_SELECTOR = "input.search-input";

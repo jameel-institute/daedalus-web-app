@@ -6,7 +6,6 @@ export default (
   scenariosToCompareAgainstBaseline: MaybeRefOrGetter<Array<string>>,
   parameter: MaybeRefOrGetter<Parameter | undefined>,
 ) => {
-  const appStore = useAppStore();
   const parameterIsNumeric = computed(() => toValue(parameter)?.parameterType === TypeOfParameter.Numeric);
 
   const tooFewScenarios = computed(() => toValue(scenariosToCompareAgainstBaseline).length < MIN_SCENARIOS_COMPARED_TO_BASELINE);
@@ -16,20 +15,6 @@ export default (
     return toValue(scenariosToCompareAgainstBaseline).filter((val: string) => Number.parseInt(val).toString() !== val);
   });
   const someNumericOptionsAreNaN = computed(() => parameterIsNumeric.value && NaNScenarios.value.length > 0);
-
-  // begin shared logic
-  const dependedOnParamId = computed(() => toValue(parameter)?.updateNumericFrom?.parameterId);
-  const dependedOnParamValue = computed(() => dependedOnParamId.value ? appStore.currentScenario.parameters?.[dependedOnParamId.value] : undefined);
-  const dependedOnParamLabel = computed(() => {
-    if (dependedOnParamId.value && dependedOnParamValue.value && appStore.metadata?.parameters) {
-      return appStore.metadata?.parameters
-        .find(p => p.id === dependedOnParamId.value)
-        ?.options
-        ?.find(o => o.id === dependedOnParamValue.value)
-        ?.label;
-    }
-  });
-  // end shared logic
 
   const invalid = computed(() => {
     return tooFewScenarios.value || tooManyScenarios.value || someNumericOptionsAreNaN.value;
@@ -47,5 +32,5 @@ export default (
     }
   });
 
-  return { invalid, feedback, dependedOnParamLabel };
+  return { invalid, feedback };
 };
