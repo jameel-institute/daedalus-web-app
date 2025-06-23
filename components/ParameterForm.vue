@@ -163,7 +163,8 @@ import { TypeOfParameter } from "@/types/parameterTypes";
 import { CIcon } from "@coreui/icons-vue";
 import VueSelect from "vue3-select-component";
 import ParameterHeader from "~/components/ParameterHeader.vue";
-import { getRangeForDependentParam, numericValueInvalid, numericValueIsOutOfRange, paramOptsToSelectOpts } from "~/components/utils/parameters";
+import { getRangeForDependentParam, paramOptsToSelectOpts } from "~/components/utils/parameters";
+import { numericValueInvalid, numericValueIsOutOfRange } from "~/components/utils/validations";
 
 const props = defineProps<{
   inModal: boolean

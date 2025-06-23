@@ -1,5 +1,5 @@
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE, MIN_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
-import { numericValueInvalid } from "~/components/utils/parameters";
+import { numericValueInvalid } from "~/components/utils/validations";
 import type { Parameter } from "~/types/parameterTypes";
 
 export default (

@@ -107,7 +107,8 @@ import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE, MIN_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
 import type { ParameterSelectOption } from "./utils/parameters";
 import { formatOptionLabel, stringIsInteger } from "./utils/formatters";
-import { getRangeForDependentParam, numericValueIsOutOfRange, sortOptions } from "./utils/parameters";
+import { getRangeForDependentParam, sortOptions } from "./utils/parameters";
+import { numericValueIsOutOfRange } from "~/components/utils/validations";
 
 const { showValidationFeedback, parameterAxis, labelId } = defineProps<{
   showValidationFeedback: boolean
