@@ -75,7 +75,7 @@
           <span v-else>
             Press enter to add custom option: {{ formatOptionLabel(parameterAxis, option) }}
             <p v-if="isOutOfRange(option)" class="text-secondary small mb-0">
-              NB: This value is outside the estimated range for {{ dependedOnParamLabel }} ({{ dependentRange?.min }}–{{ dependentRange?.max }}).
+              NB: This value is outside the estimated range for {{ estimatedRangeText }}.
             </p>
           </span>
         </span>
@@ -86,7 +86,7 @@
     </div>
     <div v-else-if="showWarning" class="invalid-tooltip bg-warning">
       {{ valuesOutOfRange.length === 1 ? 'One' : 'Some' }} of the values ({{ valuesOutOfRange.join(", ") }})
-      {{ valuesOutOfRange.length === 1 ? 'lies' : 'lie' }} outside of the estimated range for {{ dependedOnParamLabel }} ({{ dependentRange?.min }}–{{ dependentRange?.max }}).
+      {{ valuesOutOfRange.length === 1 ? 'lies' : 'lie' }} outside of the estimated range for {{ estimatedRangeText }}.
       Proceed with caution.
     </div>
   </div>
@@ -117,7 +117,7 @@ const selected = defineModel("selected", {
 const previousInput = ref<string>("");
 const currentInput = ref<string>("");
 
-const { baselineOption, dependedOnParamLabel, nonBaselineSelectOptions } = useScenarioOptions(() => parameterAxis);
+const { baselineOption, dependedOnParamOptionLabel, nonBaselineSelectOptions } = useScenarioOptions(() => parameterAxis);
 const { feedback } = useComparisonValidation(selected, () => parameterAxis);
 
 const VALUE_CONTAINER_SELECTOR = ".value-container.multi";
@@ -155,6 +155,10 @@ const valuesOutOfRange = computed(() => {
 
 const showWarning = computed(() => {
   return parameterIsNumeric.value && valuesOutOfRange.value.length > 0;
+});
+
+const estimatedRangeText = computed(() => {
+  return `${dependedOnParamOptionLabel} (${dependentRange.value?.min}–${dependentRange.value?.max})`;
 });
 
 const optionAlreadySelected = (value: string) => {

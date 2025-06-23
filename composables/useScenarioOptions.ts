@@ -19,7 +19,7 @@ export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
     }
   });
 
-  const dependedOnParamLabel = computed(() => {
+  const dependedOnParamOptionLabel = computed(() => {
     const dependedOnParamId = axis.value?.updateNumericFrom?.parameterId;
     const dependedOnParamValue = dependedOnParamId ? appStore.currentScenario.parameters?.[dependedOnParamId] : undefined;
     if (dependedOnParamId && dependedOnParamValue && appStore.metadata?.parameters) {
@@ -40,9 +40,9 @@ export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
       const max = dependentRange.max.toString();
 
       return [
-        { id: min, label: humanReadableInteger(min), description: `Minimum for ${dependedOnParamLabel.value}` },
-        { id: defaultVal, label: humanReadableInteger(defaultVal), description: `Default for ${dependedOnParamLabel.value}` },
-        { id: max, label: humanReadableInteger(max), description: `Maximum for ${dependedOnParamLabel.value}` },
+        { id: min, label: humanReadableInteger(min), description: `Minimum for ${dependedOnParamOptionLabel.value}` },
+        { id: defaultVal, label: humanReadableInteger(defaultVal), description: `Default for ${dependedOnParamOptionLabel.value}` },
+        { id: max, label: humanReadableInteger(max), description: `Maximum for ${dependedOnParamOptionLabel.value}` },
       ] as ParameterOption[];
     }
   });
@@ -66,7 +66,7 @@ export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
 
   return {
     baselineOption,
-    dependedOnParamLabel,
+    dependedOnParamOptionLabel,
     nonBaselineOptions,
     nonBaselineSelectOptions,
   };
