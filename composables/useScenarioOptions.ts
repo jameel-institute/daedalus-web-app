@@ -1,5 +1,5 @@
 import { type Parameter, type ParameterOption, TypeOfParameter } from "~/types/parameterTypes";
-import { paramOptsToSelectOpts } from "~/components/utils/parameters";
+import { getRangeForDependentParam, paramOptsToSelectOpts } from "~/components/utils/parameters";
 import { humanReadableInteger } from "~/components/utils/formatters";
 
 export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
@@ -22,7 +22,6 @@ export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
   // begin shared logic
   const dependedOnParamId = computed(() => axis.value?.updateNumericFrom?.parameterId);
   const dependedOnParamValue = computed(() => dependedOnParamId.value ? appStore.currentScenario.parameters?.[dependedOnParamId.value] : undefined);
-  const dependentRange = computed(() => dependedOnParamValue.value ? axis.value?.updateNumericFrom?.values[dependedOnParamValue.value] : undefined);
   const dependedOnParamLabel = computed(() => {
     if (dependedOnParamId.value && dependedOnParamValue.value && appStore.metadata?.parameters) {
       return appStore.metadata?.parameters
@@ -35,10 +34,12 @@ export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
   // end shared logic
 
   const predefinedNumericOptions = computed(() => {
-    if (dependentRange.value) {
-      const min = dependentRange.value.min.toString();
-      const defaultVal = dependentRange.value.default.toString();
-      const max = dependentRange.value.max.toString();
+    const dependentRange = getRangeForDependentParam(axis.value, appStore.currentScenario.parameters);
+
+    if (dependentRange) {
+      const min = dependentRange.min.toString();
+      const defaultVal = dependentRange.default.toString();
+      const max = dependentRange.max.toString();
 
       return [
         { id: min, label: humanReadableInteger(min), description: `Minimum for ${dependedOnParamLabel.value}` },

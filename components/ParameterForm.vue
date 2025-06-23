@@ -95,8 +95,8 @@
                   pulsingParameters.includes(parameter.id) ? 'pulse' : '',
                   warningFields?.includes(parameter.id) ? 'has-warning' : '',
                 ]"
-                :min="min(parameter)"
-                :max="max(parameter)"
+                :min="dependentRange(parameter)?.min"
+                :max="dependentRange(parameter)?.max"
                 :step="parameter.step"
                 :size="appStore.largeScreen ? 'lg' : undefined"
                 :feedback-invalid="numericParameterFeedback(parameter)"
@@ -112,8 +112,8 @@
                 v-model="formData[parameter.id]"
                 :aria-label="parameter.label"
                 :step="parameter.step"
-                :min="min(parameter)"
-                :max="max(parameter)"
+                :min="dependentRange(parameter)?.min"
+                :max="dependentRange(parameter)?.max"
                 @change="handleChange(parameter)"
               />
             </div>
@@ -157,13 +157,13 @@
 <script lang="ts" setup>
 import { debounce } from "perfect-debounce";
 import type { NewScenarioData } from "@/types/apiResponseTypes";
-import type { Parameter, ParameterSet, ValueData } from "@/types/parameterTypes";
+import type { Parameter, ParameterSet } from "@/types/parameterTypes";
 import type { FetchError } from "ofetch";
 import { TypeOfParameter } from "@/types/parameterTypes";
 import { CIcon } from "@coreui/icons-vue";
 import VueSelect from "vue3-select-component";
 import ParameterHeader from "~/components/ParameterHeader.vue";
-import { paramOptsToSelectOpts } from "~/components/utils/parameters";
+import { getRangeForDependentParam, paramOptsToSelectOpts } from "~/components/utils/parameters";
 
 const props = defineProps<{
   inModal: boolean
@@ -184,7 +184,7 @@ const initialiseFormDataFromDefaults = () => {
       acc[id] = (defaultOption || options[0].id).toString();
     }
     return acc;
-  }, {} as { [key: string]: string });
+  }, {} as ParameterSet);
 };
 
 const formData = ref(
@@ -246,26 +246,8 @@ const renderAsSelect = (param: Parameter) => {
   return !renderAsRadios(param) && [TypeOfParameter.Select, TypeOfParameter.GlobeSelect].includes(param.parameterType);
 };
 
-// Retrieve the min, max and default for a (numeric) parameter that is dependent on the value of another parameter.
-const getRangeForDependentParam = (dependentParamId: string): ValueData | undefined => {
-  const dependentParam = paramMetadata.value!.find(param => param.id === dependentParamId);
-  if (!dependentParam?.updateNumericFrom || !formData.value) {
-    return;
-  }
-
-  const dependedOnParamId = dependentParam.updateNumericFrom.parameterId;
-  const dependedOnParamInputVal = formData.value[dependedOnParamId];
-  if (dependentParam.updateNumericFrom && typeof dependedOnParamInputVal !== "undefined") {
-    return dependentParam.updateNumericFrom?.values[dependedOnParamInputVal.toString()];
-  }
-};
-
-const min = (param: Parameter) => {
-  return getRangeForDependentParam(param.id)?.min;
-};
-
-const max = (param: Parameter) => {
-  return getRangeForDependentParam(param.id)?.max;
+const dependentRange = (param: Parameter) => {
+  return getRangeForDependentParam(param, formData.value);
 };
 
 const invalidFields = ref<string[]>([]);
@@ -290,9 +272,10 @@ const recalculateInvalidFields = () => {
 const warningFields = computed(() => {
   return paramMetadata.value?.filter((param) => {
     if (param.parameterType === TypeOfParameter.Numeric && param.updateNumericFrom) {
+      const range = dependentRange(param);
       const inputVal = Number.parseInt(formData.value![param.id]);
 
-      return inputVal < min(param)! || inputVal > max(param)!;
+      return !range || inputVal < range.min || inputVal > range.max;
     } else {
       return false;
     };
@@ -311,9 +294,9 @@ const defaultValue = (param: Parameter) => {
   }
 
   if (param.updateNumericFrom) {
-    return getRangeForDependentParam(param.id)?.default.toString();
+    return getRangeForDependentParam(param, formData.value)?.default.toString();
   } else if (param.parameterType === TypeOfParameter.Select || param.parameterType === TypeOfParameter.GlobeSelect) {
-    return param.defaultOption || param.options[0].id;
+    return param.defaultOption || param.options?.[0]?.id;
   }
   // Currently, due to the metadata schema, non-updatable numerics don't have default values available.
 };
@@ -328,14 +311,15 @@ const resetParam = (param: Parameter) => {
 
 const numericParameterFeedback = (param: Parameter) => {
   if (param.updateNumericFrom) {
-    const dependedOnParamId = param.updateNumericFrom.parameterId;
-    const dependedOnParamLabel = paramMetadata.value!.find(param => param.id === dependedOnParamId)!
-      .options
-      ?.find(option => option.id === formData.value![dependedOnParamId])
-      ?.label;
+    const dependedUponParam = paramMetadata.value?.find(p => p.id === param.updateNumericFrom?.parameterId);
+    const range = dependentRange(param);
 
-    return `NB: This value is outside the estimated range for ${dependedOnParamLabel} (${min(param)}–${max(param)}).`
-      + ` Proceed with caution.`;
+    if (dependedUponParam && range) {
+      const selectedOption = dependedUponParam.options?.find(o => o.id === (formData.value ?? {})[dependedUponParam.id]);
+      return `NB: This value is outside the estimated range for `
+        + `${selectedOption?.label} (${range.min}–${range.max}).`
+        + ` Proceed with caution.`;
+    }
   }
 };
 

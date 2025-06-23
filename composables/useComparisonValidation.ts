@@ -20,7 +20,6 @@ export default (
   // begin shared logic
   const dependedOnParamId = computed(() => toValue(parameter)?.updateNumericFrom?.parameterId);
   const dependedOnParamValue = computed(() => dependedOnParamId.value ? appStore.currentScenario.parameters?.[dependedOnParamId.value] : undefined);
-  const dependentRange = computed(() => dependedOnParamValue.value ? toValue(parameter)?.updateNumericFrom?.values[dependedOnParamValue.value] : undefined);
   const dependedOnParamLabel = computed(() => {
     if (dependedOnParamId.value && dependedOnParamValue.value && appStore.metadata?.parameters) {
       return appStore.metadata?.parameters
@@ -48,5 +47,5 @@ export default (
     }
   });
 
-  return { invalid, feedback, dependentRange, dependedOnParamLabel };
+  return { invalid, feedback, dependedOnParamLabel };
 };

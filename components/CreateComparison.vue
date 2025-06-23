@@ -74,10 +74,11 @@
               :parameter-axis="chosenParameterAxis"
               :label-id="FORM_LABEL_ID"
             />
+            <!-- TODO - this button looks maybe small when screen is not large -->
             <CButton
               id="run-button"
               color="primary"
-              :size="appStore.largeScreen ? 'lg' : undefined"
+              :size="appStore.largeScreen ? 'lg' : 'undefined'"
               type="submit"
               :disabled="formSubmitting"
               class="ms-auto align-self-start"
@@ -98,6 +99,7 @@
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
+import { getRangeForDependentParam } from "./utils/parameters";
 
 const appStore = useAppStore();
 const FORM_LABEL_ID = "scenarioOptions";
@@ -111,7 +113,11 @@ const showFormValidationFeedback = ref(false);
 const chosenParameterAxis = computed(() => appStore.metadata?.parameters.find(p => p.id === chosenAxisId.value));
 
 const { baselineOption, nonBaselineOptions } = useScenarioOptions(chosenParameterAxis);
-const { invalid: scenarioSelectionInvalid, dependentRange } = useComparisonValidation(selectedScenarioOptions, chosenParameterAxis);
+const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions, chosenParameterAxis);
+
+const dependentRange = computed(() => {
+  return getRangeForDependentParam(chosenParameterAxis.value, appStore.currentScenario.parameters);
+});
 
 // begin duplicated logic
 const numericValueIsOutOfRange = (value: string) => {

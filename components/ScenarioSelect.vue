@@ -99,7 +99,7 @@ import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
 import type { ParameterSelectOption } from "./utils/parameters";
 import { formatOptionLabel, stringIsInteger } from "./utils/formatters";
-import { sortOptions } from "./utils/parameters";
+import { getRangeForDependentParam, sortOptions } from "./utils/parameters";
 
 const { showValidationFeedback, parameterAxis, labelId } = defineProps<{
   showValidationFeedback: boolean
@@ -118,17 +118,22 @@ const previousInput = ref<string>("");
 const currentInput = ref<string>("");
 
 const { baselineOption, nonBaselineSelectOptions } = useScenarioOptions(() => parameterAxis);
-const { feedback, dependentRange, dependedOnParamLabel } = useComparisonValidation(selected, () => parameterAxis);
+const { feedback, dependedOnParamLabel } = useComparisonValidation(selected, () => parameterAxis);
 
 const VALUE_CONTAINER_SELECTOR = ".value-container.multi";
 const SEARCH_INPUT_SELECTOR = "input.search-input";
 const customOptions = ref<ParameterSelectOption[]>([]); // for user-defined options
 const vueSelect = useTemplateRef<ComponentPublicInstance>("vueSelectComponent");
+
+const appStore = useAppStore();
 const vueSelectControl = computed((): HTMLElement | null => vueSelect.value?.$el.querySelector(VALUE_CONTAINER_SELECTOR));
 const searchInput = computed(() => vueSelectControl.value?.querySelector<HTMLInputElement>(SEARCH_INPUT_SELECTOR));
 const allScenariosSelected = computed(() => nonBaselineSelectOptions.value.every(o => selected.value.includes(o.value)));
 const options = computed(() => [...nonBaselineSelectOptions.value, ...customOptions.value]);
 const parameterIsNumeric = computed(() => parameterAxis?.parameterType === TypeOfParameter.Numeric);
+const dependentRange = computed(() => {
+  return getRangeForDependentParam(parameterAxis, appStore.currentScenario.parameters);
+});
 
 const filterBy = (_option: ParameterSelectOption, label: string, search: string) => {
   if (parameterIsNumeric.value) {
