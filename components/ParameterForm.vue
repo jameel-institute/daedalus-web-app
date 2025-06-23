@@ -270,13 +270,7 @@ const recalculateInvalidFields = () => {
 };
 
 const warningFields = computed(() => {
-  return paramMetadata.value?.filter((param) => {
-    if (param.parameterType === TypeOfParameter.Numeric && param.updateNumericFrom) {
-      return numericValueIsOutOfRange(formData.value![param.id], param, formData.value!);
-    } else {
-      return false;
-    };
-  }).map(param => param.id);
+  return paramMetadata.value?.filter(p => numericValueIsOutOfRange(formData.value?.[p.id], p, formData.value)).map(p => p.id);
 });
 
 const showFeedback = (param: Parameter) => {

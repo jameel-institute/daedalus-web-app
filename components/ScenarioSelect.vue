@@ -82,7 +82,15 @@
       </template>
     </VueSelect>
     <div v-if="showValidationFeedback" class="invalid-tooltip">
-      {{ feedback }}
+      <span v-if="tooFewScenarios">
+        Please select at least {{ MIN_SCENARIOS_COMPARED_TO_BASELINE }} scenario to compare against the baseline.
+      </span>
+      <span v-else-if="tooManyScenarios">
+        You can compare up to {{ MAX_SCENARIOS_COMPARED_TO_BASELINE }} scenarios against the baseline.
+      </span>
+      <span v-else-if="numericInvalid">
+        Some of the selected scenarios are not valid numbers.
+      </span>
     </div>
     <div v-else-if="showWarning" class="invalid-tooltip bg-warning">
       {{ valuesOutOfRange.length === 1 ? 'One' : 'Some' }} of the values ({{ valuesOutOfRange.join(", ") }})
@@ -96,7 +104,7 @@
 import { CIcon } from "@coreui/icons-vue";
 import VueSelect from "vue3-select-component";
 import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
-import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
+import { MAX_SCENARIOS_COMPARED_TO_BASELINE, MIN_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
 import type { ParameterSelectOption } from "./utils/parameters";
 import { formatOptionLabel, stringIsInteger } from "./utils/formatters";
 import { getRangeForDependentParam, numericValueIsOutOfRange, sortOptions } from "./utils/parameters";
@@ -118,7 +126,7 @@ const previousInput = ref<string>("");
 const currentInput = ref<string>("");
 
 const { baselineOption, dependedOnParamOptionLabel, nonBaselineSelectOptions } = useScenarioOptions(() => parameterAxis);
-const { feedback } = useComparisonValidation(selected, () => parameterAxis);
+const { tooFewScenarios, tooManyScenarios, numericInvalid } = useComparisonValidation(selected, () => parameterAxis);
 
 const VALUE_CONTAINER_SELECTOR = ".value-container.multi";
 const SEARCH_INPUT_SELECTOR = "input.search-input";
