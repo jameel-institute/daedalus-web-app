@@ -131,6 +131,15 @@ const searchInput = computed(() => vueSelectControl.value?.querySelector<HTMLInp
 const allScenariosSelected = computed(() => nonBaselineSelectOptions.value.every(o => selected.value.includes(o.value)));
 const options = computed(() => [...nonBaselineSelectOptions.value, ...customOptions.value]);
 const parameterIsNumeric = computed(() => parameterAxis?.parameterType === TypeOfParameter.Numeric);
+const dependentRange = computed(() => getRangeForDependentParam(parameterAxis, appStore.currentScenario.parameters));
+const estimatedRangeText = computed(() => `${dependedOnParamOptionLabel.value} (${dependentRange.value?.min}–${dependentRange.value?.max})`);
+
+const isOutOfRange = (value: string) => numericValueIsOutOfRange(value, parameterAxis, appStore.currentScenario.parameters);
+
+const valuesOutOfRange = computed(() => selected.value.concat(baselineOption.value?.id ?? []).filter(o => isOutOfRange(o)));
+const showWarning = computed(() => parameterIsNumeric.value && valuesOutOfRange.value.length > 0);
+
+const optionAlreadySelected = (value: string) => selected.value.includes(value);
 
 const filterBy = (_option: ParameterSelectOption, label: string, search: string) => {
   if (parameterIsNumeric.value) {
@@ -139,30 +148,6 @@ const filterBy = (_option: ParameterSelectOption, label: string, search: string)
   }
   // If parameter is not numeric, use the default filter logic, which is defined at: https://vue3-select-component.vercel.app/props.html#filterby
   return label.toLowerCase().includes(search.toLowerCase());
-};
-
-const isOutOfRange = (value: string) => {
-  return numericValueIsOutOfRange(value, parameterAxis, appStore.currentScenario.parameters);
-};
-
-const dependentRange = computed(() => {
-  return getRangeForDependentParam(parameterAxis, appStore.currentScenario.parameters);
-});
-
-const valuesOutOfRange = computed(() => {
-  return (selected.value.concat(baselineOption.value?.id ?? [])).filter(o => isOutOfRange(o));
-});
-
-const showWarning = computed(() => {
-  return parameterIsNumeric.value && valuesOutOfRange.value.length > 0;
-});
-
-const estimatedRangeText = computed(() => {
-  return `${dependedOnParamOptionLabel} (${dependentRange.value?.min}–${dependentRange.value?.max})`;
-});
-
-const optionAlreadySelected = (value: string) => {
-  return selected.value.includes(value);
 };
 
 const handleCreateOption = (value: string) => {
@@ -182,10 +167,8 @@ const handleCreateOption = (value: string) => {
   selected.value.push(value);
 };
 
-const handleDeselectOption = (value: string) => {
-  // Remove the option from custom options so that it isn't listed in the menu.
-  customOptions.value = customOptions.value.filter(o => o.value !== value);
-};
+// Remove the option from custom options so that it isn't listed in the menu.
+const handleDeselectOption = (value: string) => customOptions.value = customOptions.value.filter(o => o.value !== value);
 
 // This watch is required, in addition to the deselection handler handleDeselectOption, because
 // *backspace* deselect does not trigger the option-deselected event:
@@ -216,11 +199,7 @@ const handleInput = (newInput: string) => {
   previousInput.value = newInput;
 };
 
-watch(allScenariosSelected, (newValue) => {
-  if (newValue) {
-    menuOpen.value = false;
-  }
-});
+watch(allScenariosSelected, newValue => newValue ? menuOpen.value = false : null);
 
 onMounted(() => {
   watch(vueSelectControl, () => {
