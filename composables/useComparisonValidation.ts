@@ -2,7 +2,6 @@ import { MAX_SCENARIOS_COMPARED_TO_BASELINE, MIN_SCENARIOS_COMPARED_TO_BASELINE 
 import { humanReadableInteger } from "~/components/utils/formatters";
 import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 
-// TODO: Be less strict about out-of-range numeric options: these should probably trigger warnings only. This applies to ParameterForm also.
 export default (
   scenariosToCompareAgainstBaseline: MaybeRefOrGetter<Array<string>>,
   parameter: MaybeRefOrGetter<Parameter | undefined>,
@@ -21,7 +20,7 @@ export default (
   // begin shared logic
   const dependedOnParamId = computed(() => toValue(parameter)?.updateNumericFrom?.parameterId);
   const dependedOnParamValue = computed(() => dependedOnParamId.value ? appStore.currentScenario.parameters?.[dependedOnParamId.value] : undefined);
-  const dependentValues = computed(() => dependedOnParamValue.value ? toValue(parameter)?.updateNumericFrom?.values[dependedOnParamValue.value] : undefined);
+  const dependentRange = computed(() => dependedOnParamValue.value ? toValue(parameter)?.updateNumericFrom?.values[dependedOnParamValue.value] : undefined);
   const dependedOnParamLabel = computed(() => {
     if (dependedOnParamId.value && dependedOnParamValue.value && appStore.metadata?.parameters) {
       return appStore.metadata?.parameters
@@ -49,5 +48,5 @@ export default (
     }
   });
 
-  return { invalid, feedback, dependentValues, dependedOnParamLabel };
+  return { invalid, feedback, dependentRange, dependedOnParamLabel };
 };

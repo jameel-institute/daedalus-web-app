@@ -75,7 +75,7 @@
           <span v-else>
             Press enter to add custom option: {{ formatOptionLabel(parameterAxis, option) }}
             <p v-if="numericValueIsOutOfRange(option)" class="text-secondary small mb-0">
-              NB: This value is outside the estimated range for {{ dependedOnParamLabel }} ({{ dependentValues?.min }}–{{ dependentValues?.max }}).
+              NB: This value is outside the estimated range for {{ dependedOnParamLabel }} ({{ dependentRange?.min }}–{{ dependentRange?.max }}).
             </p>
           </span>
         </span>
@@ -86,7 +86,7 @@
     </div>
     <div v-else-if="showWarning" class="invalid-tooltip bg-warning">
       {{ valuesOutOfRange.length === 1 ? 'One' : 'Some' }} of the values ({{ valuesOutOfRange.join(", ") }})
-      {{ valuesOutOfRange.length === 1 ? 'lies' : 'lie' }} outside of the estimated range for {{ dependedOnParamLabel }} ({{ dependentValues?.min }}–{{ dependentValues?.max }}).
+      {{ valuesOutOfRange.length === 1 ? 'lies' : 'lie' }} outside of the estimated range for {{ dependedOnParamLabel }} ({{ dependentRange?.min }}–{{ dependentRange?.max }}).
       Proceed with caution.
     </div>
   </div>
@@ -118,7 +118,7 @@ const previousInput = ref<string>("");
 const currentInput = ref<string>("");
 
 const { baselineOption, nonBaselineSelectOptions } = useScenarioOptions(() => parameterAxis);
-const { feedback, dependentValues, dependedOnParamLabel } = useComparisonValidation(selected, () => parameterAxis);
+const { feedback, dependentRange, dependedOnParamLabel } = useComparisonValidation(selected, () => parameterAxis);
 
 const VALUE_CONTAINER_SELECTOR = ".value-container.multi";
 const SEARCH_INPUT_SELECTOR = "input.search-input";
@@ -135,7 +135,7 @@ const filterBy = (_option: ParameterSelectOption, label: string, search: string)
     // Show all options if there is nothing in the 'search' input, otherwise list only the candidate custom input.
     return !currentInput.value;
   }
-  // Else use the default filter logic, which is defined here: https://vue3-select-component.vercel.app/props.html#filterby
+  // If parameter is not numeric, use the default filter logic, which is defined at: https://vue3-select-component.vercel.app/props.html#filterby
   return label.toLowerCase().includes(search.toLowerCase());
 };
 
@@ -144,7 +144,7 @@ const numericValueIsOutOfRange = (value: string | undefined) => {
     return false;
   }
   const val = Number.parseInt(value);
-  return val < dependentValues.value!.min || val > dependentValues.value!.max;
+  return val < dependentRange.value!.min || val > dependentRange.value!.max;
 };
 
 const valuesOutOfRange = computed(() => {

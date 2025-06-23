@@ -111,12 +111,12 @@ const showFormValidationFeedback = ref(false);
 const chosenParameterAxis = computed(() => appStore.metadata?.parameters.find(p => p.id === chosenAxisId.value));
 
 const { baselineOption, nonBaselineOptions } = useScenarioOptions(chosenParameterAxis);
-const { invalid: scenarioSelectionInvalid, dependentValues } = useComparisonValidation(selectedScenarioOptions, chosenParameterAxis);
+const { invalid: scenarioSelectionInvalid, dependentRange } = useComparisonValidation(selectedScenarioOptions, chosenParameterAxis);
 
 // begin duplicated logic
 const numericValueIsOutOfRange = (value: string) => {
   const val = Number.parseInt(value);
-  return val < dependentValues.value!.min || val > dependentValues.value!.max;
+  return val < dependentRange.value!.min || val > dependentRange.value!.max;
 };
 // end duplicated logic
 

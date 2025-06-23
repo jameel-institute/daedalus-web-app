@@ -22,7 +22,7 @@ export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
   // begin shared logic
   const dependedOnParamId = computed(() => axis.value?.updateNumericFrom?.parameterId);
   const dependedOnParamValue = computed(() => dependedOnParamId.value ? appStore.currentScenario.parameters?.[dependedOnParamId.value] : undefined);
-  const dependentValues = computed(() => dependedOnParamValue.value ? axis.value?.updateNumericFrom?.values[dependedOnParamValue.value] : undefined);
+  const dependentRange = computed(() => dependedOnParamValue.value ? axis.value?.updateNumericFrom?.values[dependedOnParamValue.value] : undefined);
   const dependedOnParamLabel = computed(() => {
     if (dependedOnParamId.value && dependedOnParamValue.value && appStore.metadata?.parameters) {
       return appStore.metadata?.parameters
@@ -35,10 +35,10 @@ export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
   // end shared logic
 
   const predefinedNumericOptions = computed(() => {
-    if (dependentValues.value) {
-      const min = dependentValues.value.min.toString();
-      const defaultVal = dependentValues.value.default.toString();
-      const max = dependentValues.value.max.toString();
+    if (dependentRange.value) {
+      const min = dependentRange.value.min.toString();
+      const defaultVal = dependentRange.value.default.toString();
+      const max = dependentRange.value.max.toString();
 
       return [
         { id: min, label: humanReadableInteger(min), description: `Minimum for ${dependedOnParamLabel.value}` },

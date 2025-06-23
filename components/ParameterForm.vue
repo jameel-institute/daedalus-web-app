@@ -201,18 +201,20 @@ const formData = ref(
 const previousFullFormData = ref({ ...formData.value });
 
 const pulsingParameters = ref([] as string[]);
-const dependentParameters = computed((): Record<string, string[]> => {
-  const dependentParameters = {} as { [key: string]: Array<string> };
+// An object mapping the dependency relationship between parameters' metadata, where keys are the ids of parameters that are depended upon,
+// and values are lists (usually single-element) of the parameters whose metadata (e.g. estimated range) has a dependency on them.
+const parameterDependencies = computed((): Record<string, string[]> => {
+  const deps = {} as { [key: string]: Array<string> };
   paramMetadata.value?.forEach((param) => {
     if (param.updateNumericFrom) {
       const dependedOn = param.updateNumericFrom.parameterId;
-      if (!dependentParameters[dependedOn]) {
-        dependentParameters[dependedOn] = [];
+      if (!deps[dependedOn]) {
+        deps[dependedOn] = [];
       }
-      dependentParameters[dependedOn].push(param.id);
+      deps[dependedOn].push(param.id);
     }
   });
-  return dependentParameters;
+  return deps;
 });
 
 const runButtonDisabled = computed(() => {
@@ -244,8 +246,8 @@ const renderAsSelect = (param: Parameter) => {
   return !renderAsRadios(param) && [TypeOfParameter.Select, TypeOfParameter.GlobeSelect].includes(param.parameterType);
 };
 
-// Retrieve the ValueData for a (numeric) parameter that is dependent on the value of another parameter.
-const getValueDataForDependentParam = (dependentParamId: string): ValueData | undefined => {
+// Retrieve the min, max and default for a (numeric) parameter that is dependent on the value of another parameter.
+const getRangeForDependentParam = (dependentParamId: string): ValueData | undefined => {
   const dependentParam = paramMetadata.value!.find(param => param.id === dependentParamId);
   if (!dependentParam?.updateNumericFrom || !formData.value) {
     return;
@@ -259,11 +261,11 @@ const getValueDataForDependentParam = (dependentParamId: string): ValueData | un
 };
 
 const min = (param: Parameter) => {
-  return getValueDataForDependentParam(param.id)?.min;
+  return getRangeForDependentParam(param.id)?.min;
 };
 
 const max = (param: Parameter) => {
-  return getValueDataForDependentParam(param.id)?.max;
+  return getRangeForDependentParam(param.id)?.max;
 };
 
 const invalidFields = ref<string[]>([]);
@@ -309,10 +311,7 @@ const defaultValue = (param: Parameter) => {
   }
 
   if (param.updateNumericFrom) {
-    const dependedOnParamId = param.updateNumericFrom.parameterId;
-    const dependedOnValue = formData.value[dependedOnParamId];
-    const dependentDefaultValue = param.updateNumericFrom.values[dependedOnValue]?.default;
-    return dependentDefaultValue?.toString();
+    return getRangeForDependentParam(param.id)?.default.toString();
   } else if (param.parameterType === TypeOfParameter.Select || param.parameterType === TypeOfParameter.GlobeSelect) {
     return param.defaultOption || param.options[0].id;
   }
@@ -350,11 +349,11 @@ const pulse = (parameterId: string) => {
 const handleChange = (param: Parameter) => {
   showWarnings.value = true;
 
-  if (dependentParameters.value[param.id] === undefined || dependentParameters.value[param.id]?.length === 0) {
+  if (parameterDependencies.value[param.id] === undefined || parameterDependencies.value[param.id]?.length === 0) {
     return;
   }
 
-  dependentParameters.value[param.id].forEach((dependentParamId: string) => {
+  parameterDependencies.value[param.id].forEach((dependentParamId: string) => {
     pulse(dependentParamId);
 
     const dependentParameter = paramMetadata.value!.find(param => param.id === dependentParamId)!;
