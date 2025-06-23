@@ -52,10 +52,9 @@
               placement="top"
             >
               <template #toggler="{ togglerId, on }">
-                <!-- TODO: use humanReadableInteger formatter for numeric parameters -->
                 <span
                   :class="{
-                    'bg-warning text-white': chosenParameterAxis.parameterType === TypeOfParameter.Numeric && numericValueIsOutOfRange(baselineOption.id),
+                    'bg-warning text-white': baselineIsOutOfRange,
                   }"
                   class="multi-value d-inline-block outside-select"
                   :aria-describedby="togglerId"
@@ -97,9 +96,9 @@
 
 <script setup lang="ts">
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
-import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
+import type { Parameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
-import { getRangeForDependentParam } from "./utils/parameters";
+import { numericValueIsOutOfRange } from "~/components/utils/parameters";
 
 const appStore = useAppStore();
 const FORM_LABEL_ID = "scenarioOptions";
@@ -115,16 +114,8 @@ const chosenParameterAxis = computed(() => appStore.metadata?.parameters.find(p 
 const { baselineOption, nonBaselineOptions } = useScenarioOptions(chosenParameterAxis);
 const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions, chosenParameterAxis);
 
-const dependentRange = computed(() => {
-  return getRangeForDependentParam(chosenParameterAxis.value, appStore.currentScenario.parameters);
-});
-
-// begin duplicated logic
-const numericValueIsOutOfRange = (value: string) => {
-  const val = Number.parseInt(value);
-  return val < dependentRange.value!.min || val > dependentRange.value!.max;
-};
-// end duplicated logic
+const baselineIsOutOfRange = computed(() =>
+  numericValueIsOutOfRange(baselineOption.value?.id, chosenParameterAxis.value, appStore.currentScenario.parameters));
 
 const handleCloseModal = () => {
   modalVisible.value = false;

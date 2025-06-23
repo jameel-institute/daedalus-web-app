@@ -44,7 +44,7 @@
           type="button"
           class="multi-value"
           :class="{
-            'bg-warning text-white': parameterIsNumeric && numericValueIsOutOfRange(option.value),
+            'bg-warning text-white': isOutOfRange(option.value),
           }"
           @click="removeOption"
         >
@@ -53,7 +53,7 @@
             size="sm"
             class="text-secondary"
             :class="{
-              'text-white': parameterIsNumeric && numericValueIsOutOfRange(option.value),
+              'text-white': isOutOfRange(option.value),
             }"
             icon="cilX"
             style="margin-bottom: 0.3rem"
@@ -74,7 +74,7 @@
           </span>
           <span v-else>
             Press enter to add custom option: {{ formatOptionLabel(parameterAxis, option) }}
-            <p v-if="numericValueIsOutOfRange(option)" class="text-secondary small mb-0">
+            <p v-if="isOutOfRange(option)" class="text-secondary small mb-0">
               NB: This value is outside the estimated range for {{ dependedOnParamLabel }} ({{ dependentRange?.min }}–{{ dependentRange?.max }}).
             </p>
           </span>
@@ -99,7 +99,7 @@ import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
 import type { ParameterSelectOption } from "./utils/parameters";
 import { formatOptionLabel, stringIsInteger } from "./utils/formatters";
-import { getRangeForDependentParam, sortOptions } from "./utils/parameters";
+import { getRangeForDependentParam, numericValueIsOutOfRange, sortOptions } from "./utils/parameters";
 
 const { showValidationFeedback, parameterAxis, labelId } = defineProps<{
   showValidationFeedback: boolean
@@ -131,9 +131,6 @@ const searchInput = computed(() => vueSelectControl.value?.querySelector<HTMLInp
 const allScenariosSelected = computed(() => nonBaselineSelectOptions.value.every(o => selected.value.includes(o.value)));
 const options = computed(() => [...nonBaselineSelectOptions.value, ...customOptions.value]);
 const parameterIsNumeric = computed(() => parameterAxis?.parameterType === TypeOfParameter.Numeric);
-const dependentRange = computed(() => {
-  return getRangeForDependentParam(parameterAxis, appStore.currentScenario.parameters);
-});
 
 const filterBy = (_option: ParameterSelectOption, label: string, search: string) => {
   if (parameterIsNumeric.value) {
@@ -144,16 +141,16 @@ const filterBy = (_option: ParameterSelectOption, label: string, search: string)
   return label.toLowerCase().includes(search.toLowerCase());
 };
 
-const numericValueIsOutOfRange = (value: string | undefined) => {
-  if (!value) {
-    return false;
-  }
-  const val = Number.parseInt(value);
-  return val < dependentRange.value!.min || val > dependentRange.value!.max;
+const isOutOfRange = (value: string) => {
+  return numericValueIsOutOfRange(value, parameterAxis, appStore.currentScenario.parameters);
 };
 
+const dependentRange = computed(() => {
+  return getRangeForDependentParam(parameterAxis, appStore.currentScenario.parameters);
+});
+
 const valuesOutOfRange = computed(() => {
-  return (selected.value.concat(baselineOption.value?.id ?? [])).filter(o => numericValueIsOutOfRange(o));
+  return (selected.value.concat(baselineOption.value?.id ?? [])).filter(o => isOutOfRange(o));
 });
 
 const showWarning = computed(() => {
