@@ -32,16 +32,16 @@
         </p>
         <div id="axisOptions" class="d-flex gap-2 flex-wrap">
           <CButton
-            v-for="para in appStore.metadata?.parameters.filter((p) => !chosenAxisId || chosenAxisId === p.id)"
-            :key="para.id"
+            v-for="param in appStore.metadata?.parameters.filter((p) => !chosenAxisId || chosenAxisId === p.id)"
+            :key="param.id"
             class="d-flex align-items-center axis-btn border"
-            :class="chosenAxisId === para.id ? 'bg-primary bg-opacity-10 border-primary-subtle' : ''"
+            :class="chosenAxisId === param.id ? 'bg-primary bg-opacity-10 border-primary-subtle' : ''"
             color="light"
-            @click="handleClickAxis(para)"
+            @click="handleClickAxis(param)"
           >
-            <ParameterIcon :parameter="para" />
-            <span class="ms-2">{{ para.label }}</span>
-            <CIcon v-if="chosenAxisId === para.id" class="text-muted ms-2 cilx" icon="cilX" />
+            <ParameterIcon :parameter="param" />
+            <span class="ms-2">{{ param.label }}</span>
+            <CIcon v-if="chosenAxisId === param.id" class="text-muted ms-2 cilx" icon="cilX" />
           </CButton>
         </div>
         <div v-if="chosenParameterAxis && baselineOption" class="mt-3">
