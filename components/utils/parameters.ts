@@ -74,3 +74,13 @@ export const numericValueIsOutOfRange = (
 
   return range && (int < range.min || int > range.max);
 };
+
+export const numericValueInvalid = (
+  value: string,
+  parameter: Parameter,
+) => {
+  if (parameter.parameterType === TypeOfParameter.Numeric) {
+    return Number(value) < 0 || Number.isNaN(Number(value));
+  };
+  return false;
+};

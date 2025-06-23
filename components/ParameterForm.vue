@@ -163,7 +163,7 @@ import { TypeOfParameter } from "@/types/parameterTypes";
 import { CIcon } from "@coreui/icons-vue";
 import VueSelect from "vue3-select-component";
 import ParameterHeader from "~/components/ParameterHeader.vue";
-import { getRangeForDependentParam, numericValueIsOutOfRange, paramOptsToSelectOpts } from "~/components/utils/parameters";
+import { getRangeForDependentParam, numericValueInvalid, numericValueIsOutOfRange, paramOptsToSelectOpts } from "~/components/utils/parameters";
 
 const props = defineProps<{
   inModal: boolean
@@ -259,13 +259,7 @@ const recalculateInvalidFields = () => {
 
   invalidFields.value = paramMetadata.value?.filter((param) => {
     const val = formData.value![param.id];
-    if (val === undefined || val === null || val === "") {
-      return true;
-    }
-    if (param.parameterType === TypeOfParameter.Numeric) {
-      return Number(val) < 0 || Number.isNaN(Number(val));
-    };
-    return false;
+    return (val === undefined || val === null || val === "" || numericValueInvalid(val, param));
   }).map(p => p.id) || [];
 };
 
