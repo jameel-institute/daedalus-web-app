@@ -10,6 +10,8 @@ const pinia = mockPinia({
   versions: mockVersions,
 }, false, { stubActions: false });
 
+const defaultHospitalCapacityForUSA = "334400";
+
 describe("comparison page", () => {
   it("should list scenarios as expected when there are at least two selected scenarios", async () => {
     const component = await mountSuspended(Comparison, {
@@ -34,7 +36,7 @@ describe("comparison page", () => {
     expect(text.match(/elimination/g)).toHaveLength(3);
     expect(text.match(/USA/g)).toHaveLength(3);
     expect(text.match(/medium/g)).toHaveLength(3);
-    expect(text.match(/305000/g)).toHaveLength(3);
+    expect(text.match(new RegExp(defaultHospitalCapacityForUSA, "g"))).toHaveLength(3);
   });
 
   it("should list scenarios as expected when there are is exactly one selected scenario", async () => {
@@ -59,7 +61,7 @@ describe("comparison page", () => {
     expect(text.match(/elimination/g)).toHaveLength(2);
     expect(text.match(/USA/g)).toHaveLength(2);
     expect(text.match(/medium/g)).toHaveLength(2);
-    expect(text.match(/305000/g)).toHaveLength(2);
+    expect(text.match(new RegExp(defaultHospitalCapacityForUSA, "g"))).toHaveLength(2);
   });
 
   it("resets appStore.downloadError when the page is loaded", async () => {

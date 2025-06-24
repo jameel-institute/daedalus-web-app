@@ -7,6 +7,7 @@ import { debounce } from "perfect-debounce";
 import { defineStore } from "pinia";
 import { ExcelScenarioDownload } from "~/download/excelScenarioDownload";
 import type { ScenarioCapacity, ScenarioCost, ScenarioIntervention } from "~/types/resultTypes";
+import { getRangeForDependentParam } from "~/components/utils/parameters";
 
 const emptyScenario = {
   runId: undefined,
@@ -146,11 +147,25 @@ export const useAppStore = defineStore("app", {
       this.currentComparison.axis = axis;
       this.currentComparison.baseline = baselineParameters[axis];
       const allScenarioOptions = [this.currentComparison.baseline, ...selectedScenarioOptions];
+
+      // While defining the parameter values we want all scenarios under comparison to share,
+      // replace any numeric parameters that are dependent on other parameters with their default values.
+      const parameterValuesToClone: ParameterSet = {};
+      Object.entries(baselineParameters).forEach(([key, value]) => {
+        const param = this.parametersMetadataById[key];
+        if (param?.updateNumericFrom !== undefined) {
+          const range = getRangeForDependentParam(param, baselineParameters);
+          parameterValuesToClone[key] = range?.default.toString() || value;
+        } else {
+          parameterValuesToClone[key] = value;
+        }
+      });
+
       this.currentComparison.scenarios = allScenarioOptions.map((opt) => {
         return structuredClone({
           ...emptyScenario,
           parameters: {
-            ...baselineParameters,
+            ...parameterValuesToClone,
             [axis]: opt,
           },
         });

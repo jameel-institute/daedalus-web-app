@@ -243,7 +243,12 @@ describe("app store", () => {
 
     it("can set the current comparison based on the axis, baseline parameter, and selected scenario options", async () => {
       const store = useAppStore();
+
+      await store.loadMetadata();
+
       store.setComparison("vaccine", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["none", "low"]);
+
+      const defaultHospitalCapacityForUSA = "33800"; // from metadata
 
       expect(store.currentComparison).toEqual({
         axis: "vaccine",
@@ -251,15 +256,15 @@ describe("app store", () => {
         scenarios: [
           {
             ...emptyScenario,
-            parameters: { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" },
+            parameters: { country: "USA", hospital_capacity: defaultHospitalCapacityForUSA, vaccine: "high", response: "elimination" },
           },
           {
             ...emptyScenario,
-            parameters: { country: "USA", hospital_capacity: "54321", vaccine: "none", response: "elimination" },
+            parameters: { country: "USA", hospital_capacity: defaultHospitalCapacityForUSA, vaccine: "none", response: "elimination" },
           },
           {
             ...emptyScenario,
-            parameters: { country: "USA", hospital_capacity: "54321", vaccine: "low", response: "elimination" },
+            parameters: { country: "USA", hospital_capacity: defaultHospitalCapacityForUSA, vaccine: "low", response: "elimination" },
           },
         ],
       });
