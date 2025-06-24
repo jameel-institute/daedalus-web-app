@@ -66,8 +66,19 @@
               :is-clearable="false"
               @option-selected="handleChange(parameter)"
             >
+              <template #value="{ option }">
+                <span
+                  v-if="countryFlagIds?.[option.value]"
+                  :class="`fi fi-${countryFlagIds[option.value]} ms-1 me-2`"
+                />
+                {{ option.label }}
+              </template>
               <template #option="{ option }">
                 <div class="parameter-option">
+                  <span
+                    v-if="countryFlagIds?.[option.value]"
+                    :class="`fi fi-${countryFlagIds[option.value]} mx-2`"
+                  />
                   <span>{{ option.label }}</span>
                   <div
                     v-if="option.description"
@@ -159,6 +170,7 @@ import { CIcon } from "@coreui/icons-vue";
 import VueSelect from "vue3-select-component";
 import ParameterHeader from "~/components/ParameterHeader.vue";
 import { paramOptsToSelectOpts } from "~/components/utils/parameters";
+import { countryFlagIconId } from "./utils/countryFlag";
 
 const props = defineProps<{
   inModal: boolean
@@ -171,6 +183,13 @@ const showValidations = ref(false);
 const mounted = ref(false);
 
 const paramMetadata = computed(() => appStore.metadata?.parameters);
+
+const countryFlagIds = computed(() => {
+  return appStore.globeParameter?.options?.reduce((acc, option) => {
+    acc[option.id] = countryFlagIconId(option.id) || "";
+    return acc;
+  }, {} as { [key: string]: string });
+});
 
 const initialiseFormDataFromDefaults = () => {
   return paramMetadata.value?.reduce((acc, { id, defaultOption, options, updateNumericFrom }) => {

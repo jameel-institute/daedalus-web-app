@@ -21,6 +21,10 @@
     >
       <template #option="{ option }">
         <div class="parameter-option">
+          <span
+            v-if="countryFlagIds[option.value]"
+            :class="`fi fi-${countryFlagIds[option.value]} mx-2`"
+          />
           <span>{{ option.label }}</span>
           <div
             v-if="option.description"
@@ -44,7 +48,8 @@
 import VueSelect from "vue3-select-component";
 import type { Parameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
-import { sortOptions } from "./utils/parameters";
+import { sortOptions } from "~/components/utils/parameters";
+import { countryFlagIconId } from "~/components/utils/countryFlag";
 
 const { showFeedback, parameterAxis, labelId } = defineProps<{
   showFeedback: boolean
@@ -62,6 +67,7 @@ const selected = defineModel("selected", {
 
 const { nonBaselineSelectOptions } = useScenarioOptions(() => parameterAxis);
 const { feedback } = useComparisonValidation(selected);
+const appStore = useAppStore();
 
 const VALUE_CONTAINER_SELECTOR = ".value-container.multi";
 const SEARCH_INPUT_SELECTOR = "input.search-input";
@@ -73,6 +79,17 @@ const searchInput = computed(() => vueSelectControl.value?.querySelector<HTMLInp
 
 const allScenariosSelected = computed(() => {
   return selected.value.length === nonBaselineSelectOptions.value.length;
+});
+
+const countryFlagIds = computed(() => {
+  if (parameterAxis !== appStore.globeParameter) {
+    return {};
+  }
+
+  return nonBaselineSelectOptions.value.reduce((acc, option) => {
+    acc[option.value] = countryFlagIconId(option.value) || "";
+    return acc;
+  }, {} as { [key: string]: string });
 });
 
 watch(allScenariosSelected, (newValue) => {
