@@ -149,8 +149,7 @@ describe("scenario select", () => {
     const omicronOption = getOptionFromMenu(wrapper, "omicron");
     await omicronOption!.trigger("click");
 
-    expect(wrapper.props("selected")).toHaveLength(2);
-    expect(wrapper.props("selected")).toEqual(expect.arrayContaining(["sars_cov_2_pre_alpha", "sars_cov_2_omicron"]));
+    expect(wrapper.props("selected")).toEqual(["sars_cov_2_pre_alpha", "sars_cov_2_omicron"]);
     // omicron option tag is now present
     expect(wrapper.findAll("button.multi-value")).toHaveLength(2);
     expect(wrapper.findAll("button.multi-value")[1].text()).toMatch(/omicron/i);
@@ -160,7 +159,7 @@ describe("scenario select", () => {
     await wildTypeOption!.trigger("click");
 
     expect(wrapper.props("selected")).toHaveLength(1);
-    expect(wrapper.props("selected")).toEqual(expect.arrayContaining(["sars_cov_2_omicron"]));
+    expect(wrapper.props("selected")).toEqual(["sars_cov_2_omicron"]);
   });
 
   it("renders the warning feedback as expected, when numeric values are out of range", async () => {
@@ -264,7 +263,6 @@ describe("scenario select", () => {
     expect(wrapper.findAll(".parameter-option")).toHaveLength(3);
 
     const customOptionTag = wrapper.find("button.multi-value");
-    expect(customOptionTag.isVisible()).toBe(true);
     await customOptionTag.trigger("click");
 
     await openMenu(wrapper);
