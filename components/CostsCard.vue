@@ -48,12 +48,12 @@
             </span>
           </p>
         </div>
-        <div class="ms-auto me-2 d-flex align-items-center">
-          <CFormSwitch
-            id="unitSwitch"
-            v-model="basisIsGdp"
-            label="Show losses as % of GDP"
-          />
+        <div class="me-2 ms-auto gap-3 align-self-end d-flex">
+          <CFormLabel>Show losses:</CFormLabel>
+          <div>
+            <CFormCheck id="costBasisGdp" v-model="costBasis" :inline="!appStore.xlScreen" type="radio" label="as % of GDP" :value="CostBasis.PercentGDP" />
+            <CFormCheck id="costBasisUsd" v-model="costBasis" :inline="!appStore.xlScreen" type="radio" label="in USD" :value="CostBasis.USD" />
+          </div>
         </div>
       </div>
       <div class="chart-and-table-container">
@@ -78,13 +78,6 @@ import { CostBasis } from "~/types/unitTypes";
 const appStore = useAppStore();
 const costBasis = ref<CostBasis>(CostBasis.USD);
 
-const basisIsGdp = computed({
-  get: () => costBasis.value === CostBasis.PercentGDP,
-  set: (value: boolean) => {
-    costBasis.value = value ? CostBasis.PercentGDP : CostBasis.USD;
-  },
-});
-
 // Display the 'headline' total cost in terms of a percentage of annual national GDP
 const gdpTotalCostPercent = computed(() => {
   const totalAsPercentOfGdp = costAsPercentOfGdp(appStore.totalCost?.value, appStore.currentScenario.result.data?.gdp);
@@ -106,101 +99,105 @@ const totalCostAbbr = computed(() => {
 // When adjusting or testing layout, use the widest possible values for the costs: 555.5% of GDP and 555.5 M USD.
 .costs-card {
   color: var(--cui-dark-text-emphasis);
+}
 
-  .vsl-display {
-    font-size: $font-size-sm;
-  }
-  .card-body {
-    display: flex;
-    flex-direction: column;
-  }
-  .chart-and-table-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  .chart-and-table-container > :nth-child(2) {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
+:deep(.form-check-label) {
+  margin-bottom: 0;
+}
+
+.vsl-display {
+  font-size: $font-size-sm;
+}
+.card-body {
+  display: flex;
+  flex-direction: column;
+}
+.chart-and-table-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.chart-and-table-container > :nth-child(2) {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.card-header {
+  height: 46.375px; // Hard-coded to match the height of the time series card header
+  border-bottom: var(--cui-border-width) solid var(--cui-border-color);
+}
+
+#totalHeading {
+  height: fit-content;
+  letter-spacing: 0.08rem;
+  font-weight: normal;
+  text-transform: uppercase;
+  text-decoration: underline dotted gray from-font;
+  text-underline-offset: 0.1em;
+}
+
+#gdpContainer,
+#usdContainer {
+  width: fit-content;
+}
+
+#gdpContainer {
+  line-height: 1;
+
+  #gdpTotalCostPercent {
+    width: unset;
+    font-weight: 200;
+    font-size: 5rem;
   }
 
-  .card-header {
-    height: 46.375px; // Hard-coded to match the height of the time series card header
-    border-bottom: var(--cui-border-width) solid var(--cui-border-color);
-  }
+  #gdpTotalCostPercentSymbolContainer {
+    align-self: flex-end;
+    margin-bottom: 1.7rem;
 
-  #totalHeading {
-    height: fit-content;
-    letter-spacing: 0.08rem;
-    font-weight: normal;
-    text-transform: uppercase;
-    text-decoration: underline dotted gray from-font;
-    text-underline-offset: 0.1em;
-  }
-
-  #gdpContainer,
-  #usdContainer {
-    width: fit-content;
-  }
-
-  #gdpContainer {
-    line-height: 1;
-
-    #gdpTotalCostPercent {
-      width: unset;
-      font-weight: 200;
-      font-size: 5rem;
+    #gdpTotalCostPercentageSymbol {
+      font-size: 3rem;
     }
 
-    #gdpTotalCostPercentSymbolContainer {
-      align-self: flex-end;
-      margin-bottom: 1.7rem;
-
-      #gdpTotalCostPercentageSymbol {
-        font-size: 3rem;
-      }
-
-      #gdpTotalCostPercentReferent {
-        min-width: 3.5rem;
-        font-weight: normal;
-        font-size: smaller;
-      }
-    }
-  }
-
-  #usdContainer {
-    line-height: 1;
-    margin-top: 1.2rem;
-
-    #usdSymbol {
-      font-size: 2rem;
-      margin-bottom: 0;
-      text-align: center;
-    }
-
-    #usdWord {
-      margin-top: 0;
-      font-weight: normal !important;
+    #gdpTotalCostPercentReferent {
+      min-width: 3.5rem;
+      font-weight: normal;
       font-size: smaller;
     }
+  }
+}
 
-    #currency {
-      display: inline-block;
-      text-align: right;
-    }
+#usdContainer {
+  line-height: 1;
+  margin-top: 1.2rem;
 
-    #usdTotalCost {
-      font-size: 3.5rem;
-      font-weight: 300;
-    }
+  #usdSymbol {
+    font-size: 2rem;
+    margin-bottom: 0;
+    text-align: center;
+  }
 
-    #totalCostUnit {
-      font-size: smaller;
-      font-weight: 300;
-    }
+  #usdWord {
+    margin-top: 0;
+    font-weight: normal !important;
+    font-size: smaller;
+  }
+
+  #currency {
+    display: inline-block;
+    text-align: right;
+  }
+
+  #usdTotalCost {
+    font-size: 3.5rem;
+    font-weight: 300;
+  }
+
+  #totalCostUnit {
+    font-size: smaller;
+    font-weight: 300;
   }
 }
 </style>

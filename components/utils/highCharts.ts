@@ -120,7 +120,7 @@ const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis:
 export const costsChartTooltipText = (context: unknown, costBasis: CostBasis, nationalGdp: number) => {
   const tooltipPointInstance = context as TooltipPointInstance;
 
-  let headerText = `${tooltipPointInstance.category} losses: `;
+  let headerText = `${tooltipPointInstance.point?.category} losses: `;
   if (costBasis === CostBasis.PercentGDP) {
     const percentOfGdp = humanReadablePercentOfGdp(tooltipPointInstance.total);
     headerText = `${headerText}<b>${percentOfGdp.percent}%</b> ${percentOfGdp.reference}`;
