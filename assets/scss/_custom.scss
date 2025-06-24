@@ -24,6 +24,10 @@
   }
 }
 
+.fi {
+  width: 1rem;
+}
+
 // Global customization 'Vue 3 Select Component', overriding styles applied to :root pseudoclass.
 :root body {
   --vs-font-size: 1.25rem;

@@ -18,6 +18,7 @@
             >
               <template #toggler="{ id, on }">
                 <span
+                  class="d-flex"
                   :aria-describedby="id"
                   v-on="on"
                 >
@@ -25,7 +26,10 @@
                   <span class="ms-1">
                     {{ paramDisplayText(parameter) }}
                   </span>
-                  <CIcon v-if="parameter.id === appStore.globeParameter?.id && countryFlagIcon" :icon="countryFlagIcon" class="parameter-icon ms-1" />
+                  <span
+                    v-if="parameter === appStore.globeParameter && countryFlag"
+                    :class="`fi fi-${countryFlag} ms-1 align-self-center mb-1`"
+                  />
                 </span>
               </template>
             </CTooltip>
@@ -42,10 +46,9 @@
 </template>
 
 <script setup lang="ts">
-import { CIcon } from "@coreui/icons-vue";
-import getCountryISO2 from "country-iso-3-to-2";
 import type { Parameter } from "~/types/parameterTypes";
 import { humanReadableInteger } from "./utils/formatters";
+import { countryFlagIconId } from "./utils/countryFlag";
 
 const appStore = useAppStore();
 
@@ -64,10 +67,5 @@ const paramDisplayText = (param: Parameter) => {
   }
 };
 
-const countryFlagIcon = computed(() => {
-  const countryISO3 = appStore.currentScenario?.parameters?.country;
-  const countryISO2 = getCountryISO2(countryISO3);
-  const titleCaseISO2 = countryISO2?.toLowerCase().replace(/^(.)/, match => match.toUpperCase());
-  return countryISO2 ? `cif${titleCaseISO2}` : "";
-});
+const countryFlag = computed(() => countryFlagIconId(appStore.currentScenario?.parameters?.country));
 </script>

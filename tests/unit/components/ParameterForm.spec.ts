@@ -17,6 +17,10 @@ const { mockNavigateTo } = vi.hoisted(() => ({
 }));
 mockNuxtImport("navigateTo", () => mockNavigateTo);
 
+vi.mock("~/components/utils/countryFlag", () => ({
+  countryFlagIconId: vi.fn(() => "gb"),
+}));
+
 const scenarioWithParameters = {
   ...emptyScenario,
   parameters: {
@@ -138,6 +142,7 @@ describe("parameter form", () => {
       { value: "HVN", label: "Heaven", description: "" },
     ]);
     expect(vueSelects[1].props("modelValue")).toBe("CLD");
+    expect(vueSelects[1].find(".single-value span.fi").classes()).toContain("fi-gb");
 
     const numericInput = component.find("input[type='number']");
     expect(numericInput.element.value).toBe("25000");
