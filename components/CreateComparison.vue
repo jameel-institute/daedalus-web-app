@@ -73,11 +73,10 @@
               :parameter-axis="chosenParameterAxis"
               :label-id="FORM_LABEL_ID"
             />
-            <!-- TODO - this button looks maybe small when screen is not large -->
             <CButton
               id="run-button"
               color="primary"
-              :size="appStore.largeScreen ? 'lg' : 'undefined'"
+              size="lg"
               type="submit"
               :disabled="formSubmitting"
               class="ms-auto align-self-start"

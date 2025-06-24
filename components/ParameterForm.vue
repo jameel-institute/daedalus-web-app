@@ -268,10 +268,8 @@ const warningFields = computed(() => {
   return paramMetadata.value?.filter(p => numericValueIsOutOfRange(formData.value?.[p.id], p, formData.value)).map(p => p.id);
 });
 
-const showFeedback = (param: Parameter) => {
-  return !!(warningFields.value?.includes(param.id) && showWarnings.value)
-    || !!(invalidFields.value?.includes(param.id) && showValidations.value);
-};
+const showFeedback = (param: Parameter) => !!(warningFields.value?.includes(param.id) && showWarnings.value)
+  || !!(invalidFields.value?.includes(param.id) && showValidations.value);
 
 // Since some defaults depend on the values of other fields, this function should not be used to initialize form values.
 const defaultValue = (param: Parameter) => {
