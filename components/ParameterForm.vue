@@ -295,7 +295,7 @@ const resetParam = (param: Parameter) => {
 
 const numericParameterFeedback = (param: Parameter) => {
   if (param.updateNumericFrom) {
-    const dependedUponParam = paramMetadata.value?.find(p => p.id === param.updateNumericFrom?.parameterId);
+    const dependedUponParam = appStore.parametersMetadataById[param.updateNumericFrom?.parameterId];
     const range = dependentRange(param);
 
     if (dependedUponParam && range) {
@@ -323,7 +323,7 @@ const handleChange = (param: Parameter) => {
   parameterDependencies.value[param.id].forEach((dependentParamId: string) => {
     pulse(dependentParamId);
 
-    const dependentParameter = paramMetadata.value!.find(param => param.id === dependentParamId)!;
+    const dependentParameter = appStore.parametersMetadataById[dependentParamId];
     const newValueForDependentParam = defaultValue(dependentParameter);
     if (newValueForDependentParam) {
       formData.value![dependentParamId] = newValueForDependentParam;

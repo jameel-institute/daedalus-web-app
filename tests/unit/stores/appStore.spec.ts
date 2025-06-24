@@ -9,6 +9,7 @@ import { registerEndpoint } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 import { createPinia, setActivePinia } from "pinia";
 import { runStatus } from "~/types/apiResponseTypes";
+import { TypeOfParameter } from "~/types/parameterTypes";
 
 const sampleUnloadedScenario = {
   ...emptyScenario,
@@ -27,8 +28,22 @@ registerEndpoint("/api/versions", () => {
 
 const metadata = {
   parameters: [
-    { id: "country", parameterType: "globeSelect" },
-    { id: "settings", parameterType: "select" },
+    { id: "country", parameterType: TypeOfParameter.GlobeSelect },
+    { id: "vaccine", parameterType: TypeOfParameter.Select },
+    {
+      id: "hospital_capacity",
+      parameterType: TypeOfParameter.Numeric,
+      updateNumericFrom: {
+        parameterId: "country",
+        values: {
+          USA: {
+            min: 30400,
+            default: 33800,
+            max: 44000,
+          },
+        },
+      },
+    },
   ],
   results: {
     costs: [{ id: "total", label: "Total" }],
@@ -251,6 +266,40 @@ describe("app store", () => {
     });
 
     describe("getters", () => {
+      it("can provide a map of parameter id to parameter metadata, for easier look-up", async () => {
+        const store = useAppStore();
+        expect(store.parametersMetadataById).toEqual({});
+
+        await store.loadMetadata();
+
+        await waitFor(() => {
+          expect(store.parametersMetadataById).toEqual({
+            country: {
+              id: "country",
+              parameterType: "globeSelect",
+            },
+            hospital_capacity: {
+              id: "hospital_capacity",
+              parameterType: "numeric",
+              updateNumericFrom: {
+                parameterId: "country",
+                values: {
+                  USA: {
+                    default: 33800,
+                    max: 44000,
+                    min: 30400,
+                  },
+                },
+              },
+            },
+            vaccine: {
+              id: "vaccine",
+              parameterType: "select",
+            },
+          });
+        });
+      });
+
       it("can get the globe parameter", async () => {
         const store = useAppStore();
         expect(store.globeParameter).toEqual(undefined);

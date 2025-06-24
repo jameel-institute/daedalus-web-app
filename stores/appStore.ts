@@ -48,6 +48,9 @@ export const useAppStore = defineStore("app", {
     currentComparison: emptyComparison,
   }),
   getters: {
+    parametersMetadataById: (state): Record<string, Parameter> => {
+      return Object.fromEntries(state.metadata?.parameters?.map(param => [param.id, param]) || []);
+    },
     globeParameter: (state): Parameter | undefined => state.metadata?.parameters.find(param => param.parameterType === TypeOfParameter.GlobeSelect),
     timeSeriesData: (state): Record<string, number[]> | undefined => state.currentScenario.result.data?.time_series,
     capacitiesData: (state): Array<ScenarioCapacity> | undefined => state.currentScenario.result.data?.capacities,
