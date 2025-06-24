@@ -588,6 +588,21 @@ describe("app store", () => {
     });
 
     describe("getters", () => {
+      it("can provide a map of parameter id to parameter metadata, for easier look-up", async () => {
+        const store = useAppStore();
+        expect(store.parametersMetadataById).toEqual({});
+
+        await store.loadMetadata();
+
+        await waitFor(() => {
+          expect(store.parametersMetadataById).toHaveProperty("country");
+          expect(store.parametersMetadataById).toHaveProperty("hospital_capacity");
+          expect(store.parametersMetadataById).toHaveProperty("vaccine");
+          expect(store.parametersMetadataById).toHaveProperty("response");
+          expect(store.parametersMetadataById.country.parameterType).toEqual("globeSelect");
+        });
+      });
+
       it("can get the globe parameter", async () => {
         const store = useAppStore();
         expect(store.globeParameter).toEqual(undefined);

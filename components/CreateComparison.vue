@@ -133,23 +133,17 @@ const formSubmitting = ref(false);
 // Visible feedback will be shown on submitting an invalid form, and cleared when options are changed
 const showFormValidationFeedback = ref(false);
 
-const chosenParameterAxis = computed(() => appStore.metadata?.parameters.find(p => p.id === chosenAxisId.value));
+const chosenParameterAxis = computed(() => appStore.parametersMetadataById[chosenAxisId.value]);
 const baselineParameters = computed(() => appStore.currentScenario.parameters);
 
 const paramsDependingOnAxis = computed(() => appStore.metadata?.parameters.filter((param) => {
   return param.updateNumericFrom?.parameterId === chosenAxisId.value;
 }));
 
-const dependentParamsNotAtDefaultValues = computed(() => {
-  const paramsDependingOnAxis = appStore.metadata?.parameters.filter((param) => {
-    return param.updateNumericFrom?.parameterId === chosenAxisId.value;
-  });
-
-  return paramsDependingOnAxis?.filter((param) => {
-    const range = getRangeForDependentParam(param, baselineParameters.value);
-    return range && baselineParameters.value && baselineParameters.value[param.id] !== range.default.toString();
-  });
-});
+const dependentParamsNotAtDefaultValues = computed(() => paramsDependingOnAxis.value?.filter((param) => {
+  const range = getRangeForDependentParam(param, baselineParameters.value);
+  return range && baselineParameters.value && baselineParameters.value[param.id] !== range.default.toString();
+}));
 
 const { baselineOption, predefinedOptions } = useScenarioOptions(chosenParameterAxis);
 const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions, chosenParameterAxis);
