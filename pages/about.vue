@@ -208,6 +208,6 @@
 
 <script setup lang="ts">
 const appStore = useAppStore();
-const numberOfPandemics = appStore.metadata?.parameters.find(p => p.id === "pathogen")?.options?.length;
-const numberOfCountries = appStore.metadata?.parameters.find(p => p.id === "country")?.options?.length;
+const numberOfPandemics = appStore.parametersMetadataById.pathogen?.options?.length;
+const numberOfCountries = appStore.parametersMetadataById.country?.options?.length;
 </script>

@@ -5,6 +5,7 @@ import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
 import { parameterLabels, scenarioPathMatcher } from "./helpers/constants";
 
 const baselinePathogenOption = "SARS 2004";
+const defaultHospitalCapacityForUSA = "334400";
 
 test.beforeAll(async () => {
   checkRApiServer();
@@ -69,7 +70,7 @@ test("Can compare multiple scenarios", async ({ page, baseURL }) => {
   await expect(page.getByText("elimination")).toHaveCount(3);
   await expect(page.getByText("USA")).toHaveCount(3);
   await expect(page.getByText("medium")).toHaveCount(3);
-  await expect(page.getByText("305000")).toHaveCount(3);
+  await expect(page.getByText(defaultHospitalCapacityForUSA)).toHaveCount(3);
 });
 
 test("Can compare multiple scenarios by following a link", async ({ page, baseURL }) => {
@@ -91,5 +92,5 @@ test("Can compare multiple scenarios by following a link", async ({ page, baseUR
   await expect(page.getByText("elimination")).toHaveCount(3);
   await expect(page.getByText("USA")).toHaveCount(3);
   await expect(page.getByText("medium")).toHaveCount(3);
-  await expect(page.getByText("305000")).toHaveCount(3);
+  await expect(page.getByText(defaultHospitalCapacityForUSA)).toHaveCount(3);
 });

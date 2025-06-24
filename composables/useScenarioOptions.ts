@@ -23,8 +23,7 @@ export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
     const dependedOnParamId = axis.value?.updateNumericFrom?.parameterId;
     const dependedOnParamValue = dependedOnParamId ? appStore.currentScenario.parameters?.[dependedOnParamId] : undefined;
     if (dependedOnParamId && dependedOnParamValue && appStore.metadata?.parameters) {
-      return appStore.metadata?.parameters
-        .find(p => p.id === dependedOnParamId)
+      return appStore.parametersMetadataById[dependedOnParamId]
         ?.options
         ?.find(o => o.id === dependedOnParamValue)
         ?.label;
