@@ -1,7 +1,7 @@
 import { type Parameter, type ParameterSet, TypeOfParameter } from "~/types/parameterTypes";
 import { getRangeForDependentParam } from "./parameters";
 
-// Given a numeric parameter where the ValueData is dependent on another parameter's value,
+// Given a numeric parameter where the RangeData is dependent on another parameter's value,
 // and the current values for each parameter (which could be data in a form, or a current scenario),
 // check whether the numeric value is out of the range defined by the metadata.
 export const numericValueIsOutOfRange = (
