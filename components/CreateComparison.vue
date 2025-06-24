@@ -98,7 +98,7 @@
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import type { Parameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
-import { numericValueIsOutOfRange } from "~/components/utils/parameters";
+import { numericValueIsOutOfRange } from "~/components/utils/validations";
 
 const appStore = useAppStore();
 const FORM_LABEL_ID = "scenarioOptions";
