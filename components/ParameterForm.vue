@@ -170,7 +170,7 @@ import { CIcon } from "@coreui/icons-vue";
 import VueSelect from "vue3-select-component";
 import ParameterHeader from "~/components/ParameterHeader.vue";
 import { paramOptsToSelectOpts } from "~/components/utils/parameters";
-import { countryFlagIconId } from "./utils/countryFlag";
+import { countryFlagIconId } from "~/components/utils/countryFlag";
 
 const props = defineProps<{
   inModal: boolean
