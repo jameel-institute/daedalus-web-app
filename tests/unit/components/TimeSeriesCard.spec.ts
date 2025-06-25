@@ -28,37 +28,43 @@ const mockReset = vi.fn();
 const mockOnContainerMouseLeave = vi.fn();
 const mockOnMouseOver = vi.fn();
 
-vi.mock("highcharts", async (importOriginal) => {
+vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
   const actual = await importOriginal();
 
   return {
-    getOptions: actual.getOptions,
-    chart: () => ({
-      destroy: vi.fn(),
-      setSize: vi.fn(),
-      showResetZoom: vi.fn(),
-      index: 0,
-    }),
-    charts: [{
-      pointer: {
-        reset: vi.fn(() => mockReset()),
-        onContainerMouseLeave: vi.fn(() => mockOnContainerMouseLeave()),
-      },
-      hoverPoint: { x: 1, y: 99 },
-      series: [{
-        getValidPoints: () => [{
-          x: 1,
-          y: 2,
-          onMouseOver: vi.fn(() => mockOnMouseOver()),
+    default: {
+      getOptions: actual.default.getOptions,
+      chart: () => ({
+        destroy: vi.fn(),
+        setSize: vi.fn(),
+        showResetZoom: vi.fn(),
+        index: 0,
+      }),
+      charts: [{
+        pointer: {
+          reset: vi.fn(() => mockReset()),
+          onContainerMouseLeave: vi.fn(() => mockOnContainerMouseLeave()),
+        },
+        hoverPoint: { x: 1, y: 99 },
+        series: [{
+          getValidPoints: () => [{
+            x: 1,
+            y: 2,
+            onMouseOver: vi.fn(() => mockOnMouseOver()),
+          }],
         }],
       }],
-    }],
-    _modules: actual._modules,
-    win: actual.win,
-    wrap: actual.wrap,
-    Pointer: actual.Pointer,
+      _modules: actual.default._modules,
+      win: actual.default.win,
+      wrap: actual.default.wrap,
+      Pointer: actual.default.Pointer,
+    }
   };
 });
+vi.mock("highcharts/esm/modules/accessibility", () => ({}));
+vi.mock("highcharts/esm/modules/exporting", () => ({}));
+vi.mock("highcharts/esm/modules/export-data", () => ({}));
+vi.mock("highcharts/esm/modules/offline-exporting", () => ({}));
 
 describe("time series", () => {
   beforeEach(() => {

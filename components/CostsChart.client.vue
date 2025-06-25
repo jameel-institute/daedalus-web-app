@@ -7,20 +7,16 @@
 </template>
 
 <script lang="ts" setup>
-import * as Highcharts from "highcharts";
-import "highcharts/modules/accessibility";
-import "highcharts/modules/exporting";
-import "highcharts/modules/export-data";
-import "highcharts/modules/offline-exporting";
+import Highcharts from "highcharts/esm/highcharts";
+import "highcharts/esm/modules/accessibility";
+import "highcharts/esm/modules/exporting";
+import "highcharts/esm/modules/export-data";
+import "highcharts/esm/modules/offline-exporting";
 
 import throttle from "lodash.throttle";
 import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartLabelFormatter, costsChartStackLabelFormatter, costsChartTooltipText, getColorVariants, menuItemDefinitionOptions } from "./utils/highCharts";
 import { costAsPercentOfGdp, gdpReferenceYear } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
-
-const props = defineProps<{
-  basis: CostBasis
-}>();
 
 const appStore = useAppStore();
 let chart: Highcharts.Chart;
@@ -31,9 +27,8 @@ const chartParentEl = computed(() => chartContainer.value?.parentElement);
 // A range of colors per column, to be used for the breakdowns within each column.
 const columnColors = computed((): string[][] => {
   return appStore.totalCost?.children?.map((cost, i) => {
-    const columnBaseColor = colorBlindSafeColors[i].hex;
     const numberOfColorVariants = Math.max(cost.children?.length || 1);
-    return getColorVariants(columnBaseColor, numberOfColorVariants);
+    return getColorVariants(colorBlindSafeColors[i], numberOfColorVariants);
   }) || [[]];
 });
 
@@ -63,7 +58,7 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
         // If there is no Nth child for some cost, we still need to create a breakdown for the stack with a y-value of 0,
         // to ensure that any subsequent data points will belong to the correct column.
         const dollarValue = subCost?.value || 0;
-        const yValue = props.basis === CostBasis.PercentGDP
+        const yValue = appStore.preferences.costBasis === CostBasis.PercentGDP
           ? costAsPercentOfGdp(dollarValue, appStore.currentScenario.result.data?.gdp)
           : dollarValue;
 
@@ -87,7 +82,11 @@ const costLabels = computed(() =>
   appStore.totalCost?.children?.map(cost => appStore.getCostLabel(cost.id)) || []);
 
 const chartHeightPx = 400;
-const yAxisTitle = computed(() => props.basis === CostBasis.PercentGDP ? `Losses as % of ${gdpReferenceYear} national GDP` : "Losses in billions USD");
+const yAxisTitle = computed(() => {
+  return appStore.preferences.costBasis === CostBasis.PercentGDP
+    ? `Losses as % of ${gdpReferenceYear} national GDP`
+    : "Losses in billions USD";
+});
 
 const chartInitialOptions = () => {
   return {
@@ -144,13 +143,13 @@ const chartInitialOptions = () => {
       stackLabels: {
         enabled: true,
         formatter() {
-          return costsChartStackLabelFormatter(this.total, props.basis);
+          return costsChartStackLabelFormatter(this.total, appStore.preferences.costBasis);
         },
       },
       labels: {
         enabled: true,
         formatter() {
-          return costsChartLabelFormatter(this.value, props.basis);
+          return costsChartLabelFormatter(this.value, appStore.preferences.costBasis);
         },
       },
     },
@@ -160,9 +159,8 @@ const chartInitialOptions = () => {
     },
     tooltip: {
       shared: true,
-      distance: 128, // necessary for shared tooltips to not obscure stack labels or grand-child costs within a stack.
       formatter() {
-        return this.total ? costsChartTooltipText(this, props.basis, appStore.currentScenario.result.data!.gdp) : "";
+        return this.total ? costsChartTooltipText(this, appStore.preferences.costBasis, appStore.currentScenario.result.data!.gdp) : "";
       },
     },
     plotOptions: {
@@ -180,7 +178,7 @@ watch(() => chartContainer.value, () => {
   }
 });
 
-watch(() => props.basis, () => {
+watch(() => appStore.preferences.costBasis, () => {
   if (chart) {
     chart.update({
       yAxis: {

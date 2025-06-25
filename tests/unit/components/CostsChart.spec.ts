@@ -4,9 +4,10 @@ import CostsChart from "~/components/CostsChart.client.vue";
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
-import * as Highcharts from "highcharts";
+import Highcharts from "highcharts/esm/highcharts";
 import { mockResultResponseData } from "../mocks/mockResponseData";
 import { CostBasis } from "~/types/unitTypes";
+import { setActivePinia } from "pinia";
 
 const stubs = {
   CIcon: true,
@@ -31,14 +32,20 @@ const mockChart = {
   setSize: mockSetSize,
   update: mockUpdate,
 };
-vi.mock("highcharts", async (importOriginal) => {
+vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
   const actual = await importOriginal();
 
   return {
-    chart: () => mockChart,
-    getOptions: actual.getOptions,
+    default: {
+      chart: () => mockChart,
+      getOptions: actual.default.getOptions,
+    },
   };
 });
+vi.mock("highcharts/esm/modules/accessibility", () => ({}));
+vi.mock("highcharts/esm/modules/exporting", () => ({}));
+vi.mock("highcharts/esm/modules/export-data", () => ({}));
+vi.mock("highcharts/esm/modules/offline-exporting", () => ({}));
 
 const expectedPercentGDPSeries = [
   expect.objectContaining({
@@ -150,11 +157,10 @@ const expectedUSDSeries = [
   }),
 ];
 
-describe("costs pie", () => {
+describe("costs chart", () => {
   it("should render the costs chart container", async () => {
     const component = await mountSuspended(CostsChart, {
       global: { stubs, plugins: [mockPinia()] },
-      props: { basis: CostBasis.PercentGDP },
     });
 
     const container = component.find(`#costsChartContainer`);
@@ -169,9 +175,11 @@ describe("costs pie", () => {
         stubs,
         plugins: [mockPinia({
           currentScenario: scenarioWithCostData,
+          preferences: {
+            costBasis: CostBasis.PercentGDP,
+          },
         }, true, { stubActions: false })],
       },
-      props: { basis: CostBasis.PercentGDP },
     });
 
     await waitFor(() => {
@@ -212,9 +220,11 @@ describe("costs pie", () => {
         stubs,
         plugins: [mockPinia({
           currentScenario: scenarioWithCostData,
+          preferences: {
+            costBasis: CostBasis.USD,
+          },
         }, true, { stubActions: false })],
       },
-      props: { basis: CostBasis.USD },
     });
 
     await waitFor(() => {
@@ -248,17 +258,19 @@ describe("costs pie", () => {
   });
 
   it("should update the chart with the correct options and data when changing cost basis from USD to GDP percent", async () => {
-    const component = await mountSuspended(CostsChart, {
-      global: {
-        stubs,
-        plugins: [mockPinia({
-          currentScenario: scenarioWithCostData,
-        }, true, { stubActions: false })],
+    const pinia = mockPinia({
+      currentScenario: scenarioWithCostData,
+      preferences: {
+        costBasis: CostBasis.USD,
       },
-      props: { basis: CostBasis.USD },
-    });
+    }, true, { stubActions: false });
+    setActivePinia(pinia);
 
-    await component.setProps({ basis: CostBasis.PercentGDP });
+    const appStore = useAppStore(pinia);
+
+    await mountSuspended(CostsChart, { global: { stubs, plugins: [pinia] } });
+
+    appStore.preferences.costBasis = CostBasis.PercentGDP;
 
     await waitFor(() => {
       expect(mockUpdate).toHaveBeenCalledWith(
@@ -275,17 +287,19 @@ describe("costs pie", () => {
   });
 
   it("should update the chart with the correct options and data when changing cost basis from GDP percent to USD", async () => {
-    const component = await mountSuspended(CostsChart, {
-      global: {
-        stubs,
-        plugins: [mockPinia({
-          currentScenario: scenarioWithCostData,
-        }, true, { stubActions: false })],
+    const pinia = mockPinia({
+      currentScenario: scenarioWithCostData,
+      preferences: {
+        costBasis: CostBasis.PercentGDP,
       },
-      props: { basis: CostBasis.PercentGDP },
-    });
+    }, true, { stubActions: false });
+    setActivePinia(pinia);
 
-    await component.setProps({ basis: CostBasis.USD });
+    const appStore = useAppStore(pinia);
+
+    await mountSuspended(CostsChart, { global: { stubs, plugins: [pinia] } });
+
+    appStore.preferences.costBasis = CostBasis.USD;
 
     await waitFor(() => {
       expect(mockUpdate).toHaveBeenCalledWith(
@@ -304,7 +318,6 @@ describe("costs pie", () => {
   it("should destroy the chart when the component is unmounted", async () => {
     const component = await mountSuspended(CostsChart, {
       global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithCostData })] },
-      props: { basis: CostBasis.USD },
     });
 
     component.unmount();
@@ -317,7 +330,6 @@ describe("costs pie", () => {
 
     const component = await mountSuspended(CostsChart, {
       global: { stubs, plugins: [mockPinia()] },
-      props: { basis: CostBasis.PercentGDP },
     });
 
     expect(addEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));

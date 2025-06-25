@@ -1,45 +1,47 @@
-import { abbreviateMillionsDollars } from "#imports";
-import hexRgb from "hex-rgb";
-import * as Highcharts from "highcharts";
-import { costAsPercentOfGdp, humanReadablePercentOfGdp } from "./formatters";
+import Highcharts from "highcharts/esm/highcharts";
+import convert, { type HSL } from "color-convert";
+import { abbreviateMillionsDollars } from "~/utils/money";
+import { costAsPercentOfGdp, humanReadablePercentOfGdp } from "~/components/utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
-import type { ExportingButtonsOptionsObject, ExportingMenuObject } from "highcharts";
 
 const originalHighchartsColors = Highcharts.getOptions().colors!;
-const colorRgba = hexRgb(originalHighchartsColors[0] as string);
-colorRgba.alpha = 0.3;
-export const plotBandsColor = `rgba(${Object.values(colorRgba).join(",")})`;
+const colorRgb = convert.hex.rgb(originalHighchartsColors[0] as string);
+const colorRgbAlpha = 0.3;
+export const plotBandsColor = `rgba(${colorRgb[0]},${colorRgb[1]},${colorRgb[2]},${colorRgbAlpha})`; // light blue
 export const plotLinesColor = "#FF0000"; // red;
 export const timeSeriesColors = originalHighchartsColors!.slice(1);
 
+export interface colorRgbHsl {
+  name: string
+  rgb: string
+  hsl: HSL
+}
 // Colours from Bang Wong palette, see https://davidmathlogic.com/colorblind
-export const colorBlindSafeColors = [
-  { name: "Vermillion", hex: "#d55e00" },
-  { name: "Bluish green", hex: "#009e73" },
-  { name: "Sky blue", hex: "#56b4e9" },
+// RGB values derived from the Wong 2011 source https://www.nature.com/articles/nmeth.1618
+export const colorBlindSafeColors: colorRgbHsl[] = [
+  { name: "Vermillion", rgb: "rgb(213,94,0)", hsl: convert.rgb.hsl(213, 94, 0) }, // hsl: [26, 100, 42]
+  { name: "Bluish green", rgb: "rgb(0,158,115)", hsl: convert.rgb.hsl(0, 158, 115) }, // hsl: [164, 100, 31]
+  { name: "Sky blue", rgb: "rgb(86,180,233)", hsl: convert.rgb.hsl(86, 180, 233) }, // hsl: [202, 77, 63]
 ];
 
-// Create a range of N colors varying in brightness
+// Create a range of N colors varying in lightness.
 // NB This won't work well with colors that are already very light or very dark.
-export const getColorVariants = (colorHex: string, numberOfVariants: number) => {
-  const rgb = hexRgb(colorHex);
-  const colors = [];
-  const minBrightness = 0.75; // 75% brightness
-  const maxBrightness = 1.25; // 125% brightness
-  for (let i = 0; i < numberOfVariants; i++) {
-    const factor = i / (numberOfVariants - 1);
-    const brightness = minBrightness + (maxBrightness - minBrightness) * factor;
-    let r = Math.round(rgb.red * brightness);
-    let g = Math.round(rgb.green * brightness);
-    let b = Math.round(rgb.blue * brightness);
-    r = Math.max(0, Math.min(255, r));
-    g = Math.max(0, Math.min(255, g));
-    b = Math.max(0, Math.min(255, b));
-    const newColor = `rgba(${r},${g},${b},${rgb.alpha})`;
-    colors.push(newColor);
-  }
-  return colors.reverse();
-};
+export const getColorVariants = (
+  color: colorRgbHsl,
+  numberOfVariants: number,
+  fromLightnessFactor: number = 0.75,
+  toLightnessFactor: number = 1.25,
+  opacity: number = 1,
+): string[] =>
+  Array.from({ length: numberOfVariants }, (_, i) => {
+    // Get a factor between e.g. 0.75 and 1.25
+    const factor = fromLightnessFactor + (toLightnessFactor - fromLightnessFactor) * (i / (numberOfVariants - 1));
+    const originalLightness = color.hsl[2];
+    const newLightness = Math.max(0, Math.min(100, originalLightness * factor));
+    const newHsl: HSL = [color.hsl[0], color.hsl[1], newLightness];
+    const rgb = convert.hsl.rgb(newHsl);
+    return `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${opacity})`;
+  }).reverse();
 
 export interface LegendItem {
   color: string
@@ -63,7 +65,7 @@ export const contextButtonOptions = {
   // Omit 'printChart' and 'viewData' from menu items
   menuItems: ["downloadCSV", "downloadXLS", "separator", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG", "separator", "viewFullscreen"],
   useHTML: true,
-} as ExportingButtonsOptionsObject;
+} as Highcharts.ExportingButtonsOptionsObject;
 
 export const menuItemDefinitionOptions = {
   downloadCSV: {
@@ -72,7 +74,7 @@ export const menuItemDefinitionOptions = {
   downloadXLS: {
     text: "Download XLS for this chart",
   },
-} as Highcharts.Dictionary<ExportingMenuObject>;
+} as Highcharts.Dictionary<Highcharts.ExportingMenuObject>;
 
 export const chartBackgroundColorOnExporting = "white";
 const chartBackgroundColor = "transparent";
@@ -120,7 +122,7 @@ const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis:
 export const costsChartTooltipText = (context: unknown, costBasis: CostBasis, nationalGdp: number) => {
   const tooltipPointInstance = context as TooltipPointInstance;
 
-  let headerText = `${tooltipPointInstance.category} losses: `;
+  let headerText = `${tooltipPointInstance.point?.category} losses: `;
   if (costBasis === CostBasis.PercentGDP) {
     const percentOfGdp = humanReadablePercentOfGdp(tooltipPointInstance.total);
     headerText = `${headerText}<b>${percentOfGdp.percent}%</b> ${percentOfGdp.reference}`;

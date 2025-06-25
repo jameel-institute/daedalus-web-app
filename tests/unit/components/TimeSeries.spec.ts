@@ -6,7 +6,7 @@ import {
 } from "@/tests/unit/mocks/mockPinia";
 import { mockResultResponseData } from "@/tests/unit/mocks/mockResponseData";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import * as Highcharts from "highcharts";
+import Highcharts from "highcharts/esm/highcharts";
 import TimeSeries from "~/components/TimeSeries.client.vue";
 
 const timeSeriesId = mockedMetadata.results.time_series[1].id; // hospitalized
@@ -40,23 +40,30 @@ const props = {
 
 const mockSetSize = vi.fn();
 const mockDestroy = vi.fn();
-vi.mock("highcharts", async (importOriginal) => {
+
+vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
   const actual = await importOriginal();
 
   return {
-    getOptions: actual.getOptions,
-    chart: () => ({
-      destroy: mockDestroy,
-      setSize: mockSetSize,
-      showResetZoom: vi.fn(),
-    }),
-    charts: actual.charts,
-    _modules: actual._modules,
-    win: actual.win,
-    wrap: actual.wrap,
-    Pointer: actual.Pointer,
+    default: {
+      getOptions: actual.default.getOptions,
+      chart: () => ({
+        destroy: mockDestroy,
+        setSize: mockSetSize,
+        showResetZoom: vi.fn(),
+      }),
+      charts: actual.default.charts,
+      _modules: actual.default._modules,
+      win: actual.default.win,
+      wrap: actual.default.wrap,
+      Pointer: actual.default.Pointer,
+    },
   };
 });
+vi.mock("highcharts/esm/modules/accessibility", () => ({}));
+vi.mock("highcharts/esm/modules/exporting", () => ({}));
+vi.mock("highcharts/esm/modules/export-data", () => ({}));
+vi.mock("highcharts/esm/modules/offline-exporting", () => ({}));
 
 describe("time series", () => {
   afterAll(() => {

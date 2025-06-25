@@ -123,7 +123,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   expect(costsChartDataUsd[3].data.map((dataPoint: any) => dataPoint.y)).toEqual([0, 0, 3903636.132]);
 
   // Check that after toggling the cost basis we see different data.
-  await page.getByLabel("Show losses as % of GDP").check();
+  await page.getByLabel("as % of 2018 GDP").check();
   const costsChartDataGdpStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
   const costsChartDataGdp = JSON.parse(costsChartDataGdpStr!);
   expect(costsChartDataGdp).toHaveLength(4);
