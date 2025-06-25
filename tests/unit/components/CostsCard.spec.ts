@@ -4,11 +4,12 @@ import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { mockResultResponseData } from "../mocks/mockResponseData";
 import { CostBasis } from "~/types/unitTypes";
+import { setActivePinia } from "pinia";
 
 const stubs = {
   CIcon: true,
 };
-const plugins = [mockPinia(
+const pinia = mockPinia(
   {
     currentScenario: {
       ...emptyScenario,
@@ -24,7 +25,7 @@ const plugins = [mockPinia(
   },
   true,
   { stubActions: false },
-)];
+);
 
 vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
   const actual = await importOriginal();
@@ -47,9 +48,13 @@ vi.mock("highcharts/esm/modules/export-data", () => ({}));
 vi.mock("highcharts/esm/modules/offline-exporting", () => ({}));
 
 describe("costs card", () => {
+  beforeEach(() => {
+    setActivePinia(pinia);
+  });
+
   it("should render the costs chart container, the total cost, costs table, vsl and total cost in terms of % of GDP", async () => {
     const averageVsl = formatCurrency(mockResultResponseData.average_vsl);
-    const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
+    const component = await mountSuspended(CostsCard, { global: { stubs, plugins: [pinia] } });
 
     expect(component.find(`#gdpContainer`).text()).toContain("44.9%");
 
@@ -63,10 +68,10 @@ describe("costs card", () => {
   });
 
   it("should change the cost basis when the radio buttons are clicked", async () => {
-    const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
+    const appStore = useAppStore();
+    const component = await mountSuspended(CostsCard, { global: { stubs, plugins: [pinia] } });
 
-    const costsChartComponent = component.findComponent({ name: "CostsChart.client" });
-    expect(costsChartComponent.props("basis")).toBe(CostBasis.USD);
+    expect(appStore.preferences.costBasis).toBe(CostBasis.USD);
 
     // const costsTableComponent = component.findComponent({ name: "CostsTable" });
     // expect(costsTableComponent.props("basis")).toBe(CostBasis.USD);
@@ -80,14 +85,14 @@ describe("costs card", () => {
 
     expect(gdpRadioButton.element.checked).toBe(true);
     expect(usdRadioButton.element.checked).toBe(false);
-    expect(costsChartComponent.props("basis")).toBe(CostBasis.PercentGDP);
+    expect(appStore.preferences.costBasis).toBe(CostBasis.PercentGDP);
     // expect(costsTableComponent.props("basis")).toBe(CostBasis.PercentGDP);
 
     await usdRadioButton.setChecked();
 
     expect(gdpRadioButton.element.checked).toBe(false);
     expect(usdRadioButton.element.checked).toBe(true);
-    expect(costsChartComponent.props("basis")).toBe(CostBasis.USD);
+    expect(appStore.preferences.costBasis).toBe(CostBasis.USD);
     // expect(costsTableComponent.props("basis")).toBe(CostBasis.USD);
   });
 });
