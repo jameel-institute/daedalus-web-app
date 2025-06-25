@@ -48,9 +48,12 @@ export const useAppStore = defineStore("app", {
     currentScenario: emptyScenario,
     currentComparison: emptyComparison,
     preferences: {
-      costBasis: CostBasis.USD,
+      costBasis: CostBasis.USD, // Default cost basis for first-time visitors
     },
   }),
+  persist: {
+    pick: ["preferences"],
+  },
   getters: {
     globeParameter: (state): Parameter | undefined => state.metadata?.parameters.find(param => param.parameterType === TypeOfParameter.GlobeSelect),
     timeSeriesData: (state): Record<string, number[]> | undefined => state.currentScenario.result.data?.time_series,
