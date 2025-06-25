@@ -1,9 +1,8 @@
 import { abbreviateMillionsDollars } from "#imports";
 import hexRgb from "hex-rgb";
-import * as Highcharts from "highcharts";
+import Highcharts from "highcharts/esm/highcharts";
 import { costAsPercentOfGdp, humanReadablePercentOfGdp } from "./formatters";
 import { CostBasis } from "~/types/unitTypes";
-import type { ExportingButtonsOptionsObject, ExportingMenuObject } from "highcharts";
 
 const originalHighchartsColors = Highcharts.getOptions().colors!;
 const colorRgba = hexRgb(originalHighchartsColors[0] as string);
@@ -63,7 +62,7 @@ export const contextButtonOptions = {
   // Omit 'printChart' and 'viewData' from menu items
   menuItems: ["downloadCSV", "downloadXLS", "separator", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG", "separator", "viewFullscreen"],
   useHTML: true,
-} as ExportingButtonsOptionsObject;
+} as Highcharts.ExportingButtonsOptionsObject;
 
 export const menuItemDefinitionOptions = {
   downloadCSV: {
@@ -72,7 +71,7 @@ export const menuItemDefinitionOptions = {
   downloadXLS: {
     text: "Download XLS for this chart",
   },
-} as Highcharts.Dictionary<ExportingMenuObject>;
+} as Highcharts.Dictionary<Highcharts.ExportingMenuObject>;
 
 export const chartBackgroundColorOnExporting = "white";
 const chartBackgroundColor = "transparent";

@@ -7,11 +7,11 @@
 </template>
 
 <script lang="ts" setup>
-import * as Highcharts from "highcharts";
-import "highcharts/modules/accessibility";
-import "highcharts/modules/exporting";
-import "highcharts/modules/export-data";
-import "highcharts/modules/offline-exporting";
+import Highcharts from "highcharts/esm/highcharts";
+import "highcharts/esm/modules/accessibility";
+import "highcharts/esm/modules/exporting";
+import "highcharts/esm/modules/export-data";
+import "highcharts/esm/modules/offline-exporting";
 
 import throttle from "lodash.throttle";
 import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartLabelFormatter, costsChartStackLabelFormatter, costsChartTooltipText, getColorVariants, menuItemDefinitionOptions } from "./utils/highCharts";

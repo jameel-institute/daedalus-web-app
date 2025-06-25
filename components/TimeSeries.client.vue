@@ -9,11 +9,11 @@
 </template>
 
 <script setup lang="ts">
-import * as Highcharts from "highcharts";
-import "highcharts/modules/accessibility";
-import "highcharts/modules/export-data";
-import "highcharts/modules/exporting";
-import "highcharts/modules/offline-exporting";
+import Highcharts from "highcharts/esm/highcharts";
+import "highcharts/esm/modules/accessibility";
+import "highcharts/esm/modules/exporting";
+import "highcharts/esm/modules/export-data";
+import "highcharts/esm/modules/offline-exporting";
 import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import type { TimeSeriesDataPoint } from "~/types/dataTypes";

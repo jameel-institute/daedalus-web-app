@@ -8,7 +8,7 @@ describe("plotBandsColor", () => {
   });
 });
 
-describe("highchartsColors", () => {
+describe("timeSeriesColors", () => {
   it("should be 9 colors long", () => {
     expect(timeSeriesColors).toHaveLength(9);
   });
@@ -17,11 +17,13 @@ describe("highchartsColors", () => {
 describe("costs chart tooltip text", () => {
   const tooltipPointInstance = {
     total: 2000,
+    point: {
+      category: "Life years",
+    },
     points: [
       {
         point: {
           custom: { includeInTooltips: true },
-          category: "Life years",
         },
         y: 999,
         color: "#FF0000",
@@ -30,7 +32,6 @@ describe("costs chart tooltip text", () => {
       {
         point: {
           custom: { includeInTooltips: true },
-          category: "Life years",
         },
         y: 0,
         color: "#00FF00",
@@ -39,7 +40,6 @@ describe("costs chart tooltip text", () => {
       {
         point: {
           custom: { includeInTooltips: false },
-          category: "Life years",
         },
         y: 0,
         color: "#FF0000",

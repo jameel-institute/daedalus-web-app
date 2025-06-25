@@ -4,7 +4,7 @@ import CostsChart from "~/components/CostsChart.client.vue";
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
-import * as Highcharts from "highcharts";
+import Highcharts from "highcharts/esm/highcharts";
 import { mockResultResponseData } from "../mocks/mockResponseData";
 import { CostBasis } from "~/types/unitTypes";
 
@@ -31,14 +31,20 @@ const mockChart = {
   setSize: mockSetSize,
   update: mockUpdate,
 };
-vi.mock("highcharts", async (importOriginal) => {
+vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
   const actual = await importOriginal();
 
   return {
-    chart: () => mockChart,
-    getOptions: actual.getOptions,
+    default: {
+      chart: () => mockChart,
+      getOptions: actual.default.getOptions,
+    },
   };
 });
+vi.mock("highcharts/esm/modules/accessibility", () => ({}));
+vi.mock("highcharts/esm/modules/exporting", () => ({}));
+vi.mock("highcharts/esm/modules/export-data", () => ({}));
+vi.mock("highcharts/esm/modules/offline-exporting", () => ({}));
 
 const expectedPercentGDPSeries = [
   expect.objectContaining({

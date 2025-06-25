@@ -26,19 +26,25 @@ const plugins = [mockPinia(
   { stubActions: false },
 )];
 
-vi.mock("highcharts", async (importOriginal) => {
+vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
   const actual = await importOriginal();
 
   return {
-    getOptions: actual.getOptions,
-    chart: () => ({
-      destroy: vi.fn(),
-      setSize: vi.fn(),
-      update: vi.fn(),
-      series: [{ setData: vi.fn() }],
-    }),
+    default: {
+      getOptions: actual.default.getOptions,
+      chart: () => ({
+        destroy: vi.fn(),
+        setSize: vi.fn(),
+        update: vi.fn(),
+        series: [{ setData: vi.fn() }],
+      }),
+    },
   };
 });
+vi.mock("highcharts/esm/modules/accessibility", () => ({}));
+vi.mock("highcharts/esm/modules/exporting", () => ({}));
+vi.mock("highcharts/esm/modules/export-data", () => ({}));
+vi.mock("highcharts/esm/modules/offline-exporting", () => ({}));
 
 describe("costs card", () => {
   it("should render the costs chart container, the total cost, costs table, vsl and total cost in terms of % of GDP", async () => {
@@ -56,7 +62,7 @@ describe("costs card", () => {
     expect(totalCostPara.text()).toBe("8.9T");
   });
 
-  it("should change the cost basis when the toggle is clicked", async () => {
+  it("should change the cost basis when the radio buttons are clicked", async () => {
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
 
     const costsChartComponent = component.findComponent({ name: "CostsChart.client" });
@@ -65,12 +71,23 @@ describe("costs card", () => {
     // const costsTableComponent = component.findComponent({ name: "CostsTable" });
     // expect(costsTableComponent.props("basis")).toBe(CostBasis.USD);
 
-    const switchComponent = component.findComponent({ name: "CFormSwitch" });
-    switchComponent.vm.$emit("update:modelValue", true);
+    const gdpRadioButton = component.find(`input[type="radio"][value="${CostBasis.PercentGDP}"]`);
+    const usdRadioButton = component.find(`input[type="radio"][value="${CostBasis.USD}"]`);
+    expect(gdpRadioButton.element.checked).toBe(false);
+    expect(usdRadioButton.element.checked).toBe(true);
 
-    await nextTick();
+    await gdpRadioButton.setChecked();
 
+    expect(gdpRadioButton.element.checked).toBe(true);
+    expect(usdRadioButton.element.checked).toBe(false);
     expect(costsChartComponent.props("basis")).toBe(CostBasis.PercentGDP);
     // expect(costsTableComponent.props("basis")).toBe(CostBasis.PercentGDP);
+
+    await usdRadioButton.setChecked();
+
+    expect(gdpRadioButton.element.checked).toBe(false);
+    expect(usdRadioButton.element.checked).toBe(true);
+    expect(costsChartComponent.props("basis")).toBe(CostBasis.USD);
+    // expect(costsTableComponent.props("basis")).toBe(CostBasis.USD);
   });
 });

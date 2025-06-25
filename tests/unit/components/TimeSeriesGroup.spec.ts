@@ -4,22 +4,29 @@ import type { DisplayInfo, ScenarioResultData } from "~/types/apiResponseTypes";
 import { emptyScenario, mockedMetadata, mockPinia } from "../mocks/mockPinia";
 import { mockResultResponseData } from "../mocks/mockResponseData";
 
-vi.mock("highcharts", async (importOriginal) => {
+vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
   const actual = await importOriginal();
 
   return {
-    getOptions: actual.getOptions,
-    chart: () => ({
-      destroy: vi.fn(),
-      setSize: vi.fn(),
-      showResetZoom: vi.fn(),
-    }),
-    charts: actual.charts,
-    _modules: actual._modules,
-    win: actual.win,
-    Pointer: actual.Pointer,
+    default: {
+      getOptions: actual.default.getOptions,
+      chart: () => ({
+        destroy: vi.fn(),
+        setSize: vi.fn(),
+        showResetZoom: vi.fn(),
+      }),
+      charts: actual.default.charts,
+      _modules: actual.default._modules,
+      win: actual.default.win,
+      Pointer: actual.default.Pointer,
+    },
   };
 });
+vi.mock("highcharts/esm/modules/accessibility", () => ({}));
+vi.mock("highcharts/esm/modules/exporting", () => ({}));
+vi.mock("highcharts/esm/modules/export-data", () => ({}));
+vi.mock("highcharts/esm/modules/offline-exporting", () => ({}));
+
 const pinia = mockPinia({
   currentScenario: {
     ...emptyScenario,
