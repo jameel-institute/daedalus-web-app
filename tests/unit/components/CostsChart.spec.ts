@@ -157,7 +157,7 @@ const expectedUSDSeries = [
   }),
 ];
 
-describe("costs pie", () => {
+describe("costs chart", () => {
   it("should render the costs chart container", async () => {
     const component = await mountSuspended(CostsChart, {
       global: { stubs, plugins: [mockPinia()] },
