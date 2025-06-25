@@ -51,8 +51,22 @@
         <div class="me-2 ms-auto gap-3 align-self-end d-flex">
           <CFormLabel>Show losses:</CFormLabel>
           <div>
-            <CFormCheck id="costBasisGdp" v-model="costBasis" :inline="!appStore.xlScreen" type="radio" label="as % of GDP" :value="CostBasis.PercentGDP" />
-            <CFormCheck id="costBasisUsd" v-model="costBasis" :inline="!appStore.xlScreen" type="radio" label="in USD" :value="CostBasis.USD" />
+            <CFormCheck
+              id="costBasisGdp"
+              v-model="costBasis"
+              :inline="true"
+              type="radio"
+              :label="`as % of ${gdpReferenceYear} GDP`"
+              :value="CostBasis.PercentGDP"
+            />
+            <CFormCheck
+              id="costBasisUsd"
+              v-model="costBasis"
+              :inline="true"
+              type="radio"
+              label="in USD"
+              :value="CostBasis.USD"
+            />
           </div>
         </div>
       </div>
