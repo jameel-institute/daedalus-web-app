@@ -159,7 +159,6 @@ const chartInitialOptions = () => {
     },
     tooltip: {
       shared: true,
-      distance: 128, // necessary for shared tooltips to not obscure stack labels or grand-child costs within a stack.
       formatter() {
         return this.total ? costsChartTooltipText(this, props.basis, appStore.currentScenario.result.data!.gdp) : "";
       },
