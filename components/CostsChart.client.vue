@@ -31,9 +31,8 @@ const chartParentEl = computed(() => chartContainer.value?.parentElement);
 // A range of colors per column, to be used for the breakdowns within each column.
 const columnColors = computed((): string[][] => {
   return appStore.totalCost?.children?.map((cost, i) => {
-    const columnBaseColor = colorBlindSafeColors[i].hex;
     const numberOfColorVariants = Math.max(cost.children?.length || 1);
-    return getColorVariants(columnBaseColor, numberOfColorVariants);
+    return getColorVariants(colorBlindSafeColors[i], numberOfColorVariants);
   }) || [[]];
 });
 

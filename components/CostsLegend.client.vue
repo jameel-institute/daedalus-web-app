@@ -12,7 +12,7 @@ import { colorBlindSafeColors, type LegendItem, LegendShape } from "./utils/high
 
 const appStore = useAppStore();
 
-const colors = colorBlindSafeColors.map(color => color.hex);
+const colors = colorBlindSafeColors.map(color => color.rgb);
 
 const costLabel = (cost: ScenarioCost) => {
   return appStore.metadata?.results.costs.find((costMeta: { id: any }) => costMeta.id === cost.id)?.label;
