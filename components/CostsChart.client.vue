@@ -18,10 +18,6 @@ import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, co
 import { costAsPercentOfGdp, gdpReferenceYear } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 
-const props = defineProps<{
-  basis: CostBasis
-}>();
-
 const appStore = useAppStore();
 let chart: Highcharts.Chart;
 const seriesData = ref<Highcharts.SeriesColumnOptions[]>([]); // This only exists for testing purposes
@@ -62,7 +58,7 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
         // If there is no Nth child for some cost, we still need to create a breakdown for the stack with a y-value of 0,
         // to ensure that any subsequent data points will belong to the correct column.
         const dollarValue = subCost?.value || 0;
-        const yValue = props.basis === CostBasis.PercentGDP
+        const yValue = appStore.preferences.costBasis === CostBasis.PercentGDP
           ? costAsPercentOfGdp(dollarValue, appStore.currentScenario.result.data?.gdp)
           : dollarValue;
 
@@ -86,7 +82,11 @@ const costLabels = computed(() =>
   appStore.totalCost?.children?.map(cost => appStore.getCostLabel(cost.id)) || []);
 
 const chartHeightPx = 400;
-const yAxisTitle = computed(() => props.basis === CostBasis.PercentGDP ? `Losses as % of ${gdpReferenceYear} national GDP` : "Losses in billions USD");
+const yAxisTitle = computed(() => {
+  return appStore.preferences.costBasis === CostBasis.PercentGDP
+    ? `Losses as % of ${gdpReferenceYear} national GDP`
+    : "Losses in billions USD";
+});
 
 const chartInitialOptions = () => {
   return {
@@ -143,13 +143,13 @@ const chartInitialOptions = () => {
       stackLabels: {
         enabled: true,
         formatter() {
-          return costsChartStackLabelFormatter(this.total, props.basis);
+          return costsChartStackLabelFormatter(this.total, appStore.preferences.costBasis);
         },
       },
       labels: {
         enabled: true,
         formatter() {
-          return costsChartLabelFormatter(this.value, props.basis);
+          return costsChartLabelFormatter(this.value, appStore.preferences.costBasis);
         },
       },
     },
@@ -160,7 +160,7 @@ const chartInitialOptions = () => {
     tooltip: {
       shared: true,
       formatter() {
-        return this.total ? costsChartTooltipText(this, props.basis, appStore.currentScenario.result.data!.gdp) : "";
+        return this.total ? costsChartTooltipText(this, appStore.preferences.costBasis, appStore.currentScenario.result.data!.gdp) : "";
       },
     },
     plotOptions: {
@@ -178,7 +178,7 @@ watch(() => chartContainer.value, () => {
   }
 });
 
-watch(() => props.basis, () => {
+watch(() => appStore.preferences.costBasis, () => {
   if (chart) {
     chart.update({
       yAxis: {

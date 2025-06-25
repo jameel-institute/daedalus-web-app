@@ -53,7 +53,7 @@
           <div>
             <CFormCheck
               id="costBasisGdp"
-              v-model="costBasis"
+              v-model="appStore.preferences.costBasis"
               :inline="true"
               type="radio"
               :label="`as % of ${gdpReferenceYear} GDP`"
@@ -61,7 +61,7 @@
             />
             <CFormCheck
               id="costBasisUsd"
-              v-model="costBasis"
+              v-model="appStore.preferences.costBasis"
               :inline="true"
               type="radio"
               label="in USD"
@@ -71,7 +71,7 @@
         </div>
       </div>
       <div class="chart-and-table-container">
-        <CostsChart id="costsChartContainer" :basis="costBasis" />
+        <CostsChart id="costsChartContainer" />
         <div class="flex-grow-1">
           <CostsTable data-testid="costs-table" />
         </div>
@@ -90,7 +90,6 @@ import { CIcon } from "@coreui/icons-vue";
 import { CostBasis } from "~/types/unitTypes";
 
 const appStore = useAppStore();
-const costBasis = ref<CostBasis>(CostBasis.USD);
 
 // Display the 'headline' total cost in terms of a percentage of annual national GDP
 const gdpTotalCostPercent = computed(() => {
