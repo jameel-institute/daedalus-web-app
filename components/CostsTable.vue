@@ -16,7 +16,7 @@
             <span class="ps-1">{{ accordioned ? "Expand" : "Collapse" }} all</span>
           </CButton>
         </th>
-        <th>{{ basis === CostBasis.PercentGDP ? `% of ${gdpReferenceYear} GDP` : "$, millions" }}</th>
+        <th>{{ appStore.preferences.costBasis === CostBasis.PercentGDP ? `% of ${gdpReferenceYear} GDP` : "$, millions" }}</th>
       </tr>
     </thead>
     <tbody id="costs-table-body">
@@ -51,15 +51,11 @@ import { CIcon } from "@coreui/icons-vue";
 import { costAsPercentOfGdp, gdpReferenceYear, humanReadablePercentOfGdp } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 
-const props = defineProps<{
-  basis: CostBasis
-}>();
-
 const accordioned = ref(true);
 const appStore = useAppStore();
 
 const displayValue = (valueInDollarTerms: number): string => {
-  switch (props.basis) {
+  switch (appStore.preferences.costBasis) {
     case CostBasis.PercentGDP:
     {
       const percentOfGdp = costAsPercentOfGdp(valueInDollarTerms, appStore.currentScenario.result.data?.gdp);

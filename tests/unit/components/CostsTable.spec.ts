@@ -10,24 +10,27 @@ const stubs = {
   CIcon: true,
 };
 
-const plugins = [
-  mockPinia({
-    currentScenario: {
-      ...emptyScenario,
-      result: {
-        data: mockResultResponseData as ScenarioResultData,
-        fetchError: undefined,
-        fetchStatus: "success",
-      },
-    },
-  }, true, { stubActions: false }),
-];
-
 describe("costsTable", () => {
   it("should render costs table correctly, when cost basis is USD", async () => {
     const wrapper = await mountSuspended(CostsTable, {
-      global: { stubs, plugins },
-      props: { basis: CostBasis.USD },
+      global: {
+        stubs,
+        plugins: [
+          mockPinia({
+            currentScenario: {
+              ...emptyScenario,
+              result: {
+                data: mockResultResponseData as ScenarioResultData,
+                fetchError: undefined,
+                fetchStatus: "success",
+              },
+            },
+            preferences: {
+              costBasis: CostBasis.USD,
+            },
+          }, true, { stubActions: false }),
+        ],
+      },
     });
 
     let wrapperText = wrapper.text();
@@ -53,8 +56,24 @@ describe("costsTable", () => {
 
   it("should render costs table correctly, when cost basis is percent of GDP", async () => {
     const wrapper = await mountSuspended(CostsTable, {
-      global: { stubs, plugins },
-      props: { basis: CostBasis.PercentGDP },
+      global: {
+        stubs,
+        plugins: [
+          mockPinia({
+            currentScenario: {
+              ...emptyScenario,
+              result: {
+                data: mockResultResponseData as ScenarioResultData,
+                fetchError: undefined,
+                fetchStatus: "success",
+              },
+            },
+            preferences: {
+              costBasis: CostBasis.PercentGDP,
+            },
+          }, true, { stubActions: false }),
+        ],
+      },
     });
 
     const wrapperText = wrapper.text();
