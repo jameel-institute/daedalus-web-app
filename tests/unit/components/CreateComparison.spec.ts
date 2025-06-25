@@ -63,6 +63,12 @@ const getDiseaseButton = (axisOptionsEl: DOMWrapper<Element>) => {
   return diseaseButton;
 };
 
+const getVaccineButton = (axisOptionsEl: DOMWrapper<Element>) => {
+  const vaccineButton = axisOptionsEl.findAll("button")[3];
+  expect(vaccineButton.text()).toEqual("Global vaccine investment");
+  return vaccineButton;
+};
+
 beforeEach(() => {
   vi.useFakeTimers();
 });
@@ -168,11 +174,21 @@ describe("create comparison button and modal", () => {
     const comboboxEl = getComboboxEl(wrapper);
     expect(comboboxEl.exists()).toBe(true);
     // Disease options are all pre-selected because there are fewer of them than MAX_COMPARISON_SCENARIOS
-    const selectedOptionsPills = wrapper.findAll("button.multi-value");
-    expect(selectedOptionsPills).toHaveLength(6);
-    expect(selectedOptionsPills.map(el => el.text())).toEqual(expect.arrayContaining(
+    const diseaseSelectedOptionsTags = wrapper.findAll("button.multi-value");
+    expect(diseaseSelectedOptionsTags).toHaveLength(6);
+    expect(diseaseSelectedOptionsTags.map(el => el.text())).toEqual(expect.arrayContaining(
       ["Covid-19 wild-type", "Covid-19 Omicron", "Covid-19 Delta", "Influenza 2009 (Swine flu)", "Influenza 1957", "Influenza 1918 (Spanish flu)"],
     ));
+
+    // Click the already-selected disease axis button to deselect it
+    await diseaseButton.trigger("click");
+
+    const vaccineButton = getVaccineButton(axisOptionsEl);
+    await vaccineButton.trigger("click");
+
+    // Vaccine options are pre-selected and listed in the same order as they are in metadata
+    const vaccineSelectedOptionsTags = wrapper.findAll("button.multi-value");
+    expect(vaccineSelectedOptionsTags.map(el => el.text())).toEqual(["Low", "Medium", "High"]);
   });
 
   it("renders the validation feedback as expected", async () => {
