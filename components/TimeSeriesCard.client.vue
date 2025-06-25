@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import { CIcon } from "@coreui/icons-vue";
 import throttle from "lodash.throttle";
-import * as Highcharts from "highcharts";
+import Highcharts from "highcharts/esm/highcharts";
 
 const appStore = useAppStore();
 

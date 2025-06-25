@@ -54,11 +54,10 @@ vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
           }],
         }],
       }],
-      _modules: actual.default._modules,
       win: actual.default.win,
       wrap: actual.default.wrap,
       Pointer: actual.default.Pointer,
-    }
+    },
   };
 });
 vi.mock("highcharts/esm/modules/accessibility", () => ({}));

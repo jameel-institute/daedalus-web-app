@@ -16,7 +16,6 @@ vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
         showResetZoom: vi.fn(),
       }),
       charts: actual.default.charts,
-      _modules: actual.default._modules,
       win: actual.default.win,
       wrap: actual.default.wrap,
       Pointer: actual.default.Pointer,
