@@ -99,7 +99,7 @@ export const newScenario = async (
     const scenarioStatus = await getScenarioStatus(scenario.run_id, event);
     if (scenarioStatus.statusCode === 200 && scenarioStatus.errors === null) {
       return apiResponse<NewScenarioData>({
-        ...scenarioStatus,
+        ...scenarioStatus, // Borrow non-data properties from the status response
         data: { runId: scenario.run_id },
       }) as NewScenarioResponse;
     } else {

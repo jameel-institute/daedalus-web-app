@@ -1,6 +1,6 @@
 import type { AsyncDataRequestStatus } from "#app";
-import type { Metadata, ScenarioResultData, ScenarioStatusData, TimeSeriesGroup, VersionData } from "@/types/apiResponseTypes";
-import type { AppState } from "@/types/storeTypes";
+import type { Metadata, NewScenarioData, ScenarioResultData, ScenarioStatusData, TimeSeriesGroup, VersionData } from "@/types/apiResponseTypes";
+import type { AppState, Comparison, Scenario } from "@/types/storeTypes";
 import type { FetchError } from "ofetch";
 import { type Parameter, type ParameterSet, TypeOfParameter } from "@/types/parameterTypes";
 import { debounce } from "perfect-debounce";
@@ -22,14 +22,14 @@ const emptyScenario = {
     fetchError: undefined,
     fetchStatus: undefined,
   },
-};
+} as Scenario;
 deepFreeze(emptyScenario);
 
 const emptyComparison = {
   axis: undefined,
   baseline: undefined,
   scenarios: undefined,
-};
+} as Comparison;
 deepFreeze(emptyComparison);
 
 export const useAppStore = defineStore("app", {
@@ -76,43 +76,59 @@ export const useAppStore = defineStore("app", {
     timeSeriesGroups: (state): Array<TimeSeriesGroup> | undefined => state.metadata?.results.time_series_groups as TimeSeriesGroup[] | undefined,
   },
   actions: {
-    async loadScenarioStatus() {
-      if (!this.currentScenario.runId) {
+    async runScenarioByParameters(parameters: ParameterSet) {
+      const response = await $fetch<NewScenarioData>("/api/scenarios", {
+        method: "POST",
+        body: { parameters },
+      }).catch((error: FetchError) => {
+        console.error(error);
+      });
+
+      if (response) {
+        const { runId } = response;
+
+        return runId;
+      }
+    },
+    async refreshScenarioStatus(scenario: Scenario) {
+      if (!scenario.runId || scenario.status.data?.done) {
         return;
       }
 
-      const {
-        data: scenarioStatusData,
-        status: scenarioStatusFetchStatus,
-        error: scenarioStatusFetchError,
-      } = await useFetch(`/api/scenarios/${this.currentScenario.runId}/status`, { dedupe: "defer" }) as {
+      const { data, status: fetchStatus, error } = await useFetch(
+        `/api/scenarios/${scenario.runId}/status`,
+        { dedupe: "defer" },
+      ) as {
         data: Ref<ScenarioStatusData>
         status: Ref<AsyncDataRequestStatus>
         error: Ref<FetchError>
       };
 
-      this.currentScenario.status = {
-        data: { ...scenarioStatusData.value, runId: undefined },
-        fetchStatus: scenarioStatusFetchStatus.value,
-        fetchError: scenarioStatusFetchError.value || undefined,
+      scenario.status = {
+        data: { ...data.value, runId: null },
+        fetchStatus: fetchStatus.value,
+        fetchError: error.value || undefined,
       };
     },
-    async loadScenarioResult() {
-      if (!this.currentScenario.runId) {
+    async loadScenarioResult(scenario: Scenario) {
+      if (!scenario.runId) {
         return;
       }
 
-      const { data, status, error } = await useFetch(`/api/scenarios/${this.currentScenario.runId}/result`) as {
+      const { data, status, error } = await useFetch(
+        `/api/scenarios/${scenario.runId}/result`,
+        { dedupe: "defer" },
+      ) as {
         data: Ref<ScenarioResultData>
         status: Ref<AsyncDataRequestStatus>
         error: Ref<FetchError | undefined>
       };
-      this.currentScenario.result = {
-        data: { ...data.value, runId: undefined },
+      scenario.result = {
+        data: { ...data.value, runId: null },
         fetchStatus: status.value,
         fetchError: error.value || undefined,
       };
-      this.currentScenario.parameters = this.currentScenario.result.data?.parameters;
+      scenario.parameters = scenario.result.data?.parameters;
     },
     async loadMetadata() {
       const { data: metadata, status: metadataFetchStatus, error: metadataFetchError } = await useFetch("/api/metadata") as {
@@ -139,18 +155,16 @@ export const useAppStore = defineStore("app", {
         },
       });
     },
-    clearScenario() {
+    clearCurrentScenario() {
       this.currentScenario = structuredClone(emptyScenario);
     },
-    clearComparison() {
-      this.currentComparison = structuredClone(emptyComparison);
-    },
     setComparison(axis: string, baselineParameters: ParameterSet, selectedScenarioOptions: string[]) {
-      this.clearComparison();
-      this.currentComparison.axis = axis;
-      this.currentComparison.baseline = baselineParameters[axis];
-      const allScenarioOptions = [this.currentComparison.baseline, ...selectedScenarioOptions];
-      this.currentComparison.scenarios = allScenarioOptions.map((opt) => {
+      const newComparison = structuredClone(emptyComparison);
+
+      newComparison.axis = axis;
+      newComparison.baseline = baselineParameters[axis];
+      const allScenarioOptions = [newComparison.baseline, ...selectedScenarioOptions];
+      newComparison.scenarios = allScenarioOptions.map((opt) => {
         return structuredClone({
           ...emptyScenario,
           parameters: {
@@ -159,6 +173,8 @@ export const useAppStore = defineStore("app", {
           },
         });
       });
+
+      this.currentComparison = newComparison;
     },
     async downloadExcel() {
       this.downloadError = undefined;

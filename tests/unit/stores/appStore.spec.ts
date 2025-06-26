@@ -16,7 +16,7 @@ const sampleUnloadedScenario = {
   runId: "123",
   parameters: { country: "USA" },
 };
-const mockResultDataWithoutRunId = { ...mockResultData, runId: undefined };
+const mockResultDataWithoutRunId = { ...mockResultData, runId: null };
 
 registerEndpoint("/api/versions", () => {
   return {
@@ -103,13 +103,13 @@ describe("app store", () => {
     it("can retrieve a scenario's status from the R API", async () => {
       const store = useAppStore();
       store.currentScenario = structuredClone(sampleUnloadedScenario);
-      await store.loadScenarioStatus();
+      await store.refreshScenarioStatus(store.currentScenario);
 
       await waitFor(() => {
         expect(store.currentScenario.status).toEqual({
           data: {
             done: true,
-            runId: undefined,
+            runId: null,
             runErrors: null,
             runStatus: "complete",
             runSuccess: true,
@@ -123,7 +123,7 @@ describe("app store", () => {
     it("can load a scenario's results from the R API", async () => {
       const store = useAppStore();
       store.currentScenario = structuredClone(sampleUnloadedScenario);
-      await store.loadScenarioResult();
+      await store.loadScenarioResult(store.currentScenario);
 
       await waitFor(() => {
         expect(store.currentScenario.result.data).toEqual(
@@ -150,7 +150,7 @@ describe("app store", () => {
         status: {
           data: {
             done: true,
-            runId: undefined,
+            runId: null,
             runStatus: runStatus.Complete,
             runErrors: null,
             runSuccess: true,
@@ -160,7 +160,7 @@ describe("app store", () => {
         },
       };
 
-      store.clearScenario();
+      store.clearCurrentScenario();
       expect(store.currentScenario).toEqual({
         runId: undefined,
         parameters: undefined,
@@ -272,7 +272,7 @@ describe("app store", () => {
         store.currentScenario = structuredClone(sampleUnloadedScenario);
 
         expect(store.timeSeriesData).toEqual(undefined);
-        await store.loadScenarioResult();
+        await store.loadScenarioResult(store.currentScenario);
 
         await waitFor(() => {
           expect(store.timeSeriesData).toEqual(mockResultData.time_series);
@@ -284,7 +284,7 @@ describe("app store", () => {
         store.currentScenario = structuredClone(sampleUnloadedScenario);
 
         expect(store.capacitiesData).toEqual(undefined);
-        await store.loadScenarioResult();
+        await store.loadScenarioResult(store.currentScenario);
 
         await waitFor(() => {
           expect(store.capacitiesData).toEqual(mockResultData.capacities);
@@ -296,7 +296,7 @@ describe("app store", () => {
         store.currentScenario = structuredClone(sampleUnloadedScenario);
 
         expect(store.interventionsData).toEqual(undefined);
-        await store.loadScenarioResult();
+        await store.loadScenarioResult(store.currentScenario);
 
         await waitFor(() => {
           expect(store.interventionsData).toEqual(mockResultData.interventions);
@@ -309,7 +309,7 @@ describe("app store", () => {
 
         expect(store.costsData).toEqual(undefined);
         expect(store.totalCost).toEqual(undefined);
-        await store.loadScenarioResult();
+        await store.loadScenarioResult(store.currentScenario);
 
         await waitFor(() => {
           expect(store.costsData).toEqual(mockResultData.costs);

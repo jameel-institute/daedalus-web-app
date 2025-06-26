@@ -151,9 +151,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { NewScenarioData } from "@/types/apiResponseTypes";
 import type { Parameter, ParameterSet, ValueData } from "@/types/parameterTypes";
-import type { FetchError } from "ofetch";
 import { TypeOfParameter } from "@/types/parameterTypes";
 import { CIcon } from "@coreui/icons-vue";
 import VueSelect from "vue3-select-component";
@@ -178,7 +176,7 @@ const initialiseFormDataFromDefaults = () => {
       acc[id] = (defaultOption || options[0].id).toString();
     }
     return acc;
-  }, {} as { [key: string]: string });
+  }, {} as ParameterSet);
 };
 
 const formData = ref(
@@ -347,7 +345,7 @@ const handleChange = (param: Parameter) => {
 };
 
 const submitForm = async () => {
-  if (invalidFields.value?.length) {
+  if (invalidFields.value?.length || !formData.value) {
     showValidations.value = true;
     return;
   }
@@ -361,21 +359,13 @@ const submitForm = async () => {
 
   formSubmitting.value = true;
 
-  const response = await $fetch<NewScenarioData>("/api/scenarios", {
-    method: "POST",
-    body: { parameters: formData.value },
-  }).catch((error: FetchError) => {
-    console.error(error);
-  });
+  const runId = await appStore.runScenarioByParameters(formData.value);
 
-  if (response) {
-    const { runId } = response;
-    if (runId) {
-      appStore.clearScenario();
-      appStore.currentScenario.parameters = formData.value as ParameterSet;
-    }
+  if (runId) {
+    appStore.clearCurrentScenario();
+    appStore.currentScenario.parameters = formData.value as ParameterSet;
     await navigateTo(`/scenarios/${runId}`);
-  };
+  }
 };
 
 // Handle the selection of a country using the globe component: update the form country value.
