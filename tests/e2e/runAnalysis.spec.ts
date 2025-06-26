@@ -191,6 +191,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   checkBarChartDataIsDifferent(costsChartDataUsd, costsChart2Data);
   checkBarChartDataIsDifferent(costsChartDataGdp, costsChart2Data);
 
+  // Test that the second analysis retains the user's preference for the "as % of 2018 GDP" cost basis.
+  await expect(page.getByLabel("as % of 2018 GDP")).toBeChecked();
+
   // Test that the user can navigate to previously-run analyses, including when the page is initially rendered server-side.
   await page.goto(urlOfFirstAnalysis);
   await page.waitForURL(urlOfFirstAnalysis);
