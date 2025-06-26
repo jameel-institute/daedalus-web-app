@@ -3,6 +3,7 @@
   "extends": "./.nuxt/tsconfig.json",
   "compilerOptions": {
     "types": ["vitest/globals"],
+    "exactOptionalPropertyTypes": true,
     "esModuleInterop": true
   }
 }
