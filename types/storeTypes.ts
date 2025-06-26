@@ -2,6 +2,7 @@ import type { AsyncDataRequestStatus } from "#app";
 import type { Metadata, ScenarioResultData, ScenarioStatusData, VersionData } from "@/types/apiResponseTypes";
 import type { ParameterSet } from "@/types/parameterTypes";
 import type { FetchError } from "ofetch";
+import type { CostBasis } from "./unitTypes";
 
 export interface Scenario {
   runId: string | undefined
@@ -38,4 +39,7 @@ export interface AppState {
   downloadError: string | undefined
   currentScenario: Scenario // Represents the scenario currently being viewed
   currentComparison: Comparison // Represents the multi-scenario comparison currently being viewed
+  preferences: {
+    costBasis: CostBasis
+  }
 };
