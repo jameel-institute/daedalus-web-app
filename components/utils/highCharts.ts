@@ -24,21 +24,28 @@ export const colorBlindSafeColors: colorRgbHsl[] = [
   { name: "Sky blue", rgb: "rgb(86,180,233)", hsl: convert.rgb.hsl(86, 180, 233) }, // hsl: [202, 77, 63]
 ];
 
-// Create a range of N colors varying in lightness.
-// NB This won't work well with colors that are already very light or very dark.
+// Create a range of color variants varying in lightness (L) and saturation (S) channels.
+// These channels have configurable ranges of factors used to multiply the original L/S.
+// Does not alter hue (H), in order to maintain color-blind safeness.
+// It's recommended to prefer only *increases* to saturation, since low saturation looks dull.
 export const getColorVariants = (
   color: colorRgbHsl,
   numberOfVariants: number,
-  fromLightnessFactor: number = 0.75,
-  toLightnessFactor: number = 1.25,
+  LFactorRange: { from: number, to: number } = { from: 0.75, to: 1.25 },
+  SFactorRange: { from: number, to: number } = { from: 1, to: 1.25 }, // NB only one color does not already have maximum saturation.
   opacity: number = 1,
 ): string[] =>
   Array.from({ length: numberOfVariants }, (_, i) => {
-    // Get a factor between e.g. 0.75 and 1.25
-    const factor = fromLightnessFactor + (toLightnessFactor - fromLightnessFactor) * (i / (numberOfVariants - 1));
-    const originalLightness = color.hsl[2];
-    const newLightness = Math.max(0, Math.min(100, originalLightness * factor));
-    const newHsl: HSL = [color.hsl[0], color.hsl[1], newLightness];
+    // Get the next equidistant factor in the range
+    const LFactor = LFactorRange.from + (LFactorRange.to - LFactorRange.from) * (i / (numberOfVariants - 1));
+    const originalL = color.hsl[2];
+    const newLightness = Math.max(0, Math.min(100, originalL * LFactor));
+
+    const SFactor = SFactorRange.from + (SFactorRange.to - SFactorRange.from) * (i / (numberOfVariants - 1));
+    const originalS = color.hsl[1];
+    const newSaturation = Math.max(0, Math.min(100, originalS * SFactor));
+
+    const newHsl: HSL = [color.hsl[0], newSaturation, newLightness];
     const rgb = convert.hsl.rgb(newHsl);
     return `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${opacity})`;
   }).reverse();
