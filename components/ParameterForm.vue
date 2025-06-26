@@ -91,25 +91,29 @@
                 v-model="formData[parameter.id]"
                 :aria-label="parameter.label"
                 type="number"
-                :class="`${pulsingParameters.includes(parameter.id) ? 'pulse' : ''}`"
-                :min="min(parameter)"
-                :max="max(parameter)"
+                :class="[
+                  pulsingParameters.includes(parameter.id) ? 'pulse' : '',
+                  warningFields?.includes(parameter.id) ? 'has-warning' : '',
+                ]"
+                :min="dependentRange(parameter)?.min"
+                :max="dependentRange(parameter)?.max"
                 :step="parameter.step"
                 :size="appStore.largeScreen ? 'lg' : undefined"
                 :feedback-invalid="numericParameterFeedback(parameter)"
                 :data-valid="!invalidFields?.includes(parameter.id)"
-                :invalid="invalidFields?.includes(parameter.id) && showValidations"
+                :invalid="showFeedback(parameter)"
                 :valid="!invalidFields?.includes(parameter.id) && showValidations"
                 :tooltip-feedback="true"
                 @change="handleChange(parameter)"
+                @input="handleInput"
               />
               <CFormRange
                 :id="parameter.id"
                 v-model="formData[parameter.id]"
                 :aria-label="parameter.label"
                 :step="parameter.step"
-                :min="min(parameter)"
-                :max="max(parameter)"
+                :min="dependentRange(parameter)?.min"
+                :max="dependentRange(parameter)?.max"
                 @change="handleChange(parameter)"
               />
             </div>
@@ -151,14 +155,16 @@
 </template>
 
 <script lang="ts" setup>
+import { debounce } from "perfect-debounce";
 import type { NewScenarioData } from "@/types/apiResponseTypes";
-import type { Parameter, ParameterSet, ValueData } from "@/types/parameterTypes";
+import type { Parameter, ParameterSet } from "@/types/parameterTypes";
 import type { FetchError } from "ofetch";
 import { TypeOfParameter } from "@/types/parameterTypes";
 import { CIcon } from "@coreui/icons-vue";
 import VueSelect from "vue3-select-component";
 import ParameterHeader from "~/components/ParameterHeader.vue";
-import { paramOptsToSelectOpts } from "~/components/utils/parameters";
+import { getRangeForDependentParam, paramOptsToSelectOpts } from "~/components/utils/parameters";
+import { numericValueInvalid, numericValueIsOutOfRange } from "~/components/utils/validations";
 
 const props = defineProps<{
   inModal: boolean
@@ -168,6 +174,7 @@ const appStore = useAppStore();
 
 const formSubmitting = ref(false);
 const showValidations = ref(false);
+const showWarnings = ref(false);
 const mounted = ref(false);
 
 const paramMetadata = computed(() => appStore.metadata?.parameters);
@@ -178,7 +185,7 @@ const initialiseFormDataFromDefaults = () => {
       acc[id] = (defaultOption || options[0].id).toString();
     }
     return acc;
-  }, {} as { [key: string]: string });
+  }, {} as ParameterSet);
 };
 
 const formData = ref(
@@ -195,18 +202,20 @@ const formData = ref(
 const previousFullFormData = ref({ ...formData.value });
 
 const pulsingParameters = ref([] as string[]);
-const dependentParameters = computed((): Record<string, string[]> => {
-  const dependentParameters = {} as { [key: string]: Array<string> };
+// An object mapping the dependency relationship between parameters' metadata, where keys are the ids of parameters that are depended upon,
+// and values are lists (usually single-element) of the parameters whose metadata (e.g. estimated range) has a dependency on them.
+const parameterDependencies = computed((): Record<string, string[]> => {
+  const deps = {} as { [key: string]: Array<string> };
   paramMetadata.value?.forEach((param) => {
     if (param.updateNumericFrom) {
       const dependedOn = param.updateNumericFrom.parameterId;
-      if (!dependentParameters[dependedOn]) {
-        dependentParameters[dependedOn] = [];
+      if (!deps[dependedOn]) {
+        deps[dependedOn] = [];
       }
-      dependentParameters[dependedOn].push(param.id);
+      deps[dependedOn].push(param.id);
     }
   });
-  return dependentParameters;
+  return deps;
 });
 
 const runButtonDisabled = computed(() => {
@@ -238,50 +247,29 @@ const renderAsSelect = (param: Parameter) => {
   return !renderAsRadios(param) && [TypeOfParameter.Select, TypeOfParameter.GlobeSelect].includes(param.parameterType);
 };
 
-// Retrieve the ValueData for a (numeric) parameter that is dependent on the value of another parameter.
-const getValueDataForDependentParam = (dependentParamId: string): ValueData | undefined => {
-  const dependentParam = paramMetadata.value!.find(param => param.id === dependentParamId);
-  if (!dependentParam?.updateNumericFrom || !formData.value) {
+const dependentRange = (param: Parameter) => {
+  return getRangeForDependentParam(param, formData.value);
+};
+
+const invalidFields = ref<string[]>([]);
+const recalculateInvalidFields = () => {
+  if (!formData.value && paramMetadata.value) {
+    invalidFields.value = paramMetadata.value.map(p => p.id);
     return;
   }
 
-  const dependedOnParamId = dependentParam.updateNumericFrom.parameterId;
-  const dependedOnParamInputVal = formData.value[dependedOnParamId];
-  if (dependentParam.updateNumericFrom && typeof dependedOnParamInputVal !== "undefined") {
-    return dependentParam.updateNumericFrom?.values[dependedOnParamInputVal.toString()];
-  }
+  invalidFields.value = paramMetadata.value?.filter((param) => {
+    const val = formData.value![param.id];
+    return (val === undefined || val === null || val === "" || numericValueInvalid(val, param));
+  }).map(p => p.id) || [];
 };
 
-const min = (param: Parameter) => {
-  return getValueDataForDependentParam(param.id)?.min;
-};
-
-const max = (param: Parameter) => {
-  return getValueDataForDependentParam(param.id)?.max;
-};
-
-const invalidFields = computed(() => {
-  if (!formData.value && paramMetadata.value) {
-    return paramMetadata.value.map(param => param.id);
-  }
-
-  const invalids = new Array<string>();
-  paramMetadata.value?.forEach((param) => {
-    if (formData.value![param.id] === "") {
-      invalids.push(param.id);
-    };
-
-    if (param.parameterType === TypeOfParameter.Numeric && param.updateNumericFrom) {
-      const inputVal = Number.parseInt(formData.value![param.id]);
-
-      if (inputVal < min(param)! || inputVal > max(param)!) {
-        invalids.push(param.id);
-      }
-    };
-  });
-
-  return invalids;
+const warningFields = computed(() => {
+  return paramMetadata.value?.filter(p => numericValueIsOutOfRange(formData.value?.[p.id], p, formData.value)).map(p => p.id);
 });
+
+const showFeedback = (param: Parameter) => !!(warningFields.value?.includes(param.id) && showWarnings.value)
+  || !!(invalidFields.value?.includes(param.id) && showValidations.value);
 
 // Since some defaults depend on the values of other fields, this function should not be used to initialize form values.
 const defaultValue = (param: Parameter) => {
@@ -290,12 +278,9 @@ const defaultValue = (param: Parameter) => {
   }
 
   if (param.updateNumericFrom) {
-    const dependedOnParamId = param.updateNumericFrom.parameterId;
-    const dependedOnValue = formData.value[dependedOnParamId];
-    const dependentDefaultValue = param.updateNumericFrom.values[dependedOnValue]?.default;
-    return dependentDefaultValue?.toString();
+    return getRangeForDependentParam(param, formData.value)?.default.toString();
   } else if (param.parameterType === TypeOfParameter.Select || param.parameterType === TypeOfParameter.GlobeSelect) {
-    return param.defaultOption || param.options[0].id;
+    return param.defaultOption || param.options?.[0]?.id;
   }
   // Currently, due to the metadata schema, non-updatable numerics don't have default values available.
 };
@@ -310,12 +295,14 @@ const resetParam = (param: Parameter) => {
 
 const numericParameterFeedback = (param: Parameter) => {
   if (param.updateNumericFrom) {
-    const dependedOnParamId = param.updateNumericFrom.parameterId;
-    const dependedOnParamOptionLabel = paramMetadata.value!.find(param => param.id === dependedOnParamId)!
-      .options
-      .find(option => option.id === formData.value![dependedOnParamId])
-      ?.label;
-    return `${min(param)} to ${max(param)} is the allowed ${param.label.toLowerCase()} range for ${dependedOnParamOptionLabel}.`;
+    const dependedUponParam = paramMetadata.value?.find(p => p.id === param.updateNumericFrom?.parameterId);
+    const range = dependentRange(param);
+
+    if (dependedUponParam && range) {
+      const selectedOption = dependedUponParam.options?.find(o => o.id === (formData.value ?? {})[dependedUponParam.id]);
+      return `NB: This value is outside the estimated range for ${selectedOption?.label} (${range.min}–${range.max}).`
+        + ` Proceed with caution.`;
+    }
   }
 };
 
@@ -327,11 +314,13 @@ const pulse = (parameterId: string) => {
 };
 
 const handleChange = (param: Parameter) => {
-  if (dependentParameters.value[param.id] === undefined || dependentParameters.value[param.id]?.length === 0) {
+  showWarnings.value = true;
+
+  if (parameterDependencies.value[param.id] === undefined || parameterDependencies.value[param.id]?.length === 0) {
     return;
   }
 
-  dependentParameters.value[param.id].forEach((dependentParamId: string) => {
+  parameterDependencies.value[param.id].forEach((dependentParamId: string) => {
     pulse(dependentParamId);
 
     const dependentParameter = paramMetadata.value!.find(param => param.id === dependentParamId)!;
@@ -344,6 +333,15 @@ const handleChange = (param: Parameter) => {
   if (param.parameterType === TypeOfParameter.GlobeSelect) {
     appStore.globe.highlightedCountry = formData.value![param.id];
   };
+};
+
+const handleInput = () => {
+  // Stop showing warnings while the user is typing
+  showWarnings.value = false;
+
+  debounce(() => {
+    showWarnings.value = true;
+  }, 500)();
 };
 
 const submitForm = async () => {
@@ -389,9 +387,11 @@ watch(() => appStore.globe.highlightedCountry, (newValue, oldValue) => {
 });
 
 watch(formData, (newVal) => {
+  recalculateInvalidFields();
+
   if (newVal && paramMetadata.value && previousFullFormData.value) {
-    const invalid = paramMetadata.value.some(param => !newVal[param.id]);
-    if (invalid) {
+    const empty = paramMetadata.value.some(param => !newVal[param.id]);
+    if (empty) {
       formData.value = previousFullFormData.value;
     } else {
       previousFullFormData.value = { ...formData.value };
@@ -461,5 +461,18 @@ onMounted(() => {
 
 .numeric-header {
   padding-right: 2.2rem;
+}
+
+:deep(.form-control.is-invalid.has-warning) {
+  border-color: $warning;
+  box-shadow: 0 0 0 0.25rem rgba(var(--cui-warning-rgb), 0.25);
+
+  // Undo stylings related to the validation icon, which looks like: (!)
+  background-image: unset;
+  padding-right: 0.75rem;
+}
+
+:deep(.form-control.has-warning ~ .invalid-tooltip) {
+  background-color: $warning;
 }
 </style>

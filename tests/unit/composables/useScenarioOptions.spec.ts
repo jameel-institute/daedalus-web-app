@@ -42,7 +42,7 @@ describe("useScenarioOptions composable", () => {
     const { baselineOption, nonBaselineOptions, nonBaselineSelectOptions } = useScenarioOptions(parameterAxis);
 
     parameterAxis.value = mockMetadataResponseData.parameters.find(p => p.id === "hospital_capacity");
-    expect(baselineOption.value).toEqual({ id: "12345", label: "12345", description: "" });
+    expect(baselineOption.value).toEqual({ id: "12345", label: "12,345", description: "" });
     expect(nonBaselineOptions.value).toHaveLength(0);
     expect(nonBaselineSelectOptions.value).toHaveLength(0);
   });

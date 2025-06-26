@@ -1,4 +1,4 @@
-import { paramOptsToSelectOpts, sortOptions } from "@/components/utils/parameters";
+import { getRangeForDependentParam, paramOptsToSelectOpts, sortOptions } from "@/components/utils/parameters";
 import { TypeOfParameter } from "~/types/parameterTypes";
 
 describe("paramOptsToSelectOpts", () => {
@@ -70,5 +70,56 @@ describe("sortOptions", () => {
     };
     const optionsToSort = ["b", "none", "a"];
     expect(sortOptions(parameter, optionsToSort)).toEqual(["none", "b", "a"]);
+  });
+});
+
+describe("getRangeForDependentParam", () => {
+  const paramBase = {
+    id: "dependentParam",
+    ordered: false,
+    label: "My Dependent Parameter",
+    parameterType: TypeOfParameter.Numeric,
+  };
+
+  it("should return the correct range for a dependent parameter", () => {
+    const dependentParam = {
+      ...paramBase,
+      updateNumericFrom: {
+        parameterId: "otherParam",
+        values: { a: { min: 10, default: 15, max: 20 }, b: { min: 30, default: 35, max: 40 } },
+      },
+    };
+    expect(getRangeForDependentParam(dependentParam, { dependentParam: "20", otherParam: "a" })).toEqual(
+      { min: 10, default: 15, max: 20 },
+    );
+    expect(getRangeForDependentParam(dependentParam, { dependentParam: "20", otherParam: "b" })).toEqual(
+      { min: 30, default: 35, max: 40 },
+    );
+  });
+
+  it("should return undefined if the dependent parameter's value is not in the values map", () => {
+    const dependentParam = {
+      ...paramBase,
+      updateNumericFrom: {
+        parameterId: "otherParam",
+        values: { a: { min: 10, default: 15, max: 20 }, b: { min: 30, default: 35, max: 40 } },
+      },
+    };
+    const parameterValueSet = { dependentParam: "20", otherParam: "z" };
+    expect(getRangeForDependentParam(dependentParam, parameterValueSet)).toBeUndefined();
+  });
+
+  it("should return undefined if no dependent parameter is provided", () => {
+    const parameterValueSet = { dependentParam: "20", otherParam: "a" };
+    expect(getRangeForDependentParam(undefined, parameterValueSet)).toBeUndefined();
+  });
+
+  it("should return undefined if no parameter value set is provided", () => {
+    expect(getRangeForDependentParam(paramBase, undefined)).toBeUndefined();
+  });
+
+  it("should return undefined if the dependent parameter does not have an updateNumericFrom property", () => {
+    const parameterValueSet = { dependentParam: "20", otherParam: "a" };
+    expect(getRangeForDependentParam(paramBase, parameterValueSet)).toBeUndefined();
   });
 });
