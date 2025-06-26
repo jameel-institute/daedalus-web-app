@@ -21,16 +21,28 @@ const plugins = [mockPinia({
   },
   metadata: mockMetadataResponseData as Metadata,
 }, false, { stubActions: false })];
+const enabledComparisonConfig = {
+  public: {
+    feature: {
+      comparison: true,
+    },
+  },
+};
 
 // https://developer.mamezou-tech.com/en/blogs/2024/02/12/nuxt3-unit-testing-mock/
 const { mockRoute } = vi.hoisted(() => ({
   mockRoute: vi.fn(),
 }));
+const { mockRuntimeConfig } = vi.hoisted(() => ({
+  mockRuntimeConfig: vi.fn(),
+}));
 
 mockNuxtImport("useRoute", () => mockRoute);
+mockNuxtImport("useRuntimeConfig", () => mockRuntimeConfig);
 
 afterEach(() => {
   mockRoute.mockReset();
+  mockRuntimeConfig.mockReset();
 });
 
 registerEndpoint(`/api/scenarios/${longRunningRunId}/status`, () => {
@@ -77,19 +89,29 @@ afterAll(() => {
 
 describe("scenario result page", () => {
   it("renders as expected", async () => {
+    mockRuntimeConfig.mockReturnValue(enabledComparisonConfig);
+
     mockRoute.mockReturnValue({
       params: {
-        runId: longRunningRunId,
+        runId: successfulRunId,
       },
     });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
+    const spinner = component.findComponent({ name: "CSpinner" });
+    await waitFor(() => {
+      expect(spinner.isVisible()).toBe(false);
+    });
+
+    expect(component.text()).toContain("Compare against other scenarios");
     expect(component.text()).toContain("Parameters");
     expect(component.text()).toContain("United Kingdom");
   });
 
   it("resets appStore.downloadError when the page is loaded", async () => {
+    mockRuntimeConfig.mockReturnValue(enabledComparisonConfig);
+
     mockRoute.mockReturnValue({
       params: {
         runId: successfulRunId,
@@ -116,6 +138,8 @@ describe("scenario result page", () => {
 
   // Also end-to-end tested in tests/e2e/slowAnalysis.spec.ts
   it("shows alerts when analysis is taking a long time and when it is taking a really long time", async () => {
+    mockRuntimeConfig.mockReturnValue(enabledComparisonConfig);
+
     mockRoute.mockReturnValue({
       params: {
         runId: longRunningRunId,
@@ -147,6 +171,8 @@ describe("scenario result page", () => {
   });
 
   it("shows alerts when analysis fails", async () => {
+    mockRuntimeConfig.mockReturnValue(enabledComparisonConfig);
+
     mockRoute.mockReturnValue({
       params: {
         runId: failedRunId,
@@ -176,6 +202,8 @@ describe("scenario result page", () => {
   });
 
   it("shows no alerts when analysis succeeds", async () => {
+    mockRuntimeConfig.mockReturnValue(enabledComparisonConfig);
+
     mockRoute.mockReturnValue({
       params: {
         runId: successfulRunId,
@@ -206,5 +234,30 @@ describe("scenario result page", () => {
     expect(component.text()).not.toContain("Analysis status: running");
     expect(component.text()).not.toContain("Thank you for waiting.");
     expect(spinner.isVisible()).toBe(false);
+  });
+
+  it("shows no create comparison button when the feature is not enabled", async () => {
+    mockRuntimeConfig.mockReturnValue({
+      public: {
+        feature: {
+          comparison: false,
+        },
+      },
+    });
+
+    mockRoute.mockReturnValue({
+      params: {
+        runId: successfulRunId,
+      },
+    });
+
+    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
+
+    const spinner = component.findComponent({ name: "CSpinner" });
+    await waitFor(() => {
+      expect(spinner.isVisible()).toBe(false);
+    });
+
+    expect(component.text()).not.toContain("Compare against other scenarios");
   });
 });

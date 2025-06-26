@@ -1,10 +1,10 @@
 <template>
   <div id="resultsPage">
     <div class="d-flex flex-wrap mb-3 gap-3">
-      <h1 class="fs-2 mb-0 pt-1">
+      <h1 class="fs-2 mb-0 pt-1 me-auto">
         Results
       </h1>
-      <CreateComparison />
+      <CreateComparison v-if="featureIsEnabled('comparison')" />
       <DownloadExcel />
       <CodeSnippet />
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
@@ -60,6 +60,7 @@
 import { CIconSvg } from "@coreui/icons-vue";
 
 const appStore = useAppStore();
+const { featureIsEnabled } = useFeatureFlags();
 
 let statusInterval: NodeJS.Timeout;
 const jobSlow = ref(false);

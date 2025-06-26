@@ -10,6 +10,13 @@ export default defineVitestConfig({
         domEnvironment: "jsdom",
         overrides: {
           // other Nuxt config you want to pass
+          runtimeConfig: {
+            public: {
+              feature: {
+                comparison: true,
+              },
+            },
+          },
         },
       },
     },
