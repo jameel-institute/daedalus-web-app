@@ -73,9 +73,6 @@ describe("costs card", () => {
 
     expect(appStore.preferences.costBasis).toBe(CostBasis.USD);
 
-    // const costsTableComponent = component.findComponent({ name: "CostsTable" });
-    // expect(costsTableComponent.props("basis")).toBe(CostBasis.USD);
-
     const gdpRadioButton = component.find(`input[type="radio"][value="${CostBasis.PercentGDP}"]`);
     const usdRadioButton = component.find(`input[type="radio"][value="${CostBasis.USD}"]`);
     expect(gdpRadioButton.element.checked).toBe(false);
@@ -86,13 +83,11 @@ describe("costs card", () => {
     expect(gdpRadioButton.element.checked).toBe(true);
     expect(usdRadioButton.element.checked).toBe(false);
     expect(appStore.preferences.costBasis).toBe(CostBasis.PercentGDP);
-    // expect(costsTableComponent.props("basis")).toBe(CostBasis.PercentGDP);
 
     await usdRadioButton.setChecked();
 
     expect(gdpRadioButton.element.checked).toBe(false);
     expect(usdRadioButton.element.checked).toBe(true);
     expect(appStore.preferences.costBasis).toBe(CostBasis.USD);
-    // expect(costsTableComponent.props("basis")).toBe(CostBasis.USD);
   });
 });
