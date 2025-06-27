@@ -179,7 +179,6 @@ watch(everyScenariosHasRunSuccessfully, async (allRanSuccessfully) => {
   }
 }, { immediate: true });
 
-// todo - see if using useInterval from vueuse will allow us to avoid having to clear the interval manually on unmounted
 onUnmounted(() => {
   clearInterval(statusInterval);
 });
