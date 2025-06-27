@@ -1,4 +1,4 @@
-import type { ApiResponse } from "@/types/apiResponseTypes";
+import type { ApiResponse } from "~/types/apiResponseTypes";
 import type { EventHandler, H3Event } from "h3";
 
 // A wrapper for Nuxt's defineEventHandler that handles errors from the R API.

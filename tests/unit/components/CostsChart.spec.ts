@@ -1,5 +1,5 @@
 import type { AsyncDataRequestStatus } from "#app";
-import type { ScenarioResultData } from "@/types/apiResponseTypes";
+import type { ScenarioResultData } from "~/types/apiResponseTypes";
 import CostsChart from "~/components/CostsChart.client.vue";
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";

@@ -1,4 +1,4 @@
-import type { NewScenarioResponse } from "@/types/apiResponseTypes";
+import type { NewScenarioResponse } from "~/types/apiResponseTypes";
 import { newScenario } from "@/server/handlers/scenarios";
 import { defineRApiEventHandler } from "@/server/utils/defineRApiEventHandler";
 
