@@ -1,7 +1,7 @@
 import JSSHA from "jssha";
 
-import type { ApiError } from "@/types/apiResponseTypes";
-import type { ParameterDict } from "~/types/apiRequestTypes";
+import type { ApiError } from "~/types/apiResponseTypes";
+import type { ParameterSet } from "~/types/parameterTypes";
 import { getVersionData } from "../handlers/versions";
 
 // Convert list of error objects to string
@@ -27,9 +27,12 @@ export const formDataToObject = (formData: FormData) => {
   return object;
 };
 
-export const hashParameters = (parameters: ParameterDict, modelVersion: string) => {
+export const hashParameters = (parameters: ParameterSet, modelVersion: string) => {
   const sha256 = new JSSHA("SHA-256", "TEXT");
-  sha256.update(JSON.stringify({ ...parameters, modelVersion }));
+  const dictionary = { ...parameters, modelVersion };
+  const sortedKeys = Object.keys(dictionary).sort();
+  const sortedValues = Object.values(dictionary).sort();
+  sha256.update(sortedKeys.join() + sortedValues.join());
   return sha256.getHash("HEX");
 };
 

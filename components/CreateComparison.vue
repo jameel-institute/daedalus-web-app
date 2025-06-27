@@ -107,6 +107,7 @@ const formSubmitting = ref(false);
 const showFormValidationFeedback = ref(false);
 
 const chosenParameterAxis = computed(() => appStore.metadata?.parameters.find(p => p.id === chosenAxisId.value));
+const baselineParameters = computed(() => appStore.currentScenario.parameters);
 
 const { baselineOption, nonBaselineOptions } = useScenarioOptions(chosenParameterAxis);
 const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions);
@@ -148,13 +149,20 @@ const submitForm = async () => {
   showFormValidationFeedback.value = false;
   formSubmitting.value = true;
 
-  const baselineParameters = appStore.currentScenario.parameters;
-  if (chosenParameterAxis.value && baselineParameters) {
-    // Record comparison information in URL query parameters, to facilitate link sharing
+  if (baselineParameters.value) {
+    appStore.setComparison(chosenAxisId.value, baselineParameters.value, selectedScenarioOptions.value);
+
+    await Promise.all(
+      appStore.currentComparison.scenarios?.map(async (scenario) => {
+        const runId = await appStore.runScenarioByParameters(scenario.parameters);
+        scenario.runId = runId;
+      }) || [],
+    );
+
     await navigateTo({ path: "/comparison", query: {
-      ...baselineParameters,
       axis: chosenAxisId.value,
-      scenarios: selectedScenarioOptions.value.join(";"),
+      baseline: appStore.currentComparison.baseline,
+      runIds: appStore.currentComparison.scenarios?.map(s => s.runId).join(";"),
     } });
   }
 };

@@ -1,4 +1,5 @@
 import type { ApiError, ApiResponse } from "~/types/apiResponseTypes";
+import type { RApiResponse } from "./rApi";
 
 export const apiResponse = <T extends object>(response: RApiResponse<T>) => {
   return {

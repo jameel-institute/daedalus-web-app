@@ -173,3 +173,7 @@ npm run preview
 ```
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+
+# Troubleshooting
+
+If you are struggling to work out what api routes Nuxt is generating based on your filenames and file structure, inspect this file: `.nuxt/types/nitro-routes.d.ts`.

@@ -55,12 +55,7 @@
             {{ value }}
           </td>
           <td>
-            <span v-if="scenario.runId">
-              {{ scenario.runId.slice(0, 8) }}...
-            </span>
-            <span v-else>
-              Not known yet
-            </span>
+            {{ scenario.runId!.slice(0, 8) }}...
           </td>
           <td>
             <span v-if="scenario.status.data?.done">
@@ -105,25 +100,31 @@
 </template>
 
 <script setup lang="ts">
-// TODO: We need to be able to distinguish new and old results,
-// slash, serve the SAME results up when user returns to same url.
-// So query params are not enough, we need to use the runIds in the URL?
-// No: one better, we need to use the model version in the URL query params.
-
-import type { ParameterSet } from "~/types/parameterTypes";
 import type { Scenario } from "~/types/storeTypes";
 
 const showSpinner = ref(true);
 
 const appStore = useAppStore();
+const query = useRoute().query;
 appStore.clearCurrentScenario();
 appStore.downloadError = undefined;
 let statusInterval: NodeJS.Timeout;
 
 const axis = computed(() => appStore.currentComparison.axis);
+const runIdsFromQuery = computed(() => {
+  return (query.runIds as string).split(";");
+});
+const everyScenarioHasARunId = computed(() => {
+  return appStore.currentComparison.scenarios?.length
+    && appStore.currentComparison.scenarios?.every(s => !!s.runId);
+});
 const everyScenariosHasRunSuccessfully = computed(() => {
   return appStore.currentComparison.scenarios?.length
     && appStore.currentComparison.scenarios?.every(s => s.status.data?.runSuccess);
+});
+const runIdsFromStoreMatchRunIdsInQuery = computed(() => {
+  return appStore.currentComparison.scenarios?.length === runIdsFromQuery.value.length
+    && appStore.currentComparison.scenarios?.every(s => runIdsFromQuery.value.includes(s.runId!));
 });
 
 const totalCost = (scenario: Scenario) => {
@@ -137,53 +138,29 @@ const totalCost = (scenario: Scenario) => {
 const scenarioAxisValue = (scenario: Scenario) => axis.value ? scenario.parameters?.[axis.value] : undefined;
 const scenarioIsBaseline = (scenario: Scenario) => scenarioAxisValue(scenario) === appStore.currentComparison.baseline;
 
-const pollStatusesEveryNSeconds = (seconds: number) => {
-  statusInterval = setInterval(async () => {
-    // Wait until we have runIds for every scenario before fetching their statuses
-    if (!appStore.currentComparison.scenarios || appStore.currentComparison.scenarios?.some(s => !s.runId)) {
-      return;
-    }
-    await Promise.all(appStore.currentComparison.scenarios.map(async (scenario) => {
-      await appStore.refreshScenarioStatus(scenario);
-    }));
-  }, seconds * 1000);
+const pollStatuses = async () => {
+  if (!everyScenarioHasARunId.value) {
+    return;
+  }
+  await Promise.all(appStore.currentComparison.scenarios?.map(async (scenario) => {
+    await appStore.refreshScenarioStatus(scenario);
+  }) || []);
 };
 
 watch(() => appStore.metadata, async (newMetadata) => {
   if (newMetadata) {
-    const query = useRoute().query;
-    // TODO: (jidea-253) These URL query params will need to be validated, since users might type anything into the URL bar
+    if (!runIdsFromStoreMatchRunIdsInQuery.value) {
+      appStore.setCurrentComparisonByRunIds(runIdsFromQuery.value);
+    }
 
-    const parameterIds = newMetadata.parameters.map(p => p.id);
-    const selectedScenarios = (query.scenarios as string).split(";");
-
-    const parametersFromQuery = parameterIds.reduce((acc, id) => {
-      if (query[id]) {
-        acc[id] = query[id] as string;
-      }
-      return acc;
-    }, {} as ParameterSet);
-
-    // TODO: Check that the baseline option does in fact match the currentScenario
-
-    appStore.setComparison(query.axis as string, parametersFromQuery, selectedScenarios);
-
-    await Promise.all(
-      appStore.currentComparison.scenarios?.map(async (scenario) => {
-        if (!scenario.parameters) {
-          return;
-        }
-
-        const runId = await appStore.runScenarioByParameters(scenario.parameters);
-        scenario.runId = runId;
-      }) || [],
-    );
+    appStore.currentComparison.baseline = query.baseline as string;
+    appStore.currentComparison.axis = query.axis as string;
   }
 }, { immediate: true });
 
 const stopWatchingComparison = watch(() => appStore.currentComparison, async (currentComp) => {
   if (!statusInterval && currentComp.scenarios?.every(s => !!s.runId)) {
-    pollStatusesEveryNSeconds(0.2);
+    statusInterval = setInterval(pollStatuses, 200);
   }
   if (currentComp.scenarios?.every(s => s.status.data?.done)) {
     clearInterval(statusInterval);

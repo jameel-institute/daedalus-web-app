@@ -45,10 +45,14 @@ export interface Metadata {
 export interface MetadataResponse extends ApiResponse<Metadata> { }
 
 // Scenario
+export interface ScenarioData {
+  parameters: ParameterSet
+  runId: string | null
+}
+
 export interface NewScenarioData {
   runId: string
 }
-
 export interface NewScenarioResponse extends ApiResponse<NewScenarioData> { }
 
 export enum runStatus {
@@ -65,7 +69,6 @@ export interface ScenarioStatusData {
   runStatus: runStatus
   runSuccess: boolean | null // null if "done" is false, otherwise indicates whether the job finished successfully
 }
-
 export interface ScenarioStatusResponse extends ApiResponse<ScenarioStatusData> { }
 
 export interface ScenarioResultData {
@@ -78,5 +81,4 @@ export interface ScenarioResultData {
   gdp: number
   average_vsl: number
 }
-
 export interface ScenarioResultResponse extends ApiResponse<ScenarioResultData> { }

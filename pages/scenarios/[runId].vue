@@ -71,12 +71,15 @@ const showSpinner = computed(() => !appStore.currentScenario.result.data
 );
 
 const route = useRoute();
-const runIdFromRoute = route.params.runId as string;
-if (appStore.currentScenario.runId && runIdFromRoute !== appStore.currentScenario.runId) {
-  appStore.clearCurrentScenario(); // Required so that previous parameters aren't hanging around in the store.
-}
+const runId = route.params.runId as string;
+
+// Required so that previous parameters aren't hanging around in the store
+appStore.clearCurrentScenario();
 appStore.downloadError = undefined;
-appStore.currentScenario.runId = runIdFromRoute;
+
+// Fetch scenario from db so we can know its parameters now rather than wait for them in the result data
+appStore.currentScenario.runId = runId;
+await appStore.loadScenarioFromDB(appStore.currentScenario);
 
 // Use useAsyncData to store the time once, during server-side rendering: avoids client render re-writing value.
 const { data: timeOfFirstStatusPoll } = await useAsyncData<number>("timeOfFirstStatusPoll", async () => {

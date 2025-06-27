@@ -1,22 +1,40 @@
-import type { ParameterDict } from "@/types/apiRequestTypes";
 import type {
   ApiError,
   NewScenarioData,
   NewScenarioResponse,
+  ScenarioData,
   ScenarioResultData,
   ScenarioResultResponse,
   ScenarioStatusData,
   ScenarioStatusResponse,
-} from "@/types/apiResponseTypes";
+} from "~/types/apiResponseTypes";
+import type { ParameterSet } from "~/types/parameterTypes";
 import type { EventHandlerRequest, H3Event } from "h3";
 import { fetchRApi } from "@/server/utils/rApi";
 import { getModelVersion, hashParameters } from "../utils/helpers";
 import { apiResponse, badRequestResponse, internalServerErrorResponse } from "../utils/responseHelpers";
-import { createScenario, deleteScenario, getScenarioByParametersHash } from "../db/scenarioRepository";
+import { createScenario, deleteScenario, getScenarioByParametersHash, getScenarioByRunId } from "../db/scenarioRepository";
+
+export const getScenario = async (event: H3Event<EventHandlerRequest>) => {
+  const runId = getRouterParam(event, "runId");
+  const scenario = await getScenarioByRunId(runId);
+
+  if (!scenario) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Scenario not found",
+    });
+  };
+
+  return {
+    parameters: scenario.parameters as ParameterSet,
+    runId: scenario.run_id,
+  } as ScenarioData;
+};
 
 const rApiRunScenarioEndpoint = "/scenario/run";
 const runScenario = async (
-  parameters: ParameterDict,
+  parameters: ParameterSet,
   version: string,
   event?: H3Event<EventHandlerRequest>,
 ): Promise<NewScenarioResponse> => {
@@ -82,7 +100,7 @@ export const getScenarioResult = async (
 // If it doesn't exist, run the scenario, and return the run ID.
 // Run ID will be used to look up the scenario status and results later.
 export const newScenario = async (
-  parameters: ParameterDict,
+  parameters: ParameterSet,
   event?: H3Event<EventHandlerRequest>,
 ): Promise<NewScenarioResponse> => {
   const version = await getModelVersion();
@@ -110,7 +128,7 @@ export const newScenario = async (
   const response = await runScenario(parameters, version, event);
 
   if (response?.data?.runId) {
-    await createScenario(parametersHash, response.data.runId);
+    await createScenario(parameters, parametersHash, response.data.runId);
   }
 
   return apiResponse<NewScenarioData>(response) as NewScenarioResponse;

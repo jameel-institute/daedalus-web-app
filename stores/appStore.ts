@@ -1,5 +1,5 @@
 import type { AsyncDataRequestStatus } from "#app";
-import type { Metadata, NewScenarioData, ScenarioResultData, ScenarioStatusData, TimeSeriesGroup, VersionData } from "@/types/apiResponseTypes";
+import type { Metadata, NewScenarioData, ScenarioData, ScenarioResultData, ScenarioStatusData, TimeSeriesGroup, VersionData } from "~/types/apiResponseTypes";
 import type { AppState, Comparison, Scenario } from "@/types/storeTypes";
 import type { FetchError } from "ofetch";
 import { type Parameter, type ParameterSet, TypeOfParameter } from "@/types/parameterTypes";
@@ -28,7 +28,7 @@ deepFreeze(emptyScenario);
 const emptyComparison = {
   axis: undefined,
   baseline: undefined,
-  scenarios: undefined,
+  scenarios: [],
 } as Comparison;
 deepFreeze(emptyComparison);
 
@@ -76,7 +76,30 @@ export const useAppStore = defineStore("app", {
     timeSeriesGroups: (state): Array<TimeSeriesGroup> | undefined => state.metadata?.results.time_series_groups as TimeSeriesGroup[] | undefined,
   },
   actions: {
-    async runScenarioByParameters(parameters: ParameterSet) {
+    async loadScenarioFromDB(scenario: Scenario) {
+      if (!scenario.runId) {
+        console.error("No runId provided for scenario load.");
+        return;
+      }
+
+      const { data, status } = await useFetch(
+        `/api/scenarios/${scenario.runId}/details`,
+      ) as {
+        data: Ref<ScenarioData>
+        status: Ref<AsyncDataRequestStatus>
+      };
+
+      if (status.value === "success" && data.value.runId) {
+        scenario.runId = data.value.runId;
+        scenario.parameters = data.value.parameters;
+      }
+    },
+    async runScenarioByParameters(parameters: ParameterSet | undefined) {
+      if (!parameters) {
+        console.error("No parameters provided for scenario run.");
+        return;
+      }
+
       const response = await $fetch<NewScenarioData>("/api/scenarios", {
         method: "POST",
         body: { parameters },
@@ -128,7 +151,6 @@ export const useAppStore = defineStore("app", {
         fetchStatus: status.value,
         fetchError: error.value || undefined,
       };
-      scenario.parameters = scenario.result.data?.parameters;
     },
     async loadMetadata() {
       const { data: metadata, status: metadataFetchStatus, error: metadataFetchError } = await useFetch("/api/metadata") as {
@@ -175,6 +197,17 @@ export const useAppStore = defineStore("app", {
       });
 
       this.currentComparison = newComparison;
+    },
+    async setCurrentComparisonByRunIds(runIds: string[]) {
+      this.currentComparison.scenarios = runIds.map((runId) => {
+        return structuredClone({ ...emptyScenario, runId });
+      });
+
+      await Promise.all(
+        this.currentComparison.scenarios?.map(async (scenario) => {
+          await this.loadScenarioFromDB(scenario);
+        }) || [],
+      );
     },
     async downloadExcel() {
       this.downloadError = undefined;

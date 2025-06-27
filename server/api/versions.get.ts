@@ -1,4 +1,4 @@
-import type { VersionDataResponse } from "@/types/apiResponseTypes";
+import type { VersionDataResponse } from "~/types/apiResponseTypes";
 import { getVersionData } from "@/server/handlers/versions";
 import { defineRApiEventHandler } from "@/server/utils/defineRApiEventHandler";
 
