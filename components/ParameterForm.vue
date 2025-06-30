@@ -467,7 +467,7 @@ onMounted(() => {
   border-color: $warning;
   box-shadow: 0 0 0 0.25rem rgba(var(--cui-warning-rgb), 0.25);
 
-  // Undo stylings related to the validation icon, which looks like: (!)
+  // Undo CoreUI stylings related to the validation icon, which looks like: (!)
   background-image: unset;
   padding-right: 0.75rem;
 }

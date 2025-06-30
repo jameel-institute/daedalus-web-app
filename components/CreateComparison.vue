@@ -110,7 +110,7 @@ const showFormValidationFeedback = ref(false);
 
 const chosenParameterAxis = computed(() => appStore.metadata?.parameters.find(p => p.id === chosenAxisId.value));
 
-const { baselineOption, nonBaselineOptions } = useScenarioOptions(chosenParameterAxis);
+const { baselineOption, predefinedOptions } = useScenarioOptions(chosenParameterAxis);
 const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions, chosenParameterAxis);
 
 const baselineIsOutOfRange = computed(() =>
@@ -127,8 +127,8 @@ const handleClickAxis = (axis: Parameter) => {
   if (chosenAxisId.value === "") {
     chosenAxisId.value = axis.id;
     // Pre-populate the scenario options input with all options if there aren't more than max
-    selectedScenarioOptions.value = nonBaselineOptions.value.length <= MAX_SCENARIOS_COMPARED_TO_BASELINE
-      ? nonBaselineOptions.value.map(o => o.id)
+    selectedScenarioOptions.value = predefinedOptions.value.length <= MAX_SCENARIOS_COMPARED_TO_BASELINE
+      ? predefinedOptions.value.map(o => o.id)
       : []; // TODO: (jidea-230) pre-populate country parameter to nearby countries
   } else {
     chosenAxisId.value = "";

@@ -47,7 +47,7 @@ export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
     }
   });
 
-  const nonBaselineOptions = computed(() => {
+  const predefinedOptions = computed(() => {
     if (!axis.value) {
       return [];
     }
@@ -60,14 +60,14 @@ export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
     }) || [];
   });
 
-  const nonBaselineSelectOptions = computed(() => {
-    return paramOptsToSelectOpts(nonBaselineOptions.value);
+  const predefinedSelectOptions = computed(() => {
+    return paramOptsToSelectOpts(predefinedOptions.value);
   });
 
   return {
     baselineOption,
     dependedOnParamOptionLabel,
-    nonBaselineOptions,
-    nonBaselineSelectOptions,
+    predefinedOptions,
+    predefinedSelectOptions,
   };
 };

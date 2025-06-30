@@ -126,7 +126,7 @@ const selected = defineModel("selected", {
 const previousInput = ref<string>("");
 const currentInput = ref<string>("");
 
-const { baselineOption, dependedOnParamOptionLabel, nonBaselineSelectOptions } = useScenarioOptions(() => parameterAxis);
+const { baselineOption, dependedOnParamOptionLabel, predefinedSelectOptions } = useScenarioOptions(() => parameterAxis);
 const { tooFewScenarios, tooManyScenarios, numericInvalid } = useComparisonValidation(selected, () => parameterAxis);
 
 const VALUE_CONTAINER_SELECTOR = ".value-container.multi";
@@ -137,8 +137,8 @@ const vueSelect = useTemplateRef<ComponentPublicInstance>("vueSelectComponent");
 const appStore = useAppStore();
 const vueSelectControl = computed((): HTMLElement | null => vueSelect.value?.$el.querySelector(VALUE_CONTAINER_SELECTOR));
 const searchInput = computed(() => vueSelectControl.value?.querySelector<HTMLInputElement>(SEARCH_INPUT_SELECTOR));
-const allScenariosSelected = computed(() => nonBaselineSelectOptions.value.every(o => selected.value.includes(o.value)));
-const options = computed(() => [...nonBaselineSelectOptions.value, ...customOptions.value]);
+const allScenariosSelected = computed(() => predefinedSelectOptions.value.every(o => selected.value.includes(o.value)));
+const options = computed(() => [...predefinedSelectOptions.value, ...customOptions.value]);
 const parameterIsNumeric = computed(() => parameterAxis?.parameterType === TypeOfParameter.Numeric);
 const dependentRange = computed(() => getRangeForDependentParam(parameterAxis, appStore.currentScenario.parameters));
 const estimatedRangeText = computed(() => `${dependedOnParamOptionLabel.value} (${dependentRange.value?.min}–${dependentRange.value?.max})`);
