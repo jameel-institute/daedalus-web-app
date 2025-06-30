@@ -75,7 +75,7 @@
           <span v-else>
             Press enter to add custom option: {{ formatOptionLabel(parameterAxis, option) }}
             <p v-if="isOutOfRange(option)" class="text-secondary small mb-0">
-              NB: This value is outside the estimated range for {{ estimatedRangeText }}.
+              NB: This value is outside the estimated range for {{ rangeText }}.
             </p>
           </span>
         </span>
@@ -93,8 +93,9 @@
       </span>
     </div>
     <div v-else-if="showWarning" class="invalid-tooltip bg-warning">
-      {{ valuesOutOfRange.length === 1 ? 'One' : 'Some' }} of the values ({{ valuesOutOfRange.join(", ") }})
-      {{ valuesOutOfRange.length === 1 ? 'lies' : 'lie' }} outside of the estimated range for {{ estimatedRangeText }}.
+      {{ valuesOutOfRange.length === 1 ? 'One' : 'Some' }} of the values
+      ({{ valuesOutOfRange.map(v => humanReadableInteger(v)).join(", ") }})
+      {{ valuesOutOfRange.length === 1 ? 'lies' : 'lie' }} outside of the estimated range for {{ rangeText }}.
       Proceed with caution.
     </div>
   </div>
@@ -106,7 +107,7 @@ import VueSelect from "vue3-select-component";
 import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE, MIN_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
 import type { ParameterSelectOption } from "./utils/parameters";
-import { formatOptionLabel, stringIsInteger } from "./utils/formatters";
+import { formatOptionLabel, humanReadableInteger, stringIsInteger } from "./utils/formatters";
 import { getRangeForDependentParam, sortOptions } from "./utils/parameters";
 import { numericValueIsOutOfRange } from "~/components/utils/validations";
 
@@ -141,7 +142,7 @@ const allScenariosSelected = computed(() => predefinedSelectOptions.value.every(
 const options = computed(() => [...predefinedSelectOptions.value, ...customOptions.value]);
 const parameterIsNumeric = computed(() => parameterAxis?.parameterType === TypeOfParameter.Numeric);
 const dependentRange = computed(() => getRangeForDependentParam(parameterAxis, appStore.currentScenario.parameters));
-const estimatedRangeText = computed(() => `${dependedOnParamOptionLabel.value} (${dependentRange.value?.min}–${dependentRange.value?.max})`);
+const rangeText = computed(() => `${dependedOnParamOptionLabel.value} (${dependentRange.value?.min}–${dependentRange.value?.max})`);
 
 const isOutOfRange = (value: string) => numericValueIsOutOfRange(value, parameterAxis, appStore.currentScenario.parameters);
 
