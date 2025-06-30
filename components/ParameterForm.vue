@@ -85,7 +85,7 @@
             <ParameterHeader :parameter="parameter" />
           </div>
           <div class="d-flex flex-wrap">
-            <div class="flex-grow-1">
+            <div class="flex-grow-1" :class="[warnButNotInvalid(parameter) ? 'has-warning' : '']">
               <CFormInput
                 :id="parameter.id"
                 v-model="formData[parameter.id]"
@@ -93,7 +93,6 @@
                 type="number"
                 :class="[
                   pulsingParameters.includes(parameter.id) ? 'pulse' : '',
-                  warningFields?.includes(parameter.id) ? 'has-warning' : '',
                 ]"
                 :min="dependentRange(parameter)?.min"
                 :max="dependentRange(parameter)?.max"
@@ -102,7 +101,6 @@
                 :feedback-invalid="tooltipText(parameter)"
                 :data-valid="!invalidFields?.includes(parameter.id)"
                 :invalid="showTooltip(parameter)"
-                :valid="!invalidFields?.includes(parameter.id) && showValidations"
                 :tooltip-feedback="true"
                 @change="handleChange(parameter)"
                 @input="handleInput"
@@ -174,8 +172,9 @@ const appStore = useAppStore();
 
 const formSubmitting = ref(false);
 const showValidations = ref(false);
-const showWarnings = ref(false);
+const showWarnings = ref(false); // Show warning tooltip if there is any warning to show
 const mounted = ref(false);
+const invalidFields = ref<string[]>([]);
 
 const paramMetadata = computed(() => appStore.metadata?.parameters);
 
@@ -193,13 +192,6 @@ const formData = ref(
   // or to the previous scenario's values if any.
   appStore.currentScenario.parameters ? { ...appStore.currentScenario.parameters } : initialiseFormDataFromDefaults(),
 );
-
-// Making the vue select searchable means that it's possible to unset a parameter value (to undefined) if you clear the search
-// input. In this case we just want to be able to revert to the previous value it had. However, this is tricky as we
-// don't get the previous value in any watch of formData since it's watching deep changes in an object, and we can't
-// use a computed setter for values in an object type. So here we keep a copy of the last full dictionary and reset in the watch
-// if required.
-const previousFullFormData = ref({ ...formData.value });
 
 const pulsingParameters = ref([] as string[]);
 // An object mapping the dependency relationship between parameters' metadata, where keys are the ids of parameters that are depended upon,
@@ -231,6 +223,14 @@ const runButtonDisabled = computed(() => {
   }
 });
 
+const warningFields = computed(() => {
+  return paramMetadata.value?.filter(p => numericValueIsOutOfRange(formData.value?.[p.id], p, formData.value)).map(p => p.id);
+});
+
+const warnButNotInvalid = (param: Parameter) => {
+  return warningFields.value?.includes(param.id) && !invalidFields.value?.includes(param.id);
+};
+
 const optionsAreTerse = (param: Parameter) => {
   const eachOptionIsASingleWord = param.options?.every((option) => {
     return !option.label.includes(" ");
@@ -250,23 +250,6 @@ const renderAsSelect = (param: Parameter) => {
 const dependentRange = (param: Parameter) => {
   return getRangeForDependentParam(param, formData.value);
 };
-
-const invalidFields = ref<string[]>([]);
-const recalculateInvalidFields = () => {
-  if (!formData.value && paramMetadata.value) {
-    invalidFields.value = paramMetadata.value.map(p => p.id);
-    return;
-  }
-
-  invalidFields.value = paramMetadata.value?.filter((param) => {
-    const val = formData.value![param.id];
-    return (val === undefined || val === null || val === "" || numericValueInvalid(val, param));
-  }).map(p => p.id) || [];
-};
-
-const warningFields = computed(() => {
-  return paramMetadata.value?.filter(p => numericValueIsOutOfRange(formData.value?.[p.id], p, formData.value)).map(p => p.id);
-});
 
 const showTooltip = (param: Parameter) => !!(warningFields.value?.includes(param.id) && showWarnings.value)
   || !!(invalidFields.value?.includes(param.id) && showValidations.value);
@@ -294,7 +277,9 @@ const resetParam = (param: Parameter) => {
 };
 
 const tooltipText = (param: Parameter) => {
-  if (param.updateNumericFrom) {
+  if (param.parameterType === TypeOfParameter.Numeric && invalidFields.value?.includes(param.id)) {
+    return "Field cannot be empty or negative.";
+  } else if (param.updateNumericFrom && warningFields.value?.includes(param.id)) {
     const dependedUponParam = paramMetadata.value?.find(p => p.id === param.updateNumericFrom?.parameterId);
     const range = dependentRange(param);
 
@@ -303,6 +288,8 @@ const tooltipText = (param: Parameter) => {
       return `NB: This value is outside the estimated range for ${selectedOption?.label} (${range.min}–${range.max}).`
         + ` Proceed with caution.`;
     }
+  } else {
+    return "This field is required.";
   }
 };
 
@@ -386,17 +373,16 @@ watch(() => appStore.globe.highlightedCountry, (newValue, oldValue) => {
   }
 });
 
-watch(formData, (newVal) => {
-  recalculateInvalidFields();
-
-  if (newVal && paramMetadata.value && previousFullFormData.value) {
-    const empty = paramMetadata.value.some(param => !newVal[param.id]);
-    if (empty) {
-      formData.value = previousFullFormData.value;
-    } else {
-      previousFullFormData.value = { ...formData.value };
-    }
+watch(formData, () => {
+  if (!formData.value && paramMetadata.value) {
+    invalidFields.value = paramMetadata.value.map(p => p.id);
+    return;
   }
+
+  invalidFields.value = paramMetadata.value?.filter((param) => {
+    const val = formData.value![param.id];
+    return (val === undefined || val === null || val === "" || numericValueInvalid(val, param));
+  }).map(p => p.id) || [];
 }, { deep: 1 });
 
 onMounted(() => {
@@ -405,7 +391,7 @@ onMounted(() => {
   // Set fields whose default values are dependent on other fields' values to their defaults, except if they have been set from the store.
   paramMetadata.value?.filter((param) => {
     const isDependent = param.updateNumericFrom !== undefined;
-    const shouldBeSetFromStore = appStore.currentScenario?.parameters?.[param.id];
+    const shouldBeSetFromStore = !!appStore.currentScenario?.parameters?.[param.id];
     return isDependent && !shouldBeSetFromStore;
   }).forEach(resetParam);
 });
@@ -463,16 +449,30 @@ onMounted(() => {
   padding-right: 2.2rem;
 }
 
-:deep(.form-control.is-invalid.has-warning) {
+:deep(.has-warning .form-control.is-invalid) {
   border-color: $warning;
   box-shadow: 0 0 0 0.25rem rgba(var(--cui-warning-rgb), 0.25);
 
   // Undo CoreUI stylings related to the validation icon, which looks like: (!)
   background-image: unset;
-  padding-right: 0.75rem;
+  padding-right: 1rem;
 }
 
-:deep(.form-control.has-warning ~ .invalid-tooltip) {
+:deep(.has-warning .invalid-tooltip) {
   background-color: $warning;
+}
+
+:deep(.has-warning input[type=range].form-range) {
+  &::-webkit-slider-thumb {
+    background-color: $warning;
+  }
+
+  &::-moz-range-thumb {
+    background-color: $warning;
+  }
+
+  &::-ms-thumb {
+    background-color: $warning;
+  }
 }
 </style>
