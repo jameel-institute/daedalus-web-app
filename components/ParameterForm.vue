@@ -99,9 +99,9 @@
                 :max="dependentRange(parameter)?.max"
                 :step="parameter.step"
                 :size="appStore.largeScreen ? 'lg' : undefined"
-                :feedback-invalid="numericParameterFeedback(parameter)"
+                :feedback-invalid="tooltipText(parameter)"
                 :data-valid="!invalidFields?.includes(parameter.id)"
-                :invalid="showFeedback(parameter)"
+                :invalid="showTooltip(parameter)"
                 :valid="!invalidFields?.includes(parameter.id) && showValidations"
                 :tooltip-feedback="true"
                 @change="handleChange(parameter)"
@@ -268,7 +268,7 @@ const warningFields = computed(() => {
   return paramMetadata.value?.filter(p => numericValueIsOutOfRange(formData.value?.[p.id], p, formData.value)).map(p => p.id);
 });
 
-const showFeedback = (param: Parameter) => !!(warningFields.value?.includes(param.id) && showWarnings.value)
+const showTooltip = (param: Parameter) => !!(warningFields.value?.includes(param.id) && showWarnings.value)
   || !!(invalidFields.value?.includes(param.id) && showValidations.value);
 
 // Since some defaults depend on the values of other fields, this function should not be used to initialize form values.
@@ -293,7 +293,7 @@ const resetParam = (param: Parameter) => {
   formData.value![param.id] = defaultValue(param) as string;
 };
 
-const numericParameterFeedback = (param: Parameter) => {
+const tooltipText = (param: Parameter) => {
   if (param.updateNumericFrom) {
     const dependedUponParam = paramMetadata.value?.find(p => p.id === param.updateNumericFrom?.parameterId);
     const range = dependentRange(param);
@@ -417,7 +417,7 @@ onMounted(() => {
   flex-wrap: wrap;
   row-gap: 1rem;
   column-gap: 1rem;
-  position: relative; // Provide a 'nearest positioned ancestor' for the feedback element.
+  position: relative; // Provide a 'nearest positioned ancestor' for the tooltip element.
 }
 
 .field-container {
