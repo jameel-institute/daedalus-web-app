@@ -94,7 +94,7 @@
     </div>
     <div v-else-if="showWarning" class="invalid-tooltip bg-warning">
       {{ valuesOutOfRange.length === 1 ? 'One' : 'Some' }} of the values
-      ({{ valuesOutOfRange.map(v => humanReadableInteger(v)).join(", ") }})
+      ({{ valuesOutOfRange.map(humanReadableInteger).join(", ") }})
       {{ valuesOutOfRange.length === 1 ? 'lies' : 'lie' }} outside of the estimated range for {{ rangeText }}.
       Proceed with caution.
     </div>
@@ -195,11 +195,7 @@ watch(selected, (newValue, oldValue) => {
 const handleInput = (newInput: string) => {
   currentInput.value = newInput;
 
-  if (!parameterIsNumeric.value) {
-    return;
-  }
-
-  if (newInput !== "" && !stringIsInteger(newInput) && searchInput.value) {
+  if (parameterIsNumeric.value && newInput !== "" && !stringIsInteger(newInput) && searchInput.value) {
     // If the input is not a valid integer, reset the input to the previous valid value
     searchInput.value.value = previousInput.value;
     searchInput.value.dispatchEvent(new Event("input"));
