@@ -12,7 +12,6 @@ export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
       return undefined;
     } else if (axis.value.parameterType === TypeOfParameter.Numeric) {
       const baselineValue = appStore.currentScenario.parameters[axis.value.id];
-      // TODO: (jidea-229) description should say whether the value is a default, min, max; or empty if user-provided.
       return { id: baselineValue, label: humanReadableInteger(baselineValue), description: "" } as ParameterOption;
     } else if (axis.value.id && appStore.currentScenario.parameters) {
       return axis.value.options?.find(o => o.id === appStore.currentScenario.parameters![axis.value!.id]);
@@ -53,7 +52,6 @@ export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
     }
     if (axis.value?.parameterType === TypeOfParameter.Numeric) {
       return predefinedNumericOptions.value?.filter(o => o.id !== baselineOption.value?.id) || [];
-      // TODO - exclude any option that is equal to the baseline?
     }
     return axis.value?.options?.filter(({ id }) => {
       return baselineOption.value && id !== baselineOption.value?.id;
