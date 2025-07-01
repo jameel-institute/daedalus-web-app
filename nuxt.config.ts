@@ -37,6 +37,7 @@ export default defineNuxtConfig({
   modules: [
     "@nuxtjs/fontaine", // https://nuxt.com/docs/getting-started/styling#font-advanced-optimization
     "@pinia/nuxt",
+    "pinia-plugin-persistedstate/nuxt", // https://prazdevs.github.io/pinia-plugin-persistedstate/frameworks/nuxt.html
     "@nuxt/test-utils/module", // https://nuxt.com/docs/getting-started/testing#setup
     "@nuxt/eslint",
     "@vueuse/nuxt",

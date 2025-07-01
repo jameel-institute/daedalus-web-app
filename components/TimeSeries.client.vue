@@ -9,15 +9,15 @@
 </template>
 
 <script setup lang="ts">
-import * as Highcharts from "highcharts";
-import accessibilityInitialize from "highcharts/modules/accessibility";
-import exportDataInitialize from "highcharts/modules/export-data";
-import exportingInitialize from "highcharts/modules/exporting";
-import offlineExportingInitialize from "highcharts/modules/offline-exporting";
+import Highcharts from "highcharts/esm/highcharts";
+import "highcharts/esm/modules/accessibility";
+import "highcharts/esm/modules/exporting";
+import "highcharts/esm/modules/export-data";
+import "highcharts/esm/modules/offline-exporting";
 import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import type { TimeSeriesDataPoint } from "~/types/dataTypes";
-import { plotBandsColor, plotLinesColor, timeSeriesColors } from "./utils/highCharts";
+import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions, plotBandsColor, plotLinesColor, timeSeriesColors } from "./utils/highCharts";
 
 const props = defineProps<{
   seriesId: string
@@ -34,11 +34,6 @@ const emit = defineEmits<{
   chartDestroyed: [seriesId: string]
 }>();
 
-accessibilityInitialize(Highcharts);
-exportingInitialize(Highcharts);
-exportDataInitialize(Highcharts);
-offlineExportingInitialize(Highcharts);
-
 const appStore = useAppStore();
 
 // Get a unique index for this series, across all groups and series
@@ -51,8 +46,6 @@ const chartContainerId = computed(() => `${props.seriesId}-container`);
 const chartContainer = ref<HTMLDivElement | null>(null);
 
 let chart: Highcharts.Chart;
-const chartBackgroundColor = "transparent";
-const chartBackgroundColorOnExporting = "white";
 
 const seriesMetadata = computed((): DisplayInfo | undefined => {
   return appStore.metadata?.results?.time_series.find(({ id }) => id === props.seriesId);
@@ -125,21 +118,10 @@ const chartInitialOptions = () => {
       enabled: false, // Omit credits to allow us to reduce margin and save vertical space on page. We must credit Highcharts elsewhere.
     },
     chart: {
+      ...chartOptions,
       height: props.chartHeight,
       marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
       marginBottom: 35,
-      backgroundColor: chartBackgroundColor,
-      events: {
-        fullscreenOpen() {
-          this.update({ chart: { backgroundColor: chartBackgroundColorOnExporting } });
-        },
-        fullscreenClose() {
-          this.update({ chart: { backgroundColor: chartBackgroundColor } });
-        },
-      },
-      style: {
-        fontFamily: "ImperialSansText, sans-serif", // TODO: Make the font-family derive from a globally configurable constant
-      },
     },
     exporting: {
       filename: `${seriesMetadata.value!.label} in ${appStore.currentScenario.parameters?.country}`,
@@ -156,26 +138,9 @@ const chartInitialOptions = () => {
         },
       },
       buttons: {
-        contextButton: {
-          height: 20,
-          width: 22,
-          symbolSize: 12,
-          symbolY: 10,
-          symbolX: 12,
-          symbolStrokeWidth: 2,
-          // Omit 'printChart' and 'viewData' from menu items
-          menuItems: ["downloadCSV", "downloadXLS", "separator", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG", "separator", "viewFullscreen"],
-          useHTML: true,
-        },
+        contextButton: contextButtonOptions,
       },
-      menuItemDefinitions: {
-        downloadCSV: {
-          text: "Download CSV for this chart",
-        },
-        downloadXLS: {
-          text: "Download XLS for this chart",
-        },
-      },
+      menuItemDefinitions: menuItemDefinitionOptions,
     },
     title: {
       text: "",
