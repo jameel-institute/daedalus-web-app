@@ -39,8 +39,8 @@ export const sortOptions = (parameter: Parameter, optionsToSort: string[]) => {
   });
 };
 
-// Given a numeric parameter where the RangeData is dependent on another parameter's value,
-// and the current values for each parameter (which could be data in a form, or a current scenario),
+// Given a parameter which takes numeric values, and where the RangeData is dependent on another parameter's value,
+// and a set of the current parameter values (which could be data in a form, or a current scenario),
 // retrieve the RangeData (e.g. min, max and default).
 export const getRangeForDependentParam = (
   dependentParam: Parameter | undefined,
