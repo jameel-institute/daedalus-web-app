@@ -37,7 +37,7 @@
         </div>
       </template>
       <template #no-options>
-        {{ allScenariosSelected ? 'All options selected.' : 'No options found.' }}
+        {{ allPredefinedOptionsAreSelected ? 'All options selected.' : 'No options found.' }}
       </template>
       <template v-if="true" #tag="{ option, removeOption }">
         <button
@@ -63,7 +63,7 @@
       <template v-if="parameterIsNumeric" #menu-header>
         <p v-if="!currentInput" class="m-2">
           {{ `Type a number to add a custom option${
-            allScenariosSelected ? '' : `, or select a pre-defined value from the list below.`}`
+            allPredefinedOptionsAreSelected ? '' : `, or select a pre-defined value from the list below.`}`
           }}
         </p>
       </template>
@@ -138,7 +138,7 @@ const vueSelect = useTemplateRef<ComponentPublicInstance>("vueSelectComponent");
 const appStore = useAppStore();
 const vueSelectControl = computed((): HTMLElement | null => vueSelect.value?.$el.querySelector(VALUE_CONTAINER_SELECTOR));
 const searchInput = computed(() => vueSelectControl.value?.querySelector<HTMLInputElement>(SEARCH_INPUT_SELECTOR));
-const allScenariosSelected = computed(() => predefinedSelectOptions.value.every(o => selected.value.includes(o.value)));
+const allPredefinedOptionsAreSelected = computed(() => predefinedSelectOptions.value.every(o => selected.value.includes(o.value)));
 const options = computed(() => [...predefinedSelectOptions.value, ...customOptions.value]);
 const parameterIsNumeric = computed(() => parameterAxis?.parameterType === TypeOfParameter.Numeric);
 const dependentRange = computed(() => getRangeForDependentParam(parameterAxis, appStore.currentScenario.parameters));
@@ -205,7 +205,7 @@ const handleInput = (newInput: string) => {
   previousInput.value = newInput;
 };
 
-watch(allScenariosSelected, newValue => newValue ? menuOpen.value = false : null);
+watch(allPredefinedOptionsAreSelected, newValue => newValue ? menuOpen.value = false : null);
 
 onMounted(() => {
   watch(vueSelectControl, () => {
