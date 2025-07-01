@@ -22,7 +22,7 @@
       <template #option="{ option }">
         <div class="parameter-option">
           <span
-            v-if="countryFlagIds[option.value]"
+            v-if="parameterAxis.id === appStore.globeParameter?.id && countryFlagIds[option.value]"
             :class="`fi fi-${countryFlagIds[option.value]} ms-1 me-2`"
           />
           <span>{{ option.label }}</span>
@@ -82,7 +82,7 @@ const allScenariosSelected = computed(() => {
 });
 
 const countryFlagIds = computed(() => {
-  if (parameterAxis !== appStore.globeParameter) {
+  if (parameterAxis.id !== appStore.globeParameter?.id) {
     return {};
   }
 

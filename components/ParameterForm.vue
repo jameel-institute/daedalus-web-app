@@ -69,7 +69,7 @@
               <template #value="{ option }">
                 <div class="d-flex gap-2 align-items-center">
                   <span
-                    v-if="countryFlagIds?.[option.value]"
+                    v-if="parameter === appStore.globeParameter && countryFlagIds?.[option.value]"
                     :class="`fi fi-${countryFlagIds[option.value]}`"
                   />
                   {{ option.label }}
@@ -78,7 +78,7 @@
               <template #option="{ option }">
                 <div class="parameter-option">
                   <span
-                    v-if="countryFlagIds?.[option.value]"
+                    v-if="parameter === appStore.globeParameter && countryFlagIds?.[option.value]"
                     :class="`fi fi-${countryFlagIds[option.value]} ms-1`"
                   />
                   <span>{{ option.label }}</span>

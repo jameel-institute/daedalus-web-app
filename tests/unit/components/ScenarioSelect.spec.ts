@@ -23,6 +23,11 @@ const controlSelector = ".value-container.multi";
 const pathogenParameter = mockMetadataResponseData.parameters.find(p => p.id === "pathogen")!;
 const responseParameter = mockMetadataResponseData.parameters.find(p => p.id === "response")!;
 const vaccineParameter = mockMetadataResponseData.parameters.find(p => p.id === "vaccine")!;
+const countryParameter = mockMetadataResponseData.parameters.find(p => p.id === "country")!;
+
+vi.mock("~/components/utils/countryFlag", () => ({
+  countryFlagIconId: vi.fn(id => id === "AUS" ? "au" : ""),
+}));
 
 const getOptionFromMenu = (wrapper: VueWrapper, optionText: string) => {
   const matcher = new RegExp(optionText, "i");
@@ -35,7 +40,7 @@ const getOptionTagFromControl = (wrapper: VueWrapper, optionText: string) => {
 };
 
 describe("scenario select", () => {
-  it("renders as expected", async () => {
+  it("renders as expected for parameters that have descriptions for their options", async () => {
     const wrapper = mount(ScenarioSelect, {
       props: {
         showFeedback: false,
@@ -57,7 +62,25 @@ describe("scenario select", () => {
 
     // Assert option mark-up includes description text
     const businessClosuresOption = getOptionFromMenu(wrapper, "Business closures");
-    expect(businessClosuresOption!.text()).toMatch(/A response strategy of mostly economic closures/);
+    expect(businessClosuresOption!.text()).toContain("A response strategy of mostly economic closures");
+  });
+
+  it("renders menu options as expected for a globe parameter", async () => {
+    const wrapper = mount(ScenarioSelect, {
+      props: {
+        showFeedback: false,
+        parameterAxis: countryParameter,
+        labelId: "formLabelId",
+        selected: [],
+      },
+      global: { stubs, plugins },
+    });
+
+    await wrapper.find(controlSelector).trigger("click");
+
+    // Assert option mark-up includes description text
+    const australiaOption = getOptionFromMenu(wrapper, "Australia");
+    expect(australiaOption!.find(".fi").classes()).toContain("fi-au");
   });
 
   it("can update the v-model prop", async () => {
