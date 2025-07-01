@@ -67,17 +67,19 @@
               @option-selected="handleChange(parameter)"
             >
               <template #value="{ option }">
-                <span
-                  v-if="countryFlagIds?.[option.value]"
-                  :class="`fi fi-${countryFlagIds[option.value]} ms-1 me-2`"
-                />
-                {{ option.label }}
+                <div class="d-flex gap-2 align-items-center">
+                  <span
+                    v-if="countryFlagIds?.[option.value]"
+                    :class="`fi fi-${countryFlagIds[option.value]}`"
+                  />
+                  {{ option.label }}
+                </div>
               </template>
               <template #option="{ option }">
                 <div class="parameter-option">
                   <span
                     v-if="countryFlagIds?.[option.value]"
-                    :class="`fi fi-${countryFlagIds[option.value]} mx-2`"
+                    :class="`fi fi-${countryFlagIds[option.value]} ms-1`"
                   />
                   <span>{{ option.label }}</span>
                   <div
@@ -480,5 +482,9 @@ onMounted(() => {
 
 .numeric-header {
   padding-right: 2.2rem;
+}
+
+:deep(.single-value .fi) {
+  margin-bottom: 0.2rem;
 }
 </style>

@@ -23,7 +23,7 @@
         <div class="parameter-option">
           <span
             v-if="countryFlagIds[option.value]"
-            :class="`fi fi-${countryFlagIds[option.value]} mx-2`"
+            :class="`fi fi-${countryFlagIds[option.value]} ms-1 me-2`"
           />
           <span>{{ option.label }}</span>
           <div
