@@ -10,6 +10,7 @@ import { waitFor } from "@testing-library/vue";
 import { createPinia, setActivePinia } from "pinia";
 import { runStatus } from "~/types/apiResponseTypes";
 import { TypeOfParameter } from "~/types/parameterTypes";
+import { CostBasis } from "~/types/unitTypes";
 
 const sampleUnloadedScenario = {
   ...emptyScenario,
@@ -87,6 +88,7 @@ describe("app store", () => {
     expect(store.versions).toBeUndefined();
     expect(store.metadata).toBeUndefined();
     expect(store.largeScreen).toBe(true);
+    expect(store.preferences.costBasis).toBe(CostBasis.USD);
   });
 
   describe("actions", () => {

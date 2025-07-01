@@ -37,9 +37,9 @@
         </div>
       </template>
       <template #no-options>
-        {{ allScenariosSelected ? 'All options selected.' : 'No options found.' }}
+        {{ allPredefinedOptionsAreSelected ? 'All options selected.' : 'No options found.' }}
       </template>
-      <template v-if="true" #tag="{ option, removeOption }">
+      <template #tag="{ option, removeOption }">
         <button
           type="button"
           class="multi-value"
@@ -63,7 +63,7 @@
       <template v-if="parameterIsNumeric" #menu-header>
         <p v-if="!currentInput" class="m-2">
           {{ `Type a number to add a custom option${
-            allScenariosSelected ? '' : `, or select a pre-defined value from the list below.`}`
+            allPredefinedOptionsAreSelected ? '' : `, or select a pre-defined value from the list below.`}`
           }}
         </p>
       </template>
@@ -75,7 +75,7 @@
           <span v-else>
             Press enter to add custom option: {{ formatOptionLabel(parameterAxis, option) }}
             <p v-if="isOutOfRange(option)" class="text-secondary small mb-0">
-              NB: This value is outside the estimated range for {{ estimatedRangeText }}.
+              NB: This value is outside the estimated range for {{ rangeText }}.
             </p>
           </span>
         </span>
@@ -93,8 +93,9 @@
       </span>
     </div>
     <div v-else-if="showWarning" class="invalid-tooltip bg-warning">
-      {{ valuesOutOfRange.length === 1 ? 'One' : 'Some' }} of the values ({{ valuesOutOfRange.join(", ") }})
-      {{ valuesOutOfRange.length === 1 ? 'lies' : 'lie' }} outside of the estimated range for {{ estimatedRangeText }}.
+      {{ valuesOutOfRange.length === 1 ? 'One' : 'Some' }} of the values
+      ({{ valuesOutOfRange.map(humanReadableInteger).join(", ") }})
+      {{ valuesOutOfRange.length === 1 ? 'lies' : 'lie' }} outside of the estimated range for {{ rangeText }}.
       Proceed with caution.
     </div>
   </div>
@@ -106,7 +107,7 @@ import VueSelect from "vue3-select-component";
 import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE, MIN_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
 import type { ParameterSelectOption } from "./utils/parameters";
-import { formatOptionLabel, stringIsInteger } from "./utils/formatters";
+import { formatOptionLabel, humanReadableInteger, stringIsInteger } from "./utils/formatters";
 import { getRangeForDependentParam, sortOptions } from "./utils/parameters";
 import { numericValueIsOutOfRange } from "~/components/utils/validations";
 
@@ -126,7 +127,7 @@ const selected = defineModel("selected", {
 const previousInput = ref<string>("");
 const currentInput = ref<string>("");
 
-const { baselineOption, dependedOnParamOptionLabel, nonBaselineSelectOptions } = useScenarioOptions(() => parameterAxis);
+const { baselineOption, dependedOnParamOptionLabel, predefinedSelectOptions } = useScenarioOptions(() => parameterAxis);
 const { tooFewScenarios, tooManyScenarios, numericInvalid } = useComparisonValidation(selected, () => parameterAxis);
 
 const VALUE_CONTAINER_SELECTOR = ".value-container.multi";
@@ -137,11 +138,11 @@ const vueSelect = useTemplateRef<ComponentPublicInstance>("vueSelectComponent");
 const appStore = useAppStore();
 const vueSelectControl = computed((): HTMLElement | null => vueSelect.value?.$el.querySelector(VALUE_CONTAINER_SELECTOR));
 const searchInput = computed(() => vueSelectControl.value?.querySelector<HTMLInputElement>(SEARCH_INPUT_SELECTOR));
-const allScenariosSelected = computed(() => nonBaselineSelectOptions.value.every(o => selected.value.includes(o.value)));
-const options = computed(() => [...nonBaselineSelectOptions.value, ...customOptions.value]);
+const allPredefinedOptionsAreSelected = computed(() => predefinedSelectOptions.value.every(o => selected.value.includes(o.value)));
+const options = computed(() => [...predefinedSelectOptions.value, ...customOptions.value]);
 const parameterIsNumeric = computed(() => parameterAxis?.parameterType === TypeOfParameter.Numeric);
 const dependentRange = computed(() => getRangeForDependentParam(parameterAxis, appStore.currentScenario.parameters));
-const estimatedRangeText = computed(() => `${dependedOnParamOptionLabel.value} (${dependentRange.value?.min}–${dependentRange.value?.max})`);
+const rangeText = computed(() => `${dependedOnParamOptionLabel.value} (${dependentRange.value?.min}–${dependentRange.value?.max})`);
 
 const isOutOfRange = (value: string) => numericValueIsOutOfRange(value, parameterAxis, appStore.currentScenario.parameters);
 
@@ -194,11 +195,7 @@ watch(selected, (newValue, oldValue) => {
 const handleInput = (newInput: string) => {
   currentInput.value = newInput;
 
-  if (!parameterIsNumeric.value) {
-    return;
-  }
-
-  if (newInput !== "" && !stringIsInteger(newInput) && searchInput.value) {
+  if (parameterIsNumeric.value && newInput !== "" && !stringIsInteger(newInput) && searchInput.value) {
     // If the input is not a valid integer, reset the input to the previous valid value
     searchInput.value.value = previousInput.value;
     searchInput.value.dispatchEvent(new Event("input"));
@@ -208,7 +205,7 @@ const handleInput = (newInput: string) => {
   previousInput.value = newInput;
 };
 
-watch(allScenariosSelected, newValue => newValue ? menuOpen.value = false : null);
+watch(allPredefinedOptionsAreSelected, newValue => newValue ? menuOpen.value = false : null);
 
 onMounted(() => {
   watch(vueSelectControl, () => {

@@ -1,4 +1,4 @@
-import type { Parameter, ParameterOption, ParameterSet, ValueData } from "~/types/parameterTypes";
+import type { Parameter, ParameterOption, ParameterSet, RangeData } from "~/types/parameterTypes";
 import type { Option } from "vue3-select-component";
 
 export interface ParameterSelectOption extends Option<string> {
@@ -39,13 +39,13 @@ export const sortOptions = (parameter: Parameter, optionsToSort: string[]) => {
   });
 };
 
-// Given a numeric parameter where the ValueData is dependent on another parameter's value,
-// and the current values for each parameter (which could be data in a form, or a current scenario),
-// retrieve the ValueData (e.g. min, max and default).
+// Given a parameter which takes numeric values, and where the RangeData is dependent on another parameter's value,
+// and a set of the current parameter values (which could be data in a form, or a current scenario),
+// retrieve the RangeData (e.g. min, max and default).
 export const getRangeForDependentParam = (
   dependentParam: Parameter | undefined,
   parameterValueSet: ParameterSet | undefined,
-): ValueData | undefined => {
+): RangeData | undefined => {
   if (!dependentParam?.updateNumericFrom || !parameterValueSet) {
     return;
   }

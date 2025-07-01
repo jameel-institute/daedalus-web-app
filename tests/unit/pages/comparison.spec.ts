@@ -16,7 +16,7 @@ describe("comparison page", () => {
   it("should list scenarios as expected when there are at least two selected scenarios", async () => {
     const component = await mountSuspended(Comparison, {
       global: { plugins: [pinia] },
-      route: `/comparisons?`
+      route: `/comparison?`
         + `country=USA`
         + `&pathogen=sars_cov_1`
         + `&response=elimination`
@@ -42,7 +42,7 @@ describe("comparison page", () => {
   it("should list scenarios as expected when there are is exactly one selected scenario", async () => {
     const component = await mountSuspended(Comparison, {
       global: { plugins: [pinia] },
-      route: `/comparisons?`
+      route: `/comparison?`
         + `country=USA`
         + `&pathogen=sars_cov_1`
         + `&response=elimination`
@@ -73,7 +73,7 @@ describe("comparison page", () => {
           downloadError: "Some error",
         }, false, { stubActions: false })],
       },
-      route: `/comparisons?`
+      route: `/comparison?`
         + `country=USA`
         + `&pathogen=sars_cov_1`
         + `&response=elimination`

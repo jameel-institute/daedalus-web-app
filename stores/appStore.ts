@@ -8,6 +8,7 @@ import { defineStore } from "pinia";
 import { ExcelScenarioDownload } from "~/download/excelScenarioDownload";
 import type { ScenarioCapacity, ScenarioCost, ScenarioIntervention } from "~/types/resultTypes";
 import { getRangeForDependentParam } from "~/components/utils/parameters";
+import { CostBasis } from "~/types/unitTypes";
 
 const emptyScenario = {
   runId: undefined,
@@ -47,7 +48,13 @@ export const useAppStore = defineStore("app", {
     downloadError: undefined,
     currentScenario: emptyScenario,
     currentComparison: emptyComparison,
+    preferences: {
+      costBasis: CostBasis.USD, // Default cost basis for first-time visitors
+    },
   }),
+  persist: {
+    pick: ["preferences"],
+  },
   getters: {
     parametersMetadataById: (state): Record<string, Parameter> => {
       return Object.fromEntries(state.metadata?.parameters?.map(param => [param.id, param]) || []);

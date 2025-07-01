@@ -14,3 +14,19 @@ export const humanReadableInteger = (num: string): string => {
 export const formatOptionLabel = (parameter: Parameter, label: string) => {
   return parameter.parameterType === TypeOfParameter.Numeric ? humanReadableInteger(label) : label;
 };
+
+export const gdpReferenceYear = "2018";
+
+export const costAsPercentOfGdp = (cost: number | undefined, nationalGdp: number | undefined): number => {
+  if (!cost || !nationalGdp) {
+    return 0;
+  }
+  return (cost / nationalGdp) * 100;
+};
+
+export const humanReadablePercentOfGdp = (num: number): { percent: string, reference: string } => {
+  return {
+    percent: `${num.toFixed(1)}`,
+    reference: `of ${gdpReferenceYear} national GDP`,
+  };
+};

@@ -110,7 +110,7 @@ const showFormValidationFeedback = ref(false);
 
 const chosenParameterAxis = computed(() => appStore.parametersMetadataById[chosenAxisId.value]);
 
-const { baselineOption, nonBaselineOptions } = useScenarioOptions(chosenParameterAxis);
+const { baselineOption, predefinedOptions } = useScenarioOptions(chosenParameterAxis);
 const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions, chosenParameterAxis);
 
 const baselineIsOutOfRange = computed(() =>
@@ -127,8 +127,8 @@ const handleClickAxis = (axis: Parameter) => {
   if (chosenAxisId.value === "") {
     chosenAxisId.value = axis.id;
     // Pre-populate the scenario options input with all options if there aren't more than max
-    selectedScenarioOptions.value = nonBaselineOptions.value.length <= MAX_SCENARIOS_COMPARED_TO_BASELINE
-      ? nonBaselineOptions.value.map(o => o.id)
+    selectedScenarioOptions.value = predefinedOptions.value.length <= MAX_SCENARIOS_COMPARED_TO_BASELINE
+      ? predefinedOptions.value.map(o => o.id)
       : []; // TODO: (jidea-230) pre-populate country parameter to nearby countries
   } else {
     chosenAxisId.value = "";
@@ -155,6 +155,9 @@ const submitForm = async () => {
 
   // TODO: (jidea-262) Start scenario runs
   // TODO: Check that the baseline option does in fact match the currentScenario
+  // TODO: When creating scenarios in a comparison, store the model version against each scenario,
+  // so that we can distinguish new and old results / serve the same results up when user returns to same url.
+  // TODO: When creating scenarios in a comparison, store the scenario runId in the database.
 
   const baselineParameters = appStore.currentScenario.parameters;
   if (chosenParameterAxis.value && baselineParameters) {
