@@ -381,7 +381,7 @@ watch(formData, () => {
 
   invalidFields.value = paramMetadata.value?.filter((param) => {
     const val = formData.value![param.id];
-    return (val === undefined || val === null || val === "" || numericValueInvalid(val, param));
+    return ((!val && val !== 0) || numericValueInvalid(val, param));
   }).map(p => p.id) || [];
 }, { deep: 1 });
 
