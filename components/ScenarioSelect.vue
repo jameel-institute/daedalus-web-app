@@ -39,7 +39,7 @@
       <template #no-options>
         {{ allPredefinedOptionsAreSelected ? 'All options selected.' : 'No options found.' }}
       </template>
-      <template v-if="true" #tag="{ option, removeOption }">
+      <template #tag="{ option, removeOption }">
         <button
           type="button"
           class="multi-value"
