@@ -77,13 +77,14 @@
         </div>
       </div>
       <p class="fw-lighter vsl-display">
-        * Value of statistical life: ${{ formatCurrency(appStore.currentScenario.result.data!.average_vsl) }} Int'l$
+        * Value of statistical life: {{ humanReadableInteger(appStore.currentScenario.result.data!.average_vsl.toString()) }} Int'l$
       </p>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { humanReadableInteger } from "./utils/formatters";
 import { costAsPercentOfGdp, gdpReferenceYear, humanReadablePercentOfGdp } from "@/components/utils/formatters";
 import { abbreviateMillionsDollars } from "@/utils/money";
 import { CIcon } from "@coreui/icons-vue";
@@ -99,7 +100,7 @@ const gdpTotalCostPercent = computed(() => {
 
 const totalCostAbbr = computed(() => {
   if (appStore.totalCost) {
-    return abbreviateMillionsDollars(appStore.totalCost?.value, 1, true);
+    return abbreviateMillionsDollars(appStore.totalCost?.value, true);
   } else {
     return undefined;
   }

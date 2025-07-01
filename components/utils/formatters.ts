@@ -15,7 +15,7 @@ export const costAsPercentOfGdp = (cost: number | undefined, nationalGdp: number
 
 export const humanReadablePercentOfGdp = (num: number): { percent: string, reference: string } => {
   return {
-    percent: `${num.toFixed(1)}`,
+    percent: `${num.toFixed(num < 100 ? 1 : 0)}`,
     reference: `of ${gdpReferenceYear} national GDP`,
   };
 };
