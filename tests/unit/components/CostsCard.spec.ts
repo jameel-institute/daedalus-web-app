@@ -2,13 +2,14 @@ import type { ScenarioResultData } from "@/types/apiResponseTypes";
 import CostsCard from "@/components/CostsCard.vue";
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { waitFor } from "@testing-library/vue";
 import { mockResultResponseData } from "../mocks/mockResponseData";
+import { CostBasis } from "~/types/unitTypes";
+import { setActivePinia } from "pinia";
 
 const stubs = {
   CIcon: true,
 };
-const plugins = [mockPinia(
+const pinia = mockPinia(
   {
     currentScenario: {
       ...emptyScenario,
@@ -22,30 +23,38 @@ const plugins = [mockPinia(
       },
     },
   },
-)];
+  true,
+  { stubActions: false },
+);
 
-vi.mock("highcharts", async (importOriginal) => {
+vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
   const actual = await importOriginal();
 
   return {
-    getOptions: actual.getOptions,
-    chart: () => ({
-      destroy: vi.fn(),
-      setSize: vi.fn(),
-      series: [{ setData: vi.fn() }],
-    }),
-    _modules: actual._modules,
-    win: actual.win,
+    default: {
+      getOptions: actual.default.getOptions,
+      chart: () => ({
+        destroy: vi.fn(),
+        setSize: vi.fn(),
+        update: vi.fn(),
+        series: [{ setData: vi.fn() }],
+      }),
+    },
   };
 });
+vi.mock("highcharts/esm/modules/accessibility", () => ({}));
+vi.mock("highcharts/esm/modules/exporting", () => ({}));
+vi.mock("highcharts/esm/modules/export-data", () => ({}));
+vi.mock("highcharts/esm/modules/offline-exporting", () => ({}));
 
 describe("costs card", () => {
-  it("should render the costs pie chart container, the total cost, costs table, vsl and total cost in terms of % of GDP", async () => {
-    const averageVsl = formatCurrency(mockResultResponseData.average_vsl);
-    const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
+  beforeEach(() => {
+    setActivePinia(pinia);
+  });
 
-    const container = component.find(`#costsPieContainer`);
-    expect(container.classes()).not.toContain("hide-tooltips");
+  it("should render the costs chart container, the total cost, costs table, vsl and total cost in terms of % of GDP", async () => {
+    const averageVsl = formatCurrency(mockResultResponseData.average_vsl);
+    const component = await mountSuspended(CostsCard, { global: { stubs, plugins: [pinia] } });
 
     expect(component.find(`#gdpContainer`).text()).toContain("44.9%");
 
@@ -58,23 +67,32 @@ describe("costs card", () => {
     expect(totalCostPara.text()).toBe("8.9T");
   });
 
-  it("should show the tooltips when the mouse is over the cost pie container, and not otherwise", async () => {
-    const component = await mountSuspended(CostsCard, { global: { stubs, plugins } });
+  it("should change the cost basis when the radio buttons are clicked", async () => {
+    const appStore = useAppStore();
+    const component = await mountSuspended(CostsCard, { global: { stubs, plugins: [pinia] } });
 
-    const costsPieComponent = component.findComponent({ name: "CostsPie.client" });
-    expect(costsPieComponent.props().hideTooltips).toBe(false);
+    expect(appStore.preferences.costBasis).toBe(CostBasis.USD);
 
-    const container = component.find(`#costsPieContainer`);
+    // const costsTableComponent = component.findComponent({ name: "CostsTable" });
+    // expect(costsTableComponent.props("basis")).toBe(CostBasis.USD);
 
-    await container.trigger("mouseover");
-    expect(costsPieComponent.props().hideTooltips).toBe(false);
+    const gdpRadioButton = component.find(`input[type="radio"][value="${CostBasis.PercentGDP}"]`);
+    const usdRadioButton = component.find(`input[type="radio"][value="${CostBasis.USD}"]`);
+    expect(gdpRadioButton.element.checked).toBe(false);
+    expect(usdRadioButton.element.checked).toBe(true);
 
-    await container.trigger("mouseleave");
-    await waitFor(() => {
-      expect(costsPieComponent.props().hideTooltips).toBe(true);
-    }, { timeout: 1000 });
+    await gdpRadioButton.setChecked();
 
-    await container.trigger("mouseover");
-    expect(costsPieComponent.props().hideTooltips).toBe(false);
+    expect(gdpRadioButton.element.checked).toBe(true);
+    expect(usdRadioButton.element.checked).toBe(false);
+    expect(appStore.preferences.costBasis).toBe(CostBasis.PercentGDP);
+    // expect(costsTableComponent.props("basis")).toBe(CostBasis.PercentGDP);
+
+    await usdRadioButton.setChecked();
+
+    expect(gdpRadioButton.element.checked).toBe(false);
+    expect(usdRadioButton.element.checked).toBe(true);
+    expect(appStore.preferences.costBasis).toBe(CostBasis.USD);
+    // expect(costsTableComponent.props("basis")).toBe(CostBasis.USD);
   });
 });

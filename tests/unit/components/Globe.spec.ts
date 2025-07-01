@@ -67,7 +67,7 @@ describe("globe", () => {
 
       appStore.globe.highlightedCountry = "GBR";
 
-      await component.vm.$nextTick();
+      await nextTick();
 
       expect(chart.series._values.length).toBe(9);
       const highlightedSeries1 = getHighlightedCountrySeries(chart);
@@ -88,7 +88,7 @@ describe("globe", () => {
 
       appStore.globe.highlightedCountry = "USA";
 
-      await component.vm.$nextTick();
+      await nextTick();
 
       await waitFor(() => {
         expect(highlightedSeries1._disposed).toBe(true);
@@ -110,7 +110,7 @@ describe("globe", () => {
       const appStore = useAppStore();
       appStore.globe.highlightedCountry = "GBR";
 
-      await component.vm.$nextTick();
+      await nextTick();
 
       expect(component.vm.gentleRotateAnimation.stopped).toBe(true);
 
@@ -144,7 +144,7 @@ describe("globe", () => {
       const appStore = useAppStore();
       appStore.currentScenario.parameters = { country: "NOR" };
 
-      await component.vm.$nextTick();
+      await nextTick();
 
       await waitFor(() => {
         expect(chart.get("rotationX")).toBeCloseTo(-12, 0);
@@ -173,7 +173,7 @@ describe("globe", () => {
       const appStore = useAppStore();
       appStore.currentScenario.parameters = { country: "NOR" };
 
-      await component.vm.$nextTick();
+      await nextTick();
 
       await waitFor(() => {
         expect(chart.get("rotationX")).toBeCloseTo(-12, 0);
@@ -185,7 +185,7 @@ describe("globe", () => {
       appStore.globe.interactive = false;
       appStore.globe.highlightedCountry = null;
 
-      await component.vm.$nextTick();
+      await nextTick();
 
       expect(component.vm.gentleRotateAnimation.stopped).toBe(false);
       await waitFor(() => {
@@ -211,7 +211,7 @@ describe("globe", () => {
       const appStore = useAppStore();
       appStore.globe.highlightedCountry = "GBR";
 
-      await component.vm.$nextTick();
+      await nextTick();
 
       const gbrSeries = getHighlightedCountrySeries(chart);
       const originalColor = gbrSeries._settings.fill;

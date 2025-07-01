@@ -1,3 +1,5 @@
+import { humanReadableInteger } from "~/components/utils/formatters";
+
 // Convert values expressed in millions of dollars to sensible human-readable precision with units
 // E.g. 1.234567e6 -> { amount: "1.2", unit: "trillion" }
 export const abbreviateMillionsDollars = (
@@ -20,9 +22,30 @@ export const abbreviateMillionsDollars = (
     shortAmount = amount.toFixed(precision);
     unit = abbreviateUnits ? "M" : "million";
   }
+  if (precision === 0) {
+    shortAmount = humanReadableInteger(shortAmount);
+  }
   return {
     amount: shortAmount,
     unit,
+  };
+};
+
+export const expressMillionsDollarsAsBillions = (
+  amount: number,
+  precision: number = 1,
+  abbreviateUnits: boolean = false,
+): {
+  amount: string
+  unit: string
+} => {
+  let shortAmount = (amount / 1e3).toFixed(precision);
+  if (precision === 0) {
+    shortAmount = humanReadableInteger(shortAmount);
+  }
+  return {
+    amount: shortAmount,
+    unit: abbreviateUnits ? "B" : "billion",
   };
 };
 

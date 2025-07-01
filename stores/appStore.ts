@@ -7,6 +7,7 @@ import { debounce } from "perfect-debounce";
 import { defineStore } from "pinia";
 import { ExcelScenarioDownload } from "~/download/excelScenarioDownload";
 import type { ScenarioCapacity, ScenarioCost, ScenarioIntervention } from "~/types/resultTypes";
+import { CostBasis } from "~/types/unitTypes";
 
 const emptyScenario = {
   runId: undefined,
@@ -46,7 +47,13 @@ export const useAppStore = defineStore("app", {
     downloadError: undefined,
     currentScenario: emptyScenario,
     currentComparison: emptyComparison,
+    preferences: {
+      costBasis: CostBasis.USD, // Default cost basis for first-time visitors
+    },
   }),
+  persist: {
+    pick: ["preferences"],
+  },
   getters: {
     globeParameter: (state): Parameter | undefined => state.metadata?.parameters.find(param => param.parameterType === TypeOfParameter.GlobeSelect),
     timeSeriesData: (state): Record<string, number[]> | undefined => state.currentScenario.result.data?.time_series,
