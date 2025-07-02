@@ -15,8 +15,14 @@ import { getModelVersion, hashParameters } from "../utils/helpers";
 import { apiResponse, badRequestResponse, internalServerErrorResponse } from "../utils/responseHelpers";
 import { createScenario, deleteScenario, getScenarioByParametersHash, getScenarioByRunId } from "../db/scenarioRepository";
 
-export const getScenario = async (event: H3Event<EventHandlerRequest>) => {
-  const runId = getRouterParam(event, "runId");
+export const getScenario = async (runId: string | undefined) => {
+  if (!runId) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Run ID not provided.",
+    });
+  }
+
   const scenario = await getScenarioByRunId(runId);
 
   if (!scenario) {
