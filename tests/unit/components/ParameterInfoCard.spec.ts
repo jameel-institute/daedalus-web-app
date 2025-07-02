@@ -25,6 +25,7 @@ describe("parameter info card", () => {
 
     expect(component.text()).toContain("Parameters");
     expect(component.text()).toContain("United Kingdom");
+    expect(component.find(".fi").classes()).toContain("fi-gb");
     expect(component.text()).toContain("SARS 2004");
     expect(component.text()).toContain("No closures");
     expect(component.text()).toContain("None");

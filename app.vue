@@ -10,6 +10,7 @@
 <script setup>
 import { iconsSet } from "@/assets/icons";
 import "~/assets/scss/fonts.scss";
+import "flag-icons";
 
 const nuxtApp = useNuxtApp();
 nuxtApp.vueApp.provide("icons", iconsSet);
