@@ -45,7 +45,7 @@ vi.mock("@/server/handlers/versions", () => ({
 describe("requesting a scenario analysis to be run by the R API", () => {
   describe("when there is no existing scenario in the database", () => {
     describe("when the R API response to a run request is successful", () => {
-      it("should forward the parameters to the R API to run the analysis, and return the run id", async () => {
+      it("should forward the parameters to the R API to run the analysis, create a db record, and return the run id", async () => {
         mockedRunScenarioResponse.mockImplementation(async (event) => {
           const body = await readBody(event);
 

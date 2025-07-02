@@ -6,6 +6,7 @@ import {
   mockResultData,
 } from "@/tests/unit/mocks/mockPinia";
 import { registerEndpoint } from "@nuxt/test-utils/runtime";
+import { readBody } from "h3";
 import { waitFor } from "@testing-library/vue";
 import { createPinia, setActivePinia } from "pinia";
 import { runStatus } from "~/types/apiResponseTypes";
@@ -49,6 +50,26 @@ const metadata = {
 
 registerEndpoint("/api/metadata", () => metadata);
 
+registerEndpoint("/api/scenarios/123/details", () => {
+  return {
+    parameters: { ...mockResultData.parameters },
+    runId: "123",
+  };
+});
+
+registerEndpoint("/api/scenarios/456/details", () => {
+  return {
+    parameters: { ...mockResultData.parameters, country: "THA" },
+    runId: "456",
+  };
+});
+
+const mockedRunScenarioResponse = vi.fn();
+registerEndpoint("/api/scenarios", {
+  method: "POST",
+  handler: mockedRunScenarioResponse,
+});
+
 registerEndpoint("/api/scenarios/123/status", () => {
   return {
     done: true,
@@ -77,6 +98,59 @@ describe("app store", () => {
   });
 
   describe("actions", () => {
+    it("can load a scenario from the database", async () => {
+      const store = useAppStore();
+      store.currentScenario = structuredClone(sampleUnloadedScenario);
+      await store.loadScenarioFromDB(store.currentScenario);
+
+      await waitFor(() => {
+        expect(store.currentScenario.runId).toBe("123");
+        expect(store.currentScenario.parameters).toEqual({
+          country: "GBR",
+          pathogen: "sars_cov_1",
+          response: "none",
+          vaccine: "none",
+          hospital_capacity: "30500",
+        });
+      });
+    });
+
+    it("can load multiple scenarios from the database by their run ids", async () => {
+      const store = useAppStore();
+      const runIds = ["123", "456", "789"];
+      await store.setCurrentComparisonByRunIds(runIds);
+
+      await waitFor(() => {
+        expect(store.currentComparison.scenarios.length).toBe(3);
+        expect(store.currentComparison.scenarios[0].runId).toEqual("123");
+        expect(store.currentComparison.scenarios[1].runId).toEqual("456");
+        expect(store.currentComparison.scenarios[2].runId).toEqual("789");
+        expect(store.currentComparison.scenarios[0].parameters?.country).toEqual("GBR");
+        expect(store.currentComparison.scenarios[1].parameters?.country).toEqual("THA");
+        expect(store.currentComparison.scenarios[2].parameters).not.toBeDefined();
+      });
+    });
+
+    it("can run a new scenario by parameters, returning a runId", async () => {
+      mockedRunScenarioResponse.mockImplementation(async (event) => {
+        const body = await readBody(event);
+        const params = body.parameters;
+        if (String(params.country) === "GBR" && String(params.pathogen) === "sars_cov_1") {
+          return { runId: "345" };
+        }
+
+        throw new Error("The test failed to pass the correct parameters to the Nuxt app API.");
+      });
+
+      const store = useAppStore();
+      const result = await store.runScenarioByParameters({
+        country: "GBR",
+        pathogen: "sars_cov_1",
+      });
+
+      expect(result).toBe("345");
+    });
+
     it("can retrieve the version numbers", async () => {
       const store = useAppStore();
       store.loadVersionData();
@@ -131,9 +205,6 @@ describe("app store", () => {
         );
         expect(store.currentScenario.result.fetchError).toEqual(undefined);
         expect(store.currentScenario.result.fetchStatus).toEqual("success");
-        expect(store.currentScenario.parameters).toEqual(
-          mockResultData.parameters,
-        );
       });
     });
 
