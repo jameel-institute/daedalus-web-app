@@ -28,7 +28,7 @@ export const getScenario = async (runId: string | undefined) => {
   if (!scenario) {
     throw createError({
       statusCode: 404,
-      statusMessage: "Scenario not found",
+      statusMessage: `Scenario with ID '${runId}' not found`,
     });
   };
 

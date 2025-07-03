@@ -1,4 +1,5 @@
-export const scenarioPathMatcher = "scenarios/[a-f0-9]{32}";
+export const runIdMatcher = "[a-f0-9]{32}";
+export const scenarioPathMatcher = `scenarios/${runIdMatcher}`;
 
 export const parameterLabels = {
   country: "Country",

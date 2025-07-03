@@ -24,7 +24,7 @@ describe("requesting a scenario status", () => {
       spy.mockImplementation(async () => null);
 
       await expect(() => getScenario("123")).rejects.toThrowError(
-        "Scenario not found",
+        "Scenario with ID '123' not found",
       );
       expect(spy).toHaveBeenCalledWith({
         where: { run_id: "123" },
