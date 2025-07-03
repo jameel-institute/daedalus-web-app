@@ -11,6 +11,7 @@ import { waitFor } from "@testing-library/vue";
 import { createPinia, setActivePinia } from "pinia";
 import { runStatus } from "~/types/apiResponseTypes";
 import { CostBasis } from "~/types/unitTypes";
+import { flushPromises } from "@vue/test-utils";
 
 const sampleUnloadedScenario = {
   ...emptyScenario,
@@ -115,6 +116,14 @@ describe("app store", () => {
       });
     });
 
+    it("throws an error when no run id provided when loading a scenario from the database", async () => {
+      const store = useAppStore();
+      store.currentScenario = structuredClone(emptyScenario);
+      await expect(store.loadScenarioFromDB(store.currentScenario)).rejects.toThrow(
+        "No runId provided for scenario load.",
+      );
+    });
+
     it("can load multiple scenarios from the database by their run ids", async () => {
       const store = useAppStore();
       const runIds = ["123", "456", "789"];
@@ -127,7 +136,7 @@ describe("app store", () => {
         expect(store.currentComparison.scenarios[2].runId).toEqual("789");
         expect(store.currentComparison.scenarios[0].parameters?.country).toEqual("GBR");
         expect(store.currentComparison.scenarios[1].parameters?.country).toEqual("THA");
-        expect(store.currentComparison.scenarios[2].parameters).not.toBeDefined();
+        expect(store.currentComparison.scenarios[2].parameters).toBeUndefined();
       });
     });
 
@@ -149,6 +158,13 @@ describe("app store", () => {
       });
 
       expect(result).toBe("345");
+    });
+
+    it("throws an error when no run id provided when running a new scenario by parameters", async () => {
+      const store = useAppStore();
+      await expect(store.runScenarioByParameters(undefined)).rejects.toThrow(
+        "No parameters provided for scenario run.",
+      );
     });
 
     it("can retrieve the version numbers", async () => {
@@ -194,6 +210,55 @@ describe("app store", () => {
       });
     });
 
+    it("does not retrieve a scenario's status from the R API if already retrieved", async () => {
+      const store = useAppStore();
+      const originalStatusData = {
+        done: true,
+        runId: null,
+        runErrors: null,
+        runStatus: "failed",
+        runSuccess: true,
+      };
+      store.currentScenario = structuredClone({
+        ...sampleUnloadedScenario,
+        status: {
+          ...sampleUnloadedScenario.status,
+          data: { ...originalStatusData },
+        },
+      });
+      await store.refreshScenarioStatus(store.currentScenario);
+
+      await flushPromises();
+
+      // Assert no changes have happened
+      expect(store.currentScenario.status.data).toEqual(originalStatusData);
+    });
+
+    it("does not retrieve a scenario's status from the R API if no run Id", async () => {
+      const store = useAppStore();
+      const originalStatusData = {
+        done: true,
+        runId: null,
+        runErrors: null,
+        runStatus: "failed",
+        runSuccess: true,
+      };
+      store.currentScenario = structuredClone({
+        ...sampleUnloadedScenario,
+        runId: undefined,
+        status: {
+          ...sampleUnloadedScenario.status,
+          data: { ...originalStatusData },
+        },
+      });
+      await store.refreshScenarioStatus(store.currentScenario);
+
+      await flushPromises();
+
+      // Assert no changes have happened
+      expect(store.currentScenario.status.data).toEqual(originalStatusData);
+    });
+
     it("can load a scenario's results from the R API", async () => {
       const store = useAppStore();
       store.currentScenario = structuredClone(sampleUnloadedScenario);
@@ -206,6 +271,15 @@ describe("app store", () => {
         expect(store.currentScenario.result.fetchError).toEqual(undefined);
         expect(store.currentScenario.result.fetchStatus).toEqual("success");
       });
+    });
+
+    it("throws an error when no run id provided when loading a scenario's results", async () => {
+      const store = useAppStore();
+      store.currentScenario = structuredClone(emptyScenario);
+
+      await expect(store.loadScenarioResult(store.currentScenario)).rejects.toThrow(
+        "No runId provided for scenario result load.",
+      );
     });
 
     it("can clear the current scenario", async () => {

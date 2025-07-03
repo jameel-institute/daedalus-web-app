@@ -77,6 +77,16 @@ describe("scenarioRepository", () => {
       });
       expect(result).toEqual(null);
     });
+
+    it("should return undefined when no runId is provided", async () => {
+      const spy = vi.spyOn(prisma.scenario, "findUnique");
+      spy.mockImplementation(async () => scenario);
+
+      const result = await getScenarioByRunId(undefined);
+
+      expect(spy).not.toHaveBeenCalled();
+      expect(result).toBeUndefined();
+    });
   });
 
   describe("deleteScenario", () => {

@@ -52,10 +52,10 @@ test("Can compare multiple scenarios", async ({ page, baseURL }) => {
   await page.getByRole("button", { name: "Compare", exact: true }).click();
 
   await page.waitForURL(new RegExp(`${baseURL}/comparison\?.*`));
-  const currentUrl = page.url();
-  expect(currentUrl).toContain("axis=pathogen");
-  expect(currentUrl).toContain("baseline=sars_cov_1");
-  expect(currentUrl).toMatch(new RegExp(`runIds=${runIdMatcher};${runIdMatcher};${runIdMatcher}`));
+  const comparisonUrl = page.url();
+  expect(comparisonUrl).toContain("axis=pathogen");
+  expect(comparisonUrl).toContain("baseline=sars_cov_1");
+  expect(comparisonUrl).toMatch(new RegExp(`runIds=${runIdMatcher};${runIdMatcher};${runIdMatcher}`));
   await expect(page.getByText("Comparison")).toBeVisible();
 
   // Parameters

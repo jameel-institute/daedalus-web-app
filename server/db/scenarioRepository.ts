@@ -10,9 +10,9 @@ export const getScenarioByParametersHash = async (parametersHash: string): Promi
   });
 };
 
-export const getScenarioByRunId = async (runId?: string): Promise<scenario | null> => {
+export const getScenarioByRunId = async (runId?: string): Promise<scenario | null | undefined> => {
   if (!runId) {
-    return null;
+    return;
   }
 
   return await prisma.scenario.findUnique({

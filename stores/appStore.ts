@@ -78,8 +78,7 @@ export const useAppStore = defineStore("app", {
   actions: {
     async loadScenarioFromDB(scenario: Scenario) {
       if (!scenario.runId) {
-        console.error("No runId provided for scenario load.");
-        return;
+        throw new Error("No runId provided for scenario load.");
       }
 
       const { data, status } = await useFetch(
@@ -96,8 +95,7 @@ export const useAppStore = defineStore("app", {
     },
     async runScenarioByParameters(parameters: ParameterSet | undefined) {
       if (!parameters) {
-        console.error("No parameters provided for scenario run.");
-        return;
+        throw new Error("No parameters provided for scenario run.");
       }
 
       const response = await $fetch<NewScenarioData>("/api/scenarios", {
@@ -135,7 +133,7 @@ export const useAppStore = defineStore("app", {
     },
     async loadScenarioResult(scenario: Scenario) {
       if (!scenario.runId) {
-        return;
+        throw new Error("No runId provided for scenario result load.");
       }
 
       const { data, status, error } = await useFetch(
