@@ -31,6 +31,10 @@ export const deleteScenario = async (scenario: scenario) => {
 };
 
 export const createScenario = async (parameters: ParameterSet, parametersHash: string, runId: string) => {
+  if (Object.keys(parameters).length === 0) {
+    throw new Error("Parameters cannot be empty");
+  }
+
   await prisma.scenario.create({
     data: {
       parameters,

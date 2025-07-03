@@ -101,5 +101,9 @@ describe("scenarioRepository", () => {
         },
       });
     });
+
+    it("should throw an error if parameters are empty", async () => {
+      await expect(createScenario({}, "empty-hash", runId)).rejects.toThrow("Parameters cannot be empty");
+    });
   });
 });
