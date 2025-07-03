@@ -10,6 +10,7 @@ import ParameterHeader from "~/components/ParameterHeader.vue";
 const stubs = {
   CIcon: true,
 };
+const plugins = [mockPinia({}, true, { stubActions: false })];
 
 // Need to do this in hoisted - see https://developer.mamezou-tech.com/en/blogs/2024/02/12/nuxt3-unit-testing-mock/
 const { mockNavigateTo } = vi.hoisted(() => ({
@@ -35,7 +36,7 @@ describe("parameter form", () => {
   it("renders the correct parameter labels, inputs, options, and default values", async () => {
     const component = await mountSuspended(ParameterForm, {
       props: { inModal: false },
-      global: { stubs, plugins: [mockPinia()] },
+      global: { stubs, plugins },
     });
 
     expect(component.text()).toContain("Region");
@@ -106,7 +107,7 @@ describe("parameter form", () => {
   it("renders Tooltips for radio buttons", async () => {
     const component = await mountSuspended(ParameterForm, {
       props: { inModal: false },
-      global: { stubs, plugins: [mockPinia()] },
+      global: { stubs, plugins },
     });
     const radioGroup = component.findComponent(CButtonGroup);
     const tooltips = radioGroup.findAllComponents(CTooltip);
@@ -118,7 +119,14 @@ describe("parameter form", () => {
   it("renders the current parameter values if the app store contains a current scenario", async () => {
     const component = await mountSuspended(ParameterForm, {
       props: { inModal: false },
-      global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithParameters })] },
+      global: {
+        stubs,
+        plugins: [mockPinia(
+          { currentScenario: scenarioWithParameters },
+          true,
+          { stubActions: false },
+        )],
+      },
     });
 
     const vueSelects = component.findAllComponents(VueSelect);
@@ -154,7 +162,14 @@ describe("parameter form", () => {
   it("sets the submit button to disabled when the component is rendered within a modal, until the inputs differ from current scenario", async () => {
     const component = await mountSuspended(ParameterForm, {
       props: { inModal: true },
-      global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithParameters })] },
+      global: {
+        stubs,
+        plugins: [mockPinia(
+          { currentScenario: scenarioWithParameters },
+          true,
+          { stubActions: false },
+        )],
+      },
     });
 
     const submitButton = component.find("button[type='submit']");
@@ -191,7 +206,7 @@ describe("parameter form", () => {
 
     const component = await mountSuspended(ParameterForm, {
       props: { inModal: false },
-      global: { stubs, plugins: [mockPinia({ metadata })] },
+      global: { stubs, plugins: [mockPinia({ metadata }, false, { stubActions: false })] },
     });
 
     const vueSelect = component.findComponent(VueSelect);
@@ -240,7 +255,7 @@ describe("parameter form", () => {
   it("resets a numeric input that can be updated from another input to its default value when the reset button is clicked", async () => {
     const component = await mountSuspended(ParameterForm, {
       props: { inModal: false },
-      global: { stubs, plugins: [mockPinia()] },
+      global: { stubs, plugins },
     });
 
     const numericInput = component.find("input[type='number'][id='population']");
@@ -261,7 +276,7 @@ describe("parameter form", () => {
   it("displays feedback when the form is submitted with invalid values", async () => {
     const component = await mountSuspended(ParameterForm, {
       props: { inModal: false },
-      global: { stubs, plugins: [mockPinia()] },
+      global: { stubs, plugins },
     });
 
     const numericInput = component.find("input[type='number'][id='population']");
@@ -297,10 +312,7 @@ describe("parameter form", () => {
 
     const component = await mountSuspended(ParameterForm, {
       props: { inModal: false },
-      global: {
-        stubs,
-        plugins: [mockPinia()],
-      },
+      global: { stubs, plugins },
     });
 
     const buttonEl = component.find("button[type='submit']");
@@ -323,7 +335,7 @@ describe("parameter form", () => {
           metadata: undefined,
           metadataFetchStatus: "error",
           metadataFetchError: error,
-        }, false)],
+        }, false, { stubActions: false })],
       },
     });
 
@@ -335,7 +347,7 @@ describe("parameter form", () => {
   it("displays CSpinner when metadata is not defined and there is no error", async () => {
     const component = await mountSuspended(ParameterForm, {
       props: { inModal: false },
-      global: { stubs, plugins: [mockPinia({ metadata: undefined }, false)] },
+      global: { stubs, plugins: [mockPinia({ metadata: undefined }, false, { stubActions: false })] },
     });
 
     expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(true);
@@ -345,7 +357,7 @@ describe("parameter form", () => {
     // Do a valid update from default
     const component = await mountSuspended(ParameterForm, {
       props: { inModal: false },
-      global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithParameters })] },
+      global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithParameters }, true, { stubActions: false })] },
     });
     const vueSelect = component.findComponent(VueSelect);
     await vueSelect.vm.$emit("update:modelValue", "2");
