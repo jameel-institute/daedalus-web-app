@@ -18,6 +18,17 @@ const { mockNavigateTo } = vi.hoisted(() => ({
 }));
 mockNuxtImport("navigateTo", () => mockNavigateTo);
 
+vi.mock("~/components/utils/countryFlag", () => ({
+  countryFlagIconId: vi.fn((countryId: string) => {
+    switch (countryId) {
+      case "CLD":
+        return "cl";
+      case "HVN":
+        return "hv";
+    }
+  }),
+}));
+
 const scenarioWithParameters = {
   ...emptyScenario,
   parameters: {
@@ -84,6 +95,12 @@ describe("parameter form", () => {
       { value: "HVN", label: "Heaven", description: "" },
     ]);
     expect(vueSelects[1].props("modelValue")).toBe("HVN");
+    expect(vueSelects[1].find(".single-value span.fi").classes()).toContain("fi-hv"); // flag
+    await vueSelects[1].find(".dropdown-icon").trigger("click");
+    const renderedCountryOptions = vueSelects[1].findAll(".parameter-option");
+    expect(renderedCountryOptions.length).toBe(2);
+    expect(renderedCountryOptions[0].text()).toBe("Cloud Nine");
+    expect(renderedCountryOptions[0].find(".fi").classes()).toContain("fi-cl"); // flag
 
     const numericInput = component.find("input[type='number']");
     expect(numericInput.element.value).toBe("2000");

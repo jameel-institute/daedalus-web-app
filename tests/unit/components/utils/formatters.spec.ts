@@ -24,6 +24,6 @@ describe("costAsPercentOfGdp", () => {
 describe("humanReadablePercentOfGdp", () => {
   it("should format number as percent of GDP", () => {
     expect(humanReadablePercentOfGdp(10)).toEqual({ percent: "10.0", reference: "of 2018 national GDP" });
-    expect(humanReadablePercentOfGdp(20.5)).toEqual({ percent: "20.5", reference: "of 2018 national GDP" });
+    expect(humanReadablePercentOfGdp(200.5)).toEqual({ percent: "201", reference: "of 2018 national GDP" });
   });
 });

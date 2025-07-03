@@ -62,7 +62,13 @@ const displayValue = (valueInDollarTerms: number): string => {
       return `${humanReadablePercentOfGdp(percentOfGdp).percent}%`;
     }
     case CostBasis.USD:
-      return formatCurrency(valueInDollarTerms);
+    {
+      return valueInDollarTerms > 10_000
+        ? (Math.round(valueInDollarTerms / 1000) * 1000).toLocaleString()
+        : new Intl.NumberFormat("en-US", {
+            maximumSignificantDigits: 1,
+          }).format(valueInDollarTerms);
+    }
   }
 };
 </script>
