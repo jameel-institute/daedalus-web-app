@@ -53,7 +53,6 @@ describe("costs card", () => {
   });
 
   it("should render the costs chart container, the total cost, costs table, vsl and total cost in terms of % of GDP", async () => {
-    const averageVsl = formatCurrency(mockResultResponseData.average_vsl);
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins: [pinia] } });
 
     expect(component.find(`#gdpContainer`).text()).toContain("44.9%");
@@ -63,7 +62,7 @@ describe("costs card", () => {
     const costsTable = component.find('[data-testid="costsTable"]');
     expect(costsTable).toBeTruthy();
 
-    expect(component.text()).toContain(averageVsl);
+    expect(component.text()).toContain("2,799,263"); // VSL in Int'l$
     expect(totalCostPara.text()).toBe("8.9T");
   });
 

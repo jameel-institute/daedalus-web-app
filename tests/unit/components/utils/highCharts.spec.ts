@@ -52,7 +52,7 @@ describe("costs chart tooltip text", () => {
   it("should return the correct text for the stack's tooltip, when cost basis is USD", () => {
     const tooltipText = costsChartTooltipText(tooltipPointInstance, CostBasis.USD, 4000);
     expect(tooltipText).toMatch(
-      /Life years losses.*\$2.0 billion.*50.0% of 2018 national GDP.*#FF0000.*Working-age adults.*\$999.0 M.*#00FF00.*Children.*\$0.0 M/,
+      /Life years losses.*\$2.0 billion.*50.0% of 2018 national GDP.*#FF0000.*Working-age adults.*\$999 M.*#00FF00.*Children.*\$0 M/,
     );
     expect(tooltipText).not.toMatch(/Do not include in tooltips/i);
   });
@@ -60,7 +60,7 @@ describe("costs chart tooltip text", () => {
   it("should return the correct text for the stack's tooltip, when cost basis is percent of GDP", () => {
     const tooltipText = costsChartTooltipText(tooltipPointInstance, CostBasis.PercentGDP, 2_222_222);
     expect(tooltipText).toMatch(
-      /Life years losses.*2000.0%.* of 2018 national GDP.*#FF0000.*Working-age adults.*999.0%.*#00FF00.*Children.*0.0%/,
+      /Life years losses.*2000%.* of 2018 national GDP.*#FF0000.*Working-age adults.*999%.*#00FF00.*Children.*0%/,
     );
     expect(tooltipText).not.toMatch(/Do not include in tooltips/i);
   });
