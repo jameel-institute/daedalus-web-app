@@ -1,7 +1,7 @@
 import type { AppState } from "@/types/storeTypes";
 import sampleMetadataResponse from "@/mocks/responses/metadata.json";
 import { createTestingPinia, type TestingOptions } from "@pinia/testing";
-import type { Metadata, ResultsMetadata } from "~/types/apiResponseTypes";
+import type { Metadata, ResultsMetadata, ScenarioResultData } from "~/types/apiResponseTypes";
 import { TypeOfParameter } from "~/types/parameterTypes";
 
 export const globeParameter = {
@@ -172,7 +172,8 @@ export const mockResultData = {
     dead: [0, 0.0244, 0.0878, 0.1825],
   },
   gdp: 19863038.6,
-};
+  average_vsl: 2799263.5585,
+} as ScenarioResultData;
 deepFreeze(mockResultData);
 
 export const emptyScenario = {

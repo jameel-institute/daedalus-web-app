@@ -1,4 +1,4 @@
-import type { VersionData, VersionDataResponse } from "@/types/apiResponseTypes";
+import type { VersionData, VersionDataResponse } from "~/types/apiResponseTypes";
 import type { EventHandlerRequest, H3Event } from "h3";
 import packageJson from "@/package.json";
 import { fetchRApi } from "@/server/utils/rApi";

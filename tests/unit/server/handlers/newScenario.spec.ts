@@ -5,7 +5,7 @@ import { readBody } from "h3";
 import prisma from "~/server/db/prisma";
 
 const runId = "abcd1234";
-const expectedParametersHash = "7f75087abc61c538fe870d672ece552640e4000e40d6d2dbf708e14b2a748076";
+const expectedParametersHash = "10dd151edccae4dfab1d4a4333db998a8fae27519d24a92297bf0e978f624ebc";
 
 const mockedRunScenarioResponse = vi.fn();
 const mockedScenarioStatusResponse = vi.fn();
@@ -45,7 +45,7 @@ vi.mock("@/server/handlers/versions", () => ({
 describe("requesting a scenario analysis to be run by the R API", () => {
   describe("when there is no existing scenario in the database", () => {
     describe("when the R API response to a run request is successful", () => {
-      it("should forward the parameters to the R API to run the analysis, and return the run id", async () => {
+      it("should forward the parameters to the R API to run the analysis, create a db record, and return the run id", async () => {
         mockedRunScenarioResponse.mockImplementation(async (event) => {
           const body = await readBody(event);
 
@@ -79,6 +79,9 @@ describe("requesting a scenario analysis to be run by the R API", () => {
         expect(scenarioCreateSpy).toHaveBeenCalledWith({
           data: {
             parameters_hash: expectedParametersHash,
+            parameters: {
+              disease: "mpox",
+            },
             run_id: runId,
           },
         });
@@ -185,6 +188,9 @@ describe("requesting a scenario analysis to be run by the R API", () => {
         expect(scenarioCreateSpy).toHaveBeenCalledWith({
           data: {
             parameters_hash: expectedParametersHash,
+            parameters: {
+              disease: "mpox",
+            },
             run_id: runId,
           },
         });

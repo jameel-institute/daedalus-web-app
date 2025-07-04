@@ -33,6 +33,13 @@ afterEach(() => {
   mockRoute.mockReset();
 });
 
+registerEndpoint(`/api/scenarios/${successfulRunId}/details`, () => {
+  return {
+    parameters: mockResultData.parameters,
+    runId: successfulRunId,
+  };
+});
+
 registerEndpoint(`/api/scenarios/${longRunningRunId}/status`, () => {
   return {
     runStatus: "running",
@@ -79,14 +86,22 @@ describe("scenario result page", () => {
   it("renders as expected", async () => {
     mockRoute.mockReturnValue({
       params: {
-        runId: longRunningRunId,
+        runId: successfulRunId,
       },
     });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
     expect(component.text()).toContain("Parameters");
-    expect(component.text()).toContain("United Kingdom");
+
+    await waitFor(() => {
+      expect(component.text()).toContain("United Kingdom");
+      expect(component.text()).toContain("SARS 2004");
+      expect(component.text()).toContain("30,500");
+      console.error(component.text());
+      expect(component.text()).toContain("No closures");
+      expect(component.text()).toContain("None");
+    });
   });
 
   it("resets appStore.downloadError when the page is loaded", async () => {
@@ -95,22 +110,18 @@ describe("scenario result page", () => {
         runId: successfulRunId,
       },
     });
+    const piniaMock = mockPinia({
+      downloadError: "Some error",
+    }, true, { stubActions: false });
 
     await mountSuspended(ScenariosIdPage, {
       global: {
         stubs,
-        plugins: [mockPinia({
-          currentScenario: {
-            ...emptyScenario,
-            parameters: mockResultData.parameters,
-          },
-          metadata: mockMetadataResponseData as Metadata,
-          downloadError: "Some error",
-        }, false, { stubActions: false })],
+        plugins: [piniaMock],
       },
     });
 
-    const appStore = useAppStore();
+    const appStore = useAppStore(piniaMock);
     expect(appStore.downloadError).toBeUndefined();
   });
 

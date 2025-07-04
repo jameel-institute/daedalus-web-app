@@ -2,7 +2,7 @@ import CreateComparison from "@/components/CreateComparison.vue";
 import { emptyScenario, mockPinia, mockResultData } from "@/tests/unit/mocks/mockPinia";
 import { flushPromises } from "@vue/test-utils";
 import type { DOMWrapper, VueWrapper } from "@vue/test-utils";
-import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
+import { mockNuxtImport, mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
 
 import type { Metadata, ScenarioResultData } from "~/types/apiResponseTypes";
 import { describe, expect, it } from "vitest";
@@ -313,7 +313,31 @@ describe("create comparison button and modal", () => {
     });
   });
 
-  it("on valid submission, navigates to the comparison scenario", async () => {
+  it("on valid submission, it makes a POST request and navigates to the comparison", async () => {
+    registerEndpoint("/api/scenarios", {
+      method: "POST",
+      async handler(event) {
+        const body = JSON.parse(event.node.req.body);
+        const params = body.parameters;
+
+        if (params.pathogen === "sars_cov_1" && params.response === "none" && params.vaccine === "none"
+          && params.hospital_capacity === "30500") {
+          switch (params.country) {
+            case "GBR":
+              return { runId: "ukRunId" };
+            case "USA":
+              return { runId: "usRunId" };
+            case "THA":
+              return { runId: "thRunId" };
+            default:
+              return { error: "Test failed due to wrong country parameter" };
+          }
+        }
+
+        return { error: "Test failed due to wrong parameters" };
+      },
+    });
+
     const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
 
     await openModal(wrapper);
@@ -338,8 +362,8 @@ describe("create comparison button and modal", () => {
       path: "/comparison",
       query: {
         axis: "country",
-        ...mockResultData.parameters,
-        scenarios: "USA;THA",
+        baseline: "GBR",
+        runIds: "ukRunId;usRunId;thRunId",
       },
     });
   });

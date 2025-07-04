@@ -144,7 +144,7 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
   // to the R API. This check is called a 'rule' in Mockoon, and rules can't be used simultaneously with the 'sequential' setting,
   // so we instead use the mockoonResponse parameter to tell Mockoon which type of response to send.
   describe("post api/scenarios", async () => {
-    const parametersHashForSuccessfulResponse = "1a15c2fd6f8c08d3410d026e4945dc3bf92af4a1da0fad2c3822dc64afaf56b0";
+    const parametersHashForSuccessfulResponse = "eb5121baa2c07ad0944b3aa42068cda44570f862107852b165c35bbcd7d13cb8";
 
     beforeEach(async () => {
       await purgeRApiMockServer(); // Reset the mock server so that the version request is always successful.
@@ -215,6 +215,7 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
       beforeEach(async () => {
         await prisma.scenario.create({
           data: {
+            parameters: { country: "Thailand", pathogen: "sars-cov-1", response: "no_closure", vaccine: "none" },
             parameters_hash: parametersHashForSuccessfulResponse,
             run_id: "runIdOfPreExistingScenario",
           },
@@ -242,6 +243,7 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
       beforeEach(async () => {
         await prisma.scenario.create({
           data: {
+            parameters: { country: "Thailand", pathogen: "sars-cov-1", response: "no_closure", vaccine: "none" },
             parameters_hash: parametersHashForSuccessfulResponse,
             run_id: "notFoundRunId",
           },
@@ -347,6 +349,42 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
 
       const json = await response.json();
       expect(json.message).toBe("Unknown error: No response from the API");
+    });
+  });
+
+  describe("api/scenarios/:id/details", async () => {
+    it("returns a successful response when there is a matching scenario in the db", async () => {
+      await prisma.scenario.create({
+        data: {
+          parameters: { country: "Thailand", pathogen: "sars-cov-1", response: "no_closure", vaccine: "none" },
+          parameters_hash: "hashedParams",
+          run_id: "dbScenarioRunId",
+        },
+      });
+
+      const response = await nuxtTestUtilsFetch(`/api/scenarios/dbScenarioRunId/details`);
+
+      expect(response.ok).toBe(true);
+      expect(response.status).toBe(200);
+      expect(response.statusText).toBe("OK");
+
+      const json = await response.json();
+      expect(json.runId).toBe("dbScenarioRunId");
+      expect(json.parameters.country).toBe("Thailand");
+      expect(json.parameters.pathogen).toBe("sars-cov-1");
+      expect(json.parameters.response).toBe("no_closure");
+      expect(json.parameters.vaccine).toBe("none");
+    });
+
+    it("returns a response with informative errors when the db has no matching scenario", async () => {
+      const response = await nuxtTestUtilsFetch(`/api/scenarios/notFoundRunId/details`);
+
+      expect(response.ok).toBe(false);
+      expect(response.status).toBe(404);
+      expect(response.statusText).toBe("Scenario with ID 'notFoundRunId' not found");
+      const json = await response.json();
+      expect(json.statusCode).toBe(404);
+      expect(json.message).toBe("Scenario with ID 'notFoundRunId' not found");
     });
   });
 });
