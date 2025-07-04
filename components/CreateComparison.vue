@@ -32,19 +32,19 @@
         </p>
         <div id="axisOptions" class="d-flex gap-2 flex-wrap">
           <CButton
-            v-for="para in appStore.metadata?.parameters.filter((p) => !chosenAxisId || chosenAxisId === p.id)"
-            :key="para.id"
+            v-for="param in appStore.metadata?.parameters.filter((p) => !chosenAxisId || chosenAxisId === p.id)"
+            :key="param.id"
             class="d-flex align-items-center axis-btn border"
-            :class="chosenAxisId === para.id ? 'bg-primary bg-opacity-10 border-primary-subtle' : ''"
+            :class="chosenAxisId === param.id ? 'bg-primary bg-opacity-10 border-primary-subtle' : ''"
             color="light"
-            @click="handleClickAxis(para)"
+            @click="handleClickAxis(param)"
           >
-            <ParameterIcon :parameter="para" />
-            <span class="ms-2">{{ para.label }}</span>
-            <CIcon v-if="chosenAxisId === para.id" class="text-muted ms-2 cilx" icon="cilX" />
+            <ParameterIcon :parameter="param" />
+            <span class="ms-2">{{ param.label }}</span>
+            <CIcon v-if="chosenAxisId === param.id" class="text-muted ms-2 cilx" icon="cilX" />
           </CButton>
         </div>
-        <div v-if="chosenParameterAxis && chosenParameterAxis.parameterType !== TypeOfParameter.Numeric" class="mt-3">
+        <div v-if="chosenParameterAxis && baselineOption" class="mt-3">
           <CFormLabel :id="FORM_LABEL_ID" :for="FORM_LABEL_ID" class="fs-5 form-label">
             Compare baseline scenario
             <CTooltip
@@ -52,8 +52,10 @@
               placement="top"
             >
               <template #toggler="{ togglerId, on }">
-                <!-- TODO: use humanReadableInteger formatter for numeric parameters -->
                 <span
+                  :class="{
+                    'bg-warning text-white': baselineIsOutOfRange,
+                  }"
                   class="multi-value d-inline-block outside-select"
                   :aria-describedby="togglerId"
                   v-on="on"
@@ -67,14 +69,14 @@
           <div class="d-flex gap-3">
             <ScenarioSelect
               v-model:selected="selectedScenarioOptions"
-              :show-feedback="showFormValidationFeedback"
+              :show-validation-feedback="showFormValidationFeedback"
               :parameter-axis="chosenParameterAxis"
               :label-id="FORM_LABEL_ID"
             />
             <CButton
               id="run-button"
               color="primary"
-              :size="appStore.largeScreen ? 'lg' : undefined"
+              size="lg"
               type="submit"
               :disabled="formSubmitting"
               class="ms-auto align-self-start"
@@ -93,9 +95,9 @@
 
 <script setup lang="ts">
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
-import { TypeOfParameter } from "~/types/parameterTypes";
 import type { Parameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
+import { numericValueIsOutOfRange } from "~/components/utils/validations";
 
 const appStore = useAppStore();
 const FORM_LABEL_ID = "scenarioOptions";
@@ -108,8 +110,11 @@ const showFormValidationFeedback = ref(false);
 
 const chosenParameterAxis = computed(() => appStore.metadata?.parameters.find(p => p.id === chosenAxisId.value));
 
-const { baselineOption, nonBaselineOptions } = useScenarioOptions(chosenParameterAxis);
-const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions);
+const { baselineOption, predefinedOptions } = useScenarioOptions(chosenParameterAxis);
+const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions, chosenParameterAxis);
+
+const baselineIsOutOfRange = computed(() =>
+  numericValueIsOutOfRange(baselineOption.value?.id, chosenParameterAxis.value, appStore.currentScenario.parameters));
 
 const handleCloseModal = () => {
   modalVisible.value = false;
@@ -122,8 +127,8 @@ const handleClickAxis = (axis: Parameter) => {
   if (chosenAxisId.value === "") {
     chosenAxisId.value = axis.id;
     // Pre-populate the scenario options input with all options if there aren't more than max
-    selectedScenarioOptions.value = nonBaselineOptions.value.length <= MAX_SCENARIOS_COMPARED_TO_BASELINE
-      ? nonBaselineOptions.value.map(o => o.id)
+    selectedScenarioOptions.value = predefinedOptions.value.length <= MAX_SCENARIOS_COMPARED_TO_BASELINE
+      ? predefinedOptions.value.map(o => o.id)
       : []; // TODO: (jidea-230) pre-populate country parameter to nearby countries
   } else {
     chosenAxisId.value = "";
@@ -171,22 +176,28 @@ const submitForm = async () => {
   max-width: 40rem;
 }
 
-.multi-value.outside-select {
-  margin: 0;
-  font-size: inherit;
-
-  // Below values copied from Vue 3 Select Component
+// Copied from v10.0.0 of the VueSelect component
+:deep(.multi-value) {
   appearance: none;
   display: flex;
   align-items: center;
   gap: var(--vs-multi-value-gap);
   padding: var(--vs-multi-value-padding);
+  margin: var(--vs-multi-value-margin);
   border: 0;
+  font-size: var(--vs-multi-value-font-size);
   font-weight: var(--vs-multi-value-font-weight);
   color: var(--vs-multi-value-text-color);
   line-height: var(--vs-multi-value-line-height);
   background: var(--vs-multi-value-bg);
   outline: none;
+  cursor: pointer;
+}
+
+.multi-value.outside-select {
+  margin: 0;
+  font-size: inherit;
+  --vs-multi-value-padding: 0.25rem 0.4rem;
 }
 
 .axis-btn {

@@ -77,7 +77,7 @@
         </div>
       </div>
       <p class="fw-lighter vsl-display">
-        * Value of statistical life: {{ humanReadableInteger(appStore.currentScenario.result.data!.average_vsl.toString()) }} Int'l$
+        * Value of statistical life: {{ valueOfStatisticalLife }} Int'l$
       </p>
     </div>
   </div>
@@ -104,6 +104,10 @@ const totalCostAbbr = computed(() => {
   } else {
     return undefined;
   }
+});
+
+const valueOfStatisticalLife = computed(() => {
+  return humanReadableInteger(appStore.currentScenario.result.data!.average_vsl.toString().split(".")[0]);
 });
 </script>
 

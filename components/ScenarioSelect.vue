@@ -1,8 +1,5 @@
 <template>
   <div class="position-relative flex-grow-1">
-    <!-- TODO: (jidea-229) For user-provided custom options, consider using hideSelectedOptons prop, introduced in a later
-      VueSelect version, to control inclusion in menu. https://github.com/TotomInc/vue3-select-component/issues/233 -->
-    <!-- TODO: (jidea-230) For country options, consider using getOptionLabel prop to insert country flag in menu option -->
     <VueSelect
       ref="vueSelectComponent"
       v-model="selected"
@@ -10,14 +7,22 @@
       :is-menu-open="menuOpen"
       :aria="{ labelledby: labelId, required: true }"
       class="form-control"
-      :class="showFeedback ? 'is-invalid' : ''"
-      :options="nonBaselineSelectOptions"
+      :class="[
+        showValidationFeedback ? 'is-invalid' : '',
+        showWarning ? 'has-warning' : '',
+      ]"
+      :options="options"
       :is-clearable="false"
       :is-multi="true"
+      :is-taggable="parameterIsNumeric"
+      :filter-by="filterBy"
       :close-on-select="false"
       :placeholder="`Select up to ${MAX_SCENARIOS_COMPARED_TO_BASELINE} options to compare against baseline`"
+      @option-created="(value) => handleCreateOption(value)"
+      @option-deselected="(option) => option ? handleDeselectOption(option.value) : null"
       @menu-opened="menuOpen = true"
       @menu-closed="menuOpen = false"
+      @search="(input) => handleInput(input)"
     >
       <template #option="{ option }">
         <div class="parameter-option">
@@ -35,24 +40,83 @@
         </div>
       </template>
       <template #no-options>
-        {{ allScenariosSelected ? 'All options selected.' : 'No options found.' }}
+        {{ allPredefinedOptionsAreSelected ? 'All options selected.' : 'No options found.' }}
+      </template>
+      <template #tag="{ option, removeOption }">
+        <button
+          type="button"
+          class="multi-value"
+          :class="{
+            'bg-warning text-white': isOutOfRange(option.value),
+          }"
+          @click="removeOption"
+        >
+          {{ option.label }}
+          <CIcon
+            size="sm"
+            class="text-secondary"
+            :class="{
+              'text-white': isOutOfRange(option.value),
+            }"
+            icon="cilX"
+            style="margin-bottom: 0.3rem"
+          />
+        </button>
+      </template>
+      <template v-if="parameterIsNumeric" #menu-header>
+        <p v-if="!currentInput" class="m-2">
+          {{ `Type a number to add a custom option${
+            allPredefinedOptionsAreSelected ? '' : `, or select a pre-defined value from the list below.`}`
+          }}
+        </p>
+      </template>
+      <template v-if="parameterIsNumeric" #taggable-no-options="{ option }">
+        <span class="small">
+          <span v-if="optionAlreadySelected(option)" class="text-secondary">
+            {{ formatOptionLabel(parameterAxis, option) }} is already selected.
+          </span>
+          <span v-else>
+            Press enter to add custom option: {{ formatOptionLabel(parameterAxis, option) }}
+            <p v-if="isOutOfRange(option)" class="text-secondary small mb-0">
+              NB: This value is outside the estimated range for {{ rangeText }}.
+            </p>
+          </span>
+        </span>
       </template>
     </VueSelect>
-    <div v-if="showFeedback" class="invalid-tooltip">
-      {{ feedback }}
+    <div v-if="showValidationFeedback" class="invalid-tooltip">
+      <span v-if="tooFewScenarios">
+        Please select at least {{ MIN_SCENARIOS_COMPARED_TO_BASELINE }} scenario to compare against the baseline.
+      </span>
+      <span v-else-if="tooManyScenarios">
+        You can compare up to {{ MAX_SCENARIOS_COMPARED_TO_BASELINE }} scenarios against the baseline.
+      </span>
+      <span v-else-if="numericInvalid">
+        Some of the selected scenarios are not valid numbers.
+      </span>
+    </div>
+    <div v-else-if="showWarning" class="invalid-tooltip bg-warning">
+      {{ valuesOutOfRange.length === 1 ? 'One' : 'Some' }} of the values
+      ({{ valuesOutOfRange.map(humanReadableInteger).join(", ") }})
+      {{ valuesOutOfRange.length === 1 ? 'lies' : 'lie' }} outside of the estimated range for {{ rangeText }}.
+      Proceed with caution.
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { CIcon } from "@coreui/icons-vue";
 import VueSelect from "vue3-select-component";
-import type { Parameter } from "~/types/parameterTypes";
-import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
-import { sortOptions } from "~/components/utils/parameters";
+import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
+import { MAX_SCENARIOS_COMPARED_TO_BASELINE, MIN_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
+import type { ParameterSelectOption } from "./utils/parameters";
+import { formatOptionLabel, humanReadableInteger, stringIsInteger } from "./utils/formatters";
+import { getRangeForDependentParam, sortOptions } from "./utils/parameters";
+import { numericValueIsOutOfRange } from "~/components/utils/validations";
 import { countryFlagIconId } from "~/components/utils/countryFlag";
 
-const { showFeedback, parameterAxis, labelId } = defineProps<{
-  showFeedback: boolean
+const { showValidationFeedback, parameterAxis, labelId } = defineProps<{
+  showValidationFeedback: boolean
   parameterAxis: Parameter
   labelId: string
 }>();
@@ -64,39 +128,97 @@ const selected = defineModel("selected", {
   required: true,
   get: value => sortOptions(parameterAxis, value),
 });
+const previousInput = ref<string>("");
+const currentInput = ref<string>("");
 
-const { nonBaselineSelectOptions } = useScenarioOptions(() => parameterAxis);
-const { feedback } = useComparisonValidation(selected);
+const { baselineOption, dependedOnParamOptionLabel, predefinedSelectOptions } = useScenarioOptions(() => parameterAxis);
+const { tooFewScenarios, tooManyScenarios, numericInvalid } = useComparisonValidation(selected, () => parameterAxis);
 const appStore = useAppStore();
 
 const VALUE_CONTAINER_SELECTOR = ".value-container.multi";
 const SEARCH_INPUT_SELECTOR = "input.search-input";
+const customOptions = ref<ParameterSelectOption[]>([]); // for user-defined options
 const vueSelect = useTemplateRef<ComponentPublicInstance>("vueSelectComponent");
-const vueSelectControl = computed((): HTMLElement | null => {
-  return vueSelect.value?.$el.querySelector(VALUE_CONTAINER_SELECTOR);
-});
+
+const vueSelectControl = computed((): HTMLElement | null => vueSelect.value?.$el.querySelector(VALUE_CONTAINER_SELECTOR));
 const searchInput = computed(() => vueSelectControl.value?.querySelector<HTMLInputElement>(SEARCH_INPUT_SELECTOR));
-
-const allScenariosSelected = computed(() => {
-  return selected.value.length === nonBaselineSelectOptions.value.length;
-});
-
+const allPredefinedOptionsAreSelected = computed(() => predefinedSelectOptions.value.every(o => selected.value.includes(o.value)));
+const options = computed(() => [...predefinedSelectOptions.value, ...customOptions.value]);
+const parameterIsNumeric = computed(() => parameterAxis?.parameterType === TypeOfParameter.Numeric);
+const dependentRange = computed(() => getRangeForDependentParam(parameterAxis, appStore.currentScenario.parameters));
+const rangeText = computed(() => `${dependedOnParamOptionLabel.value} (${dependentRange.value?.min}–${dependentRange.value?.max})`);
 const countryFlagIds = computed(() => {
   if (parameterAxis.id !== appStore.globeParameter?.id) {
     return {};
   }
 
-  return nonBaselineSelectOptions.value.reduce((acc, option) => {
+  return predefinedSelectOptions.value.reduce((acc, option) => {
     acc[option.value] = countryFlagIconId(option.value) || "";
     return acc;
   }, {} as { [key: string]: string });
 });
 
-watch(allScenariosSelected, (newValue) => {
-  if (newValue) {
-    menuOpen.value = false;
+const isOutOfRange = (value: string) => numericValueIsOutOfRange(value, parameterAxis, appStore.currentScenario.parameters);
+const valuesOutOfRange = computed(() => selected.value.concat(baselineOption.value?.id ?? []).filter(o => isOutOfRange(o)));
+const showWarning = computed(() => parameterIsNumeric.value && valuesOutOfRange.value.length > 0);
+
+const optionAlreadySelected = (value: string) => selected.value.includes(value);
+
+const filterBy = (_option: ParameterSelectOption, label: string, search: string) => {
+  if (parameterIsNumeric.value) {
+    // Show all options if there is nothing in the 'search' input, otherwise list only the candidate custom input.
+    return !currentInput.value;
   }
-});
+  // If parameter is not numeric, use the default filter logic, which is defined at: https://vue3-select-component.vercel.app/props.html#filterby
+  return label.toLowerCase().includes(search.toLowerCase());
+};
+
+const handleCreateOption = (value: string) => {
+  if (!parameterIsNumeric.value) {
+    return;
+  }
+
+  if (optionAlreadySelected(value)) {
+    return;
+  }
+
+  customOptions.value.push({
+    value,
+    label: formatOptionLabel(parameterAxis, value),
+    description: "",
+  });
+  selected.value.push(value);
+};
+
+// Remove the option from custom options so that it isn't listed in the menu.
+const handleDeselectOption = (value: string) => customOptions.value = customOptions.value.filter(o => o.value !== value);
+
+// This watch is required, in addition to the deselection handler handleDeselectOption, because
+// *backspace* deselect does not trigger the option-deselected event:
+// https://github.com/TotomInc/vue3-select-component/issues/296
+watch(selected, (newValue, oldValue) => {
+  // If the oldValue is the same as the newValue except for a single option, we infer that
+  // that option has been deselected.
+  const deselectedOptions = oldValue?.filter(option => !newValue.includes(option));
+  if (deselectedOptions?.length === 1) {
+    handleDeselectOption(deselectedOptions[0]);
+  }
+}, { immediate: true });
+
+const handleInput = (newInput: string) => {
+  currentInput.value = newInput;
+
+  if (parameterIsNumeric.value && newInput !== "" && !stringIsInteger(newInput) && searchInput.value) {
+    // If the input is not a valid integer, reset the input to the previous valid value
+    searchInput.value.value = previousInput.value;
+    searchInput.value.dispatchEvent(new Event("input"));
+    return;
+  }
+
+  previousInput.value = newInput;
+};
+
+watch(allPredefinedOptionsAreSelected, newValue => newValue ? menuOpen.value = false : null);
 
 onMounted(() => {
   watch(vueSelectControl, () => {
@@ -122,9 +244,21 @@ onMounted(() => {
   }
 
   &.form-control.is-invalid {
-    // Calculate how much the menu needs to be moved down to accommodate the invalid tooltip:
+    // Calculate how much the menu needs to be moved down to accommodate the .invalid-tooltip:
     // = tooltip font size + (2 * tooltip vertical padding) + tooltip margin + form-control bottom padding + arbitrary extra padding
+    // Assumes a single line of text in the tooltip.
     --vs-menu-offset-top: calc(var(--cui-body-font-size) + (2 * 0.25rem) + 0.1rem + 0.375rem + 0.5rem);
+  }
+
+  &.form-control.has-warning {
+    // Calculate how much the menu needs to be moved down to accommodate the .invalid-tooltip:
+    // = tooltip font size + (2 * tooltip vertical padding) + tooltip margin + form-control bottom padding + arbitrary extra padding
+    // Assumes two lines of text in the tooltip.
+    --vs-menu-offset-top: calc(var(--cui-body-font-size) + (2 * 0.25rem) + 0.1rem + 0.375rem + 1.8rem);
+  }
+
+  &.form-control.has-warning ~ .invalid-tooltip {
+    display: block !important;
   }
 
   .search-input::placeholder {
