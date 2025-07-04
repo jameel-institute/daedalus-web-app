@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="featureIsEnabled('comparison')">
     <h1>Comparison</h1>
     <table v-if="appStore.currentComparison.scenarios">
       <thead>
@@ -42,6 +42,9 @@
       </tbody>
     </table>
   </div>
+  <div v-else>
+    The comparison feature is not enabled.
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -49,6 +52,7 @@ import type { ParameterSet } from "~/types/parameterTypes";
 import type { Scenario } from "~/types/storeTypes";
 
 const appStore = useAppStore();
+const { featureIsEnabled } = useFeatureFlags();
 appStore.clearScenario();
 appStore.downloadError = undefined;
 
