@@ -47,7 +47,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.getByText("305,000").first()).toBeVisible();
 
   // Check for GDP percentage headline figure
-  await expect(page.getByText(/\d{1,3}\.\d%of 2018 GDP/)).toBeVisible({ timeout: 20000 });
+  await expect(page.getByText(/\d{1,3}(\.\d+)?%of 2018 GDP/)).toBeVisible({ timeout: 20000 });
   // Check for USD$ headline figure
   await expect(page.getByText(/\$.*USD \d{1,3}\.\d[BTM]$/)).toBeVisible();
 

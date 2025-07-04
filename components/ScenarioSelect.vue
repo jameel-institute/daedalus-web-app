@@ -26,7 +26,10 @@
     >
       <template #option="{ option }">
         <div class="parameter-option">
-          <!-- TODO: (jidea-230) For country options, consider inserting country flag in menu option -->
+          <span
+            v-if="parameterAxis.id === appStore.globeParameter?.id && countryFlagIds[option.value]"
+            :class="`fi fi-${countryFlagIds[option.value]} ms-1 me-2`"
+          />
           <span>{{ option.label }}</span>
           <div
             v-if="option.description"
@@ -110,6 +113,7 @@ import type { ParameterSelectOption } from "./utils/parameters";
 import { formatOptionLabel, humanReadableInteger, stringIsInteger } from "./utils/formatters";
 import { getRangeForDependentParam, sortOptions } from "./utils/parameters";
 import { numericValueIsOutOfRange } from "~/components/utils/validations";
+import { countryFlagIconId } from "~/components/utils/countryFlag";
 
 const { showValidationFeedback, parameterAxis, labelId } = defineProps<{
   showValidationFeedback: boolean
@@ -129,13 +133,13 @@ const currentInput = ref<string>("");
 
 const { baselineOption, dependedOnParamOptionLabel, predefinedSelectOptions } = useScenarioOptions(() => parameterAxis);
 const { tooFewScenarios, tooManyScenarios, numericInvalid } = useComparisonValidation(selected, () => parameterAxis);
+const appStore = useAppStore();
 
 const VALUE_CONTAINER_SELECTOR = ".value-container.multi";
 const SEARCH_INPUT_SELECTOR = "input.search-input";
 const customOptions = ref<ParameterSelectOption[]>([]); // for user-defined options
 const vueSelect = useTemplateRef<ComponentPublicInstance>("vueSelectComponent");
 
-const appStore = useAppStore();
 const vueSelectControl = computed((): HTMLElement | null => vueSelect.value?.$el.querySelector(VALUE_CONTAINER_SELECTOR));
 const searchInput = computed(() => vueSelectControl.value?.querySelector<HTMLInputElement>(SEARCH_INPUT_SELECTOR));
 const allPredefinedOptionsAreSelected = computed(() => predefinedSelectOptions.value.every(o => selected.value.includes(o.value)));
@@ -143,9 +147,18 @@ const options = computed(() => [...predefinedSelectOptions.value, ...customOptio
 const parameterIsNumeric = computed(() => parameterAxis?.parameterType === TypeOfParameter.Numeric);
 const dependentRange = computed(() => getRangeForDependentParam(parameterAxis, appStore.currentScenario.parameters));
 const rangeText = computed(() => `${dependedOnParamOptionLabel.value} (${dependentRange.value?.min}–${dependentRange.value?.max})`);
+const countryFlagIds = computed(() => {
+  if (parameterAxis.id !== appStore.globeParameter?.id) {
+    return {};
+  }
+
+  return predefinedSelectOptions.value.reduce((acc, option) => {
+    acc[option.value] = countryFlagIconId(option.value) || "";
+    return acc;
+  }, {} as { [key: string]: string });
+});
 
 const isOutOfRange = (value: string) => numericValueIsOutOfRange(value, parameterAxis, appStore.currentScenario.parameters);
-
 const valuesOutOfRange = computed(() => selected.value.concat(baselineOption.value?.id ?? []).filter(o => isOutOfRange(o)));
 const showWarning = computed(() => parameterIsNumeric.value && valuesOutOfRange.value.length > 0);
 

@@ -66,8 +66,21 @@
               :is-clearable="false"
               @option-selected="handleChange(parameter)"
             >
+              <template #value="{ option }">
+                <div class="d-flex gap-2 align-items-center">
+                  <span
+                    v-if="parameter === appStore.globeParameter && countryFlagIds?.[option.value]"
+                    :class="`fi fi-${countryFlagIds[option.value]}`"
+                  />
+                  {{ option.label }}
+                </div>
+              </template>
               <template #option="{ option }">
                 <div class="parameter-option">
+                  <span
+                    v-if="parameter === appStore.globeParameter && countryFlagIds?.[option.value]"
+                    :class="`fi fi-${countryFlagIds[option.value]} ms-1`"
+                  />
                   <span>{{ option.label }}</span>
                   <div
                     v-if="option.description"
@@ -163,6 +176,7 @@ import VueSelect from "vue3-select-component";
 import ParameterHeader from "~/components/ParameterHeader.vue";
 import { getRangeForDependentParam, paramOptsToSelectOpts } from "~/components/utils/parameters";
 import { numericValueInvalid, numericValueIsOutOfRange } from "~/components/utils/validations";
+import { countryFlagIconId } from "~/components/utils/countryFlag";
 
 const props = defineProps<{
   inModal: boolean
@@ -177,6 +191,13 @@ const mounted = ref(false);
 const invalidFields = ref<string[]>([]);
 
 const paramMetadata = computed(() => appStore.metadata?.parameters);
+
+const countryFlagIds = computed(() => {
+  return appStore.globeParameter?.options?.reduce((acc, option) => {
+    acc[option.id] = countryFlagIconId(option.id) || "";
+    return acc;
+  }, {} as { [key: string]: string });
+});
 
 const initialiseFormDataFromDefaults = () => {
   return paramMetadata.value?.reduce((acc, { id, defaultOption, options, updateNumericFrom }) => {
@@ -474,5 +495,9 @@ onMounted(() => {
   &::-ms-thumb {
     background-color: $warning;
   }
+}
+
+:deep(.single-value .fi) {
+  margin-bottom: 0.2rem;
 }
 </style>
