@@ -8,6 +8,7 @@ import { defineStore } from "pinia";
 import { ExcelScenarioDownload } from "~/download/excelScenarioDownload";
 import type { ScenarioCapacity, ScenarioCost, ScenarioIntervention } from "~/types/resultTypes";
 import { CostBasis } from "~/types/unitTypes";
+import { getRangeForDependentParam } from "~/components/utils/parameters";
 
 const emptyScenario = {
   runId: undefined,
@@ -202,20 +203,31 @@ export const useAppStore = defineStore("app", {
       this.currentComparison.axis = axis;
     },
     async runComparison(axis: string, baselineParameters: ParameterSet, selectedScenarioOptions: string[]) {
+      if (!this.metadata) {
+        throw new Error("Metadata is not loaded, cannot set comparison.");
+      }
+
       const newComparison = structuredClone(emptyComparison);
 
-      // TODO: (jidea-280) Vary hospital capacity depending on country if country is axis
       newComparison.axis = axis;
       newComparison.baseline = baselineParameters[axis];
       const allScenarioOptions = [newComparison.baseline, ...selectedScenarioOptions];
+
+      const paramsDependingOnAxis = this.metadata?.parameters.filter((param) => {
+        return param.updateNumericFrom?.parameterId === axis;
+      });
+
       newComparison.scenarios = allScenarioOptions.map((opt) => {
-        return structuredClone({
-          ...emptyScenario,
-          parameters: {
-            ...baselineParameters,
-            [axis]: opt,
-          },
+        const parameterVals: ParameterSet = { ...baselineParameters, [axis]: opt };
+
+        paramsDependingOnAxis?.forEach((param) => {
+          const range = getRangeForDependentParam(param, parameterVals);
+          if (range) {
+            parameterVals[param.id] = range.default.toString();
+          }
         });
+
+        return structuredClone({ ...emptyScenario, parameters: parameterVals });
       });
 
       this.currentComparison = newComparison;

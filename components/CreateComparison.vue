@@ -45,6 +45,29 @@
           </CButton>
         </div>
         <div v-if="chosenParameterAxis && baselineOption" class="mt-3">
+          <div v-if="paramsDependingOnAxis?.length" class="alert alert-warning">
+            <p>
+              Please note: if you proceed, the scenarios will vary not only by {{ chosenParameterAxis.label.toLowerCase() }}, but also by
+              {{ paramsDependingOnAxis?.length > 1
+                ? `any dependent parameters (${paramsDependingOnAxis.map(p => p.label.toLowerCase()).join(", ")})`
+                : paramsDependingOnAxis[0].label.toLowerCase() }},
+              which will be set to a default value depending on each scenario's {{ chosenParameterAxis.label.toLowerCase() }} parameter.
+            </p>
+            <div v-if="dependentParamsNotAtDefaultValues?.length">
+              <p>
+                The baseline scenario will also be adjusted in the same way:
+                <span v-for="param, index in dependentParamsNotAtDefaultValues" :key="param.id">
+                  <span>
+                    {{ param.label.toLowerCase() }} will be set to
+                    {{ humanReadableInteger(getRangeForDependentParam(param, baselineParameters)?.default.toString()) }}
+                  </span>
+                  <span v-if="index === dependentParamsNotAtDefaultValues.length - 1">.</span>
+                  <span v-else-if="index === dependentParamsNotAtDefaultValues.length - 2">, and </span>
+                  <span v-else>, </span>
+                </span>
+              </p>
+            </div>
+          </div>
           <CFormLabel :id="FORM_LABEL_ID" :for="FORM_LABEL_ID" class="fs-5 form-label">
             Compare baseline scenario
             <CTooltip
@@ -98,6 +121,8 @@ import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import type { Parameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
 import { numericValueIsOutOfRange } from "~/components/utils/validations";
+import { getRangeForDependentParam } from "~/components/utils/parameters";
+import { humanReadableInteger } from "~/components/utils/formatters";
 
 const appStore = useAppStore();
 const FORM_LABEL_ID = "scenarioOptions";
@@ -110,6 +135,21 @@ const showFormValidationFeedback = ref(false);
 
 const chosenParameterAxis = computed(() => appStore.metadata?.parameters.find(p => p.id === chosenAxisId.value));
 const baselineParameters = computed(() => appStore.currentScenario.parameters);
+
+const paramsDependingOnAxis = computed(() => appStore.metadata?.parameters.filter((param) => {
+  return param.updateNumericFrom?.parameterId === chosenAxisId.value;
+}));
+
+const dependentParamsNotAtDefaultValues = computed(() => {
+  const paramsDependingOnAxis = appStore.metadata?.parameters.filter((param) => {
+    return param.updateNumericFrom?.parameterId === chosenAxisId.value;
+  });
+
+  return paramsDependingOnAxis?.filter((param) => {
+    const range = getRangeForDependentParam(param, baselineParameters.value);
+    return range && baselineParameters.value && baselineParameters.value[param.id] !== range.default.toString();
+  });
+});
 
 const { baselineOption, predefinedOptions } = useScenarioOptions(chosenParameterAxis);
 const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions, chosenParameterAxis);
@@ -211,5 +251,11 @@ const submitForm = async () => {
 #run-button {
   min-width: 9rem;
   align-self: flex-start;
+}
+
+.alert-warning {
+  p:last-child, ul:last-child {
+    margin-bottom: 0;
+  }
 }
 </style>

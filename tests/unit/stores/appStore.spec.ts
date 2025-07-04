@@ -12,6 +12,7 @@ import { createPinia, setActivePinia } from "pinia";
 import { runStatus } from "~/types/apiResponseTypes";
 import { CostBasis } from "~/types/unitTypes";
 import { flushPromises } from "@vue/test-utils";
+import { mockMetadataResponseData } from "../mocks/mockResponseData";
 
 const unloadedScenario = {
   ...emptyScenario,
@@ -27,28 +28,7 @@ registerEndpoint("/api/versions", () => {
   };
 });
 
-const metadata = {
-  parameters: [
-    { id: "country", parameterType: "globeSelect" },
-    { id: "settings", parameterType: "select" },
-  ],
-  results: {
-    costs: [{ id: "total", label: "Total" }],
-    time_series_groups: [
-      {
-        id: "infections",
-        label: "Infections",
-        time_series: {
-          total: "prevalence",
-          daily: "new_infected",
-        },
-      },
-    ],
-  },
-  modelVersion: "1.2.3",
-};
-
-registerEndpoint("/api/metadata", () => metadata);
+registerEndpoint("/api/metadata", () => mockMetadataResponseData);
 
 registerEndpoint("/api/scenarios/123/details", () => {
   return {
@@ -212,7 +192,7 @@ describe("app store", () => {
       await store.loadMetadata();
 
       await waitFor(() => {
-        expect(store.metadata).toEqual(metadata);
+        expect(store.metadata).toEqual(mockMetadataResponseData);
       });
       expect(store.metadataFetchStatus).toBe("success");
     });
@@ -530,8 +510,11 @@ describe("app store", () => {
       });
 
       const store = useAppStore();
+      await store.loadMetadata();
+
       await store.runComparison("vaccine", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["none", "low"]);
 
+      // It should not reset the 'hospital_capacity' parameter to default values unless necessitated by a change of country.
       expect(store.currentComparison).toEqual({
         axis: "vaccine",
         baseline: "high",
@@ -555,6 +538,55 @@ describe("app store", () => {
       });
     });
 
+    it("can run a comparison, taking dependent parameters into account", async () => {
+      mockedRunScenarioResponse.mockImplementation(async (event) => {
+        const body = await readBody(event);
+        const params = body.parameters;
+        if (String(params.vaccine) === "high"
+          && String(params.response) === "elimination") {
+          switch (String(params.country)) {
+            case "USA":
+              return { runId: "456" };
+            case "ARG":
+              return { runId: "567" };
+            case "THA":
+              return { runId: "678" };
+          }
+        }
+
+        throw new Error("The test failed to pass the correct parameters to the Nuxt app API.");
+      });
+
+      const store = useAppStore();
+      await store.loadMetadata();
+
+      await store.runComparison("country", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["ARG", "THA"]);
+
+      // It should vary the dependent parameter 'hospital_capacity' as well as the country,
+      // since the same absolute capacity is not equivalent in different countries.
+      expect(store.currentComparison).toEqual({
+        axis: "country",
+        baseline: "USA",
+        scenarios: [
+          {
+            ...emptyScenario,
+            runId: "456",
+            parameters: { country: "USA", hospital_capacity: "334400", vaccine: "high", response: "elimination" },
+          },
+          {
+            ...emptyScenario,
+            runId: "567",
+            parameters: { country: "ARG", hospital_capacity: "33800", vaccine: "high", response: "elimination" },
+          },
+          {
+            ...emptyScenario,
+            runId: "678",
+            parameters: { country: "THA", hospital_capacity: "22000", vaccine: "high", response: "elimination" },
+          },
+        ],
+      });
+    });
+
     describe("getters", () => {
       it("can get the globe parameter", async () => {
         const store = useAppStore();
@@ -563,10 +595,7 @@ describe("app store", () => {
         await store.loadMetadata();
 
         await waitFor(() => {
-          expect(store.globeParameter).toEqual({
-            id: "country",
-            parameterType: "globeSelect",
-          });
+          expect(store.globeParameter!.id).toEqual("country");
         });
       });
 
@@ -630,7 +659,8 @@ describe("app store", () => {
         await store.loadMetadata();
 
         await waitFor(() => {
-          expect(store.timeSeriesGroups).toEqual([
+          expect(store.timeSeriesGroups).toHaveLength(4);
+          expect(store.timeSeriesGroups![0]).toEqual(
             {
               id: "infections",
               label: "Infections",
@@ -639,7 +669,7 @@ describe("app store", () => {
                 daily: "new_infected",
               },
             },
-          ]);
+          );
         });
       });
 
