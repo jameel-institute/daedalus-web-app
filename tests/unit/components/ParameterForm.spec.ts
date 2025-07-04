@@ -290,28 +290,6 @@ describe("parameter form", () => {
     expect(rangeInput.element.value).toBe("2000");
   });
 
-  it("displays feedback when the form is submitted with invalid values", async () => {
-    const component = await mountSuspended(ParameterForm, {
-      props: { inModal: false },
-      global: { stubs, plugins },
-    });
-
-    const numericInput = component.find("input[type='number'][id='population']");
-    const feedbackElement = component.find(".invalid-tooltip");
-    // Expect the classes of the input not to contain is-invalid - this is our test of whether the feedback is visible.
-    expect(numericInput.classes()).not.toContain("is-invalid");
-
-    await numericInput.setValue(0);
-    expect(numericInput.classes()).not.toContain("is-invalid");
-
-    await component.find("button[type='submit']").trigger("click");
-    expect(numericInput.classes()).toContain("is-invalid");
-    expect(feedbackElement.text()).toContain(`1000 to 4000 is the allowed population range for No.`);
-
-    await numericInput.setValue(2000);
-    expect(numericInput.classes()).not.toContain("is-invalid");
-  });
-
   it("sends a POST request to /api/scenarios with the form data when submitted", async () => {
     registerEndpoint("/api/scenarios", {
       method: "POST",
@@ -339,6 +317,45 @@ describe("parameter form", () => {
 
     await flushPromises();
     expect(mockNavigateTo).toBeCalledWith("/scenarios/randomId");
+  });
+
+  it("does not submit the form if values are invalid", async () => {
+    registerEndpoint("/api/scenarios", {
+      method: "POST",
+      async handler(event) {
+        const body = JSON.parse(event.node.req.body);
+        const parameters = body.parameters;
+
+        if (parameters.long_list === "1" && parameters.region === "HVN" && parameters.short_list === "no") {
+          return { runId: "randomId" };
+        } else {
+          return { error: "Test failed due to wrong parameters" };
+        }
+      },
+    });
+
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
+      global: {
+        stubs,
+        plugins: [mockPinia()],
+      },
+    });
+
+    const numericInput = component.find("input[type='number'][id='population']");
+    const feedbackElement = component.find(".invalid-tooltip");
+    // Expect the classes of the input not to contain is-invalid - this is our test of whether the feedback is visible.
+    expect(numericInput.classes()).not.toContain("is-invalid");
+    await numericInput.setValue("-1"); // Invalid value
+
+    expect(numericInput.classes()).toContain("is-invalid");
+    expect(feedbackElement.text()).toContain("Field cannot be empty or negative.");
+
+    const buttonEl = component.find("button[type='submit']");
+    await buttonEl.trigger("click");
+
+    await flushPromises();
+    expect(mockNavigateTo).not.toBeCalledWith("/scenarios/randomId");
   });
 
   it("displays CAlert with error message when metadataFetchStatus is 'error'", async () => {
@@ -370,19 +387,38 @@ describe("parameter form", () => {
     expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(true);
   });
 
-  it("form data reverts to previous values if update includes falsy values", async () => {
-    // Do a valid update from default
+  it("shows warning messages for out-of-range numeric values, but allows form submission", async () => {
+    registerEndpoint("/api/scenarios", {
+      method: "POST",
+      handler: async () => ({ runId: "randomId" }),
+    });
+
     const component = await mountSuspended(ParameterForm, {
       props: { inModal: false },
-      global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithParameters }, true, { stubActions: false })] },
+      global: { stubs, plugins },
     });
-    const vueSelect = component.findComponent(VueSelect);
-    await vueSelect.vm.$emit("update:modelValue", "2");
-    const expectedFormData = { ...scenarioWithParameters.parameters, long_list: "2" };
-    expect(component.vm.formData.value).toStrictEqual(expectedFormData);
 
-    // Do an invalid update - should revert to the first update
-    await vueSelect.vm.$emit("update:modelValue", undefined);
-    expect(component.vm.formData.value).toStrictEqual(expectedFormData);
+    const numericInput = component.find("input[type='number'][id='population']");
+
+    // Value within range should not have warning class
+    await numericInput.setValue(2500);
+    await nextTick();
+
+    expect(numericInput.element.parentElement?.classList).not.toContain("has-warning");
+    expect(numericInput.classes()).not.toContain("is-invalid");
+
+    // Value outside range should have warning class
+    await numericInput.setValue(5000);
+    await nextTick();
+
+    expect(numericInput.element.parentElement?.classList).toContain("has-warning");
+    expect(numericInput.classes()).toContain("is-invalid");
+    const feedbackElement = component.find(".invalid-tooltip");
+    expect(feedbackElement.text()).toContain(`NB: This value is outside the estimated range for No (1000–4000). Proceed with caution.`);
+
+    await component.find("button[type='submit']").trigger("click");
+
+    await flushPromises();
+    expect(mockNavigateTo).toBeCalledWith("/scenarios/randomId");
   });
 });
