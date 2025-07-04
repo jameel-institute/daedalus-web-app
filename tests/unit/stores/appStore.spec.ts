@@ -73,7 +73,7 @@ describe("app store", () => {
     expect(store.versions).toBeUndefined();
     expect(store.metadata).toBeUndefined();
     expect(store.largeScreen).toBe(true);
-    expect(store.preferences.costBasis).toBe(CostBasis.USD);
+    expect(store.preferences.costBasis).toBe(CostBasis.PercentGDP);
   });
 
   describe("actions", () => {

@@ -48,7 +48,7 @@ export const useAppStore = defineStore("app", {
     currentScenario: emptyScenario,
     currentComparison: emptyComparison,
     preferences: {
-      costBasis: CostBasis.USD, // Default cost basis for first-time visitors
+      costBasis: CostBasis.PercentGDP, // Default cost basis for first-time visitors
     },
   }),
   persist: {
