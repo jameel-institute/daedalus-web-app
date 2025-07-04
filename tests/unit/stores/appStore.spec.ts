@@ -12,6 +12,7 @@ import { createPinia, setActivePinia } from "pinia";
 import { runStatus } from "~/types/apiResponseTypes";
 import { CostBasis } from "~/types/unitTypes";
 import { flushPromises } from "@vue/test-utils";
+import { mockMetadataResponseData } from "../mocks/mockResponseData";
 
 const sampleUnloadedScenario = {
   ...emptyScenario,
@@ -28,28 +29,7 @@ registerEndpoint("/api/versions", () => {
   };
 });
 
-const metadata = {
-  parameters: [
-    { id: "country", parameterType: "globeSelect" },
-    { id: "settings", parameterType: "select" },
-  ],
-  results: {
-    costs: [{ id: "total", label: "Total" }],
-    time_series_groups: [
-      {
-        id: "infections",
-        label: "Infections",
-        time_series: {
-          total: "prevalence",
-          daily: "new_infected",
-        },
-      },
-    ],
-  },
-  modelVersion: "1.2.3",
-};
-
-registerEndpoint("/api/metadata", () => metadata);
+registerEndpoint("/api/metadata", () => mockMetadataResponseData);
 
 registerEndpoint("/api/scenarios/123/details", () => {
   return {
@@ -185,7 +165,7 @@ describe("app store", () => {
       await store.loadMetadata();
 
       await waitFor(() => {
-        expect(store.metadata).toEqual(metadata);
+        expect(store.metadata).toEqual(mockMetadataResponseData);
       });
       expect(store.metadataFetchStatus).toBe("success");
     });
@@ -375,8 +355,34 @@ describe("app store", () => {
 
     it("can set the current comparison based on the axis, baseline parameter, and selected scenario options", async () => {
       const store = useAppStore();
+      await store.loadMetadata();
+
+      store.setComparison("country", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["ARG", "THA"]);
+
+      // It should vary the dependent parameter 'hospital_capacity' as well as the country,
+      // since the same absolute capacity is not equivalent in different countries.
+      expect(store.currentComparison).toEqual({
+        axis: "country",
+        baseline: "USA",
+        scenarios: [
+          {
+            ...emptyScenario,
+            parameters: { country: "USA", hospital_capacity: "334400", vaccine: "high", response: "elimination" },
+          },
+          {
+            ...emptyScenario,
+            parameters: { country: "ARG", hospital_capacity: "33800", vaccine: "high", response: "elimination" },
+          },
+          {
+            ...emptyScenario,
+            parameters: { country: "THA", hospital_capacity: "22000", vaccine: "high", response: "elimination" },
+          },
+        ],
+      });
+
       store.setComparison("vaccine", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["none", "low"]);
 
+      // It should not reset the 'hospital_capacity' parameter to default values unless necessitated by a change of country.
       expect(store.currentComparison).toEqual({
         axis: "vaccine",
         baseline: "high",
@@ -405,10 +411,7 @@ describe("app store", () => {
         await store.loadMetadata();
 
         await waitFor(() => {
-          expect(store.globeParameter).toEqual({
-            id: "country",
-            parameterType: "globeSelect",
-          });
+          expect(store.globeParameter!.id).toEqual("country");
         });
       });
 
@@ -472,7 +475,8 @@ describe("app store", () => {
         await store.loadMetadata();
 
         await waitFor(() => {
-          expect(store.timeSeriesGroups).toEqual([
+          expect(store.timeSeriesGroups).toHaveLength(4);
+          expect(store.timeSeriesGroups![0]).toEqual(
             {
               id: "infections",
               label: "Infections",
@@ -481,7 +485,7 @@ describe("app store", () => {
                 daily: "new_infected",
               },
             },
-          ]);
+          );
         });
       });
 
