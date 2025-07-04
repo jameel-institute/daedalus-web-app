@@ -355,6 +355,11 @@ describe("app store", () => {
 
     it("can set the current comparison based on the axis, baseline parameter, and selected scenario options", async () => {
       const store = useAppStore();
+
+      expect(() => {
+        store.setComparison("country", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["ARG", "THA"]);
+      }).toThrowError("Metadata is not loaded, cannot set comparison.");
+
       await store.loadMetadata();
 
       store.setComparison("country", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["ARG", "THA"]);
