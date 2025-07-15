@@ -233,7 +233,7 @@ export const useAppStore = defineStore("app", {
         }) || [],
       );
     },
-    async pollComparisonStatuses() {
+    async refreshComparisonStatuses() {
       await Promise.all(this.currentComparison.scenarios?.map(async (scenario) => {
         await this.refreshScenarioStatus(scenario);
       }) || []);
