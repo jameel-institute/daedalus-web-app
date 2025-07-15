@@ -16,7 +16,7 @@ datasource db {
 
 model scenario {
   id              String   @id @default(cuid())
-  parameters      Json     @default("{}")
+  parameters      Json
   parameters_hash String   @unique @db.VarChar(255)
   run_id          String   @unique @db.VarChar(255)
   created_at      DateTime @default(now())

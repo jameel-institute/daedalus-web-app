@@ -1,2 +1,2 @@
 -- AlterTable
-ALTER TABLE "scenario" ADD COLUMN     "parameters" JSONB NOT NULL DEFAULT '{}';
+ALTER TABLE "scenario" ADD COLUMN     "parameters" JSONB NOT NULL;
