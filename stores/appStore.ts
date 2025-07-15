@@ -84,6 +84,34 @@ export const useAppStore = defineStore("app", {
     },
   },
   actions: {
+    async loadMetadata() {
+      const { data: metadata, status: metadataFetchStatus, error: metadataFetchError } = await useFetch("/api/metadata") as {
+        data: Ref<Metadata>
+        status: Ref<AsyncDataRequestStatus>
+        error: Ref<FetchError | undefined>
+      };
+      this.metadata = metadata.value;
+      this.metadataFetchStatus = metadataFetchStatus.value;
+      this.metadataFetchError = metadataFetchError.value;
+    },
+    // This function is designed to be called e.g. in onMounted lifecycle hooks, not
+    // setup scripts (hence the use of $fetch rather than useFetch), since version data
+    // does not need to be immediately available as soon as the page loads. We therefore
+    // don't need to make the render of the page wait for this data to be fetched.
+    // Just in case this mission-non-critical fetch takes a long time.
+    loadVersionData(): void {
+      $fetch("/api/versions", {
+        onResponse: ({ response }) => {
+          const data = response._data;
+          if (data.daedalusModel) {
+            this.versions = data as VersionData;
+          }
+        },
+      });
+    },
+    clearCurrentScenario() {
+      this.currentScenario = structuredClone(emptyScenario);
+    },
     async loadScenarioDetails(scenario: Scenario) {
       if (!scenario.runId) {
         throw new Error("No runId provided for scenario load.");
@@ -100,11 +128,10 @@ export const useAppStore = defineStore("app", {
         scenario.parameters = data.value.parameters;
       }
     },
-    async runScenario(parameters: ParameterSet | undefined) {
+    async _requestScenarioRun(parameters: ParameterSet | undefined) {
       if (!parameters) {
         throw new Error("No parameters provided for scenario run.");
       }
-
       const response = await $fetch<NewScenarioData>("/api/scenarios", {
         method: "POST",
         body: { parameters },
@@ -116,6 +143,15 @@ export const useAppStore = defineStore("app", {
         const { runId } = response;
 
         return runId;
+      }
+    },
+    async runSingleScenario(parameters: ParameterSet | undefined) {
+      const runId = await this._requestScenarioRun(parameters);
+
+      if (runId) {
+        this.clearCurrentScenario();
+        this.currentScenario.parameters = parameters as ParameterSet;
+        this.currentScenario.runId = runId;
       }
     },
     async refreshScenarioStatus(scenario: Scenario) {
@@ -157,37 +193,24 @@ export const useAppStore = defineStore("app", {
         fetchError: error.value || undefined,
       };
     },
-    async loadMetadata() {
-      const { data: metadata, status: metadataFetchStatus, error: metadataFetchError } = await useFetch("/api/metadata") as {
-        data: Ref<Metadata>
-        status: Ref<AsyncDataRequestStatus>
-        error: Ref<FetchError | undefined>
-      };
-      this.metadata = metadata.value;
-      this.metadataFetchStatus = metadataFetchStatus.value;
-      this.metadataFetchError = metadataFetchError.value;
-    },
-    // This function is designed to be called e.g. in onMounted lifecycle hooks, not
-    // setup scripts (hence the use of $fetch rather than useFetch), since version data
-    // does not need to be immediately available as soon as the page loads. We therefore
-    // don't need to make the render of the page wait for this data to be fetched.
-    // Just in case this mission-non-critical fetch takes a long time.
-    loadVersionData(): void {
-      $fetch("/api/versions", {
-        onResponse: ({ response }) => {
-          const data = response._data;
-          if (data.daedalusModel) {
-            this.versions = data as VersionData;
-          }
-        },
+    async setComparisonByRunIds(newRunIds: string[], baseline: string, axis: string) {
+      this.currentComparison.scenarios = newRunIds.map((runId) => {
+        return structuredClone({ ...emptyScenario, runId });
       });
+
+      await Promise.all(
+        this.currentComparison.scenarios?.map(async (scenario) => {
+          await this.loadScenarioDetails(scenario);
+        }) || [],
+      );
+
+      this.currentComparison.baseline = baseline;
+      this.currentComparison.axis = axis;
     },
-    clearCurrentScenario() {
-      this.currentScenario = structuredClone(emptyScenario);
-    },
-    setComparisonByParameters(axis: string, baselineParameters: ParameterSet, selectedScenarioOptions: string[]) {
+    async runComparison(axis: string, baselineParameters: ParameterSet, selectedScenarioOptions: string[]) {
       const newComparison = structuredClone(emptyComparison);
 
+      // TODO: (jidea-280) Vary hospital capacity depending on country if country is axis
       newComparison.axis = axis;
       newComparison.baseline = baselineParameters[axis];
       const allScenarioOptions = [newComparison.baseline, ...selectedScenarioOptions];
@@ -202,26 +225,13 @@ export const useAppStore = defineStore("app", {
       });
 
       this.currentComparison = newComparison;
-    },
-    async setComparisonByRunIds(newRunIds: string[], baseline: string, axis: string) {
-      if (this.currentComparison.scenarios?.length === newRunIds.length
-        && this.currentComparison.scenarios?.every(s => newRunIds.includes(s.runId!))
-      ) {
-        return;
-      }
-
-      this.currentComparison.scenarios = newRunIds.map((runId) => {
-        return structuredClone({ ...emptyScenario, runId });
-      });
 
       await Promise.all(
         this.currentComparison.scenarios?.map(async (scenario) => {
-          await this.loadScenarioDetails(scenario);
+          const runId = await this._requestScenarioRun(scenario.parameters);
+          scenario.runId = runId;
         }) || [],
       );
-
-      this.currentComparison.baseline = baseline;
-      this.currentComparison.axis = axis;
     },
     async pollComparisonStatuses() {
       await Promise.all(this.currentComparison.scenarios?.map(async (scenario) => {

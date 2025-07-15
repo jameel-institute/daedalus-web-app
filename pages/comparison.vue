@@ -106,7 +106,7 @@ const showSpinner = ref(true);
 
 const appStore = useAppStore();
 const { everyScenarioHasRunSuccessfully } = storeToRefs(appStore);
-const query = useRoute().query as Record<string, LocationQueryValue>;
+const query = useRoute().query;
 appStore.clearCurrentScenario();
 appStore.downloadError = undefined;
 let statusInterval: NodeJS.Timeout;
@@ -126,7 +126,7 @@ const scenarioIsBaseline = (scenario: Scenario) => scenarioAxisValue(scenario) =
 
 watch(() => appStore.metadata, async (newMetadata) => {
   if (newMetadata) {
-    appStore.setComparisonByRunIds((query.runIds).split(";"), query.baseline, query.axis);
+    appStore.setComparisonByRunIds((query.runIds as string).split(";"), query.baseline as string, query.axis as string);
   }
 }, { immediate: true });
 

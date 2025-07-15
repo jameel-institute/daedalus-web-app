@@ -127,7 +127,7 @@ describe("app store", () => {
     it("can load multiple scenarios from the database by their run ids", async () => {
       const store = useAppStore();
       const runIds = ["123", "456", "789"];
-      await store.setComparisonByRunIds(runIds);
+      await store.setComparisonByRunIds(runIds, "GBR", "country");
 
       await waitFor(() => {
         expect(store.currentComparison.scenarios.length).toBe(3);
@@ -137,6 +137,8 @@ describe("app store", () => {
         expect(store.currentComparison.scenarios[0].parameters?.country).toEqual("GBR");
         expect(store.currentComparison.scenarios[1].parameters?.country).toEqual("THA");
         expect(store.currentComparison.scenarios[2].parameters).toBeUndefined();
+        expect(store.currentComparison.axis).toEqual("country");
+        expect(store.currentComparison.baseline).toEqual("GBR");
       });
     });
 
@@ -152,17 +154,23 @@ describe("app store", () => {
       });
 
       const store = useAppStore();
-      const result = await store.runScenario({
+      store.currentScenario.result.fetchStatus = "pending";
+      await store.runSingleScenario({
         country: "GBR",
         pathogen: "sars_cov_1",
       });
 
-      expect(result).toBe("345");
+      expect(store.currentScenario.runId).toBe("345");
+      expect(store.currentScenario.parameters).toEqual({
+        country: "GBR",
+        pathogen: "sars_cov_1",
+      });
+      expect(store.currentScenario.result.fetchStatus).toBeUndefined();
     });
 
-    it("throws an error when no run id provided when running a new scenario by parameters", async () => {
+    it("throws an error when no parameters provided when running a new scenario", async () => {
       const store = useAppStore();
-      await expect(store.runScenario(undefined)).rejects.toThrow(
+      await expect(store.runSingleScenario(undefined)).rejects.toThrow(
         "No parameters provided for scenario run.",
       );
     });
@@ -373,9 +381,28 @@ describe("app store", () => {
       expect(store.downloading).toBe(false);
     });
 
-    it("can set the current comparison based on the axis, baseline parameter, and selected scenario options", async () => {
+    it("can run a comparison based on the axis, baseline parameter, and selected scenario options", async () => {
+      mockedRunScenarioResponse.mockImplementation(async (event) => {
+        const body = await readBody(event);
+        const params = body.parameters;
+        if (String(params.country) === "USA"
+          && String(params.hospital_capacity) === "54321"
+          && String(params.response) === "elimination") {
+          switch (String(params.vaccine)) {
+            case "high":
+              return { runId: "123" };
+            case "none":
+              return { runId: "234" };
+            case "low":
+              return { runId: "345" };
+          }
+        }
+
+        throw new Error("The test failed to pass the correct parameters to the Nuxt app API.");
+      });
+
       const store = useAppStore();
-      store.setComparisonByParameters("vaccine", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["none", "low"]);
+      await store.runComparison("vaccine", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["none", "low"]);
 
       expect(store.currentComparison).toEqual({
         axis: "vaccine",
@@ -383,14 +410,17 @@ describe("app store", () => {
         scenarios: [
           {
             ...emptyScenario,
+            runId: "123",
             parameters: { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" },
           },
           {
             ...emptyScenario,
+            runId: "234",
             parameters: { country: "USA", hospital_capacity: "54321", vaccine: "none", response: "elimination" },
           },
           {
             ...emptyScenario,
+            runId: "345",
             parameters: { country: "USA", hospital_capacity: "54321", vaccine: "low", response: "elimination" },
           },
         ],

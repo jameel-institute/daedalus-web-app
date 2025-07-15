@@ -365,12 +365,10 @@ const submitForm = async () => {
 
   formSubmitting.value = true;
 
-  const runId = await appStore.runScenario(formData.value);
+  await appStore.runSingleScenario(formData.value);
 
-  if (runId) {
-    appStore.clearCurrentScenario();
-    appStore.currentScenario.parameters = formData.value as ParameterSet;
-    await navigateTo(`/scenarios/${runId}`);
+  if (appStore.currentScenario.runId) {
+    await navigateTo(`/scenarios/${appStore.currentScenario.runId}`);
   }
 };
 

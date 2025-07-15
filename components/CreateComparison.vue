@@ -155,17 +155,10 @@ const submitForm = async () => {
   formSubmitting.value = true;
 
   if (baselineParameters.value) {
-    appStore.setComparisonByParameters(chosenAxisId.value, baselineParameters.value, selectedScenarioOptions.value);
-
-    await Promise.all(
-      appStore.currentComparison.scenarios?.map(async (scenario) => {
-        const runId = await appStore.runScenario(scenario.parameters);
-        scenario.runId = runId;
-      }) || [],
-    );
+    await appStore.runComparison(chosenAxisId.value, baselineParameters.value, selectedScenarioOptions.value);
 
     await navigateTo({ path: "/comparison", query: {
-      axis: chosenAxisId.value,
+      axis: appStore.currentComparison.axis,
       baseline: appStore.currentComparison.baseline,
       runIds: appStore.currentComparison.scenarios?.map(s => s.runId).join(";"),
     } });
