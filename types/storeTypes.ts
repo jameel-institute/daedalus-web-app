@@ -1,6 +1,6 @@
 import type { AsyncDataRequestStatus } from "#app";
 import type { Metadata, ScenarioResultData, ScenarioStatusData, VersionData } from "@/types/apiResponseTypes";
-import type { ParameterSet } from "@/types/parameterTypes";
+import type { ParameterSet, ParameterValue } from "@/types/parameterTypes";
 import type { FetchError } from "ofetch";
 import type { CostBasis } from "./unitTypes";
 
@@ -21,7 +21,7 @@ export interface Scenario {
 
 export interface Comparison {
   axis: string | undefined
-  baseline: string | undefined
+  baseline: ParameterValue | undefined
   scenarios: Scenario[] | undefined
 }
 

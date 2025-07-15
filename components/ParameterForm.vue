@@ -40,7 +40,7 @@
                   >
                     <CFormCheck
                       :id="option.id"
-                      v-model="formData[parameter.id]"
+                      v-model="formData[parameter.id] as string"
                       type="radio"
                       :button="{ color: 'primary', variant: 'outline' }"
                       :name="parameter.id"
@@ -120,7 +120,7 @@
               />
               <CFormRange
                 :id="parameter.id"
-                v-model="formData[parameter.id]"
+                v-model="formData[parameter.id] as string"
                 :aria-label="parameter.label"
                 :step="parameter.step"
                 :min="dependentRange(parameter)?.min"

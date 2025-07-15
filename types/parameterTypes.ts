@@ -1,6 +1,7 @@
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 
-export interface ParameterSet { [key: string]: string };
+export type ParameterValue = string | number;
+export interface ParameterSet { [key: string]: ParameterValue };
 
 // For metadata
 // ============
