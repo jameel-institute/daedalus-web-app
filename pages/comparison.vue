@@ -107,7 +107,7 @@ const showSpinner = ref(true);
 const appStore = useAppStore();
 const { everyScenarioHasRunSuccessfully } = storeToRefs(appStore);
 const query = useRoute().query;
-appStore.clearCurrentScenario();
+appStore.clearScenario(appStore.currentScenario);
 appStore.downloadError = undefined;
 let statusInterval: NodeJS.Timeout;
 

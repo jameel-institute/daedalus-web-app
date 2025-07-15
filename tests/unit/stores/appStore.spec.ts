@@ -171,22 +171,25 @@ describe("app store", () => {
 
       const store = useAppStore();
       store.currentScenario.result.fetchStatus = "pending";
-      await store.runSingleScenario({
+      store.currentScenario.parameters = {
         country: "GBR",
         pathogen: "sars_cov_1",
-      });
+      };
+      await store.runScenario(store.currentScenario);
 
-      expect(store.currentScenario.runId).toBe("345");
-      expect(store.currentScenario.parameters).toEqual({
-        country: "GBR",
-        pathogen: "sars_cov_1",
+      await waitFor(() => {
+        expect(store.currentScenario.runId).toBe("345");
+        expect(store.currentScenario.parameters).toEqual({
+          country: "GBR",
+          pathogen: "sars_cov_1",
+        });
+        expect(store.currentScenario.result.fetchStatus).toBeUndefined();
       });
-      expect(store.currentScenario.result.fetchStatus).toBeUndefined();
     });
 
     it("throws an error when no parameters provided when running a new scenario", async () => {
       const store = useAppStore();
-      await expect(store.runSingleScenario(undefined)).rejects.toThrow(
+      await expect(store.runScenario(store.currentScenario)).rejects.toThrow(
         "No parameters provided for scenario run.",
       );
     });
@@ -438,7 +441,7 @@ describe("app store", () => {
         },
       };
 
-      store.clearCurrentScenario();
+      store.clearScenario(store.currentScenario);
       expect(store.currentScenario).toEqual({
         runId: undefined,
         parameters: undefined,

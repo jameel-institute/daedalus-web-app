@@ -109,8 +109,8 @@ export const useAppStore = defineStore("app", {
         },
       });
     },
-    clearCurrentScenario() {
-      this.currentScenario = structuredClone(emptyScenario);
+    clearScenario(scenario: Scenario) {
+      Object.assign(scenario, structuredClone(emptyScenario));
     },
     async loadScenarioDetails(scenario: Scenario) {
       if (!scenario.runId) {
@@ -128,7 +128,8 @@ export const useAppStore = defineStore("app", {
         scenario.parameters = data.value.parameters;
       }
     },
-    async _requestScenarioRun(parameters: ParameterSet | undefined) {
+    async runScenario(scenario: Scenario) {
+      const parameters = scenario.parameters;
       if (!parameters) {
         throw new Error("No parameters provided for scenario run.");
       }
@@ -142,16 +143,9 @@ export const useAppStore = defineStore("app", {
       if (response) {
         const { runId } = response;
 
-        return runId;
-      }
-    },
-    async runSingleScenario(parameters: ParameterSet | undefined) {
-      const runId = await this._requestScenarioRun(parameters);
-
-      if (runId) {
-        this.clearCurrentScenario();
-        this.currentScenario.parameters = parameters as ParameterSet;
-        this.currentScenario.runId = runId;
+        this.clearScenario(scenario);
+        scenario.runId = runId;
+        scenario.parameters = parameters;
       }
     },
     async refreshScenarioStatus(scenario: Scenario) {
@@ -228,8 +222,7 @@ export const useAppStore = defineStore("app", {
 
       await Promise.all(
         this.currentComparison.scenarios?.map(async (scenario) => {
-          const runId = await this._requestScenarioRun(scenario.parameters);
-          scenario.runId = runId;
+          await this.runScenario(scenario);
         }) || [],
       );
     },
