@@ -339,7 +339,7 @@ const handleChange = (param: Parameter) => {
   });
 
   if (param.parameterType === TypeOfParameter.GlobeSelect) {
-    appStore.globe.highlightedCountry = formData.value![param.id];
+    appStore.globe.highlightedCountry = formData.value![param.id].toString();
   };
 };
 
@@ -362,7 +362,7 @@ const submitForm = async () => {
   // since we don't want to highlight any particular country until the user chooses one. So now we need
   // to set it to the value being submitted in the form. This triggers the Globe component to focus the country.
   if (!appStore.globe.highlightedCountry && appStore.globeParameter?.id && formData.value) {
-    appStore.globe.highlightedCountry = formData.value[appStore.globeParameter.id];
+    appStore.globe.highlightedCountry = formData.value[appStore.globeParameter.id].toString();
   }
 
   formSubmitting.value = true;
