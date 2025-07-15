@@ -105,27 +105,13 @@ import type { Scenario } from "~/types/storeTypes";
 const showSpinner = ref(true);
 
 const appStore = useAppStore();
-const query = useRoute().query;
+const { everyScenarioHasRunSuccessfully } = storeToRefs(appStore);
+const query = useRoute().query as Record<string, LocationQueryValue>;
 appStore.clearCurrentScenario();
 appStore.downloadError = undefined;
 let statusInterval: NodeJS.Timeout;
 
 const axis = computed(() => appStore.currentComparison.axis);
-const runIdsFromQuery = computed(() => {
-  return (query.runIds as string).split(";");
-});
-const everyScenarioHasARunId = computed(() => {
-  return appStore.currentComparison.scenarios?.length
-    && appStore.currentComparison.scenarios?.every(s => !!s.runId);
-});
-const everyScenariosHasRunSuccessfully = computed(() => {
-  return appStore.currentComparison.scenarios?.length
-    && appStore.currentComparison.scenarios?.every(s => s.status.data?.runSuccess);
-});
-const runIdsFromStoreMatchRunIdsInQuery = computed(() => {
-  return appStore.currentComparison.scenarios?.length === runIdsFromQuery.value.length
-    && appStore.currentComparison.scenarios?.every(s => runIdsFromQuery.value.includes(s.runId!));
-});
 
 const totalCost = (scenario: Scenario) => {
   const cost = scenario?.result?.data?.costs[0].value;
@@ -138,29 +124,15 @@ const totalCost = (scenario: Scenario) => {
 const scenarioAxisValue = (scenario: Scenario) => axis.value ? scenario.parameters?.[axis.value] : undefined;
 const scenarioIsBaseline = (scenario: Scenario) => scenarioAxisValue(scenario) === appStore.currentComparison.baseline;
 
-const pollStatuses = async () => {
-  if (!everyScenarioHasARunId.value) {
-    return;
-  }
-  await Promise.all(appStore.currentComparison.scenarios?.map(async (scenario) => {
-    await appStore.refreshScenarioStatus(scenario);
-  }) || []);
-};
-
 watch(() => appStore.metadata, async (newMetadata) => {
   if (newMetadata) {
-    if (!runIdsFromStoreMatchRunIdsInQuery.value) {
-      appStore.setCurrentComparisonByRunIds(runIdsFromQuery.value);
-    }
-
-    appStore.currentComparison.baseline = query.baseline as string;
-    appStore.currentComparison.axis = query.axis as string;
+    appStore.setComparisonByRunIds((query.runIds).split(";"), query.baseline, query.axis);
   }
 }, { immediate: true });
 
 const stopWatchingComparison = watch(() => appStore.currentComparison, async (currentComp) => {
-  if (!statusInterval && currentComp.scenarios?.every(s => !!s.runId)) {
-    statusInterval = setInterval(pollStatuses, 200);
+  if (!statusInterval && appStore.everyScenarioHasARunId) {
+    statusInterval = setInterval(appStore.pollComparisonStatuses, 200);
   }
   if (currentComp.scenarios?.every(s => s.status.data?.done)) {
     clearInterval(statusInterval);
@@ -168,14 +140,10 @@ const stopWatchingComparison = watch(() => appStore.currentComparison, async (cu
   }
 }, { deep: true, immediate: true });
 
-watch(everyScenariosHasRunSuccessfully, async (allRanSuccessfully) => {
+watch(everyScenarioHasRunSuccessfully, async (allRanSuccessfully) => {
   if (allRanSuccessfully) {
     stopWatchingComparison();
-    await Promise.all(
-      appStore.currentComparison.scenarios?.map(async (scenario) => {
-        await appStore.loadScenarioResult(scenario);
-      }) || [],
-    );
+    await appStore.loadComparisonResults();
   }
 }, { immediate: true });
 

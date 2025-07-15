@@ -155,7 +155,7 @@ const submitForm = async () => {
   formSubmitting.value = true;
 
   if (baselineParameters.value) {
-    appStore.setComparison(chosenAxisId.value, baselineParameters.value, selectedScenarioOptions.value);
+    appStore.setComparisonByParameters(chosenAxisId.value, baselineParameters.value, selectedScenarioOptions.value);
 
     await Promise.all(
       appStore.currentComparison.scenarios?.map(async (scenario) => {

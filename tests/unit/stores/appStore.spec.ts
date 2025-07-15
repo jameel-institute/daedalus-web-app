@@ -127,7 +127,7 @@ describe("app store", () => {
     it("can load multiple scenarios from the database by their run ids", async () => {
       const store = useAppStore();
       const runIds = ["123", "456", "789"];
-      await store.setCurrentComparisonByRunIds(runIds);
+      await store.setComparisonByRunIds(runIds);
 
       await waitFor(() => {
         expect(store.currentComparison.scenarios.length).toBe(3);
@@ -375,7 +375,7 @@ describe("app store", () => {
 
     it("can set the current comparison based on the axis, baseline parameter, and selected scenario options", async () => {
       const store = useAppStore();
-      store.setComparison("vaccine", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["none", "low"]);
+      store.setComparisonByParameters("vaccine", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["none", "low"]);
 
       expect(store.currentComparison).toEqual({
         axis: "vaccine",

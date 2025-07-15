@@ -74,6 +74,14 @@ export const useAppStore = defineStore("app", {
       }
     },
     timeSeriesGroups: (state): Array<TimeSeriesGroup> | undefined => state.metadata?.results.time_series_groups as TimeSeriesGroup[] | undefined,
+    everyScenarioHasRunSuccessfully: (state): boolean => {
+      return state.currentComparison.scenarios?.length > 0
+        && state.currentComparison.scenarios?.every(s => s.status.data?.runSuccess);
+    },
+    everyScenarioHasARunId: (state): boolean => {
+      return state.currentComparison.scenarios?.length > 0
+        && state.currentComparison.scenarios?.every(s => !!s.runId);
+    },
   },
   actions: {
     async loadScenarioDetails(scenario: Scenario) {
@@ -177,7 +185,7 @@ export const useAppStore = defineStore("app", {
     clearCurrentScenario() {
       this.currentScenario = structuredClone(emptyScenario);
     },
-    setComparison(axis: string, baselineParameters: ParameterSet, selectedScenarioOptions: string[]) {
+    setComparisonByParameters(axis: string, baselineParameters: ParameterSet, selectedScenarioOptions: string[]) {
       const newComparison = structuredClone(emptyComparison);
 
       newComparison.axis = axis;
@@ -195,8 +203,14 @@ export const useAppStore = defineStore("app", {
 
       this.currentComparison = newComparison;
     },
-    async setCurrentComparisonByRunIds(runIds: string[]) {
-      this.currentComparison.scenarios = runIds.map((runId) => {
+    async setComparisonByRunIds(newRunIds: string[], baseline: string, axis: string) {
+      if (this.currentComparison.scenarios?.length === newRunIds.length
+        && this.currentComparison.scenarios?.every(s => newRunIds.includes(s.runId!))
+      ) {
+        return;
+      }
+
+      this.currentComparison.scenarios = newRunIds.map((runId) => {
         return structuredClone({ ...emptyScenario, runId });
       });
 
@@ -205,6 +219,19 @@ export const useAppStore = defineStore("app", {
           await this.loadScenarioDetails(scenario);
         }) || [],
       );
+
+      this.currentComparison.baseline = baseline;
+      this.currentComparison.axis = axis;
+    },
+    async pollComparisonStatuses() {
+      await Promise.all(this.currentComparison.scenarios?.map(async (scenario) => {
+        await this.refreshScenarioStatus(scenario);
+      }) || []);
+    },
+    async loadComparisonResults() {
+      await Promise.all(this.currentComparison.scenarios?.map(async (scenario) => {
+        await this.loadScenarioResult(scenario);
+      }) || []);
     },
     async downloadExcel() {
       this.downloadError = undefined;
