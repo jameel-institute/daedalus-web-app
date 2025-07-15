@@ -365,7 +365,7 @@ const submitForm = async () => {
 
   formSubmitting.value = true;
 
-  const runId = await appStore.runScenarioByParameters(formData.value);
+  const runId = await appStore.runScenario(formData.value);
 
   if (runId) {
     appStore.clearCurrentScenario();

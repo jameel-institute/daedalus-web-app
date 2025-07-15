@@ -88,12 +88,11 @@ export const useAppStore = defineStore("app", {
         status: Ref<AsyncDataRequestStatus>
       };
 
-      if (status.value === "success" && data.value.runId) {
-        scenario.runId = data.value.runId;
+      if (status.value === "success") {
         scenario.parameters = data.value.parameters;
       }
     },
-    async runScenarioByParameters(parameters: ParameterSet | undefined) {
+    async runScenario(parameters: ParameterSet | undefined) {
       if (!parameters) {
         throw new Error("No parameters provided for scenario run.");
       }

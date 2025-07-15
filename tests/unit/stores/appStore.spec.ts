@@ -152,7 +152,7 @@ describe("app store", () => {
       });
 
       const store = useAppStore();
-      const result = await store.runScenarioByParameters({
+      const result = await store.runScenario({
         country: "GBR",
         pathogen: "sars_cov_1",
       });
@@ -162,7 +162,7 @@ describe("app store", () => {
 
     it("throws an error when no run id provided when running a new scenario by parameters", async () => {
       const store = useAppStore();
-      await expect(store.runScenarioByParameters(undefined)).rejects.toThrow(
+      await expect(store.runScenario(undefined)).rejects.toThrow(
         "No parameters provided for scenario run.",
       );
     });

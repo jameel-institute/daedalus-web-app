@@ -159,7 +159,7 @@ const submitForm = async () => {
 
     await Promise.all(
       appStore.currentComparison.scenarios?.map(async (scenario) => {
-        const runId = await appStore.runScenarioByParameters(scenario.parameters);
+        const runId = await appStore.runScenario(scenario.parameters);
         scenario.runId = runId;
       }) || [],
     );
