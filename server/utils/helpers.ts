@@ -29,10 +29,12 @@ export const formDataToObject = (formData: FormData) => {
 
 export const hashParameters = (parameters: ParameterSet, modelVersion: string) => {
   const sha256 = new JSSHA("SHA-256", "TEXT");
-  const dictionary = { ...parameters, modelVersion };
-  const sortedKeys = Object.keys(dictionary).sort();
-  const sortedValues = Object.values(dictionary).sort();
-  sha256.update(sortedKeys.join() + sortedValues.join());
+  const sortedKeys = Object.keys(parameters).sort();
+  sha256.update(
+    sortedKeys.join()
+    + sortedKeys.map(k => parameters[k]).join()
+    + modelVersion,
+  );
   return sha256.getHash("HEX");
 };
 

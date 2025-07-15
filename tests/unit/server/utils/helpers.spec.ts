@@ -31,16 +31,21 @@ describe("hashParameters", () => {
       param1: "value1",
       param2: "value2",
     };
-    const shuffledParameters = {
+    const reorderedParameters = {
       param2: "value2",
       param1: "value1",
     };
+    const parametersWithSwappedValues = {
+      param1: "value2",
+      param2: "value1",
+    };
     const modelVersion = "0.0.1";
-    const expectedHash = "71769fb32eb465e5a1bd39c1bcd4345f8c0330bbe87a36f8909840e5d9164510";
+    const expectedHash = "b25974cca561836f5c342c87e3e8c99c32d67a5d14c61d34cef22a10534a9ddb";
 
     expect(hashParameters(parameters, modelVersion)).toEqual(expectedHash);
-    expect(hashParameters(shuffledParameters, modelVersion)).toEqual(expectedHash);
     expect(hashParameters(parameters, "9.9.9")).not.toEqual(expectedHash);
+    expect(hashParameters(reorderedParameters, modelVersion)).toEqual(expectedHash);
+    expect(hashParameters(parametersWithSwappedValues, modelVersion)).not.toEqual(expectedHash);
   });
 });
 
