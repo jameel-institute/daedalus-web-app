@@ -102,7 +102,7 @@ describe("app store", () => {
     it("can load a scenario from the database", async () => {
       const store = useAppStore();
       store.currentScenario = structuredClone(sampleUnloadedScenario);
-      await store.loadScenarioFromDB(store.currentScenario);
+      await store.loadScenarioDetails(store.currentScenario);
 
       await waitFor(() => {
         expect(store.currentScenario.runId).toBe("123");
@@ -119,7 +119,7 @@ describe("app store", () => {
     it("throws an error when no run id provided when loading a scenario from the database", async () => {
       const store = useAppStore();
       store.currentScenario = structuredClone(emptyScenario);
-      await expect(store.loadScenarioFromDB(store.currentScenario)).rejects.toThrow(
+      await expect(store.loadScenarioDetails(store.currentScenario)).rejects.toThrow(
         "No runId provided for scenario load.",
       );
     });

@@ -76,7 +76,7 @@ export const useAppStore = defineStore("app", {
     timeSeriesGroups: (state): Array<TimeSeriesGroup> | undefined => state.metadata?.results.time_series_groups as TimeSeriesGroup[] | undefined,
   },
   actions: {
-    async loadScenarioFromDB(scenario: Scenario) {
+    async loadScenarioDetails(scenario: Scenario) {
       if (!scenario.runId) {
         throw new Error("No runId provided for scenario load.");
       }
@@ -203,7 +203,7 @@ export const useAppStore = defineStore("app", {
 
       await Promise.all(
         this.currentComparison.scenarios?.map(async (scenario) => {
-          await this.loadScenarioFromDB(scenario);
+          await this.loadScenarioDetails(scenario);
         }) || [],
       );
     },

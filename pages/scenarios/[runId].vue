@@ -79,7 +79,7 @@ appStore.downloadError = undefined;
 
 // Fetch scenario from db so we can know its parameters now rather than wait for them in the result data
 appStore.currentScenario.runId = runId;
-await appStore.loadScenarioFromDB(appStore.currentScenario);
+await appStore.loadScenarioDetails(appStore.currentScenario);
 
 // Use useAsyncData to store the time once, during server-side rendering: avoids client render re-writing value.
 const { data: timeOfFirstStatusPoll } = await useAsyncData<number>("timeOfFirstStatusPoll", async () => {
