@@ -144,7 +144,7 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
   // to the R API. This check is called a 'rule' in Mockoon, and rules can't be used simultaneously with the 'sequential' setting,
   // so we instead use the mockoonResponse parameter to tell Mockoon which type of response to send.
   describe("post api/scenarios", async () => {
-    const parametersHashForSuccessfulResponse = "eb5121baa2c07ad0944b3aa42068cda44570f862107852b165c35bbcd7d13cb8";
+    const parametersHashForSuccessfulResponse = "28131f494aa5768f93bc8a52c554620bbdae9fedf934b9d221abda0e9d8fe5c1";
 
     beforeEach(async () => {
       await purgeRApiMockServer(); // Reset the mock server so that the version request is always successful.
