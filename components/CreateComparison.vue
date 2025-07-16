@@ -95,15 +95,15 @@
                 : paramsDependingOnAxis[0].label.toLowerCase() }},
               which will be set to a default value depending on each scenario's {{ chosenParameterAxis.label.toLowerCase() }} parameter.
             </p>
-            <p v-for="param in paramsDependingOnAxis" :key="param.id">
-              These values will be used for {{ param.label.toLowerCase() }}:
+            <span v-for="param in paramsDependingOnAxis" :key="param.id">
+              <p class="mb-0">These values will be used for {{ param.label.toLowerCase() }}:</p>
               <ul>
                 <li>{{ baselineOption.label }}: {{ getDependentParamValueForScenarioOption(param, baselineOption.id) }}</li>
                 <li v-for="opt in selectedScenarioOptions" :key="opt">
                   {{ predefinedOptions.find(o => o.id === opt)?.label }}: {{ getDependentParamValueForScenarioOption(param, opt) }}
                 </li>
               </ul>
-            </p>
+            </span>
           </div>
         </div>
       </CModalBody>
