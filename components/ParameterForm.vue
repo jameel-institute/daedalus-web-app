@@ -299,7 +299,7 @@ const tooltipText = (param: Parameter) => {
   if (param.parameterType === TypeOfParameter.Numeric && invalidFields.value?.includes(param.id)) {
     return "Field cannot be empty or negative.";
   } else if (param.updateNumericFrom && warningFields.value?.includes(param.id)) {
-    const dependedUponParam = appStore.parametersMetadataById[param.updateNumericFrom?.parameterId];
+    const dependedUponParam = appStore.parametersMetadataById[param.updateNumericFrom.parameterId];
     const range = dependentRange(param);
 
     if (dependedUponParam && range) {
