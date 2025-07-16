@@ -23,7 +23,6 @@ const testPinia = mockPinia({
       fetchStatus: "success",
     },
   },
-  downloadError: "Test download error",
   metadata: mockMetadataResponseData as Metadata,
 }, false, { stubActions: false });
 
@@ -173,22 +172,8 @@ describe("create comparison button and modal", () => {
   });
 
   it("warns about the adjustments to the values of dependent parameters, when relevant", async () => {
-    const piniaMock = mockPinia({
-      currentScenario: {
-        ...emptyScenario,
-        parameters: mockResultData.parameters,
-        result: {
-          data: mockResultResponseData as ScenarioResultData,
-          fetchError: undefined,
-          fetchStatus: "success",
-        },
-      },
-      downloadError: "Test download error",
-      metadata: mockMetadataResponseData as Metadata,
-    }, false, { stubActions: false });
+    const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
 
-    const appStore = useAppStore(piniaMock);
-    const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins: [piniaMock] } });
     await openModal(wrapper);
     const modalEl = getModalEl(wrapper);
     const axisOptionsEl = modalEl.find("#axisOptions");
@@ -205,13 +190,16 @@ describe("create comparison button and modal", () => {
     expect((wrapper.find(".alert")).exists()).toBe(true);
     expect(wrapper.find(".alert").text()).toContain("the scenarios will vary not only by country, but also by hospital surge capacity");
     expect(wrapper.find(".alert").text()).toContain("which will be set to a default value depending on each scenario's country parameter");
-    expect(wrapper.find(".alert").text()).toContain("The baseline scenario will also be adjusted in the same way");
-    expect(wrapper.find(".alert").text()).toContain("hospital surge capacity will be set to 26,200");
+    expect(wrapper.find(".alert").text()).toContain("These values will be used for hospital surge capacity:");
+    expect(wrapper.find(".alert").text()).toContain("United Kingdom: 26,200");
 
-    appStore.currentScenario.parameters.hospital_capacity = "26200";
-    await nextTick();
+    const comboboxEl = getComboboxEl(wrapper);
+    await comboboxEl.trigger("click");
+    await wrapper.findAll(".parameter-option").find(el => /United States/i.test(el.text()))!.trigger("click");
+    await wrapper.findAll(".parameter-option").find(el => /Thailand/i.test(el.text()))!.trigger("click");
 
-    expect(wrapper.find(".alert").text()).not.toContain("The baseline scenario will also be adjusted in the same way");
+    expect(wrapper.find(".alert").text()).toContain("United States: 334,400");
+    expect(wrapper.find(".alert").text()).toContain("Thailand: 22,000");
   });
 
   it("renders the correct options for the select", async () => {

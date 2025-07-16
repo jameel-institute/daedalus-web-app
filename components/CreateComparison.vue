@@ -45,29 +45,6 @@
           </CButton>
         </div>
         <div v-if="chosenParameterAxis && baselineOption" class="mt-3">
-          <div v-if="paramsDependingOnAxis?.length" class="alert alert-warning">
-            <p>
-              Please note: if you proceed, the scenarios will vary not only by {{ chosenParameterAxis.label.toLowerCase() }}, but also by
-              {{ paramsDependingOnAxis?.length > 1
-                ? `any dependent parameters (${paramsDependingOnAxis.map(p => p.label.toLowerCase()).join(", ")})`
-                : paramsDependingOnAxis[0].label.toLowerCase() }},
-              which will be set to a default value depending on each scenario's {{ chosenParameterAxis.label.toLowerCase() }} parameter.
-            </p>
-            <div v-if="dependentParamsNotAtDefaultValues?.length">
-              <p>
-                The baseline scenario will also be adjusted in the same way:
-                <span v-for="param, index in dependentParamsNotAtDefaultValues" :key="param.id">
-                  <span>
-                    {{ param.label.toLowerCase() }} will be set to
-                    {{ humanReadableInteger(getRangeForDependentParam(param, baselineParameters)?.default.toString()) }}
-                  </span>
-                  <span v-if="index === dependentParamsNotAtDefaultValues.length - 1">.</span>
-                  <span v-else-if="index === dependentParamsNotAtDefaultValues.length - 2">, and </span>
-                  <span v-else>, </span>
-                </span>
-              </p>
-            </div>
-          </div>
           <CFormLabel :id="FORM_LABEL_ID" :for="FORM_LABEL_ID" class="fs-5 form-label">
             Compare baseline scenario
             <CTooltip
@@ -110,6 +87,24 @@
               <CIcon v-else icon="cilArrowRight" />
             </CButton>
           </div>
+          <div v-if="paramsDependingOnAxis?.length" class="alert alert-warning mt-3">
+            <p>
+              Please note: if you proceed, the scenarios will vary not only by {{ chosenParameterAxis.label.toLowerCase() }}, but also by
+              {{ paramsDependingOnAxis?.length > 1
+                ? `any dependent parameters (${paramsDependingOnAxis.map(p => p.label.toLowerCase()).join(", ")})`
+                : paramsDependingOnAxis[0].label.toLowerCase() }},
+              which will be set to a default value depending on each scenario's {{ chosenParameterAxis.label.toLowerCase() }} parameter.
+            </p>
+            <p v-for="param in paramsDependingOnAxis" :key="param.id">
+              These values will be used for {{ param.label.toLowerCase() }}:
+              <ul>
+                <li>{{ baselineOption.label }}: {{ getDependentParamValueForScenarioOption(param, baselineOption.id) }}</li>
+                <li v-for="opt in selectedScenarioOptions" :key="opt">
+                  {{ predefinedOptions.find(o => o.id === opt)?.label }}: {{ getDependentParamValueForScenarioOption(param, opt) }}
+                </li>
+              </ul>
+            </p>
+          </div>
         </div>
       </CModalBody>
     </CModal>
@@ -140,16 +135,17 @@ const paramsDependingOnAxis = computed(() => appStore.metadata?.parameters.filte
   return param.updateNumericFrom?.parameterId === chosenAxisId.value;
 }));
 
-const dependentParamsNotAtDefaultValues = computed(() => paramsDependingOnAxis.value?.filter((param) => {
-  const range = getRangeForDependentParam(param, baselineParameters.value);
-  return range && baselineParameters.value && baselineParameters.value[param.id] !== range.default.toString();
-}));
-
 const { baselineOption, predefinedOptions } = useScenarioOptions(chosenParameterAxis);
 const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions, chosenParameterAxis);
 
 const baselineIsOutOfRange = computed(() =>
   numericValueIsOutOfRange(baselineOption.value?.id, chosenParameterAxis.value, appStore.currentScenario.parameters));
+
+const getDependentParamValueForScenarioOption = (parameter: Parameter, scenarioOption: string) => {
+  const scenarioParameters = { ...baselineParameters.value, [chosenAxisId.value]: scenarioOption };
+  const range = getRangeForDependentParam(parameter, scenarioParameters);
+  return range ? humanReadableInteger(range?.default.toString()) : "";
+};
 
 const handleCloseModal = () => {
   modalVisible.value = false;
