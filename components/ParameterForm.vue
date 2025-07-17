@@ -299,7 +299,7 @@ const tooltipText = (param: Parameter) => {
   if (param.parameterType === TypeOfParameter.Numeric && invalidFields.value?.includes(param.id)) {
     return "Field cannot be empty or negative.";
   } else if (param.updateNumericFrom && warningFields.value?.includes(param.id)) {
-    const dependedUponParam = paramMetadata.value?.find(p => p.id === param.updateNumericFrom?.parameterId);
+    const dependedUponParam = appStore.parametersMetadataById[param.updateNumericFrom.parameterId];
     const range = dependentRange(param);
 
     if (dependedUponParam && range) {
@@ -329,7 +329,7 @@ const handleChange = (param: Parameter) => {
   parameterDependencies.value[param.id].forEach((dependentParamId: string) => {
     pulse(dependentParamId);
 
-    const dependentParameter = paramMetadata.value!.find(param => param.id === dependentParamId)!;
+    const dependentParameter = appStore.parametersMetadataById[dependentParamId];
     const newValueForDependentParam = defaultValue(dependentParameter);
     if (newValueForDependentParam) {
       formData.value![dependentParamId] = newValueForDependentParam;

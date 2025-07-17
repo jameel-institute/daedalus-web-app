@@ -87,6 +87,24 @@
               <CIcon v-else icon="cilArrowRight" />
             </CButton>
           </div>
+          <div v-if="paramsDependingOnAxis?.length" class="alert alert-warning mt-3">
+            <p>
+              Please note: if you proceed, the scenarios will vary not only by {{ chosenParameterAxis.label.toLowerCase() }}, but also by
+              {{ paramsDependingOnAxis?.length > 1
+                ? `any dependent parameters (${paramsDependingOnAxis.map(p => p.label.toLowerCase()).join(", ")})`
+                : paramsDependingOnAxis[0].label.toLowerCase() }},
+              which will be set to a default value depending on each scenario's {{ chosenParameterAxis.label.toLowerCase() }} parameter.
+            </p>
+            <span v-for="param in paramsDependingOnAxis" :key="param.id">
+              <p class="mb-0">These values will be used for {{ param.label.toLowerCase() }}:</p>
+              <ul>
+                <li>{{ baselineOption.label }}: {{ getDependentParamValueForScenarioOption(param, baselineOption.id) }}</li>
+                <li v-for="opt in selectedScenarioOptions" :key="opt">
+                  {{ predefinedOptions.find(o => o.id === opt)?.label }}: {{ getDependentParamValueForScenarioOption(param, opt) }}
+                </li>
+              </ul>
+            </span>
+          </div>
         </div>
       </CModalBody>
     </CModal>
@@ -98,6 +116,8 @@ import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import type { Parameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
 import { numericValueIsOutOfRange } from "~/components/utils/validations";
+import { getRangeForDependentParam } from "~/components/utils/parameters";
+import { humanReadableInteger } from "~/components/utils/formatters";
 
 const appStore = useAppStore();
 const FORM_LABEL_ID = "scenarioOptions";
@@ -108,14 +128,24 @@ const formSubmitting = ref(false);
 // Visible feedback will be shown on submitting an invalid form, and cleared when options are changed
 const showFormValidationFeedback = ref(false);
 
-const chosenParameterAxis = computed(() => appStore.metadata?.parameters.find(p => p.id === chosenAxisId.value));
+const chosenParameterAxis = computed(() => appStore.parametersMetadataById[chosenAxisId.value]);
 const baselineParameters = computed(() => appStore.currentScenario.parameters);
+
+const paramsDependingOnAxis = computed(() => appStore.metadata?.parameters.filter((param) => {
+  return param.updateNumericFrom?.parameterId === chosenAxisId.value;
+}));
 
 const { baselineOption, predefinedOptions } = useScenarioOptions(chosenParameterAxis);
 const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions, chosenParameterAxis);
 
 const baselineIsOutOfRange = computed(() =>
   numericValueIsOutOfRange(baselineOption.value?.id, chosenParameterAxis.value, appStore.currentScenario.parameters));
+
+const getDependentParamValueForScenarioOption = (parameter: Parameter, scenarioOption: string) => {
+  const scenarioParameters = { ...baselineParameters.value, [chosenAxisId.value]: scenarioOption };
+  const range = getRangeForDependentParam(parameter, scenarioParameters);
+  return range ? humanReadableInteger(range?.default.toString()) : "";
+};
 
 const handleCloseModal = () => {
   modalVisible.value = false;
@@ -211,5 +241,11 @@ const submitForm = async () => {
 #run-button {
   min-width: 9rem;
   align-self: flex-start;
+}
+
+.alert-warning {
+  p:last-child, ul:last-child {
+    margin-bottom: 0;
+  }
 }
 </style>

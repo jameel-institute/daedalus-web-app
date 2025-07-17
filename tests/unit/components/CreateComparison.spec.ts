@@ -23,7 +23,6 @@ const testPinia = mockPinia({
       fetchStatus: "success",
     },
   },
-  downloadError: "Test download error",
   metadata: mockMetadataResponseData as Metadata,
 }, false, { stubActions: false });
 
@@ -74,6 +73,8 @@ const getHospitalCapacityButton = (axisOptionsEl: DOMWrapper<Element>) => {
   expect(hospitalCapacityButton.text()).toEqual("Hospital surge capacity");
   return hospitalCapacityButton;
 };
+
+const errorResponseData = { error: "Test failed due to wrong parameters" };
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -170,6 +171,37 @@ describe("create comparison button and modal", () => {
     expect(modalEl.text()).toContain("Compare baseline scenario 30,500 against:");
   });
 
+  it("warns about the adjustments to the values of dependent parameters, when relevant", async () => {
+    const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
+
+    await openModal(wrapper);
+    const modalEl = getModalEl(wrapper);
+    const axisOptionsEl = modalEl.find("#axisOptions");
+    const hospitalCapacityButton = getHospitalCapacityButton(axisOptionsEl);
+    await hospitalCapacityButton.trigger("click");
+
+    expect(wrapper.find(".alert").exists()).toBe(false);
+
+    // Click the already-selected parameter axis button to deselect it
+    await hospitalCapacityButton.trigger("click");
+
+    const countryButton = getCountryButton(axisOptionsEl);
+    await countryButton.trigger("click");
+    expect((wrapper.find(".alert")).exists()).toBe(true);
+    expect(wrapper.find(".alert").text()).toContain("the scenarios will vary not only by country, but also by hospital surge capacity");
+    expect(wrapper.find(".alert").text()).toContain("which will be set to a default value depending on each scenario's country parameter");
+    expect(wrapper.find(".alert").text()).toContain("These values will be used for hospital surge capacity:");
+    expect(wrapper.find(".alert").text()).toContain("United Kingdom: 26,200");
+
+    const comboboxEl = getComboboxEl(wrapper);
+    await comboboxEl.trigger("click");
+    await wrapper.findAll(".parameter-option").find(el => /United States/i.test(el.text()))!.trigger("click");
+    await wrapper.findAll(".parameter-option").find(el => /Thailand/i.test(el.text()))!.trigger("click");
+
+    expect(wrapper.find(".alert").text()).toContain("United States: 334,400");
+    expect(wrapper.find(".alert").text()).toContain("Thailand: 22,000");
+  });
+
   it("renders the correct options for the select", async () => {
     const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
     await openModal(wrapper);
@@ -218,6 +250,27 @@ describe("create comparison button and modal", () => {
   });
 
   it("renders the validation feedback as expected, for invalid submissions", async () => {
+    registerEndpoint("/api/scenarios", {
+      method: "POST",
+      async handler(event) {
+        const body = JSON.parse(event.node.req.body);
+        const params = body.parameters;
+
+        if (params.pathogen === "sars_cov_1" && params.response === "none" && params.vaccine === "none") {
+          switch (params.country) {
+            case "GBR":
+              return params.hospital_capacity === "26200" ? { runId: "ukRunId" } : errorResponseData;
+            case "GRC":
+              return params.hospital_capacity === "18200" ? { runId: "grRunId" } : errorResponseData;
+            default:
+              return errorResponseData;
+          }
+        }
+
+        return errorResponseData;
+      },
+    });
+
     const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
     await openModal(wrapper);
     const modalEl = getModalEl(wrapper);
@@ -246,10 +299,46 @@ describe("create comparison button and modal", () => {
 
     await wrapper.find("button[type='submit']").trigger("click");
     await flushPromises();
-    expect(mockNavigateTo).toHaveBeenCalled();
+    expect(mockNavigateTo).toHaveBeenCalledWith({
+      path: "/comparison",
+      query: {
+        axis: "country",
+        baseline: "GBR",
+        runIds: "ukRunId;grRunId",
+      },
+    });
   });
 
   it("renders the warning feedback as expected, when numeric values are out of range, but allows form to submit", async () => {
+    registerEndpoint("/api/scenarios", {
+      method: "POST",
+      async handler(event) {
+        const body = JSON.parse(event.node.req.body);
+        const params = body.parameters;
+
+        if (params.pathogen === "sars_cov_1" && params.response === "none" && params.vaccine === "none"
+          && params.country === "GBR"
+        ) {
+          switch (params.hospital_capacity) {
+            case "345":
+              return { runId: "customValueRunId" };
+            case "23600":
+              return { runId: "minValueRunId" };
+            case "26200":
+              return { runId: "defaultValueRunId" };
+            case "30500":
+              return { runId: "baselineValueRunId" };
+            case "34100":
+              return { runId: "maxValueRunId" };
+            default:
+              return errorResponseData;
+          }
+        }
+
+        return errorResponseData;
+      },
+    });
+
     const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
     await openModal(wrapper);
     const modalEl = getModalEl(wrapper);
@@ -278,10 +367,23 @@ describe("create comparison button and modal", () => {
     expect(wrapper.find(".invalid-tooltip").exists()).toBe(false);
     expect(wrapper.find(".vue-select").classes()).not.toContain("has-warning");
 
+    // Add another out-of-range custom value back in and verify form can be submitted
+    await inputEl.setValue(345);
+    await customMenuOption.trigger("click");
+
+    expect(wrapper.find(".invalid-tooltip.bg-warning").isVisible()).toBe(true);
+
     await wrapper.find("button[type='submit']").trigger("click");
 
     await flushPromises();
-    expect(mockNavigateTo).toHaveBeenCalled();
+    expect(mockNavigateTo).toHaveBeenCalledWith({
+      path: "/comparison",
+      query: {
+        axis: "hospital_capacity",
+        baseline: "30500",
+        runIds: "baselineValueRunId;customValueRunId;minValueRunId;defaultValueRunId;maxValueRunId",
+      },
+    });
   });
 
   it("clears the choice of axis when the modal is closed", async () => {
@@ -320,21 +422,20 @@ describe("create comparison button and modal", () => {
         const body = JSON.parse(event.node.req.body);
         const params = body.parameters;
 
-        if (params.pathogen === "sars_cov_1" && params.response === "none" && params.vaccine === "none"
-          && params.hospital_capacity === "30500") {
+        if (params.pathogen === "sars_cov_1" && params.response === "none" && params.vaccine === "none") {
           switch (params.country) {
             case "GBR":
-              return { runId: "ukRunId" };
+              return params.hospital_capacity === "26200" ? { runId: "ukRunId" } : errorResponseData;
             case "USA":
-              return { runId: "usRunId" };
+              return params.hospital_capacity === "334400" ? { runId: "usRunId" } : errorResponseData;
             case "THA":
-              return { runId: "thRunId" };
+              return params.hospital_capacity === "22000" ? { runId: "thRunId" } : errorResponseData;
             default:
-              return { error: "Test failed due to wrong country parameter" };
+              return errorResponseData;
           }
         }
 
-        return { error: "Test failed due to wrong parameters" };
+        return errorResponseData;
       },
     });
 
@@ -358,7 +459,7 @@ describe("create comparison button and modal", () => {
     expect(buttonEl.attributes("disabled")).toBe("");
 
     await flushPromises();
-    expect(mockNavigateTo).toBeCalledWith({
+    expect(mockNavigateTo).toHaveBeenCalledWith({
       path: "/comparison",
       query: {
         axis: "country",
