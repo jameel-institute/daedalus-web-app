@@ -102,6 +102,10 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   const costsChartDataUsdStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
   const costsChartDataUsd = JSON.parse(costsChartDataUsdStr!);
 
+  await expect(page.getByLabel("in USD")).not.toBeChecked();
+  await expect(page.getByLabel("as % of 2018 GDP")).toBeChecked();
+  await page.getByLabel("in USD").check();
+
   // Though there are 3 columns (vertical), there should be 4 series (horizontal).
   // Each series will have 3 data points, one for each column.
   expect(costsChartDataUsd).toHaveLength(4);
@@ -128,6 +132,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   const costsChartDataGdp = JSON.parse(costsChartDataGdpStr!);
   expect(costsChartDataGdp).toHaveLength(4);
   checkBarChartDataIsDifferent(costsChartDataUsd, costsChartDataGdp);
+
+  // Set the cost basis preference to its non-default value so that we can verify the preference is persisted to the next page.
+  await page.getByLabel("in USD").check();
 
   // Run a second analysis with a different parameter, using the parameters form on the results page.
   await page.getByRole("button", { name: "Parameters" }).first().click();
