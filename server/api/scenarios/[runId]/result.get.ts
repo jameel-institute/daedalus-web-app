@@ -1,4 +1,4 @@
-import type { ScenarioResultResponse } from "@/types/apiResponseTypes";
+import type { ScenarioResultResponse } from "~/types/apiResponseTypes";
 import { getScenarioResult } from "@/server/handlers/scenarios";
 import { defineRApiEventHandler } from "@/server/utils/defineRApiEventHandler";
 

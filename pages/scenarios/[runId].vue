@@ -71,12 +71,15 @@ const showSpinner = computed(() => !appStore.currentScenario.result.data
 );
 
 const route = useRoute();
-const runIdFromRoute = route.params.runId as string;
-if (appStore.currentScenario.runId && runIdFromRoute !== appStore.currentScenario.runId) {
-  appStore.clearScenario(); // Required so that previous parameters aren't hanging around in the store.
-}
+const runId = route.params.runId as string;
+
+// Required so that previous parameters aren't hanging around in the store
+appStore.clearScenario(appStore.currentScenario);
 appStore.downloadError = undefined;
-appStore.currentScenario.runId = runIdFromRoute;
+
+// Fetch scenario from db so we can know its parameters now rather than wait for them in the result data
+appStore.currentScenario.runId = runId;
+await appStore.loadScenarioDetails(appStore.currentScenario);
 
 // Use useAsyncData to store the time once, during server-side rendering: avoids client render re-writing value.
 const { data: timeOfFirstStatusPoll } = await useAsyncData<number>("timeOfFirstStatusPoll", async () => {
@@ -86,14 +89,14 @@ const { data: timeOfFirstStatusPoll } = await useAsyncData<number>("timeOfFirstS
 });
 
 // Eagerly try to load the status and results, in case they are already available and can be used during server-side rendering.
-await appStore.loadScenarioStatus();
+await appStore.refreshScenarioStatus(appStore.currentScenario);
 if (appStore.currentScenario.status.data?.runSuccess) {
-  appStore.loadScenarioResult();
+  appStore.loadScenarioResult(appStore.currentScenario);
 }
 
 watch(() => appStore.currentScenario.status.data?.runSuccess, (runSuccess) => {
   if (runSuccess) {
-    appStore.loadScenarioResult();
+    appStore.loadScenarioResult(appStore.currentScenario);
   }
 });
 
@@ -110,7 +113,7 @@ const pollForStatusEveryNSeconds = (seconds: number) => {
     if (timeOfFirstStatusPoll.value) {
       secondsSinceFirstStatusPoll.value = ((new Date().getTime() - timeOfFirstStatusPoll.value) / 1000).toFixed(0);
     };
-    appStore.loadScenarioStatus();
+    appStore.refreshScenarioStatus(appStore.currentScenario);
   }, seconds * 1000);
 };
 

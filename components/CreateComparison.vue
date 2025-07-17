@@ -109,6 +109,7 @@ const formSubmitting = ref(false);
 const showFormValidationFeedback = ref(false);
 
 const chosenParameterAxis = computed(() => appStore.metadata?.parameters.find(p => p.id === chosenAxisId.value));
+const baselineParameters = computed(() => appStore.currentScenario.parameters);
 
 const { baselineOption, predefinedOptions } = useScenarioOptions(chosenParameterAxis);
 const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions, chosenParameterAxis);
@@ -153,19 +154,13 @@ const submitForm = async () => {
   showFormValidationFeedback.value = false;
   formSubmitting.value = true;
 
-  // TODO: (jidea-262) Start scenario runs
-  // TODO: Check that the baseline option does in fact match the currentScenario
-  // TODO: When creating scenarios in a comparison, store the model version against each scenario,
-  // so that we can distinguish new and old results / serve the same results up when user returns to same url.
-  // TODO: When creating scenarios in a comparison, store the scenario runId in the database.
+  if (baselineParameters.value) {
+    await appStore.runComparison(chosenAxisId.value, baselineParameters.value, selectedScenarioOptions.value);
 
-  const baselineParameters = appStore.currentScenario.parameters;
-  if (chosenParameterAxis.value && baselineParameters) {
-    // Record comparison information in URL query parameters, to facilitate link sharing
     await navigateTo({ path: "/comparison", query: {
-      ...baselineParameters,
-      axis: chosenAxisId.value,
-      scenarios: selectedScenarioOptions.value.join(";"),
+      axis: appStore.currentComparison.axis,
+      baseline: appStore.currentComparison.baseline,
+      runIds: appStore.currentComparison.scenarios?.map(s => s.runId).join(";"),
     } });
   }
 };

@@ -1,4 +1,4 @@
-import type { ScenarioResultData } from "@/types/apiResponseTypes";
+import type { ScenarioResultData } from "~/types/apiResponseTypes";
 import {
   emptyScenario,
   mockedMetadata,

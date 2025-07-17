@@ -1,6 +1,6 @@
 import type { AsyncDataRequestStatus } from "#app";
-import type { Metadata, ScenarioResultData, ScenarioStatusData, TimeSeriesGroup, VersionData } from "@/types/apiResponseTypes";
-import type { AppState } from "@/types/storeTypes";
+import type { Metadata, NewScenarioData, ScenarioData, ScenarioResultData, ScenarioStatusData, TimeSeriesGroup, VersionData } from "~/types/apiResponseTypes";
+import type { AppState, Comparison, Scenario } from "@/types/storeTypes";
 import type { FetchError } from "ofetch";
 import { type Parameter, type ParameterSet, TypeOfParameter } from "@/types/parameterTypes";
 import { debounce } from "perfect-debounce";
@@ -22,14 +22,14 @@ const emptyScenario = {
     fetchError: undefined,
     fetchStatus: undefined,
   },
-};
+} as Scenario;
 deepFreeze(emptyScenario);
 
 const emptyComparison = {
   axis: undefined,
   baseline: undefined,
-  scenarios: undefined,
-};
+  scenarios: [],
+} as Comparison;
 deepFreeze(emptyComparison);
 
 export const useAppStore = defineStore("app", {
@@ -74,46 +74,16 @@ export const useAppStore = defineStore("app", {
       }
     },
     timeSeriesGroups: (state): Array<TimeSeriesGroup> | undefined => state.metadata?.results.time_series_groups as TimeSeriesGroup[] | undefined,
+    everyScenarioHasRunSuccessfully: (state): boolean => {
+      return state.currentComparison.scenarios?.length > 0
+        && state.currentComparison.scenarios?.every(s => s.status.data?.runSuccess);
+    },
+    everyScenarioHasARunId: (state): boolean => {
+      return state.currentComparison.scenarios?.length > 0
+        && state.currentComparison.scenarios?.every(s => !!s.runId);
+    },
   },
   actions: {
-    async loadScenarioStatus() {
-      if (!this.currentScenario.runId) {
-        return;
-      }
-
-      const {
-        data: scenarioStatusData,
-        status: scenarioStatusFetchStatus,
-        error: scenarioStatusFetchError,
-      } = await useFetch(`/api/scenarios/${this.currentScenario.runId}/status`, { dedupe: "defer" }) as {
-        data: Ref<ScenarioStatusData>
-        status: Ref<AsyncDataRequestStatus>
-        error: Ref<FetchError>
-      };
-
-      this.currentScenario.status = {
-        data: { ...scenarioStatusData.value, runId: undefined },
-        fetchStatus: scenarioStatusFetchStatus.value,
-        fetchError: scenarioStatusFetchError.value || undefined,
-      };
-    },
-    async loadScenarioResult() {
-      if (!this.currentScenario.runId) {
-        return;
-      }
-
-      const { data, status, error } = await useFetch(`/api/scenarios/${this.currentScenario.runId}/result`) as {
-        data: Ref<ScenarioResultData>
-        status: Ref<AsyncDataRequestStatus>
-        error: Ref<FetchError | undefined>
-      };
-      this.currentScenario.result = {
-        data: { ...data.value, runId: undefined },
-        fetchStatus: status.value,
-        fetchError: error.value || undefined,
-      };
-      this.currentScenario.parameters = this.currentScenario.result.data?.parameters;
-    },
     async loadMetadata() {
       const { data: metadata, status: metadataFetchStatus, error: metadataFetchError } = await useFetch("/api/metadata") as {
         data: Ref<Metadata>
@@ -139,18 +109,106 @@ export const useAppStore = defineStore("app", {
         },
       });
     },
-    clearScenario() {
-      this.currentScenario = structuredClone(emptyScenario);
+    clearScenario(scenario: Scenario) {
+      Object.assign(scenario, structuredClone(emptyScenario));
     },
-    clearComparison() {
-      this.currentComparison = structuredClone(emptyComparison);
+    async loadScenarioDetails(scenario: Scenario) {
+      if (!scenario.runId) {
+        throw new Error("No runId provided for scenario load.");
+      }
+
+      const { data, status } = await useFetch(
+        `/api/scenarios/${scenario.runId}/details`,
+      ) as {
+        data: Ref<ScenarioData>
+        status: Ref<AsyncDataRequestStatus>
+      };
+
+      if (status.value === "success") {
+        scenario.parameters = data.value.parameters;
+      }
     },
-    setComparison(axis: string, baselineParameters: ParameterSet, selectedScenarioOptions: string[]) {
-      this.clearComparison();
+    async runScenario(scenario: Scenario) {
+      const parameters = scenario.parameters;
+      if (!parameters) {
+        throw new Error("No parameters provided for scenario run.");
+      }
+      const response = await $fetch<NewScenarioData>("/api/scenarios", {
+        method: "POST",
+        body: { parameters },
+      }).catch((error: FetchError) => {
+        console.error(error);
+      });
+
+      if (response) {
+        const { runId } = response;
+
+        this.clearScenario(scenario);
+        scenario.runId = runId;
+        scenario.parameters = parameters;
+      }
+    },
+    async refreshScenarioStatus(scenario: Scenario) {
+      if (!scenario.runId || scenario.status.data?.done) {
+        return;
+      }
+
+      const { data, status: fetchStatus, error } = await useFetch(
+        `/api/scenarios/${scenario.runId}/status`,
+        { dedupe: "defer" },
+      ) as {
+        data: Ref<ScenarioStatusData>
+        status: Ref<AsyncDataRequestStatus>
+        error: Ref<FetchError>
+      };
+
+      scenario.status = {
+        data: { ...data.value, runId: null },
+        fetchStatus: fetchStatus.value,
+        fetchError: error.value || undefined,
+      };
+    },
+    async loadScenarioResult(scenario: Scenario) {
+      if (!scenario.runId) {
+        throw new Error("No runId provided for scenario result load.");
+      }
+
+      const { data, status, error } = await useFetch(
+        `/api/scenarios/${scenario.runId}/result`,
+        { dedupe: "defer" },
+      ) as {
+        data: Ref<ScenarioResultData>
+        status: Ref<AsyncDataRequestStatus>
+        error: Ref<FetchError | undefined>
+      };
+      scenario.result = {
+        data: { ...data.value, runId: null },
+        fetchStatus: status.value,
+        fetchError: error.value || undefined,
+      };
+    },
+    async setComparisonByRunIds(newRunIds: string[], baseline: string, axis: string) {
+      this.currentComparison.scenarios = newRunIds.map((runId) => {
+        return structuredClone({ ...emptyScenario, runId });
+      });
+
+      await Promise.all(
+        this.currentComparison.scenarios?.map(async (scenario) => {
+          await this.loadScenarioDetails(scenario);
+        }) || [],
+      );
+
+      this.currentComparison.baseline = baseline;
       this.currentComparison.axis = axis;
-      this.currentComparison.baseline = baselineParameters[axis];
-      const allScenarioOptions = [this.currentComparison.baseline, ...selectedScenarioOptions];
-      this.currentComparison.scenarios = allScenarioOptions.map((opt) => {
+    },
+    async runComparison(axis: string, baselineParameters: ParameterSet, selectedScenarioOptions: string[]) {
+      const newComparison = structuredClone(emptyComparison);
+
+      // TODO: (jidea-280) Vary hospital capacity depending on country if country is axis
+      newComparison.axis = axis;
+      newComparison.baseline = baselineParameters[axis];
+      const allScenarioOptions = [newComparison.baseline, ...selectedScenarioOptions];
+      newComparison.scenarios = allScenarioOptions.map((opt) => {
         return structuredClone({
           ...emptyScenario,
           parameters: {
@@ -159,6 +217,24 @@ export const useAppStore = defineStore("app", {
           },
         });
       });
+
+      this.currentComparison = newComparison;
+
+      await Promise.all(
+        this.currentComparison.scenarios?.map(async (scenario) => {
+          await this.runScenario(scenario);
+        }) || [],
+      );
+    },
+    async refreshComparisonStatuses() {
+      await Promise.all(this.currentComparison.scenarios?.map(async (scenario) => {
+        await this.refreshScenarioStatus(scenario);
+      }) || []);
+    },
+    async loadComparisonResults() {
+      await Promise.all(this.currentComparison.scenarios?.map(async (scenario) => {
+        await this.loadScenarioResult(scenario);
+      }) || []);
     },
     async downloadExcel() {
       this.downloadError = undefined;

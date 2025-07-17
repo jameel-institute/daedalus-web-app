@@ -167,9 +167,7 @@
 
 <script lang="ts" setup>
 import { debounce } from "perfect-debounce";
-import type { NewScenarioData } from "@/types/apiResponseTypes";
 import type { Parameter, ParameterSet } from "@/types/parameterTypes";
-import type { FetchError } from "ofetch";
 import { TypeOfParameter } from "@/types/parameterTypes";
 import { CIcon } from "@coreui/icons-vue";
 import VueSelect from "vue3-select-component";
@@ -353,7 +351,7 @@ const handleInput = () => {
 };
 
 const submitForm = async () => {
-  if (invalidFields.value?.length) {
+  if (invalidFields.value?.length || !formData.value) {
     showValidations.value = true;
     return;
   }
@@ -367,21 +365,12 @@ const submitForm = async () => {
 
   formSubmitting.value = true;
 
-  const response = await $fetch<NewScenarioData>("/api/scenarios", {
-    method: "POST",
-    body: { parameters: formData.value },
-  }).catch((error: FetchError) => {
-    console.error(error);
-  });
+  appStore.currentScenario.parameters = { ...formData.value };
+  await appStore.runScenario(appStore.currentScenario);
 
-  if (response) {
-    const { runId } = response;
-    if (runId) {
-      appStore.clearScenario();
-      appStore.currentScenario.parameters = formData.value as ParameterSet;
-    }
-    await navigateTo(`/scenarios/${runId}`);
-  };
+  if (appStore.currentScenario.runId) {
+    await navigateTo(`/scenarios/${appStore.currentScenario.runId}`);
+  }
 };
 
 // Handle the selection of a country using the globe component: update the form country value.

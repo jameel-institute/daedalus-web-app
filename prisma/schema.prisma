@@ -5,7 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["strictUndefinedChecks"]
 }
 
 datasource db {
@@ -15,6 +16,7 @@ datasource db {
 
 model scenario {
   id              String   @id @default(cuid())
+  parameters      Json
   parameters_hash String   @unique @db.VarChar(255)
   run_id          String   @unique @db.VarChar(255)
   created_at      DateTime @default(now())

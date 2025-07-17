@@ -26,16 +26,26 @@ describe("formDataToObject", () => {
 });
 
 describe("hashParameters", () => {
-  it("should return the correct hash for the given parameters and model version", () => {
+  it("should return the correct hash for the given parameters and model version, insensitive to order", () => {
     const parameters = {
       param1: "value1",
       param2: "value2",
     };
+    const reorderedParameters = {
+      param2: "value2",
+      param1: "value1",
+    };
+    const parametersWithSwappedValues = {
+      param1: "value2",
+      param2: "value1",
+    };
     const modelVersion = "0.0.1";
-    const expectedHash = "6db749ef194fbb7adf394313514865df2b75614381052e92ba6b4fac0d818f42";
+    const expectedHash = "b25974cca561836f5c342c87e3e8c99c32d67a5d14c61d34cef22a10534a9ddb";
 
     expect(hashParameters(parameters, modelVersion)).toEqual(expectedHash);
     expect(hashParameters(parameters, "9.9.9")).not.toEqual(expectedHash);
+    expect(hashParameters(reorderedParameters, modelVersion)).toEqual(expectedHash);
+    expect(hashParameters(parametersWithSwappedValues, modelVersion)).not.toEqual(expectedHash);
   });
 });
 

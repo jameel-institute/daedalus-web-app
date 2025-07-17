@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
 import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
-import { parameterLabels, scenarioPathMatcher } from "./helpers/constants";
+import { parameterLabels, runIdMatcher, scenarioPathMatcher } from "./helpers/constants";
 
 const baselinePathogenOption = "SARS 2004";
 
@@ -51,17 +51,14 @@ test("Can compare multiple scenarios", async ({ page, baseURL }) => {
 
   await page.getByRole("button", { name: "Compare", exact: true }).click();
 
-  await page.waitForURL(`${baseURL}/comparison?`
-    + `country=USA`
-    + `&pathogen=sars_cov_1`
-    + `&response=elimination`
-    + `&vaccine=medium`
-    + `&hospital_capacity=305000`
-    + `&axis=pathogen`
-    + `&scenarios=sars_cov_2_pre_alpha;sars_cov_2_omicron`,
-  );
+  await page.waitForURL(new RegExp(`${baseURL}/comparison\?.*`));
+  const comparisonUrl = page.url();
+  expect(comparisonUrl).toContain("axis=pathogen");
+  expect(comparisonUrl).toContain("baseline=sars_cov_1");
+  expect(comparisonUrl).toMatch(new RegExp(`runIds=${runIdMatcher};${runIdMatcher};${runIdMatcher}`));
   await expect(page.getByText("Comparison")).toBeVisible();
 
+  // Parameters
   await expect(page.getByText("pathogen (Axis)").first()).toBeVisible();
   await expect(page.getByText(`sars_cov_1 (Baseline)`).first()).toBeVisible();
   await expect(page.getByText("sars_cov_2_pre_alpha").first()).toBeVisible();
@@ -70,26 +67,8 @@ test("Can compare multiple scenarios", async ({ page, baseURL }) => {
   await expect(page.getByText("USA")).toHaveCount(3);
   await expect(page.getByText("medium")).toHaveCount(3);
   await expect(page.getByText("305000")).toHaveCount(3);
-});
-
-test("Can compare multiple scenarios by following a link", async ({ page, baseURL }) => {
-  await page.goto(`${baseURL}/comparison?`
-    + `country=USA`
-    + `&pathogen=sars_cov_1`
-    + `&response=elimination`
-    + `&vaccine=medium`
-    + `&hospital_capacity=305000`
-    + `&axis=pathogen`
-    + `&scenarios=sars_cov_2_pre_alpha;sars_cov_2_omicron`,
-  );
-  await expect(page.getByText("Comparison")).toBeVisible();
-
-  await expect(page.getByText("pathogen (Axis)").first()).toBeVisible();
-  await expect(page.getByText(`sars_cov_1 (Baseline)`).first()).toBeVisible();
-  await expect(page.getByText("sars_cov_2_pre_alpha").first()).toBeVisible();
-  await expect(page.getByText("sars_cov_2_omicron").first()).toBeVisible();
-  await expect(page.getByText("elimination")).toHaveCount(3);
-  await expect(page.getByText("USA")).toHaveCount(3);
-  await expect(page.getByText("medium")).toHaveCount(3);
-  await expect(page.getByText("305000")).toHaveCount(3);
+  // Run ids
+  await expect(page.getByText(/[a-f0-9]{8}\.\.\./)).toHaveCount(3);
+  // Results
+  await expect(page.getByText(/\$\d+(\.\d+)? trillion/)).toHaveCount(3);
 });
