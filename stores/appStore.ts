@@ -68,13 +68,18 @@ export const useAppStore = defineStore("app", {
       if (this.costsData?.[0]?.id === "total") {
         return this.costsData[0];
       }
-      return undefined;
     },
     scenarioCountry(state): string | undefined {
-      if (this.globeParameter?.id && state.currentScenario.parameters) {
-        return state.currentScenario.parameters[this.globeParameter.id!];
-      } else {
-        return undefined;
+      if (this.globeParameter?.id) {
+        if (state.currentComparison.scenarios[0]?.parameters) {
+          if (state.currentComparison.axis === this.globeParameter.id) {
+            return state.currentComparison.baseline;
+          } else if (state.currentComparison.axis) {
+            return state.currentComparison.scenarios[0].parameters[this.globeParameter.id];
+          }
+        } else if (state.currentScenario.parameters) {
+          return state.currentScenario.parameters[this.globeParameter.id!];
+        }
       }
     },
     timeSeriesGroups: (state): Array<TimeSeriesGroup> | undefined => state.metadata?.results.time_series_groups as TimeSeriesGroup[] | undefined,
@@ -85,6 +90,23 @@ export const useAppStore = defineStore("app", {
     everyScenarioHasARunId: (state): boolean => {
       return state.currentComparison.scenarios?.length > 0
         && state.currentComparison.scenarios?.every(s => !!s.runId);
+    },
+    everyScenarioHasCosts: (state): boolean => {
+      return state.currentComparison.scenarios?.map(s => s.result.data?.costs).every(c => !!c && c.length > 0);
+    },
+    axisLabel(state): string | undefined {
+      if (state.currentComparison.axis) {
+        return this.parametersMetadataById[state.currentComparison.axis].label;
+      }
+    },
+    baselineScenario(state): Scenario | undefined {
+      return state.currentComparison.scenarios.find((scenario) => {
+        if (state.currentComparison.axis && scenario.parameters) {
+          return scenario.parameters[state.currentComparison.axis] === state.currentComparison.baseline;
+        } else {
+          return false;
+        }
+      });
     },
   },
   actions: {
@@ -275,6 +297,15 @@ export const useAppStore = defineStore("app", {
         cost => cost.id === costId,
       )?.label;
       return name || costId;
+    },
+    getScenarioLabel(scenario: Scenario): string | undefined {
+      if (this.currentComparison.axis && scenario.parameters) {
+        const axisValue = scenario.parameters[this.currentComparison.axis];
+        return this.parametersMetadataById[this.currentComparison.axis]
+          ?.options
+          ?.find(o => o.id === axisValue)
+          ?.label;
+      }
     },
   },
 });

@@ -10,23 +10,27 @@ describe("chart legend", () => {
       global: {
         plugins: [mockPinia(
           {
-            currentScenario: {
-              ...emptyScenario,
-              parameters: {
-                country: "USA",
-              },
-              result: {
-                data: mockResultResponseData as ScenarioResultData,
-                fetchError: undefined,
-                fetchStatus: "success",
-              },
+            currentComparison: {
+              axis: "country",
+              baseline: "USA",
+              scenarios: [{
+                ...emptyScenario,
+                parameters: {
+                  country: "USA",
+                },
+                result: {
+                  data: mockResultResponseData as ScenarioResultData,
+                  fetchError: undefined,
+                  fetchStatus: "success",
+                },
+              }],
             },
           },
         )],
       },
     });
 
-    // Items are sorted in descending value order
+    // Items are presented in the same order that they appear in results data
     expect(component.text()).toMatch(/GDP.*Education.*Life\s+years/);
   });
 });

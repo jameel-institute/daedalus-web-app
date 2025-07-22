@@ -1,7 +1,7 @@
 <template>
-  <div id="resultsPage">
-    <div class="d-flex flex-wrap mb-3 gap-3">
-      <h1 class="fs-2 mb-0 pt-1">
+  <div>
+    <div class="d-flex flex-wrap mb-3 gap-3 heading-row">
+      <h1 class="fs-2 mb-0 pt-1 me-auto">
         Results
       </h1>
       <CreateComparison />
@@ -10,13 +10,22 @@
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
         <CIconSvg size="xxl">
           <img src="/icons/rotate-device.svg">
-          <!-- License: MIT License https://www.svgrepo.com/svg/451262/rotate-device -->
         </CIconSvg>
         <p class="mb-0">
           Rotate your mobile device to landscape for the best experience.
         </p>
       </CAlert>
-      <ParameterInfoCard />
+      <ParameterInfoCard :scenario="appStore.currentScenario">
+        <template #header>
+          <CCol class="col-auto">
+            <div
+              class="card-header h-100 align-content-center"
+            >
+              <EditParameters />
+            </div>
+          </CCol>
+        </template>
+      </ParameterInfoCard>
     </div>
     <CSpinner v-show="showSpinner" class="ms-3 mb-3 mt-3" />
     <CAlert v-if="appStore.currentScenario.status.data?.runSuccess === false" color="danger">
@@ -142,39 +151,21 @@ onUnmounted(() => {
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .results-cards-container {
   row-gap: 1rem;
 }
 
-#resultsPage {
-  .card {
-    background: rgba(255, 255, 255, 0.5);
+.heading-row .card {
+  display: flex;
+  flex-direction: row;
 
-    &.horizontal-card {
-      height: fit-content;
-
-      .card-header {
-        padding: 0;
-      }
-
-      .card-footer {
-        border-left: var(--cui-card-border-width) solid var(--cui-card-border-color); // copied from .card-header border-bottom
-        border-top: none;
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: var(--cui-card-inner-border-radius) var(--cui-card-inner-border-radius) 0 0;
-
-        padding-bottom: 0;
-        padding-left: 0;
-        padding-top: 0;
-      }
-
-      .row {
-        --cui-gutter-y: 0;
-        --cui-gutter-x: 0;
-      }
-    }
+  .card-header {
+    padding: 0;
+    border-width: 0;
+    border-bottom-width: 0;
+    border-radius: var(--cui-card-inner-border-radius);
+    border-right: 0;
   }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="appStore.currentScenario.result.data" class="d-inline-block ms-auto">
+  <div v-if="appStore.currentScenario.result.data" class="d-inline-block">
     <div>
       <CButton
         color="primary"

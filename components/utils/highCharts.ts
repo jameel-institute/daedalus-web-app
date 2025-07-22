@@ -105,12 +105,16 @@ export const chartOptions = {
 // The interface appears to be the same as the now defunct Highcharts.TooltipFormatterContextObject class.
 interface TooltipPointInstance extends Highcharts.Point {
   points?: Array<TooltipPointInstance>
-  point?: Highcharts.Point & { custom: { includeInTooltips: boolean }, y: number }
+  point?: TooltipPointInstance
   total: number
   y: number
+  custom: {
+    includeInTooltips: boolean
+    costAsGdpPercent: number
+  }
 }
 
-const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis: CostBasis) => {
+export const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis: CostBasis) => {
   let valueDisplay;
   if (costBasis === CostBasis.PercentGDP) {
     valueDisplay = `${humanReadablePercentOfGdp(point.y).percent}%`;
@@ -125,8 +129,8 @@ const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis:
     + `</span></span><br/>`;
 };
 
-// Tooltip text for a stacked column (shared tooltip for all points in the stack)
-export const costsChartTooltipText = (context: unknown, costBasis: CostBasis, nationalGdp: number) => {
+// Tooltip text for a stacked column in a single-scenario costs chart (shared tooltip for all points in the stack)
+export const costsChartSingleScenarioTooltip = (context: unknown, costBasis: CostBasis, nationalGdp: number) => {
   const tooltipPointInstance = context as TooltipPointInstance;
 
   let headerText = `${tooltipPointInstance.point?.category} losses: `;
@@ -145,6 +149,37 @@ export const costsChartTooltipText = (context: unknown, costBasis: CostBasis, na
   const pointsText = tooltipPointInstance.points
     ?.filter(point => point.point?.custom.includeInTooltips)
     .map((point) => {
+      return costsChartTooltipPointFormatter(point, costBasis);
+    })
+    ?.join("");
+
+  return `<span style="font-size: 0.8rem;">${headerText}<br/><br/>${pointsText}</span>`;
+};
+
+// Tooltip text for a stacked column in a multi-scenario costs chart (shared tooltip for all points in the stack)
+export const costsChartMultiScenarioStackedTooltip = (context: unknown, costBasis: CostBasis, axisLabel: string | undefined) => {
+  const contextInstance = context as TooltipPointInstance;
+  const tooltipPointInstance = contextInstance.point;
+  if (!tooltipPointInstance || !axisLabel) {
+    return;
+  }
+  let headerText = `${axisLabel}: <b>${tooltipPointInstance.category}</b>`;
+
+  if (costBasis === CostBasis.PercentGDP) {
+    const percentOfGdp = humanReadablePercentOfGdp(tooltipPointInstance.total);
+    headerText = `${headerText}</br></br>Total losses: <b>${percentOfGdp.percent}%</b> ${percentOfGdp.reference}`;
+  } else {
+    const abbreviatedTotal = abbreviateMillionsDollars(tooltipPointInstance.total);
+    const totalCostAsGdpPercent = tooltipPointInstance.points?.map(point => point.custom.costAsGdpPercent).reduce((partialSum, a) => partialSum + a, 0);
+    headerText = `${headerText}<br/></br>Total losses: <b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b>`;
+    if (tooltipPointInstance.total > 0 && totalCostAsGdpPercent) {
+      const percentOfGdp = humanReadablePercentOfGdp(totalCostAsGdpPercent);
+      headerText = `${headerText}</br>(${percentOfGdp.percent}% ${percentOfGdp.reference})`;
+    }
+  }
+
+  const pointsText = tooltipPointInstance.points
+    ?.map((point) => {
       return costsChartTooltipPointFormatter(point, costBasis);
     })
     ?.join("");
