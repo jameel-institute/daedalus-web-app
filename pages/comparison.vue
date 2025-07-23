@@ -228,7 +228,6 @@ th, tr, td {
 :deep(.nav-underline) {
   --cui-nav-link-color: var(--cui-secondary-color);
   --cui-nav-underline-gap: 0.5rem;
-  // border-bottom: none !important;
 }
 
 :deep(.nav-underline .nav-link) {
