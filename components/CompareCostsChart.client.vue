@@ -37,9 +37,6 @@ const axisMetadata = computed(() => appStore.currentComparison.axis ? appStore.p
 // Each series' data is an array of each scenario's cost for that breakdown.
 // For example, one series should comprise each scenario's GDP.
 const getSeries = (): Highcharts.SeriesColumnOptions[] => {
-  if (!scenarios.value) {
-    return [];
-  }
   const exampleSecondLevelCosts = scenarios.value[0].result.data?.costs[0].children;
   seriesData.value = exampleSecondLevelCosts?.map((secondLevelCost, index) => ({
     type: "column",
@@ -51,7 +48,6 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
       const costAsGdpPercent = costAsPercentOfGdp(dollarValue, scenario.result.data?.gdp);
       const y = costBasis.value === CostBasis.PercentGDP ? costAsGdpPercent : dollarValue;
       const name = appStore.getCostLabel(subCost?.id || "");
-
       return { y, name, custom: { costAsGdpPercent } };
     }),
   } as Highcharts.SeriesColumnOptions)) || [];

@@ -60,18 +60,18 @@ vi.mock("highcharts/esm/modules/export-data", () => ({}));
 vi.mock("highcharts/esm/modules/offline-exporting", () => ({}));
 
 const expectedPercentGDPSeries = [
-  expect.objectContaining({ name: "GDP", data: [
-    expect.objectContaining({ name: "GDP", y: 32.87931628748886 }),
-    expect.objectContaining({ name: "GDP", y: 0.050344764471232505 }),
-  ] }),
-  expect.objectContaining({ name: "Education", data: [
-    expect.objectContaining({ name: "Education", y: 7.74667209175136 }),
-    expect.objectContaining({ name: "Education", y: 0.10068952894246501 }),
-  ] }),
-  expect.objectContaining({ name: "Life years", data: [
-    expect.objectContaining({ name: "Life years", y: 4.305661740495233 }),
-    expect.objectContaining({ name: "Life years", y: expect.closeTo(0.151, 0.001) }),
-  ] }),
+  expect.objectContaining({
+    name: "GDP",
+    data: [expect.objectContaining({ name: "GDP", y: 32.87931628748886 }), expect.objectContaining({ name: "GDP", y: 0.050344764471232505 })],
+  }),
+  expect.objectContaining({
+    name: "Education",
+    data: [expect.objectContaining({ name: "Education", y: 7.74667209175136 }), expect.objectContaining({ name: "Education", y: 0.10068952894246501 })],
+  }),
+  expect.objectContaining({
+    name: "Life years",
+    data: [expect.objectContaining({ name: "Life years", y: 4.305661740495233 }), expect.objectContaining({ name: "Life years", y: expect.closeTo(0.151, 0.001) })],
+  }),
 ];
 
 const expectedUSDSeries = [

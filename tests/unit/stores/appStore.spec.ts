@@ -713,6 +713,9 @@ describe("app store", () => {
 
         store.currentComparison = { axis: "vaccine", baseline: "high", scenarios: [structuredClone(unloadedScenario)] };
         expect(store.scenarioCountry).toEqual("USA");
+
+        store.currentComparison = { axis: "country", baseline: "GBR", scenarios: [structuredClone(unloadedScenario)] };
+        expect(store.scenarioCountry).toEqual("GBR");
       });
 
       it("can get the time series groups metadata", async () => {
@@ -811,6 +814,8 @@ describe("app store", () => {
 
       it("can get the baseline scenario for a comparison", async () => {
         const store = useAppStore();
+        expect(store.baselineScenario).toBeUndefined();
+
         store.currentComparison = {
           axis: "vaccine",
           baseline: "high",
