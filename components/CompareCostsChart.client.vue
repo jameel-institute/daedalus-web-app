@@ -114,7 +114,7 @@ const chartInitialOptions = () => {
       formatter() { return costsChartMultiScenarioStackedTooltip(this, costBasis.value, axisMetadata.value); },
     },
     plotOptions: {
-      column: { stacking: "normal", groupPadding: 0.05 },
+      column: { stacking: "normal", groupPadding: 0.3 },
     },
   } as Highcharts.Options;
 };
