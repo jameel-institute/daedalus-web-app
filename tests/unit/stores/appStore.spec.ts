@@ -593,6 +593,24 @@ describe("app store", () => {
       });
     });
 
+    it("getCostLabel returns the label for cost id", async () => {
+      const store = useAppStore();
+      store.metadata = mockedMetadata;
+
+      const costLabel = store.getCostLabel("gdp_closures");
+
+      expect(costLabel).toEqual("Closures");
+    });
+
+    it("getCostLabel returns cost id if not found in metadata", async () => {
+      const store = useAppStore();
+      store.metadata = mockedMetadata;
+
+      const costLabel = store.getCostLabel("not_found");
+
+      expect(costLabel).toEqual("not_found");
+    });
+
     it("getScenarioAxisValue returns the value for the axis parameter for a given scenario", async () => {
       const store = useAppStore();
 
@@ -813,24 +831,6 @@ describe("app store", () => {
         store.currentComparison.baseline = "none";
         expect(store.baselineScenario).toEqual(store.currentComparison.scenarios[1]);
       });
-    });
-
-    it("getCostLabel returns the label for cost id", async () => {
-      const store = useAppStore();
-      store.metadata = mockedMetadata;
-
-      const costLabel = store.getCostLabel("gdp_closures");
-
-      expect(costLabel).toEqual("Closures");
-    });
-
-    it("getCostLabel returns cost id if not found in metadata", async () => {
-      const store = useAppStore();
-      store.metadata = mockedMetadata;
-
-      const costLabel = store.getCostLabel("not_found");
-
-      expect(costLabel).toEqual("not_found");
     });
   });
 });
