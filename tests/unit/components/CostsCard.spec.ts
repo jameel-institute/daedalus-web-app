@@ -3,7 +3,6 @@ import CostsCard from "@/components/CostsCard.vue";
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { mockResultResponseData } from "../mocks/mockResponseData";
-import { CostBasis } from "~/types/unitTypes";
 import { setActivePinia } from "pinia";
 
 const stubs = {
@@ -64,29 +63,5 @@ describe("costs card", () => {
 
     expect(component.text()).toContain("2,799,263"); // VSL in Int'l$
     expect(totalCostPara.text()).toBe("8.9T");
-  });
-
-  it("should change the cost basis when the radio buttons are clicked", async () => {
-    const appStore = useAppStore();
-    const component = await mountSuspended(CostsCard, { global: { stubs, plugins: [pinia] } });
-
-    expect(appStore.preferences.costBasis).toBe(CostBasis.USD);
-
-    const gdpRadioButton = component.find(`input[type="radio"][value="${CostBasis.PercentGDP}"]`);
-    const usdRadioButton = component.find(`input[type="radio"][value="${CostBasis.USD}"]`);
-    expect(gdpRadioButton.element.checked).toBe(false);
-    expect(usdRadioButton.element.checked).toBe(true);
-
-    await gdpRadioButton.setChecked();
-
-    expect(gdpRadioButton.element.checked).toBe(true);
-    expect(usdRadioButton.element.checked).toBe(false);
-    expect(appStore.preferences.costBasis).toBe(CostBasis.PercentGDP);
-
-    await usdRadioButton.setChecked();
-
-    expect(gdpRadioButton.element.checked).toBe(false);
-    expect(usdRadioButton.element.checked).toBe(true);
-    expect(appStore.preferences.costBasis).toBe(CostBasis.USD);
   });
 });

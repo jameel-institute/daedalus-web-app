@@ -1,6 +1,7 @@
 import type { HSL } from "color-convert";
-import { costsChartLabelFormatter, costsChartStackLabelFormatter, costsChartTooltipText, getColorVariants, plotBandsColor, timeSeriesColors } from "~/components/utils/highCharts";
+import { costsChartLabelFormatter, costsChartMultiScenarioStackedTooltip, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, getColorVariants, plotBandsColor, timeSeriesColors } from "~/components/utils/highCharts";
 import { CostBasis } from "~/types/unitTypes";
+import { mockMetadataResponseData } from "../../mocks/mockResponseData";
 
 describe("plotBandsColor", () => {
   it("should be in the correct rgba format", () => {
@@ -15,7 +16,7 @@ describe("timeSeriesColors", () => {
   });
 });
 
-describe("costs chart tooltip text", () => {
+describe("single-scenario costs chart tooltip text for stacked column", () => {
   const tooltipPointInstance = {
     total: 2000,
     point: {
@@ -50,7 +51,7 @@ describe("costs chart tooltip text", () => {
   };
 
   it("should return the correct text for the stack's tooltip, when cost basis is USD", () => {
-    const tooltipText = costsChartTooltipText(tooltipPointInstance, CostBasis.USD, 4000);
+    const tooltipText = costsChartSingleScenarioTooltip(tooltipPointInstance, CostBasis.USD, 4000);
     expect(tooltipText).toMatch(
       /Life years losses.*\$2.0 billion.*50.0% of 2018 national GDP.*#FF0000.*Working-age adults.*\$999 M.*#00FF00.*Children.*\$0 M/,
     );
@@ -58,7 +59,7 @@ describe("costs chart tooltip text", () => {
   });
 
   it("should return the correct text for the stack's tooltip, when cost basis is percent of GDP", () => {
-    const tooltipText = costsChartTooltipText(tooltipPointInstance, CostBasis.PercentGDP, 2_222_222);
+    const tooltipText = costsChartSingleScenarioTooltip(tooltipPointInstance, CostBasis.PercentGDP, 2_222_222);
     expect(tooltipText).toMatch(
       /Life years losses.*2000%.* of 2018 national GDP.*#FF0000.*Working-age adults.*999%.*#00FF00.*Children.*0%/,
     );
@@ -66,10 +67,61 @@ describe("costs chart tooltip text", () => {
   });
 });
 
+describe("multi-scenario costs chart tooltip text for stacked column", () => {
+  const vaccineParam = mockMetadataResponseData.parameters.find(p => p.id === "vaccine");
+  const contextInstance = {
+    point: {
+      category: "High",
+      total: undefined,
+      points: [{
+        color: "#FF0000",
+        custom: {
+          costAsGdpPercent: 3.820321826248465,
+        },
+        key: "GDP",
+        y: 97364.2025,
+      }, {
+        color: "#00FF00",
+        custom: {
+          costAsGdpPercent: 0.10534318554003114,
+        },
+        key: "Education",
+        y: 2684.7621,
+      }, {
+        color: "#0000FF",
+        custom: {
+          costAsGdpPercent: 70.05682654902341,
+        },
+        key: "Life years",
+        y: 1785458.7537,
+      }],
+    },
+  };
+
+  it("should return the correct text for the stack's tooltip, when cost basis is USD", () => {
+    contextInstance.point.total = 1885507.7183;
+    const tooltipText = costsChartMultiScenarioStackedTooltip(contextInstance, CostBasis.USD, vaccineParam);
+    expect(tooltipText).toMatch(
+      /Global vaccine investment:.*High.*Total losses:.*\$1.9 trillion.*74.0% of 2018 national GDP.*#FF0000.*GDP.*\$97.4 B.*#00FF00.*Education.*\$2.7 B.*#0000FF.*\$1.8 T/,
+    );
+  });
+
+  it("should return the correct text for the stack's tooltip, when cost basis is percent of GDP", () => {
+    contextInstance.point.total = 73.982491560811;
+    const tooltipText = costsChartMultiScenarioStackedTooltip(contextInstance, CostBasis.PercentGDP, vaccineParam);
+    expect(tooltipText).toMatch(
+      /Global vaccine investment:.*High.*Total losses:.*74.0%.* of 2018 national GDP.*#FF0000/, // .*GDP.*3.8%.*#00FF00.*Education.*0.1%.*#0000FF.*70.1%/,
+    );
+  });
+});
+
 describe("costsChartStackLabelFormatter", () => {
   it("should return the correct stack label for USD cost basis", () => {
     const label = costsChartStackLabelFormatter(200, CostBasis.USD);
-    expect(label).toBe("$0.2 billion");
+    expect(label).toBe("$200 million");
+
+    const label2 = costsChartStackLabelFormatter(20000000, CostBasis.USD);
+    expect(label2).toBe("$20.0 trillion");
   });
 
   it("should return the correct stack label for percent of GDP cost basis", () => {

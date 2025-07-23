@@ -14,7 +14,7 @@ import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
 import throttle from "lodash.throttle";
-import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartLabelFormatter, costsChartStackLabelFormatter, costsChartTooltipText, getColorVariants, menuItemDefinitionOptions } from "./utils/highCharts";
+import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartLabelFormatter, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, getColorVariants, menuItemDefinitionOptions } from "@/components/utils/highCharts";
 import { costAsPercentOfGdp, gdpReferenceYear } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 
@@ -121,9 +121,6 @@ const chartInitialOptions = () => {
       buttons: {
         contextButton: {
           ...contextButtonOptions,
-          theme: {
-            fill: "transparent",
-          },
         },
       },
       menuItemDefinitions: menuItemDefinitionOptions,
@@ -160,7 +157,7 @@ const chartInitialOptions = () => {
     tooltip: {
       shared: true,
       formatter() {
-        return this.total ? costsChartTooltipText(this, appStore.preferences.costBasis, appStore.currentScenario.result.data!.gdp) : "";
+        return this.total ? costsChartSingleScenarioTooltip(this, appStore.preferences.costBasis, appStore.currentScenario.result.data!.gdp) : "";
       },
     },
     plotOptions: {

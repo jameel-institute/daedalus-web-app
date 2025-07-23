@@ -1,8 +1,59 @@
 <template>
   <div>
-    <h1>Comparison</h1>
+    <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
+      <CIconSvg size="xxl">
+        <img src="/icons/rotate-device.svg">
+      </CIconSvg>
+      <p class="mb-0">
+        Rotate your mobile device to landscape for the best experience.
+      </p>
+    </CAlert>
+    <div class="d-flex mb-3 flex-wrap gap-2">
+      <h1 class="fs-3 mb-0 pt-1 pe-5 me-auto text-nowrap flex-fill">
+        Explore by {{ appStore.axisLabel?.toLocaleLowerCase() }}
+      </h1>
+    </div>
     <CSpinner v-show="showSpinner" class="ms-3 mb-3 mt-3" />
-    <table v-if="appStore.currentComparison.scenarios">
+    <CRow v-if="appStore.everyScenarioHasCosts" class="results-cards-container">
+      <div class="col-12">
+        <CTabs active-item-key="costs">
+          <CTabList variant="underline">
+            <CTab item-key="costs" class="d-flex align-items-end px-4">
+              <CIcon icon="cilBarChart" size="lg" class="mb-1 text-inherit" />
+              <p class="fs-6 m-0 ms-3">
+                Losses
+              </p>
+            </CTab>
+            <CTab item-key="timeseries" class="d-flex align-items-end px-4">
+              <CIcon icon="cilChartLine" size="xl" class="mb-1 text-inherit" />
+              <p class="fs-6 m-0 ms-3">
+                Time series
+              </p>
+            </CTab>
+          </CTabList>
+          <CTabContent class="">
+            <CTabPanel class="pt-3" item-key="costs">
+              <div class="d-flex align-items-start mx-2">
+                <CostBasisToggler />
+                <div class="ms-auto">
+                  <CostsLegend />
+                </div>
+              </div>
+              <CompareCostsChart />
+            </CTabPanel>
+            <CTabPanel item-key="timeseries">
+              <p class="time-series-example">
+                A time series
+              </p>
+            </CTabPanel>
+          </CTabContent>
+        </CTabs>
+      </div>
+    </CRow>
+    <h4 class="mt-3">
+      Table for debugging
+    </h4>
+    <table v-if="appStore.currentComparison.scenarios" class="mb-3">
       <thead>
         <tr>
           <th>
@@ -42,7 +93,7 @@
           :class="{ 'text-primary': scenarioIsBaseline(scenario) }"
         >
           <td>
-            {{ scenarioAxisValue(scenario) }}
+            {{ appStore.getScenarioAxisValue(scenario) }}
             <span v-if="scenarioIsBaseline(scenario)">
               (Baseline)
             </span>
@@ -95,11 +146,11 @@
         </tr>
       </tbody>
     </table>
-    <!-- <CompareCostsChart v-if="appStore.currentComparison.scenarios" /> -->
   </div>
 </template>
 
 <script setup lang="ts">
+import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import type { Scenario } from "~/types/storeTypes";
 
 const showSpinner = ref(true);
@@ -121,8 +172,7 @@ const totalCost = (scenario: Scenario) => {
   const { amount, unit } = abbreviateMillionsDollars(cost);
   return `$${amount} ${unit}`;
 };
-const scenarioAxisValue = (scenario: Scenario) => axis.value ? scenario.parameters?.[axis.value] : undefined;
-const scenarioIsBaseline = (scenario: Scenario) => scenarioAxisValue(scenario) === appStore.currentComparison.baseline;
+const scenarioIsBaseline = (scenario: Scenario) => appStore.getScenarioAxisValue(scenario) === appStore.currentComparison.baseline;
 
 watch(() => appStore.metadata, async (newMetadata) => {
   if (newMetadata) {
@@ -152,9 +202,57 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@use "sass:map";
+
+.time-series-example {
+  height: 500px;
+}
+
 th, tr, td {
   border: 1px solid black;
   padding: 5px;
+}
+
+:deep(.tab-content) {
+  background: $lighter-background;
+  color: var(--cui-dark-text-emphasis);
+  padding: 1rem;
+  border-radius: 5px;
+  border-top-left-radius: 0;
+  border-color: var(--cui-border-color-translucent);
+  border-style: solid;
+  border-width: 1px;
+}
+
+:deep(.nav-underline) {
+  --cui-nav-link-color: var(--cui-secondary-color);
+  --cui-nav-underline-gap: 0.5rem;
+  // border-bottom: none !important;
+}
+
+:deep(.nav-underline .nav-link) {
+  color: var(--cui-nav-link-color);
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 1px;
+  border-bottom-width: 0.125rem;
+
+  &:hover {
+    border-bottom-color: var(--cui-border-color-translucent);
+    border-color: var(--cui-border-color-translucent);
+    background-color: $light-background;
+  }
+}
+
+:deep(.nav-underline .nav-link.active, .nav-underline .show > .nav-link) {
+  font-weight: unset;
+  color: $primary;
+  background-color: $lighter-background;
+
+  border-color: var(--cui-border-color-translucent);
+  border-bottom-color: currentcolor;
 }
 </style>

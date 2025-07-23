@@ -13,12 +13,13 @@ import { runStatus } from "~/types/apiResponseTypes";
 import { CostBasis } from "~/types/unitTypes";
 import { flushPromises } from "@vue/test-utils";
 import { mockMetadataResponseData } from "../mocks/mockResponseData";
+import type { Scenario } from "~/types/storeTypes";
 
 const unloadedScenario = {
   ...emptyScenario,
   runId: "123",
   parameters: { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" },
-};
+} as Scenario;
 
 registerEndpoint("/api/versions", () => {
   return {
@@ -592,6 +593,36 @@ describe("app store", () => {
       });
     });
 
+    it("getCostLabel returns the label for cost id", async () => {
+      const store = useAppStore();
+      store.metadata = mockedMetadata;
+
+      const costLabel = store.getCostLabel("gdp_closures");
+
+      expect(costLabel).toEqual("Closures");
+    });
+
+    it("getCostLabel returns cost id if not found in metadata", async () => {
+      const store = useAppStore();
+      store.metadata = mockedMetadata;
+
+      const costLabel = store.getCostLabel("not_found");
+
+      expect(costLabel).toEqual("not_found");
+    });
+
+    it("getScenarioAxisValue returns the value for the axis parameter for a given scenario", async () => {
+      const store = useAppStore();
+
+      const scenario = structuredClone(unloadedScenario);
+      store.currentComparison = { axis: "country", baseline: "ARG", scenarios: [] };
+
+      expect(store.getScenarioAxisValue(scenario)).toEqual("USA");
+
+      store.currentComparison = { axis: "vaccine", baseline: "high", scenarios: [] };
+      expect(store.getScenarioAxisValue(scenario)).toEqual("high");
+    });
+
     describe("getters", () => {
       it("can provide a map of parameter id to parameter metadata, for easier look-up", async () => {
         const store = useAppStore();
@@ -672,6 +703,30 @@ describe("app store", () => {
         expect(store.totalCost?.children?.length).toEqual(3);
       });
 
+      it("can determine which country is of interest to the current scenario or comparison", async () => {
+        const store = useAppStore();
+        await store.loadMetadata();
+
+        store.currentScenario.parameters = {
+          country: "GBR",
+          pathogen: "sars_cov_1",
+        };
+
+        expect(store.scenarioCountry).toEqual("GBR");
+
+        store.currentScenario = structuredClone(emptyScenario);
+
+        expect(store.scenarioCountry).toBeUndefined();
+
+        store.currentComparison = {
+          axis: "vaccine",
+          baseline: "high",
+          scenarios: [structuredClone(unloadedScenario)],
+        };
+
+        expect(store.scenarioCountry).toEqual("USA");
+      });
+
       it("can get the time series groups metadata", async () => {
         const store = useAppStore();
         expect(store.timeSeriesGroups).toEqual(undefined);
@@ -693,22 +748,145 @@ describe("app store", () => {
         });
       });
 
-      it("getCostLabel returns the label for cost id", async () => {
+      it("can report whether every scenario in a comparison has run successfully", async () => {
         const store = useAppStore();
-        store.metadata = mockedMetadata;
+        store.currentComparison = {
+          axis: "vaccine",
+          baseline: "high",
+          scenarios: [
+            {
+              ...emptyScenario,
+              runId: "123",
+              parameters: { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" },
+              status: {
+                data: { done: true, runId: null, runStatus: runStatus.Complete, runErrors: null, runSuccess: true },
+                fetchError: undefined,
+                fetchStatus: "success",
+              },
+            },
+            {
+              ...emptyScenario,
+              runId: "234",
+              parameters: { country: "USA", hospital_capacity: "54321", vaccine: "none", response: "elimination" },
+              status: {
+                data: { done: true, runId: null, runStatus: runStatus.Failed, runErrors: null, runSuccess: false },
+                fetchError: undefined,
+                fetchStatus: "success",
+              },
+            },
+          ],
+        };
 
-        const costLabel = store.getCostLabel("gdp_closures");
+        expect(store.everyScenarioHasRunSuccessfully).toBe(false);
 
-        expect(costLabel).toEqual("Closures");
+        store.currentComparison.scenarios[1].status.data!.runSuccess = true;
+
+        expect(store.everyScenarioHasRunSuccessfully).toBe(true);
       });
 
-      it("getCostLabel returns cost id if not found in metadata", async () => {
+      it("can report whether every scenario in a comparison has a run id", async () => {
         const store = useAppStore();
-        store.metadata = mockedMetadata;
+        store.currentComparison = {
+          axis: "vaccine",
+          baseline: "high",
+          scenarios: [
+            {
+              ...emptyScenario,
+              runId: "123",
+              parameters: { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" },
+            },
+            {
+              ...emptyScenario,
+              runId: "234",
+              parameters: { country: "USA", hospital_capacity: "54321", vaccine: "none", response: "elimination" },
+            },
+          ],
+        };
 
-        const costLabel = store.getCostLabel("not_found");
+        expect(store.everyScenarioHasARunId).toBe(true);
 
-        expect(costLabel).toEqual("not_found");
+        store.currentComparison.scenarios[1].runId = undefined;
+
+        expect(store.everyScenarioHasARunId).toBe(false);
+      });
+
+      it("can report whether every scenario in a comparison has costs", async () => {
+        const store = useAppStore();
+        store.currentComparison = {
+          axis: "vaccine",
+          baseline: "high",
+          scenarios: [
+            {
+              ...emptyScenario,
+              runId: "123",
+              parameters: { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" },
+              result: {
+                data: { ...mockResultData, runId: null },
+                fetchError: undefined,
+                fetchStatus: "success",
+              },
+            },
+            {
+              ...emptyScenario,
+              runId: "234",
+              parameters: { country: "USA", hospital_capacity: "54321", vaccine: "none", response: "elimination" },
+              result: {
+                data: { ...mockResultData, runId: null, costs: [] },
+                fetchError: undefined,
+                fetchStatus: "success",
+              },
+            },
+          ],
+        };
+
+        expect(store.everyScenarioHasCosts).toBe(false);
+
+        store.currentComparison.scenarios[1].result.data!.costs = mockResultData.costs;
+
+        expect(store.everyScenarioHasCosts).toBe(true);
+      });
+
+      it("can get the label for the axis of a comparison", async () => {
+        const store = useAppStore();
+        await store.loadMetadata();
+
+        store.currentComparison = {
+          axis: "vaccine",
+          baseline: "high",
+          scenarios: [],
+        };
+
+        expect(store.axisLabel).toEqual("Global vaccine investment");
+
+        store.currentComparison.axis = "country";
+
+        expect(store.axisLabel).toEqual("Country");
+      });
+
+      it("can get the baseline scenario for a comparison", async () => {
+        const store = useAppStore();
+        store.currentComparison = {
+          axis: "vaccine",
+          baseline: "high",
+          scenarios: [
+            {
+              ...emptyScenario,
+              runId: "123",
+              parameters: { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" },
+            },
+            {
+              ...emptyScenario,
+              runId: "234",
+              parameters: { country: "USA", hospital_capacity: "54321", vaccine: "none", response: "elimination" },
+            },
+          ],
+        };
+
+        expect(store.baselineScenario).toEqual(store.currentComparison.scenarios[0]);
+
+        store.currentComparison.baseline = "none";
+
+        expect(store.baselineScenario).toEqual(store.currentComparison.scenarios[1]);
       });
     });
   });

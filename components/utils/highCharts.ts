@@ -1,8 +1,9 @@
 import Highcharts from "highcharts/esm/highcharts";
 import convert, { type HSL } from "color-convert";
 import { abbreviateMillionsDollars } from "~/utils/money";
-import { costAsPercentOfGdp, humanReadablePercentOfGdp } from "~/components/utils/formatters";
+import { costAsPercentOfGdp, humanReadableInteger, humanReadablePercentOfGdp } from "~/components/utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
+import type { Parameter } from "~/types/parameterTypes";
 
 const originalHighchartsColors = Highcharts.getOptions().colors!;
 const colorRgb = convert.hex.rgb(originalHighchartsColors[0] as string);
@@ -105,9 +106,13 @@ export const chartOptions = {
 // The interface appears to be the same as the now defunct Highcharts.TooltipFormatterContextObject class.
 interface TooltipPointInstance extends Highcharts.Point {
   points?: Array<TooltipPointInstance>
-  point?: Highcharts.Point & { custom: { includeInTooltips: boolean }, y: number }
+  point?: TooltipPointInstance
   total: number
   y: number
+  custom: {
+    includeInTooltips: boolean
+    costAsGdpPercent: number
+  }
 }
 
 const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis: CostBasis) => {
@@ -125,8 +130,8 @@ const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis:
     + `</span></span><br/>`;
 };
 
-// Tooltip text for a stacked column (shared tooltip for all points in the stack)
-export const costsChartTooltipText = (context: unknown, costBasis: CostBasis, nationalGdp: number) => {
+// Tooltip text for a stacked column in a single-scenario costs chart (shared tooltip for all points in the stack)
+export const costsChartSingleScenarioTooltip = (context: unknown, costBasis: CostBasis, nationalGdp: number) => {
   const tooltipPointInstance = context as TooltipPointInstance;
 
   let headerText = `${tooltipPointInstance.point?.category} losses: `;
@@ -152,12 +157,48 @@ export const costsChartTooltipText = (context: unknown, costBasis: CostBasis, na
   return `<span style="font-size: 0.8rem;">${headerText}<br/><br/>${pointsText}</span>`;
 };
 
+// Tooltip text for a stacked column in a multi-scenario costs chart (shared tooltip for all points in the stack)
+export const costsChartMultiScenarioStackedTooltip = (context: unknown, costBasis: CostBasis, axisParam: Parameter | undefined) => {
+  const contextInstance = context as TooltipPointInstance;
+  const tooltipPointInstance = contextInstance.point;
+  if (!tooltipPointInstance || !axisParam) {
+    return;
+  }
+
+  const scenarioCategory = tooltipPointInstance.category as string;
+  const scenarioLabel = axisParam.options?.find(o => o.id === scenarioCategory)?.label
+    || humanReadableInteger(scenarioCategory);
+
+  let headerText = `${axisParam.label}: <b>${scenarioLabel}</b>`;
+
+  if (costBasis === CostBasis.PercentGDP) {
+    const percentOfGdp = humanReadablePercentOfGdp(tooltipPointInstance.total);
+    headerText = `${headerText}</br></br>Total losses: <b>${percentOfGdp.percent}%</b> ${percentOfGdp.reference}`;
+  } else {
+    const abbreviatedTotal = abbreviateMillionsDollars(tooltipPointInstance.total);
+    const totalCostAsGdpPercent = tooltipPointInstance.points?.map(point => point.custom.costAsGdpPercent).reduce((partialSum, a) => partialSum + a, 0);
+    headerText = `${headerText}<br/></br>Total losses: <b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b>`;
+    if (tooltipPointInstance.total > 0 && totalCostAsGdpPercent) {
+      const percentOfGdp = humanReadablePercentOfGdp(totalCostAsGdpPercent);
+      headerText = `${headerText}</br>(${percentOfGdp.percent}% ${percentOfGdp.reference})`;
+    }
+  }
+
+  const pointsText = tooltipPointInstance.points
+    ?.map((point) => {
+      return costsChartTooltipPointFormatter(point, costBasis);
+    })
+    ?.join("");
+
+  return `<span style="font-size: 0.8rem;">${headerText}<br/><br/>${pointsText}</span>`;
+};
+
 // Labels for (stacked) columns
 export const costsChartStackLabelFormatter = (value: number, costBasis: CostBasis) => {
   if (costBasis === CostBasis.PercentGDP) {
     return `${value.toFixed(1)}% of GDP`;
   } else if (costBasis === CostBasis.USD) {
-    const abbr = expressMillionsDollarsAsBillions(value, 1);
+    const abbr = abbreviateMillionsDollars(value, false);
     return `$${abbr.amount} ${abbr.unit}`;
   }
 };
