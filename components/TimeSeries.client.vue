@@ -5,6 +5,9 @@
     class="chart-container time-series"
     :style="{ zIndex, height: 'fit-content' }"
     :data-summary="JSON.stringify({ firstDataPoint: data[0], lastDataPoint: data[data.length - 1], dataLength: data.length })"
+    @mousemove="onMove"
+    @touchmove="onMove"
+    @touchstart="onMove"
   />
 </template>
 
@@ -18,19 +21,22 @@ import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import type { TimeSeriesDataPoint } from "~/types/dataTypes";
 import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions, plotBandsColor, plotLinesColor, timeSeriesColors } from "./utils/highCharts";
+import throttle from "lodash.throttle";
 
 const props = defineProps<{
   seriesId: string
   seriesIndex: number // Probably 0 or 1 as time series come in pairs
   groupIndex: number // Probably 0 to about 4
+  hideTooltips: boolean
   yUnits: string
   chartHeight: number
   seriesRole: string
+  synchGroupId: string
+  synchPoint: Highcharts.Point | null
 }>();
 
 const emit = defineEmits<{
-  chartCreated: [seriesId: string, chartIndex: number]
-  chartDestroyed: [seriesId: string]
+  updateHoverPoint: [hoverPoint: Highcharts.Point]
 }>();
 
 const appStore = useAppStore();
@@ -161,6 +167,9 @@ const chartInitialOptions = () => {
       plotLines: capacitiesPlotLines.value,
     },
     series: [{
+      custom: {
+        synchronizationGroupId: props.synchGroupId,
+      },
       data: data.value,
       name: seriesMetadata.value!.label,
       type: props.seriesRole === "total" ? "area" : "line",
@@ -173,15 +182,40 @@ const chartInitialOptions = () => {
   } as Highcharts.Options;
 };
 
+const onMove = throttle(() => {
+  if (chart.hoverPoint) {
+    emit("updateHoverPoint", chart.hoverPoint);
+  }
+}, 150, { leading: true });
+
+/**
+ * Synchronize tooltips and crosshairs between charts.
+ * Demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
+ */
+watch(() => props.synchPoint, (synchPoint) => {
+  if (synchPoint && chart?.series) {
+    // Get the point in this chart that has the same 'x' value as the hovered point from another chart
+    const point = chart.series[0].getValidPoints().find(({ x }) => x === synchPoint.x);
+
+    if (point && point !== synchPoint) {
+      point.onMouseOver();
+    }
+  }
+});
+
+watch(() => props.hideTooltips, (hideTooltips) => {
+  if (hideTooltips) {
+    chart.pointer.reset(false, 0); // Hide all tooltips and crosshairs
+  }
+});
+
 watch(() => chartContainer.value, () => {
   if (!chart) {
     chart = Highcharts.chart(chartContainerId.value, chartInitialOptions());
-    emit("chartCreated", props.seriesId, chart.index);
   }
 });
 
 onUnmounted(() => {
-  emit("chartDestroyed", props.seriesId);
   // Destroy this chart, since every time we navigate away and back to this page, another set
   // of charts is created, burdening the browser if they aren't disposed of.
   chart.destroy();

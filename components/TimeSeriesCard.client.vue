@@ -18,10 +18,11 @@
         :open="openedAccordions.includes(seriesGroup.id)"
         :chart-height-px="chartHeightPx"
         :min-chart-height-px="minChartHeightPx"
+        :synch-group-id="synchGroupId"
+        :hide-tooltips="hideTooltips"
+        :synch-point="hoverPoint"
         @hide-all-tooltips="hideAllTooltipsAndCrosshairs"
-        @chart-created="chartCreated"
-        @chart-destroyed="chartDestroyed"
-        @sync-tooltips-and-crosshairs="syncTooltipsAndCrosshairs"
+        @update-hover-point="updateHoverPoint"
         @toggle-open="toggleOpen(seriesGroup.id)"
       />
     </div>
@@ -30,61 +31,27 @@
 
 <script setup lang="ts">
 import { CIcon } from "@coreui/icons-vue";
-import throttle from "lodash.throttle";
 import Highcharts from "highcharts/esm/highcharts";
+import { useUniqueId } from "@coreui/vue";
 
 const appStore = useAppStore();
-
-const chartIndices = ref<Record<string, number>>({});
 const { openedAccordions, chartHeightPx, minChartHeightPx } = useTimeSeriesAccordionHeights();
 
-const getChartBySeriesId = (seriesId: string): Highcharts.Chart | undefined => {
-  const chartIndex = chartIndices.value[seriesId];
-  return Highcharts.charts[chartIndex];
+// All charts that synchronize with one another share the same synchGroupId.
+// A different group of charts that synchronize together would have a different synchGroupId.
+const { getUID } = useUniqueId();
+const synchGroupId = getUID();
+const hoverPoint = ref<Highcharts.Point | null>(null);
+const hideTooltips = ref(false);
+
+const updateHoverPoint = (point: Highcharts.Point) => {
+  hideTooltips.value = false;
+  hoverPoint.value = point;
 };
-
-const allCharts = computed((): Highcharts.Chart[] => {
-  return Object.values(chartIndices.value).map(chartIndex => Highcharts.charts[chartIndex]).filter(chart => !!chart);
-});
-
-const chartCreated = (seriesId: string, chartIndex: number) => {
-  chartIndices.value = {
-    ...chartIndices.value,
-    [seriesId]: chartIndex,
-  };
-};
-
-const chartDestroyed = (seriesId: string) => {
-  const newCharts = { ...chartIndices.value };
-  delete newCharts[seriesId];
-  chartIndices.value = newCharts;
-};
-
-/**
- * Synchronize tooltips and crosshairs between charts.
- * Demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
- */
-const syncTooltipsAndCrosshairs = throttle((seriesId) => {
-  const triggeringChart = getChartBySeriesId(seriesId);
-  const hoverPoint = triggeringChart?.hoverPoint;
-  if (hoverPoint) {
-    allCharts.value.forEach((chart) => {
-      if (!chart?.series) {
-        return;
-      }
-      // Get the point with the same x as the hovered point
-      const point = chart.series[0].getValidPoints().find(({ x }) => x === hoverPoint.x);
-
-      if (point && point !== hoverPoint) {
-        point.onMouseOver();
-      }
-    });
-  };
-}, 100, { leading: true });
 
 /**
  * Here, we use Highcharts' 'wrap' utility to make the onContainerMouseLeave method of the Pointer class
- * ignore onContainerMouseLeave events for charts that are managed by this TimeSeriesCard, which appears
+ * ignore onContainerMouseLeave events for charts that are synchronized, which appears
  * to be necessary to prevent tooltips and crosshairs from disappearing when the mouse moves *within* a chart,
  * not (as might be expected) when it leaves the chart container.
  * That seems to be a side-effect of syncTooltipsAndCrosshairs calling point.onMouseOver().
@@ -93,9 +60,8 @@ Highcharts.wrap(
   Highcharts.Pointer.prototype,
   "onContainerMouseLeave",
   function (this: Highcharts.Pointer, proceed, ...args) {
-    const indices = Object.values(chartIndices.value);
-    const index = this.chart.index;
-    if (!indices.includes(index)) {
+    const chartIsGroupMember = this.chart.series[0].options.custom?.synchronizationGroupId === synchGroupId;
+    if (chartIsGroupMember) {
       proceed.apply(this, args);
     }
   },
@@ -103,14 +69,12 @@ Highcharts.wrap(
 
 const hideAllTooltipsAndCrosshairs = () => {
   setTimeout(() => {
-    allCharts.value.forEach((chart) => {
-      chart.pointer.reset(false, 0);
-    });
+    hideTooltips.value = true;
   }, 500);
 };
 
 const toggleOpen = (seriesGroupId: string) => {
-  hideAllTooltipsAndCrosshairs();
+  hideTooltips.value = true;
   if (openedAccordions.value.includes(seriesGroupId)) {
     openedAccordions.value = openedAccordions.value.filter(id => id !== seriesGroupId);
   } else {

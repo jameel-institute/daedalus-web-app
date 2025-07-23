@@ -27,14 +27,13 @@
           :series-id="seriesId"
           :series-index="seriesIndex"
           :group-index="props.groupIndex"
+          :hide-tooltips="props.hideTooltips"
           :y-units="yUnits"
           :chart-height="open ? chartHeightPx : minChartHeightPx"
-          @mousemove="onMove(seriesId)"
-          @touchmove="onMove(seriesId)"
-          @touchstart="onMove(seriesId)"
+          :synch-group-id="props.synchGroupId"
+          :synch-point="props.synchPoint"
+          @update-hover-point="(hoverPoint) => $emit('updateHoverPoint', hoverPoint)"
           @mouseleave="$emit('hideAllTooltips')"
-          @chart-created="(seriesId, chartIndex) => $emit('chartCreated', seriesId, chartIndex)"
-          @chart-destroyed="(seriesId) => $emit('chartDestroyed', seriesId)"
         />
       </CAccordionBody>
     </CAccordionItem>
@@ -47,17 +46,18 @@ import type { DisplayInfo, TimeSeriesGroup } from "~/types/apiResponseTypes";
 const props = defineProps<{
   seriesGroup: TimeSeriesGroup
   groupIndex: number
+  hideTooltips: boolean
   open: boolean
   chartHeightPx: number
   minChartHeightPx: number
+  synchGroupId: string
+  synchPoint: Highcharts.Point | null
 }>();
 
-const emit = defineEmits<{
+defineEmits<{
   hideAllTooltips: []
-  syncTooltipsAndCrosshairs: [seriesId: string]
+  updateHoverPoint: [hoverPoint: Highcharts.Point]
   toggleOpen: []
-  chartCreated: [seriesId: string, chartIndex: number]
-  chartDestroyed: [seriesId: string]
 }>();
 
 const appStore = useAppStore();
@@ -92,10 +92,6 @@ const yUnits = computed(() => { // TODO: Make this depend on a 'units' property 
       return "cases";
   }
 });
-
-const onMove = (seriesId: string) => {
-  emit("syncTooltipsAndCrosshairs", seriesId);
-};
 </script>
 
 <style lang="scss">

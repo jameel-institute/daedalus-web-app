@@ -1,5 +1,6 @@
 import { emptyScenario, mockedMetadata, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
+import { waitFor } from "@testing-library/vue";
 import TimeSeriesCard from "~/components/TimeSeriesCard.client.vue";
 import { mockResultResponseData } from "~/tests/unit/mocks/mockResponseData";
 import type { ScenarioResultData } from "~/types/apiResponseTypes";
@@ -38,9 +39,6 @@ vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
         destroy: vi.fn(),
         setSize: vi.fn(),
         showResetZoom: vi.fn(),
-        index: 0,
-      }),
-      charts: [{
         pointer: {
           reset: vi.fn(() => mockReset()),
           onContainerMouseLeave: vi.fn(() => mockOnContainerMouseLeave()),
@@ -53,7 +51,7 @@ vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
             onMouseOver: vi.fn(() => mockOnMouseOver()),
           }],
         }],
-      }],
+      }),
       win: actual.default.win,
       wrap: actual.default.wrap,
       Pointer: actual.default.Pointer,
@@ -66,14 +64,6 @@ vi.mock("highcharts/esm/modules/export-data", () => ({}));
 vi.mock("highcharts/esm/modules/offline-exporting", () => ({}));
 
 describe("time series", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   it("should render the correct list of time series", async () => {
     const component = await mountSuspended(TimeSeriesCard, { global: { stubs, plugins } });
 
@@ -106,7 +96,7 @@ describe("time series", () => {
     });
   });
 
-  it("when the mouse leaves a time series, or it is closed, charts should be reset", async () => {
+  it("when a time series is closed or mouse leaves it, charts should be reset; tooltips synchronize on mousemove", async () => {
     const component = await mountSuspended(TimeSeriesCard, { global: { stubs, plugins } });
 
     const timeSeriesGroups = component.findAllComponents({ name: "TimeSeriesGroup.client" });
@@ -129,24 +119,27 @@ describe("time series", () => {
     expect(timeSeriesGroups[2].props().open).toBe(true);
     expect(timeSeriesGroups[3].props().open).toBe(true);
 
-    vi.advanceTimersByTime(1000);
-    await nextTick();
-
-    // All 8 time series charts should have been reset by the toggling of the accordion
+    // All 8 time series charts should have been reset (hide all tooltips and crosshairs)
+    // by the toggling of the accordion
     expect(mockReset).toHaveBeenCalledTimes(8);
 
-    timeSeries[0].trigger("mousemove");
+    // find a div with id prevalence-container
+    const prevalenceTimeSeries = component.find("#prevalence-container");
 
-    // mousemove should trigger the tooltips and crosshairs to be synchronize
+    prevalenceTimeSeries.trigger("mousemove");
+    await nextTick();
+
+    // mousemove should trigger the tooltips and crosshairs to be synchronized
     expect(mockOnMouseOver).toHaveBeenCalledTimes(8);
     // The onContainerMouseLeave function should not have been called after mousemove
     expect(mockOnContainerMouseLeave).not.toHaveBeenCalled();
 
     timeSeries[0].trigger("mouseleave");
-    vi.advanceTimersByTime(1000);
 
     // All 8 time series charts should have been reset (hide all tooltips and crosshairs) once more
     // by the mouse leaving one of the time series
-    expect(mockReset).toHaveBeenCalledTimes(8 * 2);
+    await waitFor(() => {
+      expect(mockReset).toHaveBeenCalledTimes(8 * 2);
+    });
   });
 });
