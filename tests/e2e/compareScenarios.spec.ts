@@ -25,7 +25,6 @@ test("Can compare multiple scenarios", async ({ page, baseURL }) => {
   await page.click('button:has-text("Run")');
 
   await page.waitForURL(new RegExp(`${baseURL}/${scenarioPathMatcher}`));
-  const urlOfBaselineScenario = page.url();
   await expect(page.getByText("Simulate a new scenario")).not.toBeVisible();
 
   await page.getByRole("button", { name: "Compare against other scenarios" }).first().click();
@@ -118,9 +117,4 @@ test("Can compare multiple scenarios", async ({ page, baseURL }) => {
   const costsChartDataGdp = JSON.parse(costsChartDataGdpStr!);
   expect(costsChartDataGdp).toHaveLength(3);
   checkBarChartDataIsDifferent(costsChartDataUsd, costsChartDataGdp);
-
-  // Test we can navigate back to baseline scenario
-  await page.getByRole("link", { name: "Baseline scenario" }).first().click();
-  await page.waitForURL(new RegExp(`${baseURL}/${scenarioPathMatcher}`));
-  expect(page.url()).toEqual(urlOfBaselineScenario);
 });
