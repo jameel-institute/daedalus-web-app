@@ -1,7 +1,8 @@
 import type { HSL } from "color-convert";
-import { costsChartLabelFormatter, costsChartMultiScenarioStackedTooltip, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, getColorVariants, plotBandsColor, timeSeriesColors } from "~/components/utils/highCharts";
+import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, getColorVariants, plotBandsColor, timeSeriesColors } from "~/components/utils/highCharts";
 import { CostBasis } from "~/types/unitTypes";
 import { mockMetadataResponseData } from "../../mocks/mockResponseData";
+import { TypeOfParameter } from "~/types/parameterTypes";
 
 describe("plotBandsColor", () => {
   it("should be in the correct rgba format", () => {
@@ -132,13 +133,48 @@ describe("costsChartStackLabelFormatter", () => {
 
 describe("costsChartLabelFormatter", () => {
   it("should return the correct y-axis tick label for USD cost basis", () => {
-    const label = costsChartLabelFormatter(200, CostBasis.USD);
+    const label = costsChartYAxisTickFormatter(200, CostBasis.USD);
     expect(label).toBe("0 B");
   });
 
   it("should return the correct y-axis tick label for percent of GDP cost basis", () => {
-    const label = costsChartLabelFormatter(20, CostBasis.PercentGDP);
+    const label = costsChartYAxisTickFormatter(20, CostBasis.PercentGDP);
     expect(label).toBe("20%");
+  });
+});
+
+describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
+  it("should return the correct label for a country parameter", () => {
+    const axisParam = {
+      id: "country",
+      label: "Country",
+      parameterType: TypeOfParameter.GlobeSelect,
+      options: [
+        { id: "USA", label: "United States" },
+        { id: "CAN", label: "Canada" },
+      ],
+      ordered: false,
+    };
+
+    const label = costsChartMultiScenarioXAxisLabelFormatter("USA", axisParam);
+    expect(label).toContain('<span class="fi fi-us" style="width: 1.2rem; height: 1.2rem"></span>');
+    expect(label).toContain("United States");
+  });
+
+  it("should return the correct label for a non-country parameter", () => {
+    const axisParam = {
+      id: "vaccine",
+      label: "Vaccine",
+      parameterType: TypeOfParameter.Select,
+      options: [
+        { id: "high", label: "High" },
+        { id: "medium", label: "Medium" },
+      ],
+      ordered: false,
+    };
+
+    const label = costsChartMultiScenarioXAxisLabelFormatter("high", axisParam);
+    expect(label).toContain("High");
   });
 });
 

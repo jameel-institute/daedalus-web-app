@@ -3,7 +3,8 @@ import convert, { type HSL } from "color-convert";
 import { abbreviateMillionsDollars } from "~/utils/money";
 import { costAsPercentOfGdp, humanReadableInteger, humanReadablePercentOfGdp } from "~/components/utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
-import type { Parameter } from "~/types/parameterTypes";
+import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
+import { countryFlagIconId } from "./countryFlag";
 
 const originalHighchartsColors = Highcharts.getOptions().colors!;
 const colorRgb = convert.hex.rgb(originalHighchartsColors[0] as string);
@@ -203,11 +204,23 @@ export const costsChartStackLabelFormatter = (value: number, costBasis: CostBasi
   }
 };
 
-// Labels for yAxis ticks
-export const costsChartLabelFormatter = (value: string | number, costBasis: CostBasis) => {
+export const costsChartYAxisTickFormatter = (value: string | number, costBasis: CostBasis) => {
   if (costBasis === CostBasis.PercentGDP) {
     return `${value}%`;
   } else if (costBasis === CostBasis.USD) {
     return Object.values(expressMillionsDollarsAsBillions(value as number, 0, true)).join(" ");
+  }
+};
+
+export const costsChartMultiScenarioXAxisLabelFormatter = (value: string, axisParam: Parameter | undefined) => {
+  const text = axisParam?.options?.find(o => o.id === value)?.label || humanReadableInteger(value);
+
+  if (axisParam?.parameterType === TypeOfParameter.GlobeSelect) {
+    return `<div class="d-flex gap-2 align-items-center mb-2">
+      <span class="fi fi-${countryFlagIconId(value)}" style="width: 1.2rem; height: 1.2rem"></span>
+      <span>${text}</span>
+    </div>`;
+  } else {
+    return text;
   }
 };

@@ -14,9 +14,8 @@ import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
 import throttle from "lodash.throttle";
-import { countryFlagIconId } from "@/components/utils/countryFlag";
-import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartLabelFormatter, costsChartMultiScenarioStackedTooltip, costsChartStackLabelFormatter, menuItemDefinitionOptions } from "./utils/highCharts";
-import { costAsPercentOfGdp, gdpReferenceYear, humanReadableInteger } from "@/components/utils/formatters";
+import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, menuItemDefinitionOptions } from "./utils/highCharts";
+import { costAsPercentOfGdp, gdpReferenceYear } from "@/components/utils/formatters";
 import { CostBasis } from "@/types/unitTypes";
 
 const appStore = useAppStore();
@@ -128,24 +127,8 @@ const chartInitialOptions = () => {
         style: {
           fontSize: appStore.currentComparison.axis === appStore.globeParameter?.id ? "0.8rem" : "1rem",
         },
-        // TODO: Extrat this into util so it can be unit tested
         formatter() {
-          if (!appStore.currentComparison.axis) {
-            return;
-          }
-          const scenarioLabel = this.value as string;
-          const labelText = axisMetadata.value?.options?.find(o => o.id === scenarioLabel)?.label
-            || humanReadableInteger(scenarioLabel);
-
-          if (appStore.currentComparison?.axis === appStore.globeParameter?.id) {
-            const countryFlag = countryFlagIconId(this.value as string);
-            return `<div class="d-flex gap-2 align-items-center mb-2">
-              <span class="fi fi-${countryFlag}" style="width: 1.2rem; height: 1.2rem"></span>
-              <span>${labelText}</span>
-            </div>`;
-          } else {
-            return labelText;
-          }
+          return costsChartMultiScenarioXAxisLabelFormatter(this.value as string, axisMetadata.value);
         },
         useHTML: true,
       },
@@ -165,7 +148,7 @@ const chartInitialOptions = () => {
       labels: {
         enabled: true,
         formatter() {
-          return costsChartLabelFormatter(this.value, costBasis.value);
+          return costsChartYAxisTickFormatter(this.value, costBasis.value);
         },
       },
     },

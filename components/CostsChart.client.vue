@@ -14,7 +14,7 @@ import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
 import throttle from "lodash.throttle";
-import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartLabelFormatter, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, getColorVariants, menuItemDefinitionOptions } from "@/components/utils/highCharts";
+import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, getColorVariants, menuItemDefinitionOptions } from "@/components/utils/highCharts";
 import { costAsPercentOfGdp, gdpReferenceYear } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 
@@ -146,7 +146,7 @@ const chartInitialOptions = () => {
       labels: {
         enabled: true,
         formatter() {
-          return costsChartLabelFormatter(this.value, appStore.preferences.costBasis);
+          return costsChartYAxisTickFormatter(this.value, appStore.preferences.costBasis);
         },
       },
     },
