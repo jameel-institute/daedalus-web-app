@@ -26,9 +26,7 @@ const chartParentEl = computed(() => chartContainer.value?.parentElement);
 const scenarios = computed(() => appStore.currentComparison.scenarios);
 const costBasis = computed(() => appStore.preferences.costBasis);
 const chartTitleOnExport = computed(() => `Losses by ${appStore.axisLabel?.toLocaleLowerCase()}`);
-const axisMetadata = computed(() => {
-  return appStore.currentComparison.axis ? appStore.parametersMetadataById[appStore.currentComparison.axis] : undefined;
-});
+const axisMetadata = computed(() => appStore.currentComparison.axis ? appStore.parametersMetadataById[appStore.currentComparison.axis] : undefined);
 
 // There are 3 levels of data breakdown for costs:
 // 1) the top-level total for the scenario,
@@ -43,35 +41,29 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
     return [];
   }
   const exampleSecondLevelCosts = scenarios.value[0].result.data?.costs[0].children;
-  const series = exampleSecondLevelCosts?.map((secondLevelCost, index) => ({
+  seriesData.value = exampleSecondLevelCosts?.map((secondLevelCost, index) => ({
     type: "column",
     name: appStore.getCostLabel(exampleSecondLevelCosts?.[index].id || ""),
     data: scenarios.value.map((scenario) => {
       const subCost = scenario.result.data?.costs[0].children?.find(c => c.id === secondLevelCost.id);
       const dollarValue = subCost?.value;
+      // costAsGdpPercent is calculated here since the national GDP may vary by scenario if the axis is 'country'.
       const costAsGdpPercent = costAsPercentOfGdp(dollarValue, scenario.result.data?.gdp);
-      const yValue = costBasis.value === CostBasis.PercentGDP ? costAsGdpPercent : dollarValue;
+      const y = costBasis.value === CostBasis.PercentGDP ? costAsGdpPercent : dollarValue;
+      const name = appStore.getCostLabel(subCost?.id || "");
 
-      return {
-        y: yValue,
-        name: appStore.getCostLabel(subCost?.id || ""),
-        custom: {
-          costAsGdpPercent, // Calculated here since the national GDP may vary by scenario if the axis is country.
-        },
-      };
+      return { y, name, custom: { costAsGdpPercent } };
     }),
   } as Highcharts.SeriesColumnOptions)) || [];
 
-  seriesData.value = series;
-  return series;
+  return seriesData.value;
 };
 
 const chartHeightPx = 400;
-const yAxisTitle = computed(() => {
-  return costBasis.value === CostBasis.PercentGDP
-    ? `Losses as % of ${gdpReferenceYear} national GDP`
-    : "Losses in billions USD";
-});
+const yAxisTitle = computed(() => costBasis.value === CostBasis.PercentGDP
+  ? `Losses as % of ${gdpReferenceYear} national GDP`
+  : "Losses in billions USD",
+);
 
 // Fixes z-index issue:
 // https://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting#html
@@ -79,94 +71,54 @@ Highcharts.HTMLElement.useForeignObject = true;
 
 const chartInitialOptions = () => {
   return {
-    credits: {
-      text: "Highcharts",
-    },
+    credits: { text: "Highcharts" },
     colors: colorBlindSafeColors.map(color => color.rgb),
-    chart: {
-      ...chartOptions,
-      height: chartHeightPx,
-      width: chartParentEl.value?.clientWidth - 10,
-    },
+    chart: { ...chartOptions, height: chartHeightPx, width: chartParentEl.value?.clientWidth - 10 },
     exporting: {
       filename: chartTitleOnExport.value,
       chartOptions: {
-        title: {
-          text: chartTitleOnExport.value,
-        },
+        title: { text: chartTitleOnExport.value },
         plotOptions: {
           column: {
-            dataLabels: {
-              allowOverlap: false,
-              format: "{point.name}",
-              enabled: true,
-            },
+            dataLabels: { allowOverlap: false, format: "{point.name}", enabled: true },
           },
         },
-        chart: {
-          backgroundColor: chartBackgroundColorOnExporting,
-          height: 500,
-        },
+        chart: { backgroundColor: chartBackgroundColorOnExporting, height: 500 },
       },
-      buttons: {
-        contextButton: {
-          ...contextButtonOptions,
-        },
-      },
+      buttons: { contextButton: { ...contextButtonOptions } },
       menuItemDefinitions: menuItemDefinitionOptions,
     },
-    title: {
-      text: "",
-    },
+    title: { text: "" },
     xAxis: {
       categories: scenarios.value?.map(s => appStore.getScenarioAxisValue(s)) || [],
-      title: {
-        text: appStore.axisLabel,
-      },
+      title: { text: appStore.axisLabel },
       labels: {
-        style: {
-          fontSize: appStore.currentComparison.axis === appStore.globeParameter?.id ? "0.8rem" : "1rem",
-        },
-        formatter() {
-          return costsChartMultiScenarioXAxisLabelFormatter(this.value as string, axisMetadata.value);
-        },
+        style: { fontSize: appStore.currentComparison.axis === appStore.globeParameter?.id ? "0.8rem" : "1rem" },
+        formatter() { return costsChartMultiScenarioXAxisLabelFormatter(this.value as string, axisMetadata.value); },
         useHTML: true,
       },
     },
     yAxis: {
       gridLineColor: "lightgrey",
       min: 0,
-      title: {
-        text: yAxisTitle.value,
-      },
+      title: { text: yAxisTitle.value },
       stackLabels: {
         enabled: true,
-        formatter() {
-          return costsChartStackLabelFormatter(this.total, costBasis.value);
-        },
+        formatter() { return costsChartStackLabelFormatter(this.total, costBasis.value); },
       },
       labels: {
         enabled: true,
-        formatter() {
-          return costsChartYAxisTickFormatter(this.value, costBasis.value);
-        },
+        formatter() { return costsChartYAxisTickFormatter(this.value, costBasis.value); },
       },
     },
     series: getSeries(),
-    legend: {
-      enabled: false,
-    },
+    legend: { enabled: false },
     tooltip: {
       shared: true,
-      formatter() {
-        return costsChartMultiScenarioStackedTooltip(this, costBasis.value, axisMetadata.value);
-      },
+      formatter() { return costsChartMultiScenarioStackedTooltip(this, costBasis.value, axisMetadata.value); },
     },
     plotOptions: {
-      column: {
-        stacking: "normal",
-        groupPadding: 0.05,
-      },
+      column: { stacking: "normal", groupPadding: 0.05 },
     },
   } as Highcharts.Options;
 };
@@ -179,14 +131,7 @@ watch(() => [chartContainer.value, appStore.everyScenarioHasCosts], () => {
 
 watch(() => costBasis.value, () => {
   if (chart) {
-    chart.update({
-      yAxis: {
-        title: {
-          text: yAxisTitle.value,
-        },
-      },
-      series: getSeries(),
-    });
+    chart.update({ yAxis: { title: { text: yAxisTitle.value } }, series: getSeries() });
   }
 });
 
@@ -196,19 +141,11 @@ const setChartDimensions = throttle(() => {
   }
 }, 25);
 
-onMounted(() => {
-  window.addEventListener("resize", setChartDimensions);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener("resize", setChartDimensions);
-});
-
-onUnmounted(() => {
-  // Destroy this chart, otherwise every time we navigate away and back to this page, another
-  // chart is created, burdening the browser.
-  chart?.destroy();
-});
+onMounted(() => window.addEventListener("resize", setChartDimensions));
+onBeforeUnmount(() => window.removeEventListener("resize", setChartDimensions));
+// Destroy this chart on unmounted, otherwise every time we navigate away and back to this page, another
+// chart is created, burdening the browser.
+onUnmounted(() => chart?.destroy());
 </script>
 
 <style lang="scss">
