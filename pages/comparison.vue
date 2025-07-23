@@ -12,6 +12,18 @@
       <h1 class="fs-3 mb-0 pt-1 pe-5 me-auto text-nowrap flex-fill">
         Explore by {{ appStore.axisLabel?.toLocaleLowerCase() }}
       </h1>
+      <ParameterInfoCard :scenario="appStore.baselineScenario">
+        <template #header>
+          <div class="card-header w-100 h-100">
+            <NuxtLink
+              prefetch-on="interaction"
+              :to="`/scenarios/${appStore.baselineScenario?.runId}`"
+            >
+              Baseline scenario
+            </NuxtLink>
+          </div>
+        </template>
+      </ParameterInfoCard>
     </div>
     <CSpinner v-show="showSpinner" class="ms-3 mb-3 mt-3" />
     <div v-if="appStore.everyScenarioHasCosts" class="col-12">
@@ -176,6 +188,23 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@use "sass:map";
+
+.results-cards-container {
+  // The widest width that might trigger the heading flex row to wrap
+  // (Determined empirically using longest heading 'Explore by global vaccine investment' and longest parameter values)
+  $comparison-heading-wrap-width: 91rem;
+
+  @media (min-width: $comparison-heading-wrap-width) {
+    position: relative;
+    top: -2.5rem;
+  }
+}
+
+.time-series-example {
+  height: 500px;
+}
+
 th, tr, td {
   border: 1px solid black;
   padding: 5px;

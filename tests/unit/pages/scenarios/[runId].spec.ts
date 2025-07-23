@@ -92,7 +92,7 @@ describe("scenario result page", () => {
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
-    expect(component.text()).toContain("Parameters");
+    expect(component.text()).toContain("Change parameters");
 
     await waitFor(() => {
       expect(component.text()).toContain("United Kingdom");
