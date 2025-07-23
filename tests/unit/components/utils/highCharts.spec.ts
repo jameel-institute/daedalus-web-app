@@ -109,9 +109,12 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
 
   it("should return the correct text for the stack's tooltip, when cost basis is percent of GDP", () => {
     contextInstance.point.total = 73.982491560811;
+    contextInstance.point.points[0].y = 3.820321826248465;
+    contextInstance.point.points[1].y = 0.10534318554003114;
+    contextInstance.point.points[2].y = 70.05682654902341;
     const tooltipText = costsChartMultiScenarioStackedTooltip(contextInstance, CostBasis.PercentGDP, vaccineParam);
     expect(tooltipText).toMatch(
-      /Global vaccine investment:.*High.*Total losses:.*74.0%.* of 2018 national GDP.*#FF0000/, // .*GDP.*3.8%.*#00FF00.*Education.*0.1%.*#0000FF.*70.1%/,
+      /Global vaccine investment:.*High.*Total losses:.*74.0%.* of 2018 national GDP.*#FF0000.*GDP.*3.8%.*#00FF00.*Education.*0.1%.*#0000FF.*70.1%/,
     );
   });
 });
