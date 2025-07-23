@@ -70,16 +70,17 @@ export const useAppStore = defineStore("app", {
       }
     },
     scenarioCountry(state): string | undefined {
-      if (this.globeParameter?.id) {
-        if (state.currentComparison.scenarios?.[0]?.parameters) {
-          if (state.currentComparison.axis === this.globeParameter.id) {
-            return state.currentComparison.baseline;
-          } else if (state.currentComparison.axis) {
-            return state.currentComparison.scenarios[0].parameters[this.globeParameter.id];
-          }
-        } else if (state.currentScenario?.parameters) {
-          return state.currentScenario.parameters[this.globeParameter.id!];
+      if (!this.globeParameter?.id) {
+        return;
+      }
+      if (state.currentComparison.scenarios?.[0]?.parameters) {
+        if (state.currentComparison.axis === this.globeParameter.id) {
+          return state.currentComparison.baseline;
+        } else if (state.currentComparison.axis) {
+          return state.currentComparison.scenarios[0].parameters[this.globeParameter.id];
         }
+      } else if (state.currentScenario?.parameters) {
+        return state.currentScenario.parameters[this.globeParameter.id!];
       }
     },
     timeSeriesGroups: (state): Array<TimeSeriesGroup> | undefined => state.metadata?.results.time_series_groups as TimeSeriesGroup[] | undefined,

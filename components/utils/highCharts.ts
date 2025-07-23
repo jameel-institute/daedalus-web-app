@@ -161,35 +161,30 @@ export const costsChartSingleScenarioTooltip = (context: unknown, costBasis: Cos
 // Tooltip text for a stacked column in a multi-scenario costs chart (shared tooltip for all points in the stack)
 export const costsChartMultiScenarioStackedTooltip = (context: unknown, costBasis: CostBasis, axisParam: Parameter | undefined) => {
   const contextInstance = context as TooltipPointInstance;
-  const tooltipPointInstance = contextInstance.point;
-  if (!tooltipPointInstance || !axisParam) {
+  const point = contextInstance.point;
+  if (!point || !axisParam) {
     return;
   }
 
-  const scenarioCategory = tooltipPointInstance.category as string;
-  const scenarioLabel = axisParam.options?.find(o => o.id === scenarioCategory)?.label
-    || humanReadableInteger(scenarioCategory);
+  const scenarioCategory = point.category as string;
+  const scenarioLabel = axisParam.options?.find(o => o.id === scenarioCategory)?.label || humanReadableInteger(scenarioCategory);
 
   let headerText = `${axisParam.label}: <b>${scenarioLabel}</b>`;
 
   if (costBasis === CostBasis.PercentGDP) {
-    const percentOfGdp = humanReadablePercentOfGdp(tooltipPointInstance.total);
+    const percentOfGdp = humanReadablePercentOfGdp(point.total);
     headerText = `${headerText}</br></br>Total losses: <b>${percentOfGdp.percent}%</b> ${percentOfGdp.reference}`;
   } else {
-    const abbreviatedTotal = abbreviateMillionsDollars(tooltipPointInstance.total);
-    const totalCostAsGdpPercent = tooltipPointInstance.points?.map(point => point.custom.costAsGdpPercent).reduce((partialSum, a) => partialSum + a, 0);
+    const abbreviatedTotal = abbreviateMillionsDollars(point.total);
+    const totalCostAsGdpPercent = point.points?.map(p => p.custom.costAsGdpPercent).reduce((sum, a) => sum + a, 0);
     headerText = `${headerText}<br/></br>Total losses: <b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b>`;
-    if (tooltipPointInstance.total > 0 && totalCostAsGdpPercent) {
+    if (point.total > 0 && totalCostAsGdpPercent) {
       const percentOfGdp = humanReadablePercentOfGdp(totalCostAsGdpPercent);
       headerText = `${headerText}</br>(${percentOfGdp.percent}% ${percentOfGdp.reference})`;
     }
   }
 
-  const pointsText = tooltipPointInstance.points
-    ?.map((point) => {
-      return costsChartTooltipPointFormatter(point, costBasis);
-    })
-    ?.join("");
+  const pointsText = point.points?.map(p => costsChartTooltipPointFormatter(p, costBasis))?.join("");
 
   return `<span style="font-size: 0.8rem;">${headerText}<br/><br/>${pointsText}</span>`;
 };
