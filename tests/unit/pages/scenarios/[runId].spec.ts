@@ -98,7 +98,6 @@ describe("scenario result page", () => {
       expect(component.text()).toContain("United Kingdom");
       expect(component.text()).toContain("SARS 2004");
       expect(component.text()).toContain("30,500");
-      console.error(component.text());
       expect(component.text()).toContain("No closures");
       expect(component.text()).toContain("None");
     });
