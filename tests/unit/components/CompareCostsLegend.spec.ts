@@ -1,4 +1,4 @@
-import CostsLegend from "@/components/CostsLegend.client.vue";
+import CompareCostsLegend from "~/components/CompareCostsLegend.client.vue";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import type { ScenarioResultData } from "~/types/apiResponseTypes";
 import { emptyScenario, mockPinia } from "../mocks/mockPinia";
@@ -6,7 +6,7 @@ import { mockMetadataResponseData, mockResultResponseData } from "../mocks/mockR
 
 describe("chart legend", () => {
   it("renders legend items correctly", async () => {
-    const component = await mountSuspended(CostsLegend, {
+    const component = await mountSuspended(CompareCostsLegend, {
       global: {
         plugins: [mockPinia(
           {

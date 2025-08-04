@@ -18,7 +18,7 @@
       <div class="d-flex align-items-start mx-2">
         <CostBasisToggler />
         <div class="ms-auto">
-          <CostsLegend />
+          <CompareCostsLegend />
         </div>
       </div>
       <CompareCostsChart />
