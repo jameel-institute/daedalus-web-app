@@ -7,7 +7,7 @@ import {
 import { mockResultResponseData } from "@/tests/unit/mocks/mockResponseData";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import Highcharts from "highcharts/esm/highcharts";
-import TimeSeries from "~/components/TimeSeries.client.vue";
+import TimeSeries from "~/components/Charts/TimeSeries.client.vue";
 
 const timeSeriesId = mockedMetadata.results.time_series[1].id; // hospitalized
 const stubs = {

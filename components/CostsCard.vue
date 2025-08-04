@@ -84,8 +84,7 @@
 </template>
 
 <script lang="ts" setup>
-import { humanReadableInteger } from "./utils/formatters";
-import { costAsPercentOfGdp, gdpReferenceYear, humanReadablePercentOfGdp } from "@/components/utils/formatters";
+import { costAsPercentOfGdp, gdpReferenceYear, humanReadableInteger, humanReadablePercentOfGdp } from "@/components/utils/formatters";
 import { abbreviateMillionsDollars } from "@/utils/money";
 import { CIcon } from "@coreui/icons-vue";
 import { CostBasis } from "~/types/unitTypes";

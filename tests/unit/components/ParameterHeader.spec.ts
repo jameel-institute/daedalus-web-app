@@ -1,4 +1,4 @@
-import ParameterHeader from "@/components/ParameterHeader.vue";
+import ParameterHeader from "~/components/ParameterForm/ParameterHeader.vue";
 import ParameterIcon from "@/components/ParameterIcon.vue";
 import TooltipHelp from "@/components/TooltipHelp.vue";
 import { mount } from "@vue/test-utils";

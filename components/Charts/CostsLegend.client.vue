@@ -1,5 +1,5 @@
 <template>
-  <ChartLegend
+  <Legend
     :items="items"
     :row-height-rem="0.7"
     class="costs-legend"

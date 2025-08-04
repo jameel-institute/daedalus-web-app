@@ -1,4 +1,4 @@
-import ChartLegend from "@/components/ChartLegend.client.vue";
+import Legend from "~/components/Charts/Legend.client.vue";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 
 const items = [
@@ -8,7 +8,7 @@ const items = [
 
 describe("chart legend", () => {
   it("renders legend items correctly", async () => {
-    const component = await mountSuspended(ChartLegend, {
+    const component = await mountSuspended(Legend, {
       props: { items, rowHeightRem: 1 },
     });
 

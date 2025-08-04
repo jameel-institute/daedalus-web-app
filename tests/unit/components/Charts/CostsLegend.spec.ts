@@ -1,8 +1,8 @@
-import CostsLegend from "@/components/CostsLegend.client.vue";
+import CostsLegend from "~/components/Charts/CostsLegend.client.vue";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import type { ScenarioResultData } from "~/types/apiResponseTypes";
-import { emptyScenario, mockPinia } from "../mocks/mockPinia";
-import { mockResultResponseData } from "../mocks/mockResponseData";
+import { emptyScenario, mockPinia } from "~/tests/unit/mocks/mockPinia";
+import { mockResultResponseData } from "~/tests/unit/mocks/mockResponseData";
 
 describe("chart legend", () => {
   it("renders legend items correctly", async () => {
