@@ -13,10 +13,10 @@ import "highcharts/esm/modules/exporting";
 import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
-import throttle from "lodash.throttle";
-import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, menuItemDefinitionOptions } from "./utils/highCharts";
-import { costAsPercentOfGdp, gdpReferenceYear } from "@/components/utils/formatters";
+import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, menuItemDefinitionOptions, yAxisTitle } from "./utils/highCharts";
+import { costAsPercentOfGdp } from "@/components/utils/formatters";
 import { CostBasis } from "@/types/unitTypes";
+import { debounce } from "perfect-debounce";
 
 const appStore = useAppStore();
 let chart: Highcharts.Chart;
@@ -32,17 +32,18 @@ const axisMetadata = computed(() => appStore.currentComparison.axis ? appStore.p
 // 1) the top-level total for the scenario,
 // 2) the second level, GDP/life-years/education,
 // 3) and a further breakdown, e.g. absences/closures in the cases of GDP and education.
-// We don't display the top level in the chart.
+// At the moment, only the second level is displayed in the chart.
 // Series are orthogonal to columns, and here correspond to the second-level breakdowns.
 // Each series' data is an array of each scenario's cost for that breakdown.
 // For example, one series should comprise each scenario's GDP.
 const getSeries = (): Highcharts.SeriesColumnOptions[] => {
-  const exampleSecondLevelCosts = scenarios.value[0].result.data?.costs[0].children;
-  seriesData.value = exampleSecondLevelCosts?.map((secondLevelCost, index) => ({
+  // Take the first scenario's costs as an example to find out what the second-level breakdowns are.
+  const secondLevelCostIds = scenarios.value[0].result.data?.costs[0].children?.map(c => c.id) || [];
+  seriesData.value = secondLevelCostIds?.map(costId => ({
     type: "column",
-    name: appStore.getCostLabel(exampleSecondLevelCosts?.[index].id || ""),
+    name: appStore.getCostLabel(costId),
     data: scenarios.value.map((scenario) => {
-      const subCost = scenario.result.data?.costs[0].children?.find(c => c.id === secondLevelCost.id);
+      const subCost = scenario.result.data?.costs[0].children?.find(c => c.id === costId);
       const dollarValue = subCost?.value;
       // costAsGdpPercent is calculated here since the national GDP may vary by scenario if the axis is 'country'.
       const costAsGdpPercent = costAsPercentOfGdp(dollarValue, scenario.result.data?.gdp);
@@ -56,20 +57,16 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
 };
 
 const chartHeightPx = 400;
-const yAxisTitle = computed(() => costBasis.value === CostBasis.PercentGDP
-  ? `Losses as % of ${gdpReferenceYear} national GDP`
-  : "Losses in billions USD",
-);
 
-// Fixes z-index issue:
-// https://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting#html
-Highcharts.HTMLElement.useForeignObject = true;
+const targetWidth = () => {
+  return chartParentEl.value ? chartParentEl.value.clientWidth - 10 : 0;
+};
 
 const chartInitialOptions = () => {
   return {
     credits: { text: "Highcharts" },
     colors: colorBlindSafeColors.map(color => color.rgb),
-    chart: { ...chartOptions, height: chartHeightPx, width: chartParentEl.value?.clientWidth - 10 },
+    chart: { ...chartOptions, height: chartHeightPx, width: targetWidth() },
     exporting: {
       filename: chartTitleOnExport.value,
       chartOptions: {
@@ -97,7 +94,7 @@ const chartInitialOptions = () => {
     yAxis: {
       gridLineColor: "lightgrey",
       min: 0,
-      title: { text: yAxisTitle.value },
+      title: { text: yAxisTitle(costBasis.value) },
       stackLabels: {
         enabled: true,
         formatter() { return costsChartStackLabelFormatter(this.total, costBasis.value); },
@@ -114,7 +111,7 @@ const chartInitialOptions = () => {
       formatter() { return costsChartMultiScenarioStackedTooltip(this, costBasis.value, axisMetadata.value); },
     },
     plotOptions: {
-      column: { stacking: "normal", groupPadding: 0.05 },
+      column: { stacking: "normal", groupPadding: 0.3 },
     },
   } as Highcharts.Options;
 };
@@ -127,15 +124,15 @@ watch(() => [chartContainer.value, appStore.everyScenarioHasCosts], () => {
 
 watch(() => costBasis.value, () => {
   if (chart) {
-    chart.update({ yAxis: { title: { text: yAxisTitle.value } }, series: getSeries() });
+    chart.update({ yAxis: { title: { text: yAxisTitle(costBasis.value) } }, series: getSeries() });
   }
 });
 
-const setChartDimensions = throttle(() => {
+const setChartDimensions = debounce(() => {
   if (chart && chartParentEl.value) {
-    chart.setSize(chartParentEl.value.clientWidth, chartHeightPx, { duration: 250 });
+    chart.setSize(targetWidth(), chartHeightPx, { duration: 250 });
   }
-}, 25);
+});
 
 onMounted(() => window.addEventListener("resize", setChartDimensions));
 onBeforeUnmount(() => window.removeEventListener("resize", setChartDimensions));
