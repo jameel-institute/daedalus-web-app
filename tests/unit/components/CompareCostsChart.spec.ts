@@ -140,11 +140,9 @@ describe("costs chart", () => {
         "compareCostsChartContainer",
         expect.objectContaining({
           chart: expect.objectContaining({ height: 400, style: { fontFamily: "ImperialSansText, sans-serif" } }),
+          title: expect.objectContaining({ text: "Losses after 599 days" }),
           exporting: expect.objectContaining({
-            filename: "Losses by global vaccine investment",
-            chartOptions: expect.objectContaining({
-              title: expect.objectContaining({ text: "Losses by global vaccine investment" }),
-            }),
+            filename: "Losses after 599 days",
           }),
           xAxis: expect.objectContaining({
             categories: expect.arrayContaining(["high", "low"]),

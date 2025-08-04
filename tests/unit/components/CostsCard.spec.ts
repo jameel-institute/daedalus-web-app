@@ -54,11 +54,10 @@ describe("costs card", () => {
 
   it("should render the costs chart container, the total cost, costs table, vsl and total cost in terms of % of GDP", async () => {
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins: [pinia] } });
-
+    expect(component.text()).toContain("Losses after 599 days");
     expect(component.find(`#gdpContainer`).text()).toContain("44.9%");
 
     const totalCostPara = component.find(`p#totalCostPara`);
-
     const costsTable = component.find('[data-testid="costsTable"]');
     expect(costsTable).toBeTruthy();
 
