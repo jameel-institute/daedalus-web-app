@@ -47,6 +47,7 @@ vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
   return {
     default: {
       getOptions: actual.default.getOptions,
+      HTMLElement: { useForeignObject: undefined },
       chart: () => ({
         destroy: mockDestroy,
         setSize: mockSetSize,

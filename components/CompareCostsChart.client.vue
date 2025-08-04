@@ -13,10 +13,10 @@ import "highcharts/esm/modules/exporting";
 import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
-import throttle from "lodash.throttle";
 import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, menuItemDefinitionOptions, yAxisTitle } from "./utils/highCharts";
 import { costAsPercentOfGdp } from "@/components/utils/formatters";
 import { CostBasis } from "@/types/unitTypes";
+import { debounce } from "perfect-debounce";
 
 const appStore = useAppStore();
 let chart: Highcharts.Chart;
@@ -58,15 +58,15 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
 
 const chartHeightPx = 400;
 
-// Fixes z-index issue:
-// https://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting#html
-Highcharts.HTMLElement.useForeignObject = true;
+const targetWidth = () => {
+  return chartParentEl.value ? chartParentEl.value.clientWidth - 10 : 0;
+};
 
 const chartInitialOptions = () => {
   return {
     credits: { text: "Highcharts" },
     colors: colorBlindSafeColors.map(color => color.rgb),
-    chart: { ...chartOptions, height: chartHeightPx, width: chartParentEl.value?.clientWidth - 10 },
+    chart: { ...chartOptions, height: chartHeightPx, width: targetWidth() },
     exporting: {
       filename: chartTitleOnExport.value,
       chartOptions: {
@@ -128,11 +128,11 @@ watch(() => costBasis.value, () => {
   }
 });
 
-const setChartDimensions = throttle(() => {
+const setChartDimensions = debounce(() => {
   if (chart && chartParentEl.value) {
-    chart.setSize(chartParentEl.value.clientWidth, chartHeightPx, { duration: 250 });
+    chart.setSize(targetWidth(), chartHeightPx, { duration: 250 });
   }
-}, 25);
+});
 
 onMounted(() => window.addEventListener("resize", setChartDimensions));
 onBeforeUnmount(() => window.removeEventListener("resize", setChartDimensions));

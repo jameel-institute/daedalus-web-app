@@ -6,6 +6,10 @@ import { CostBasis } from "~/types/unitTypes";
 import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 import { countryFlagIconId } from "./countryFlag";
 
+// Fixes z-index issue:
+// https://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting#html
+Highcharts.HTMLElement.useForeignObject = true;
+
 const originalHighchartsColors = Highcharts.getOptions().colors!;
 const colorRgb = convert.hex.rgb(originalHighchartsColors[0] as string);
 const colorRgbAlpha = 0.3;

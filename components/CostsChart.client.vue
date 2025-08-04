@@ -13,10 +13,10 @@ import "highcharts/esm/modules/exporting";
 import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
-import throttle from "lodash.throttle";
 import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, getColorVariants, menuItemDefinitionOptions, yAxisTitle } from "@/components/utils/highCharts";
 import { costAsPercentOfGdp } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
+import { debounce } from "perfect-debounce";
 
 const appStore = useAppStore();
 let chart: Highcharts.Chart;
@@ -183,11 +183,11 @@ watch(() => appStore.preferences.costBasis, () => {
   }
 });
 
-const setChartDimensions = throttle(() => {
+const setChartDimensions = debounce(() => {
   if (chart && chartParentEl.value) {
     chart.setSize(chartParentEl.value.clientWidth, chartHeightPx, { duration: 250 });
   }
-}, 25);
+});
 
 onMounted(() => {
   window.addEventListener("resize", setChartDimensions);

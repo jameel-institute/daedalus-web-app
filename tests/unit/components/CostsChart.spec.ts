@@ -39,6 +39,7 @@ vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
     default: {
       chart: () => mockChart,
       getOptions: actual.default.getOptions,
+      HTMLElement: { useForeignObject: undefined },
     },
   };
 });
@@ -325,6 +326,7 @@ describe("costs chart", () => {
   });
 
   it("adds a resize event listener on mount and removes it on unmount", async () => {
+    vitest.useFakeTimers();
     const addEventListenerSpy = vi.spyOn(window, "addEventListener");
     const removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
 
@@ -336,7 +338,7 @@ describe("costs chart", () => {
 
     window.dispatchEvent(new Event("resize"));
 
-    await nextTick();
+    vi.advanceTimersByTime(25);
 
     expect(mockSetSize).toHaveBeenCalledWith(0, 400, expect.objectContaining({ duration: 250 }));
 
@@ -345,5 +347,6 @@ describe("costs chart", () => {
 
     addEventListenerSpy.mockRestore();
     removeEventListenerSpy.mockRestore();
+    vitest.useRealTimers();
   });
 });
