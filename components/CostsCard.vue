@@ -4,7 +4,7 @@
     <div class="card-header d-flex justify-content-between">
       <div class="d-flex align-items-center">
         <CIcon icon="cilBarChart" size="lg" class="mb-1 text-muted" />
-        <h2 class="fs-5 m-0 ms-3 chart-header">
+        <h2 class="fs-5 m-0 ms-3">
           Losses
         </h2>
       </div>
