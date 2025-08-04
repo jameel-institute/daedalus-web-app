@@ -168,6 +168,15 @@ export const costsChartSingleScenarioTooltip = (context: unknown, costBasis: Cos
   return `<span style="font-size: 0.8rem;">${headerText}<br/><br/>${pointsText}</span>`;
 };
 
+// 'Category' is the internal name for the x-axis in a multi-scenario costs chart, i.e. it denotes which scenario the column refers to.
+const getScenarioCategoryLabel = (category: string, axisParam: Parameter | undefined): string => {
+  if (axisParam?.parameterType === TypeOfParameter.Numeric) {
+    return humanReadableInteger(category);
+  } else {
+    return axisParam?.options?.find(o => o.id === category)?.label || "";
+  }
+};
+
 // Tooltip text for a stacked column in a multi-scenario costs chart (shared tooltip for all points in the stack)
 export const costsChartMultiScenarioStackedTooltip = (context: unknown, costBasis: CostBasis, axisParam: Parameter | undefined) => {
   const contextInstance = context as TooltipPointInstance;
@@ -176,21 +185,20 @@ export const costsChartMultiScenarioStackedTooltip = (context: unknown, costBasi
     return;
   }
 
-  const scenarioCategory = point.category as string;
-  const scenarioLabel = axisParam.options?.find(o => o.id === scenarioCategory)?.label || humanReadableInteger(scenarioCategory);
-
-  let headerText = `${axisParam.label}: <b>${scenarioLabel}</b>`;
+  let headerText = `${axisParam.label}: <b>${getScenarioCategoryLabel(point.category as string, axisParam)}</b>`;
 
   if (costBasis === CostBasis.PercentGDP) {
     const percentOfGdp = humanReadablePercentOfGdp(point.total);
     headerText = `${headerText}</br></br>Total losses: <b>${percentOfGdp.percent}%</b> ${percentOfGdp.reference}`;
   } else {
     const abbreviatedTotal = abbreviateMillionsDollars(point.total);
-    const totalCostAsGdpPercent = point.points?.map(p => p.custom.costAsGdpPercent).reduce((sum, a) => sum + a, 0);
     headerText = `${headerText}<br/></br>Total losses: <b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b>`;
-    if (point.total > 0 && totalCostAsGdpPercent) {
-      const percentOfGdp = humanReadablePercentOfGdp(totalCostAsGdpPercent);
-      headerText = `${headerText}</br>(${percentOfGdp.percent}% ${percentOfGdp.reference})`;
+    if (point.total > 0) {
+      const totalCostAsGdpPercent = point.points?.map(p => p.custom.costAsGdpPercent).reduce((sum, a) => sum + a, 0);
+      if (totalCostAsGdpPercent) {
+        const percentOfGdp = humanReadablePercentOfGdp(totalCostAsGdpPercent);
+        headerText = `${headerText}</br>(${percentOfGdp.percent}% ${percentOfGdp.reference})`;
+      }
     }
   }
 
@@ -217,15 +225,15 @@ export const costsChartYAxisTickFormatter = (value: string | number, costBasis: 
   }
 };
 
-export const costsChartMultiScenarioXAxisLabelFormatter = (value: string, axisParam: Parameter | undefined) => {
-  const text = axisParam?.options?.find(o => o.id === value)?.label || humanReadableInteger(value);
+export const costsChartMultiScenarioXAxisLabelFormatter = (category: string, axisParam: Parameter | undefined) => {
+  const scenarioLabel = getScenarioCategoryLabel(category, axisParam);
 
   if (axisParam?.parameterType === TypeOfParameter.GlobeSelect) {
     return `<div class="d-flex gap-2 align-items-center mb-2">
-      <span class="fi fi-${countryFlagIconId(value)}" style="width: 1.2rem; height: 1.2rem"></span>
-      <span>${text}</span>
+      <span class="fi fi-${countryFlagIconId(category)}" style="width: 1.2rem; height: 1.2rem"></span>
+      <span>${scenarioLabel}</span>
     </div>`;
   } else {
-    return text;
+    return scenarioLabel;
   }
 };
