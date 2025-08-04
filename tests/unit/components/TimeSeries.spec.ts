@@ -30,12 +30,14 @@ const plugins = [
 ];
 const props = {
   seriesId: timeSeriesId,
-  hideTooltips: false,
-  groupIndex: 1,
   seriesIndex: 0,
+  groupIndex: 1,
+  hideTooltips: false,
   yUnits: "in need of hospitalisation",
   chartHeight: 100,
   seriesRole: "total",
+  synchGroupId: "synch-group-1",
+  synchPoint: { x: 1, y: 2 },
 };
 
 const mockSetSize = vi.fn();
@@ -47,14 +49,14 @@ vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
   return {
     default: {
       getOptions: actual.default.getOptions,
+      HTMLElement: { useForeignObject: undefined },
       chart: () => ({
         destroy: mockDestroy,
         setSize: mockSetSize,
         showResetZoom: vi.fn(),
       }),
-      charts: actual.default.charts,
-      _modules: actual.default._modules,
       win: actual.default.win,
+      wrap: actual.default.wrap,
       Pointer: actual.default.Pointer,
     },
   };
@@ -125,16 +127,6 @@ describe("time series", () => {
         ]),
       }),
     );
-  });
-
-  it("should emit chart created event when the chart is initialised", async () => {
-    const component = await mountSuspended(TimeSeries, {
-      props,
-      global: { stubs, plugins },
-    });
-
-    expect(component.emitted("chartCreated")).toBeTruthy();
-    expect(component.emitted("chartCreated")![0][0]).toBe("hospitalised");
   });
 
   it("should resize the chart when height changes", async () => {

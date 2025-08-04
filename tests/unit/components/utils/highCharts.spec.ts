@@ -69,10 +69,9 @@ describe("single-scenario costs chart tooltip text for stacked column", () => {
 });
 
 describe("multi-scenario costs chart tooltip text for stacked column", () => {
-  const vaccineParam = mockMetadataResponseData.parameters.find(p => p.id === "vaccine");
   const contextInstance = {
     point: {
-      category: "High",
+      category: undefined,
       total: undefined,
       points: [{
         color: "#FF0000",
@@ -99,23 +98,56 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
     },
   };
 
-  it("should return the correct text for the stack's tooltip, when cost basis is USD", () => {
-    contextInstance.point.total = 1885507.7183;
-    const tooltipText = costsChartMultiScenarioStackedTooltip(contextInstance, CostBasis.USD, vaccineParam);
-    expect(tooltipText).toMatch(
-      /Global vaccine investment:.*High.*Total losses:.*\$1.9 trillion.*74.0% of 2018 national GDP.*#FF0000.*GDP.*\$97.4 B.*#00FF00.*Education.*\$2.7 B.*#0000FF.*\$1.8 T/,
-    );
+  describe("when the axis parameter is not numeric", () => {
+    const context = structuredClone(contextInstance);
+    const vaccineParam = mockMetadataResponseData.parameters.find(p => p.id === "vaccine");
+
+    it("should return the correct text for the stack's tooltip, when cost basis is USD", () => {
+      context.point.category = "high";
+      context.point.total = 1885507.7183;
+      const tooltipText = costsChartMultiScenarioStackedTooltip(context, CostBasis.USD, vaccineParam);
+      expect(tooltipText).toMatch(
+        /Global vaccine investment:.*High.*Total losses:.*\$1.9 trillion.*74.0% of 2018 national GDP.*#FF0000.*GDP.*\$97.4 B.*#00FF00.*Education.*\$2.7 B.*#0000FF.*\$1.8 T/,
+      );
+    });
+
+    it("should return the correct text for the stack's tooltip, when cost basis is percent of GDP", () => {
+      context.point.category = "high";
+      context.point.total = 73.982491560811;
+      context.point.points[0].y = 3.820321826248465;
+      context.point.points[1].y = 0.10534318554003114;
+      context.point.points[2].y = 70.05682654902341;
+      const tooltipText = costsChartMultiScenarioStackedTooltip(context, CostBasis.PercentGDP, vaccineParam);
+      expect(tooltipText).toMatch(
+        /Global vaccine investment:.*High.*Total losses:.*74.0%.* of 2018 national GDP.*#FF0000.*GDP.*3.8%.*#00FF00.*Education.*0.1%.*#0000FF.*70.1%/,
+      );
+    });
   });
 
-  it("should return the correct text for the stack's tooltip, when cost basis is percent of GDP", () => {
-    contextInstance.point.total = 73.982491560811;
-    contextInstance.point.points[0].y = 3.820321826248465;
-    contextInstance.point.points[1].y = 0.10534318554003114;
-    contextInstance.point.points[2].y = 70.05682654902341;
-    const tooltipText = costsChartMultiScenarioStackedTooltip(contextInstance, CostBasis.PercentGDP, vaccineParam);
-    expect(tooltipText).toMatch(
-      /Global vaccine investment:.*High.*Total losses:.*74.0%.* of 2018 national GDP.*#FF0000.*GDP.*3.8%.*#00FF00.*Education.*0.1%.*#0000FF.*70.1%/,
-    );
+  describe("when the axis parameter is numeric", () => {
+    const context = structuredClone(contextInstance);
+    const hospitalCapacityParam = mockMetadataResponseData.parameters.find(p => p.id === "hospital_capacity");
+
+    it("should return the correct text for the stack's tooltip, when cost basis is USD", () => {
+      context.point.category = "12345";
+      context.point.total = 1885507.7183;
+      const tooltipText = costsChartMultiScenarioStackedTooltip(context, CostBasis.USD, hospitalCapacityParam);
+      expect(tooltipText).toMatch(
+        /Hospital surge capacity:.*12,345.*Total losses:.*\$1.9 trillion.*74.0% of 2018 national GDP.*#FF0000.*GDP.*\$97.4 B.*#00FF00.*Education.*\$2.7 B.*#0000FF.*\$1.8 T/,
+      );
+    });
+
+    it("should return the correct text for the stack's tooltip, when cost basis is percent of GDP", () => {
+      context.point.category = "12345";
+      context.point.total = 73.982491560811;
+      context.point.points[0].y = 3.820321826248465;
+      context.point.points[1].y = 0.10534318554003114;
+      context.point.points[2].y = 70.05682654902341;
+      const tooltipText = costsChartMultiScenarioStackedTooltip(context, CostBasis.PercentGDP, hospitalCapacityParam);
+      expect(tooltipText).toMatch(
+        /Hospital surge capacity:.*12,345.*Total losses:.*74.0%.* of 2018 national GDP.*#FF0000.*GDP.*3.8%.*#00FF00.*Education.*0.1%.*#0000FF.*70.1%/,
+      );
+    });
   });
 });
 
@@ -178,6 +210,19 @@ describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
 
     const label = costsChartMultiScenarioXAxisLabelFormatter("high", axisParam);
     expect(label).toContain("High");
+  });
+
+  it("should return the correct label for a numeric parameter", () => {
+    const axisParam = {
+      id: "hospital_capacity",
+      label: "Hospital Capacity",
+      parameterType: TypeOfParameter.Numeric,
+      options: [],
+      ordered: false,
+    };
+
+    const label = costsChartMultiScenarioXAxisLabelFormatter("12345", axisParam);
+    expect(label).toContain("12,345");
   });
 });
 

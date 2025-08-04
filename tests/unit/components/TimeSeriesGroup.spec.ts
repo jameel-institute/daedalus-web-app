@@ -10,14 +10,14 @@ vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
   return {
     default: {
       getOptions: actual.default.getOptions,
+      HTMLElement: { useForeignObject: undefined },
       chart: () => ({
         destroy: vi.fn(),
         setSize: vi.fn(),
         showResetZoom: vi.fn(),
       }),
-      charts: actual.default.charts,
-      _modules: actual.default._modules,
       win: actual.default.win,
+      wrap: actual.default.wrap,
       Pointer: actual.default.Pointer,
     },
   };
@@ -42,11 +42,13 @@ const pinia = mockPinia({
 });
 const getProps = (open = true) => ({
   seriesGroup: mockedMetadata.results.time_series_groups[0],
-  open,
   groupIndex: 0,
   hideTooltips: false,
+  open,
   chartHeightPx: 100,
   minChartHeightPx: 50,
+  synchGroupId: "synch-group-1",
+  synchPoint: { x: 1, y: 2 },
 });
 
 describe("timeSeriesGroup component", () => {
@@ -83,8 +85,6 @@ describe("timeSeriesGroup component", () => {
   });
 
   it("should be able to toggle on new per day chart and visa versa", async () => {
-    const timeSeriesGroups = mockedMetadata.results
-      .time_series_groups[0] as TimeSeriesGroup;
     const component = await mountSuspended(TimeSeriesGroup, {
       global: {
         plugins: [pinia],
@@ -100,10 +100,6 @@ describe("timeSeriesGroup component", () => {
     await toggleSwitch.trigger("click");
 
     expect(component.text()).not.toContain("Prevalence");
-
-    const emitChartCreated = component.emitted("chartCreated")!;
-    expect(emitChartCreated[0][0]).toBe(timeSeriesGroups.time_series.total);
-    expect(emitChartCreated[1][0]).toBe(timeSeriesGroups.time_series.daily);
   });
 
   it("should emit toggleOpen when the accordion header is clicked", async () => {
