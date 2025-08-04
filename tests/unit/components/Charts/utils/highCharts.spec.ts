@@ -1,5 +1,5 @@
 import type { HSL } from "color-convert";
-import { costsChartLabelFormatter, costsChartStackLabelFormatter, costsChartTooltipText, getColorVariants, plotBandsColor, timeSeriesColors } from "~/components/utils/highCharts";
+import { costsChartLabelFormatter, costsChartStackLabelFormatter, costsChartTooltipText, getColorVariants, plotBandsColor, timeSeriesColors } from "~/components/Charts/utils/highCharts";
 import { CostBasis } from "~/types/unitTypes";
 
 describe("plotBandsColor", () => {

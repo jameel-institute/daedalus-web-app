@@ -77,4 +77,10 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: "2025-04-01",
+
+  components: [
+    { path: "~/components/Charts", pathPrefix: false },
+    { path: "~/components/ParameterForm", pathPrefix: false },
+    "~/components",
+  ],
 });

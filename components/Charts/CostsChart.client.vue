@@ -15,7 +15,7 @@ import "highcharts/esm/modules/offline-exporting";
 
 import throttle from "lodash.throttle";
 import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartLabelFormatter, costsChartStackLabelFormatter, costsChartTooltipText, getColorVariants, menuItemDefinitionOptions } from "./utils/highCharts";
-import { costAsPercentOfGdp, gdpReferenceYear } from "./utils/formatters";
+import { costAsPercentOfGdp, gdpReferenceYear } from "~/components/utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 
 const appStore = useAppStore();

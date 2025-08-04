@@ -1,8 +1,8 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import TimeSeriesGroup from "~/components/TimeSeriesGroup.client.vue";
+import TimeSeriesGroup from "~/components/Charts/TimeSeriesGroup.client.vue";
 import type { DisplayInfo, ScenarioResultData } from "~/types/apiResponseTypes";
-import { emptyScenario, mockedMetadata, mockPinia } from "../mocks/mockPinia";
-import { mockResultResponseData } from "../mocks/mockResponseData";
+import { emptyScenario, mockedMetadata, mockPinia } from "../../mocks/mockPinia";
+import { mockResultResponseData } from "~/tests/unit/mocks/mockResponseData";
 
 vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
   const actual = await importOriginal();

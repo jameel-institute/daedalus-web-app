@@ -1,11 +1,11 @@
 import type { AsyncDataRequestStatus } from "#app";
 import type { ScenarioResultData } from "~/types/apiResponseTypes";
-import CostsChart from "~/components/CostsChart.client.vue";
+import CostsChart from "~/components/Charts/CostsChart.client.vue";
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 import Highcharts from "highcharts/esm/highcharts";
-import { mockResultResponseData } from "../mocks/mockResponseData";
+import { mockResultResponseData } from "~/tests/unit/mocks/mockResponseData";
 import { CostBasis } from "~/types/unitTypes";
 import { setActivePinia } from "pinia";
 

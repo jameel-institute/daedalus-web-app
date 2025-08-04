@@ -1,11 +1,11 @@
-import ParameterForm from "@/components/ParameterForm.vue";
+import ParameterForm from "~/components/ParameterForm/ParameterForm.vue";
 import { emptyScenario, mockedMetadata, mockPinia, updatableNumericParameter } from "@/tests/unit/mocks/mockPinia";
 import { CButtonGroup, CTooltip } from "@coreui/vue";
 import { mockNuxtImport, mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
 import { flushPromises } from "@vue/test-utils";
 import { FetchError } from "ofetch";
 import VueSelect from "vue3-select-component";
-import ParameterHeader from "~/components/ParameterHeader.vue";
+import ParameterHeader from "~/components/ParameterForm/ParameterHeader.vue";
 
 const stubs = {
   CIcon: true,
