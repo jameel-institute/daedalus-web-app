@@ -1,7 +1,7 @@
 import Highcharts from "highcharts/esm/highcharts";
 import convert, { type HSL } from "color-convert";
 import { abbreviateMillionsDollars } from "~/utils/money";
-import { costAsPercentOfGdp, humanReadableInteger, humanReadablePercentOfGdp } from "~/components/utils/formatters";
+import { costAsPercentOfGdp, gdpReferenceYear, humanReadableInteger, humanReadablePercentOfGdp } from "~/components/utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 import { countryFlagIconId } from "./countryFlag";
@@ -115,6 +115,12 @@ interface TooltipPointInstance extends Highcharts.Point {
     costAsGdpPercent: number
   }
 }
+
+export const yAxisTitle = (costBasis: CostBasis) => {
+  return costBasis === CostBasis.PercentGDP
+    ? `Losses as % of ${gdpReferenceYear} national GDP`
+    : "Losses in billions USD";
+};
 
 const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis: CostBasis) => {
   let valueDisplay;

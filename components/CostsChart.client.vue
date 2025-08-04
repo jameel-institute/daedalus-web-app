@@ -14,8 +14,8 @@ import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
 import throttle from "lodash.throttle";
-import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, getColorVariants, menuItemDefinitionOptions } from "@/components/utils/highCharts";
-import { costAsPercentOfGdp, gdpReferenceYear } from "./utils/formatters";
+import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, getColorVariants, menuItemDefinitionOptions, yAxisTitle } from "@/components/utils/highCharts";
+import { costAsPercentOfGdp } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 
 const appStore = useAppStore();
@@ -82,11 +82,6 @@ const costLabels = computed(() =>
   appStore.totalCost?.children?.map(cost => appStore.getCostLabel(cost.id)) || []);
 
 const chartHeightPx = 400;
-const yAxisTitle = computed(() => {
-  return appStore.preferences.costBasis === CostBasis.PercentGDP
-    ? `Losses as % of ${gdpReferenceYear} national GDP`
-    : "Losses in billions USD";
-});
 
 const chartInitialOptions = () => {
   return {
@@ -135,7 +130,7 @@ const chartInitialOptions = () => {
       gridLineColor: "lightgrey",
       min: 0,
       title: {
-        text: yAxisTitle.value,
+        text: yAxisTitle(appStore.preferences.costBasis),
       },
       stackLabels: {
         enabled: true,
@@ -180,7 +175,7 @@ watch(() => appStore.preferences.costBasis, () => {
     chart.update({
       yAxis: {
         title: {
-          text: yAxisTitle.value,
+          text: yAxisTitle(appStore.preferences.costBasis),
         },
       },
       series: getSeries(),
