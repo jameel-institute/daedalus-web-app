@@ -195,7 +195,7 @@ describe("costsChartLabelFormatter", () => {
 });
 
 describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
-  it("should return the correct label for a country parameter", () => {
+  it("should return the correct label for a (non-baseline) country parameter", () => {
     const axisParam = {
       id: "country",
       label: "Country",
@@ -207,9 +207,10 @@ describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
       ordered: false,
     };
 
-    const label = costsChartMultiScenarioXAxisLabelFormatter("USA", axisParam);
+    const label = costsChartMultiScenarioXAxisLabelFormatter("USA", axisParam, "CAN");
     expect(label).toContain('<span class="fi fi-us" style="width: 1.2rem; height: 1.2rem"></span>');
     expect(label).toContain("United States");
+    expect(label).not.toContain("baseline");
   });
 
   it("should return the correct label for a non-country parameter", () => {
@@ -239,6 +240,56 @@ describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
 
     const label = costsChartMultiScenarioXAxisLabelFormatter("12345", axisParam);
     expect(label).toContain("12,345");
+  });
+
+  it("should return the correct label for a baseline scenario", () => {
+    const axisParam = {
+      id: "vaccine",
+      label: "Vaccine",
+      parameterType: TypeOfParameter.Select,
+      options: [
+        { id: "high", label: "High" },
+        { id: "low", label: "Low" },
+      ],
+      ordered: false,
+    };
+
+    const label = costsChartMultiScenarioXAxisLabelFormatter("high", axisParam, "high");
+    expect(label).toContain("High (baseline)");
+  });
+
+  it("should return the correct label for a non-baseline scenario", () => {
+    const axisParam = {
+      id: "vaccine",
+      label: "Vaccine",
+      parameterType: TypeOfParameter.Select,
+      options: [
+        { id: "high", label: "High" },
+        { id: "low", label: "Low" },
+      ],
+      ordered: false,
+    };
+
+    const label = costsChartMultiScenarioXAxisLabelFormatter("high", axisParam, "low");
+    expect(label).toContain("High");
+    expect(label).not.toContain("baseline");
+  });
+
+  it("should return the correct label for a baseline country scenario", () => {
+    const axisParam = {
+      id: "country",
+      label: "Country",
+      parameterType: TypeOfParameter.GlobeSelect,
+      options: [
+        { id: "USA", label: "United States" },
+        { id: "CAN", label: "Canada" },
+      ],
+      ordered: false,
+    };
+
+    const label = costsChartMultiScenarioXAxisLabelFormatter("USA", axisParam, "USA");
+    expect(label).toContain('<span class="fi fi-us" style="width: 1.2rem; height: 1.2rem"></span>');
+    expect(label).toContain("United States (baseline)");
   });
 });
 

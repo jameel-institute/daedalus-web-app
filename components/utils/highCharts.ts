@@ -250,8 +250,15 @@ export const costsChartYAxisTickFormatter = (value: string | number, costBasis: 
   }
 };
 
-export const costsChartMultiScenarioXAxisLabelFormatter = (category: string, axisParam: Parameter | undefined) => {
-  const scenarioLabel = getScenarioCategoryLabel(category, axisParam);
+export const costsChartMultiScenarioXAxisLabelFormatter = (
+  category: string,
+  axisParam: Parameter | undefined,
+  baseline: string | undefined,
+) => {
+  let scenarioLabel = getScenarioCategoryLabel(category, axisParam);
+  if (baseline && category === baseline) {
+    scenarioLabel = `${scenarioLabel} (baseline)`;
+  }
 
   if (axisParam?.parameterType === TypeOfParameter.GlobeSelect) {
     return `<div class="d-flex gap-2 align-items-center mb-2">

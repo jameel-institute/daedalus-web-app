@@ -59,54 +59,103 @@ vi.mock("highcharts/esm/modules/exporting", () => ({}));
 vi.mock("highcharts/esm/modules/export-data", () => ({}));
 vi.mock("highcharts/esm/modules/offline-exporting", () => ({}));
 
+const pointOptionsForBaselineScenario = {
+  borderColor: "white",
+  opacity: 1,
+};
+const pointOptionsForComparisonScenario = {
+  borderColor: "transparent",
+  opacity: 0.8,
+};
+
 const expectedPercentGDPSeries = [
   expect.objectContaining({
     name: "GDP",
-    data: [expect.objectContaining({ name: "GDP", y: 32.87931628748886 }), expect.objectContaining({ name: "GDP", y: 0.050344764471232505 })],
+    data: [
+      expect.objectContaining({ name: "GDP", y: 32.87931628748886, ...pointOptionsForBaselineScenario }),
+      expect.objectContaining({ name: "GDP", y: 0.050344764471232505, ...pointOptionsForComparisonScenario }),
+    ],
   }),
   expect.objectContaining({
     name: "Education",
-    data: [expect.objectContaining({ name: "Education", y: 7.74667209175136 }), expect.objectContaining({ name: "Education", y: 0.10068952894246501 })],
+    data: [
+      expect.objectContaining({ name: "Education", y: 7.74667209175136, ...pointOptionsForBaselineScenario }),
+      expect.objectContaining({ name: "Education", y: 0.10068952894246501, ...pointOptionsForComparisonScenario }),
+    ],
   }),
   expect.objectContaining({
     name: "Life years",
-    data: [expect.objectContaining({ name: "Life years", y: 4.305661740495233 }), expect.objectContaining({ name: "Life years", y: expect.closeTo(0.151, 0.001) })],
+    data: [
+      expect.objectContaining({ name: "Life years", y: 4.305661740495233, ...pointOptionsForBaselineScenario }),
+      expect.objectContaining({ name: "Life years", y: expect.closeTo(0.151, 0.001), ...pointOptionsForComparisonScenario }),
+    ],
   }),
 ];
 
 const expectedUSDSeries = [
-  expect.objectContaining({ name: "GDP", data: [
-    expect.objectContaining({ name: "GDP", y: 6530831.2856, custom: {
-      costAsGdpPercent: 32.87931628748886,
-    } }),
-    expect.objectContaining({ name: "GDP", y: 10000, custom: {
-      costAsGdpPercent: 0.050344764471232505,
-    } }),
-  ] }),
-  expect.objectContaining({ name: "Education", data: [
-    expect.objectContaining({
-      name: "Education",
-      y: 1538724.4678,
-      custom: {
-        costAsGdpPercent: 7.74667209175136,
-      },
-    }),
-    expect.objectContaining({
-      name: "Education",
-      y: 20000,
-      custom: {
-        costAsGdpPercent: 0.10068952894246501,
-      },
-    }),
-  ] }),
-  expect.objectContaining({ name: "Life years", data: [
-    expect.objectContaining({ name: "Life years", y: 855235.2535, custom: {
-      costAsGdpPercent: 4.305661740495233,
-    } }),
-    expect.objectContaining({ name: "Life years", y: 30000, custom: {
-      costAsGdpPercent: expect.closeTo(0.151, 0.001),
-    } }),
-  ] }),
+  expect.objectContaining({
+    name: "GDP",
+    data: [
+      expect.objectContaining({
+        name: "GDP",
+        y: 6530831.2856,
+        custom: {
+          costAsGdpPercent: 32.87931628748886,
+        },
+        ...pointOptionsForBaselineScenario,
+      }),
+      expect.objectContaining({
+        name: "GDP",
+        y: 10000,
+        custom: {
+          costAsGdpPercent: 0.050344764471232505,
+        },
+        ...pointOptionsForComparisonScenario,
+      }),
+    ],
+  }),
+  expect.objectContaining({
+    name: "Education",
+    data: [
+      expect.objectContaining({
+        name: "Education",
+        y: 1538724.4678,
+        custom: {
+          costAsGdpPercent: 7.74667209175136,
+        },
+        ...pointOptionsForBaselineScenario,
+      }),
+      expect.objectContaining({
+        name: "Education",
+        y: 20000,
+        custom: {
+          costAsGdpPercent: 0.10068952894246501,
+        },
+        ...pointOptionsForComparisonScenario,
+      }),
+    ],
+  }),
+  expect.objectContaining({
+    name: "Life years",
+    data: [
+      expect.objectContaining({
+        name: "Life years",
+        y: 855235.2535,
+        custom: {
+          costAsGdpPercent: 4.305661740495233,
+        },
+        ...pointOptionsForBaselineScenario,
+      }),
+      expect.objectContaining({
+        name: "Life years",
+        y: 30000,
+        custom: {
+          costAsGdpPercent: expect.closeTo(0.151, 0.001),
+        },
+        ...pointOptionsForComparisonScenario,
+      }),
+    ],
+  }),
 ];
 
 describe("costs chart", () => {
