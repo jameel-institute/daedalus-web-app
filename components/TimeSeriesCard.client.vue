@@ -16,14 +16,13 @@
         :series-group="seriesGroup"
         :group-index="index"
         :open="openedAccordions.includes(seriesGroup.id)"
-        :hide-tooltips="hideTooltips"
         :chart-height-px="chartHeightPx"
         :min-chart-height-px="minChartHeightPx"
-        @hide-all-tooltips="hideAllTooltips"
-        @show-all-tooltips="hideTooltips = false"
-        @chart-created="chartCreated"
-        @chart-destroyed="chartDestroyed"
-        @sync-tooltips-and-crosshairs="syncTooltipsAndCrosshairs"
+        :synch-group-id="synchGroupId"
+        :hide-tooltips="hideTooltips"
+        :synch-point="hoverPoint"
+        @hide-all-tooltips="hideAllTooltipsAndCrosshairs"
+        @update-hover-point="updateHoverPoint"
         @toggle-open="toggleOpen(seriesGroup.id)"
       />
     </div>
@@ -32,65 +31,59 @@
 
 <script setup lang="ts">
 import { CIcon } from "@coreui/icons-vue";
-import throttle from "lodash.throttle";
+import Highcharts from "highcharts/esm/highcharts";
+import { useUniqueId } from "@coreui/vue";
 
 const appStore = useAppStore();
-
-const charts = ref<Record<string, Highcharts.Chart>>({});
-const hideTooltips = ref(false);
 const { openedAccordions, chartHeightPx, minChartHeightPx } = useTimeSeriesAccordionHeights();
 
-const chartCreated = (seriesId: string, chart: Highcharts.Chart) => {
-  charts.value = {
-    ...charts.value,
-    [seriesId]: chart,
-  };
-};
+// All charts that synchronize with one another share the same synchGroupId.
+// A different group of charts that synchronize together would have a different synchGroupId.
+const { getUID } = useUniqueId();
+const synchGroupId = getUID();
+const hoverPoint = ref<Highcharts.Point | null>(null);
+const hideTooltips = ref(false);
 
-const chartDestroyed = (seriesId: string) => {
-  const newCharts = { ...charts.value };
-  delete newCharts[seriesId];
-  charts.value = newCharts;
+const updateHoverPoint = (point: Highcharts.Point) => {
+  hideTooltips.value = false;
+  hoverPoint.value = point;
 };
 
 /**
- * Synchronize tooltips and crosshairs between charts.
- * Demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
+ * Here, we use Highcharts' 'wrap' utility to make the onContainerMouseLeave method of the Pointer class
+ * ignore onContainerMouseLeave events for charts that are synchronized, which appears
+ * to be necessary to prevent tooltips and crosshairs from disappearing when the mouse moves *within* a chart,
+ * not (as might be expected) when it leaves the chart container.
+ * That seems to be a side-effect of syncTooltipsAndCrosshairs calling point.onMouseOver().
  */
-const syncTooltipsAndCrosshairs = throttle((seriesId) => {
-  const triggeringChart = charts.value[seriesId];
-  if (triggeringChart?.hoverPoint) {
-    Object.values(charts.value).forEach((chart) => {
-      if (!chart.series) {
-        return;
-      }
-      // Get the point with the same x as the hovered point
-      const point = chart.series[0].getValidPoints().find(({ x }) => x === triggeringChart.hoverPoint!.x);
+Highcharts.wrap(
+  Highcharts.Pointer.prototype,
+  "onContainerMouseLeave",
+  function (this: Highcharts.Pointer, proceed, ...args) {
+    const chartIsGroupMember = this.chart.series[0].options.custom?.synchronizationGroupId === synchGroupId;
+    if (chartIsGroupMember) {
+      proceed.apply(this, args);
+    }
+  },
+);
 
-      if (point && point !== triggeringChart.hoverPoint) {
-        point.onMouseOver();
-      }
-    });
-  };
-}, 100, { leading: true });
-
-const initializeAccordions = () => {
-  openedAccordions.value = appStore.timeSeriesGroups?.map(({ id }) => id) || [];
-};
-
-const hideAllTooltips = () => {
+const hideAllTooltipsAndCrosshairs = () => {
   setTimeout(() => {
     hideTooltips.value = true;
   }, 500);
 };
 
 const toggleOpen = (seriesGroupId: string) => {
-  hideAllTooltips();
+  hideTooltips.value = true;
   if (openedAccordions.value.includes(seriesGroupId)) {
     openedAccordions.value = openedAccordions.value.filter(id => id !== seriesGroupId);
   } else {
     openedAccordions.value = [...openedAccordions.value, seriesGroupId];
   }
+};
+
+const initializeAccordions = () => {
+  openedAccordions.value = appStore.timeSeriesGroups?.map(({ id }) => id) || [];
 };
 
 onMounted(() => {
