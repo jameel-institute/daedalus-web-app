@@ -135,41 +135,6 @@ body {
   padding-top: 0.25rem !important; // Equivalent to adding class 'pt-1'
 }
 
-// Restore radio button group styling to allow for buttons no longer being direct children of button groups - which is
-// required for tooltips to display
-.btn-group > {
-  .radio-btn-container {
-    flex-grow: 1;
-    .btn {
-      width: 100%;
-    }
-    &:not(:last-child) > {
-      .btn {
-        border-bottom-right-radius: 0 !important;
-        border-top-right-radius: 0 !important;
-        border-right-width: 0 !important;
-      }
-    }
-    &:not(:first-child) > {
-      .btn {
-        border-bottom-left-radius: 0 !important;
-        border-top-left-radius: 0 !important;
-      }
-    }
-  }
-}
-
-.btn-group-lg > {
-  .radio-btn-container > {
-    .btn {
-      --cui-btn-padding-y: .5rem;
-      --cui-btn-padding-x: 1rem;
-      --cui-btn-font-size: 1.25rem;
-      --cui-btn-border-radius: var(--cui-border-radius-lg);
-    }
-  }
-}
-
 // In vue-select parameter dropdowns, avoid highlighting both focused (used when navigating with keyboard) and
 // hovered menu items, by forcing the unhighlighted background colour on any menu item which has a sibling which
 // is hovered. This does not apply to the currently selected menu item (also highlighted, in a different colour).
