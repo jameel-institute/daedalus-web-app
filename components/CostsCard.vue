@@ -49,25 +49,7 @@
           </p>
         </div>
         <div class="me-2 ms-auto gap-3 align-self-end d-flex">
-          <CFormLabel>Show losses:</CFormLabel>
-          <div>
-            <CFormCheck
-              id="costBasisGdp"
-              v-model="appStore.preferences.costBasis"
-              :inline="true"
-              type="radio"
-              :label="`as % of ${gdpReferenceYear} GDP`"
-              :value="CostBasis.PercentGDP"
-            />
-            <CFormCheck
-              id="costBasisUsd"
-              v-model="appStore.preferences.costBasis"
-              :inline="true"
-              type="radio"
-              label="in USD"
-              :value="CostBasis.USD"
-            />
-          </div>
+          <CostBasisToggler />
         </div>
       </div>
       <div class="chart-and-table-container">
@@ -88,7 +70,6 @@ import { humanReadableInteger } from "./utils/formatters";
 import { costAsPercentOfGdp, gdpReferenceYear, humanReadablePercentOfGdp } from "@/components/utils/formatters";
 import { abbreviateMillionsDollars } from "@/utils/money";
 import { CIcon } from "@coreui/icons-vue";
-import { CostBasis } from "~/types/unitTypes";
 
 const appStore = useAppStore();
 

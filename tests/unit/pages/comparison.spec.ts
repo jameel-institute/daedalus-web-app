@@ -5,7 +5,12 @@ import { mockPinia, mockResultData, mockVersions } from "../mocks/mockPinia";
 import { mockMetadataResponseData } from "../mocks/mockResponseData";
 import type { Metadata } from "~/types/apiResponseTypes";
 import { waitFor } from "@testing-library/vue";
+import { setActivePinia } from "pinia";
 
+const stubs = {
+  "CIcon": true,
+  "CompareCostsChart.client": true,
+};
 const pinia = mockPinia({
   metadata: mockMetadataResponseData as Metadata,
   versions: mockVersions,
@@ -81,19 +86,20 @@ describe("comparison page", () => {
         runIds: Object.values(scenarioRunIds).join(";"),
       },
     });
+    setActivePinia(pinia);
   });
 
   it("should load and list scenarios as expected", async () => {
-    const component = await mountSuspended(Comparison, { global: { plugins: [pinia] } });
-    const appStore = useAppStore(pinia);
+    const appStore = useAppStore();
     const appStoreStatusSpy = vi.spyOn(appStore, "refreshScenarioStatus");
+    const component = await mountSuspended(Comparison, { global: { plugins: [pinia], stubs } });
 
     await waitFor(() => {
       expect(appStore.currentComparison.scenarios.length).toBe(3);
 
       const text = component.text();
 
-      expect(text).toContain("Comparison");
+      expect(text).toContain("Explore by disease");
 
       // Parameters
       expect(text).toMatch(/pathogen\s+\(Axis\)/i);
@@ -125,7 +131,7 @@ describe("comparison page", () => {
       downloadError: "Some error",
     }, false, { stubActions: false });
 
-    await mountSuspended(Comparison, { global: { plugins: [piniaMock] } });
+    await mountSuspended(Comparison, { global: { plugins: [piniaMock], stubs } });
 
     const appStore = useAppStore();
     expect(appStore.downloadError).toBeUndefined();

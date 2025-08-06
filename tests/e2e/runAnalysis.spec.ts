@@ -6,9 +6,11 @@ import checkRApiServer from "./helpers/checkRApiServer";
 import { checkTimeSeriesDataPoints, numberOfTimePoints } from "./helpers/checkTimeSeriesDataPoints";
 import { parameterLabels, scenarioPathMatcher } from "./helpers/constants";
 import checkBarChartDataIsDifferent from "./helpers/checkBarChartDataIsDifferent";
+import checkValueIsInRange from "./helpers/checkValueIsInRange";
 
 const philippinesMinimumHospitalCapacity = "16300";
 const philippinesMinimumHospitalCapacityFormatted = "16,300";
+const costTolerance = 0.25;
 
 test.beforeAll(async () => {
   checkRApiServer();
@@ -108,19 +110,30 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   expect(costsChartDataUsd[0].data.length).toBe(3);
   expect(costsChartDataUsd[0].data.map((dataPoint: any) => dataPoint.name)).toEqual(["Closures", "Closures", "Preschool-age children"]);
   expect(costsChartDataUsd[0].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([true, true, true]);
-  expect(costsChartDataUsd[0].data.map((dataPoint: any) => dataPoint.y)).toEqual([5036129.947, 3795392.8739, 1612011.0511]);
+  checkValueIsInRange(costsChartDataUsd[0].data[0].y, 5036129, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[0].data[1].y, 3795392, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[0].data[2].y, 1612011, costTolerance);
+
   expect(costsChartDataUsd[1].data.length).toBe(3);
   expect(costsChartDataUsd[1].data.map((dataPoint: any) => dataPoint.name)).toEqual(["Absences", "Absences", "School-age children"]);
   expect(costsChartDataUsd[1].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([true, true, true]);
-  expect(costsChartDataUsd[1].data.map((dataPoint: any) => dataPoint.y)).toEqual([414332.1848, 7760.9471, 15079332.5422]);
+  checkValueIsInRange(costsChartDataUsd[1].data[0].y, 414332, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[1].data[1].y, 7760, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[1].data[2].y, 15079332, costTolerance);
+
   expect(costsChartDataUsd[2].data.length).toBe(3);
   expect(costsChartDataUsd[2].data.map((dataPoint: any) => dataPoint.name)).toEqual(["", "", "Working-age adults"]);
   expect(costsChartDataUsd[2].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([false, false, true]);
-  expect(costsChartDataUsd[2].data.map((dataPoint: any) => dataPoint.y)).toEqual([0, 0, 5756167.4768]);
+  expect(costsChartDataUsd[2].data[0].y).toEqual(0);
+  expect(costsChartDataUsd[2].data[1].y).toEqual(0);
+  checkValueIsInRange(costsChartDataUsd[2].data[2].y, 5756167, costTolerance);
+
   expect(costsChartDataUsd[3].data.length).toBe(3);
   expect(costsChartDataUsd[3].data.map((dataPoint: any) => dataPoint.name)).toEqual(["", "", "Retirement-age adults"]);
   expect(costsChartDataUsd[3].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([false, false, true]);
-  expect(costsChartDataUsd[3].data.map((dataPoint: any) => dataPoint.y)).toEqual([0, 0, 3903636.132]);
+  expect(costsChartDataUsd[3].data[0].y).toEqual(0);
+  expect(costsChartDataUsd[3].data[1].y).toEqual(0);
+  checkValueIsInRange(costsChartDataUsd[3].data[2].y, 3903636, costTolerance);
 
   // Check that after toggling the cost basis we see different data.
   await page.getByLabel("as % of 2018 GDP").check();

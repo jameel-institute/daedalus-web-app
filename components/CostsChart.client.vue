@@ -13,10 +13,10 @@ import "highcharts/esm/modules/exporting";
 import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
-import throttle from "lodash.throttle";
-import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartLabelFormatter, costsChartStackLabelFormatter, costsChartTooltipText, getColorVariants, menuItemDefinitionOptions } from "./utils/highCharts";
-import { costAsPercentOfGdp, gdpReferenceYear } from "./utils/formatters";
+import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, getColorVariants, menuItemDefinitionOptions, yAxisTitle } from "@/components/utils/highCharts";
+import { costAsPercentOfGdp } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
+import { debounce } from "perfect-debounce";
 
 const appStore = useAppStore();
 let chart: Highcharts.Chart;
@@ -82,11 +82,6 @@ const costLabels = computed(() =>
   appStore.totalCost?.children?.map(cost => appStore.getCostLabel(cost.id)) || []);
 
 const chartHeightPx = 400;
-const yAxisTitle = computed(() => {
-  return appStore.preferences.costBasis === CostBasis.PercentGDP
-    ? `Losses as % of ${gdpReferenceYear} national GDP`
-    : "Losses in billions USD";
-});
 
 const chartInitialOptions = () => {
   return {
@@ -121,9 +116,6 @@ const chartInitialOptions = () => {
       buttons: {
         contextButton: {
           ...contextButtonOptions,
-          theme: {
-            fill: "transparent",
-          },
         },
       },
       menuItemDefinitions: menuItemDefinitionOptions,
@@ -138,7 +130,7 @@ const chartInitialOptions = () => {
       gridLineColor: "lightgrey",
       min: 0,
       title: {
-        text: yAxisTitle.value,
+        text: yAxisTitle(appStore.preferences.costBasis),
       },
       stackLabels: {
         enabled: true,
@@ -149,7 +141,7 @@ const chartInitialOptions = () => {
       labels: {
         enabled: true,
         formatter() {
-          return costsChartLabelFormatter(this.value, appStore.preferences.costBasis);
+          return costsChartYAxisTickFormatter(this.value, appStore.preferences.costBasis);
         },
       },
     },
@@ -160,7 +152,7 @@ const chartInitialOptions = () => {
     tooltip: {
       shared: true,
       formatter() {
-        return this.total ? costsChartTooltipText(this, appStore.preferences.costBasis, appStore.currentScenario.result.data!.gdp) : "";
+        return this.total ? costsChartSingleScenarioTooltip(this, appStore.preferences.costBasis, appStore.currentScenario.result.data!.gdp) : "";
       },
     },
     plotOptions: {
@@ -183,7 +175,7 @@ watch(() => appStore.preferences.costBasis, () => {
     chart.update({
       yAxis: {
         title: {
-          text: yAxisTitle.value,
+          text: yAxisTitle(appStore.preferences.costBasis),
         },
       },
       series: getSeries(),
@@ -191,11 +183,11 @@ watch(() => appStore.preferences.costBasis, () => {
   }
 });
 
-const setChartDimensions = throttle(() => {
+const setChartDimensions = debounce(() => {
   if (chart && chartParentEl.value) {
     chart.setSize(chartParentEl.value.clientWidth, chartHeightPx, { duration: 250 });
   }
-}, 25);
+});
 
 onMounted(() => {
   window.addEventListener("resize", setChartDimensions);

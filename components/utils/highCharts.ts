@@ -1,8 +1,14 @@
 import Highcharts from "highcharts/esm/highcharts";
 import convert, { type HSL } from "color-convert";
 import { abbreviateMillionsDollars } from "~/utils/money";
-import { costAsPercentOfGdp, humanReadablePercentOfGdp } from "~/components/utils/formatters";
+import { costAsPercentOfGdp, gdpReferenceYear, humanReadableInteger, humanReadablePercentOfGdp } from "~/components/utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
+import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
+import { countryFlagIconId } from "./countryFlag";
+
+// Fixes z-index issue:
+// https://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting#html
+Highcharts.HTMLElement.useForeignObject = true;
 
 const originalHighchartsColors = Highcharts.getOptions().colors!;
 const colorRgb = convert.hex.rgb(originalHighchartsColors[0] as string);
@@ -105,10 +111,20 @@ export const chartOptions = {
 // The interface appears to be the same as the now defunct Highcharts.TooltipFormatterContextObject class.
 interface TooltipPointInstance extends Highcharts.Point {
   points?: Array<TooltipPointInstance>
-  point?: Highcharts.Point & { custom: { includeInTooltips: boolean }, y: number }
+  point?: TooltipPointInstance
   total: number
   y: number
+  custom: {
+    includeInTooltips: boolean
+    costAsGdpPercent: number
+  }
 }
+
+export const yAxisTitle = (costBasis: CostBasis) => {
+  return costBasis === CostBasis.PercentGDP
+    ? `Losses as % of ${gdpReferenceYear} national GDP`
+    : "Losses in billions USD";
+};
 
 const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis: CostBasis) => {
   let valueDisplay;
@@ -125,8 +141,8 @@ const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis:
     + `</span></span><br/>`;
 };
 
-// Tooltip text for a stacked column (shared tooltip for all points in the stack)
-export const costsChartTooltipText = (context: unknown, costBasis: CostBasis, nationalGdp: number) => {
+// Tooltip text for a stacked column in a single-scenario costs chart (shared tooltip for all points in the stack)
+export const costsChartSingleScenarioTooltip = (context: unknown, costBasis: CostBasis, nationalGdp: number) => {
   const tooltipPointInstance = context as TooltipPointInstance;
 
   let headerText = `${tooltipPointInstance.point?.category} losses: `;
@@ -152,21 +168,72 @@ export const costsChartTooltipText = (context: unknown, costBasis: CostBasis, na
   return `<span style="font-size: 0.8rem;">${headerText}<br/><br/>${pointsText}</span>`;
 };
 
+// 'Category' is the internal name for the x-axis in a multi-scenario costs chart, i.e. it denotes which scenario the column refers to.
+const getScenarioCategoryLabel = (category: string, axisParam: Parameter | undefined): string => {
+  if (axisParam?.parameterType === TypeOfParameter.Numeric) {
+    return humanReadableInteger(category);
+  } else {
+    return axisParam?.options?.find(o => o.id === category)?.label || "";
+  }
+};
+
+// Tooltip text for a stacked column in a multi-scenario costs chart (shared tooltip for all points in the stack)
+export const costsChartMultiScenarioStackedTooltip = (context: unknown, costBasis: CostBasis, axisParam: Parameter | undefined) => {
+  const contextInstance = context as TooltipPointInstance;
+  const point = contextInstance.point;
+  if (!point || !axisParam) {
+    return;
+  }
+
+  let headerText = `${axisParam.label}: <b>${getScenarioCategoryLabel(point.category as string, axisParam)}</b>`;
+
+  if (costBasis === CostBasis.PercentGDP) {
+    const percentOfGdp = humanReadablePercentOfGdp(point.total);
+    headerText = `${headerText}</br></br>Total losses: <b>${percentOfGdp.percent}%</b> ${percentOfGdp.reference}`;
+  } else {
+    const abbreviatedTotal = abbreviateMillionsDollars(point.total);
+    headerText = `${headerText}<br/></br>Total losses: <b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b>`;
+    if (point.total > 0) {
+      const totalCostAsGdpPercent = point.points?.map(p => p.custom.costAsGdpPercent).reduce((sum, a) => sum + a, 0);
+      if (totalCostAsGdpPercent) {
+        const percentOfGdp = humanReadablePercentOfGdp(totalCostAsGdpPercent);
+        headerText = `${headerText}</br>(${percentOfGdp.percent}% ${percentOfGdp.reference})`;
+      }
+    }
+  }
+
+  const pointsText = point.points?.map(p => costsChartTooltipPointFormatter(p, costBasis))?.join("");
+
+  return `<span style="font-size: 0.8rem;">${headerText}<br/><br/>${pointsText}</span>`;
+};
+
 // Labels for (stacked) columns
 export const costsChartStackLabelFormatter = (value: number, costBasis: CostBasis) => {
   if (costBasis === CostBasis.PercentGDP) {
     return `${value.toFixed(1)}% of GDP`;
   } else if (costBasis === CostBasis.USD) {
-    const abbr = expressMillionsDollarsAsBillions(value, 1);
+    const abbr = abbreviateMillionsDollars(value, false);
     return `$${abbr.amount} ${abbr.unit}`;
   }
 };
 
-// Labels for yAxis ticks
-export const costsChartLabelFormatter = (value: string | number, costBasis: CostBasis) => {
+export const costsChartYAxisTickFormatter = (value: string | number, costBasis: CostBasis) => {
   if (costBasis === CostBasis.PercentGDP) {
     return `${value}%`;
   } else if (costBasis === CostBasis.USD) {
     return Object.values(expressMillionsDollarsAsBillions(value as number, 0, true)).join(" ");
+  }
+};
+
+export const costsChartMultiScenarioXAxisLabelFormatter = (category: string, axisParam: Parameter | undefined) => {
+  const scenarioLabel = getScenarioCategoryLabel(category, axisParam);
+
+  if (axisParam?.parameterType === TypeOfParameter.GlobeSelect) {
+    return `<div class="d-flex gap-2 align-items-center mb-2">
+      <span class="fi fi-${countryFlagIconId(category)}" style="width: 1.2rem; height: 1.2rem"></span>
+      <span>${scenarioLabel}</span>
+    </div>`;
+  } else {
+    return scenarioLabel;
   }
 };
