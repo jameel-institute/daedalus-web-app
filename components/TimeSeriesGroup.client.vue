@@ -18,22 +18,17 @@
         <span id="labelDescriptor" class="visually-hidden">{{ activeSeriesMetadata?.description }}</span>
         <TooltipHelp :help-text="activeSeriesMetadata?.description" :classes="['ms-2', 'mb-1', 'smaller-icon']" />
       </CAccordionHeader>
-      <CAccordionBody>
+      <CAccordionBody @mouseleave="$emit('hideAllTooltips')">
         <TimeSeries
-          v-for="(seriesId, seriesRole, seriesIndex) in seriesGroup.time_series"
-          v-show="seriesId === activeTimeSeriesId"
-          :key="seriesId"
-          :series-role="seriesRole as string"
-          :series-id="seriesId"
-          :series-index="seriesIndex"
+          v-if="activeSeriesMetadata"
+          :chart-height="props.chartHeight"
           :group-index="props.groupIndex"
           :hide-tooltips="props.hideTooltips"
-          :y-units="yUnits"
-          :chart-height="open ? chartHeightPx : minChartHeightPx"
-          :synch-group-id="props.synchGroupId"
+          :series-role="activeTimeSeriesRole"
           :synch-point="props.synchPoint"
+          :time-series-metadata="activeSeriesMetadata"
+          :y-units="yUnits"
           @update-hover-point="(hoverPoint) => $emit('updateHoverPoint', hoverPoint)"
-          @mouseleave="$emit('hideAllTooltips')"
         />
       </CAccordionBody>
     </CAccordionItem>
@@ -48,9 +43,7 @@ const props = defineProps<{
   groupIndex: number
   hideTooltips: boolean
   open: boolean
-  chartHeightPx: number
-  minChartHeightPx: number
-  synchGroupId: string
+  chartHeight: number
   synchPoint: Highcharts.Point | null
 }>();
 
@@ -67,18 +60,14 @@ const accordionStyle = {
   "--cui-accordion-bg": "rgba(255, 255, 255, 0.7)",
 };
 
-// Since we are using a switch we assume there are only two roles, and "total" role precedes "daily" role
-const timeSeriesGroupRoles = Object.keys(props.seriesGroup.time_series).slice(0, 2); // ["total", "daily"]
 const isDaily = ref(false);
-const activeTimeSeriesId = computed(() => {
-  const activeTimeSeriesRole = timeSeriesGroupRoles[Number(isDaily.value)]; // total or daily
-  return props.seriesGroup.time_series[activeTimeSeriesRole];
+const activeTimeSeriesRole = computed(() => {
+  // Since we are using a switch we assume there are only two roles, and "total" role precedes "daily" role
+  const timeSeriesGroupRoles = Object.keys(props.seriesGroup.time_series).slice(0, 2); // ["total", "daily"]
+  return timeSeriesGroupRoles[Number(isDaily.value)];
 });
-const activeSeriesMetadata = computed((): DisplayInfo | undefined =>
-  appStore.metadata?.results?.time_series.find(({ id }) =>
-    id === activeTimeSeriesId.value,
-  ),
-);
+const activeTimeSeriesId = computed(() => props.seriesGroup.time_series[activeTimeSeriesRole.value]);
+const activeSeriesMetadata = computed((): DisplayInfo | undefined => appStore.allTimeSeriesMetadata?.find(({ id }) => id === activeTimeSeriesId.value));
 
 const yUnits = computed(() => { // TODO: Make this depend on a 'units' property in metadata. https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-117/
   switch (props.seriesGroup.id) {
@@ -104,7 +93,6 @@ const yUnits = computed(() => { // TODO: Make this depend on a 'units' property 
 
   .form-switch label {
     margin-bottom: 0;
-    // margin-right: 0.5rem;
     font-size: smaller;
   }
 

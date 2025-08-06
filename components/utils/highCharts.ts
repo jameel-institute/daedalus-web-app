@@ -6,10 +6,6 @@ import { CostBasis } from "~/types/unitTypes";
 import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 import { countryFlagIconId } from "./countryFlag";
 
-// Fixes z-index issue:
-// https://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting#html
-Highcharts.HTMLElement.useForeignObject = true;
-
 const originalHighchartsColors = Highcharts.getOptions().colors!;
 const colorRgb = convert.hex.rgb(originalHighchartsColors[0] as string);
 const colorRgbAlpha = 0.3;
@@ -28,7 +24,13 @@ export const colorBlindSafeColors: colorRgbHsl[] = [
   { name: "Vermillion", rgb: "rgb(213,94,0)", hsl: convert.rgb.hsl(213, 94, 0) }, // hsl: [26, 100, 42]
   { name: "Bluish green", rgb: "rgb(0,158,115)", hsl: convert.rgb.hsl(0, 158, 115) }, // hsl: [164, 100, 31]
   { name: "Sky blue", rgb: "rgb(86,180,233)", hsl: convert.rgb.hsl(86, 180, 233) }, // hsl: [202, 77, 63]
+  { name: "Reddish purple", rgb: "rgb(204,121,167)", hsl: convert.rgb.hsl(204, 121, 167) },
+  { name: "Yellow", rgb: "rgb(240,228,66)", hsl: convert.rgb.hsl(240, 228, 66) },
+  { name: "Blue", rgb: "rgb(0,114,178)", hsl: convert.rgb.hsl(0, 114, 178) },
+  { name: "Black", rgb: "rgb(0,0,0)", hsl: convert.rgb.hsl(0, 0, 0) },
 ];
+
+export const nonBaselineOpacity = 0.75;
 
 // Create a range of color variants varying in lightness (L) and saturation (S) channels.
 // These channels have configurable ranges of factors used to multiply the original L/S.
@@ -60,6 +62,7 @@ export interface LegendItem {
   color: string
   label: string
   shape: string
+  opacity?: number
 }
 
 export enum LegendShape {
@@ -169,7 +172,7 @@ export const costsChartSingleScenarioTooltip = (context: unknown, costBasis: Cos
 };
 
 // 'Category' is the internal name for the x-axis in a multi-scenario costs chart, i.e. it denotes which scenario the column refers to.
-const getScenarioCategoryLabel = (category: string, axisParam: Parameter | undefined): string => {
+export const getScenarioCategoryLabel = (category: string, axisParam: Parameter | undefined): string => {
   if (axisParam?.parameterType === TypeOfParameter.Numeric) {
     return humanReadableInteger(category);
   } else {

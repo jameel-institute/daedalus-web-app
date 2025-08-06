@@ -20,15 +20,13 @@ import "highcharts/esm/modules/offline-exporting";
 import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import type { TimeSeriesDataPoint } from "~/types/dataTypes";
-import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions, plotBandsColor, plotLinesColor, timeSeriesColors } from "./utils/highCharts";
+import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, menuItemDefinitionOptions, nonBaselineOpacity, plotBandsColor, plotLinesColor } from "./utils/highCharts";
 import throttle from "lodash.throttle";
 
 const props = defineProps<{
-  chartHeight: number
   groupIndex: number // Probably 0 to about 4
   hideTooltips: boolean
   synchPoint: Highcharts.Point | null
-  seriesRole: string
   timeSeriesMetadata: DisplayInfo
   yUnits: string
 }>();
@@ -48,23 +46,42 @@ const chartContainer = ref<HTMLDivElement | null>(null);
 
 let chart: Highcharts.Chart;
 
-const getChartSeries = (): Array<Highcharts.SeriesLineOptions | Highcharts.SeriesAreaOptions> => {
-  // Assign an x-position to y-values. Nth value corresponds to "N+1th day" of simulation.
-  const data: TimeSeriesDataPoint[] = appStore.timeSeriesData![props.timeSeriesMetadata.id].map((value, index) => [index + 1, value]);
+const getChartSeries = (): Highcharts.SeriesLineOptions[] => {
+  const series: Highcharts.SeriesLineOptions[] = [];
+  appStore.currentComparison.scenarios.forEach((scenario, index) => {
+    // Assign an x-position to y-values. Nth value corresponds to "N+1th day" of simulation.
+    const data: TimeSeriesDataPoint[] = scenario.result.data?.time_series[props.timeSeriesMetadata.id].map((val, i) => [i + 1, val]) ?? [];
+    const isBaseline = scenario === appStore.baselineScenario;
 
-  return [{
-    custom: {
-      synchronized: true,
-    },
-    data,
-    name: props.timeSeriesMetadata!.label,
-    type: props.seriesRole === "total" ? "area" : "line",
-    color: timeSeriesColors[props.groupIndex],
-    fillOpacity: 0.3,
-    marker: {
-      enabled: false,
-    },
-  }];
+    series.push({
+      type: "line",
+      name: `${appStore.axisMetadata?.label}: ${appStore.getScenarioAxisLabel(scenario)}`,
+      data,
+      color: colorBlindSafeColors.map(c => c.rgb)[index % colorBlindSafeColors.length],
+      marker: {
+        enabled: false,
+        symbol: "circle",
+      },
+      custom: {
+        synchronized: true,
+        id: appStore.getScenarioAxisValue(scenario),
+      },
+      lineWidth: isBaseline ? 3 : 1.5,
+      opacity: isBaseline ? 1 : nonBaselineOpacity,
+      states: {
+        hover: {
+          lineWidth: 3,
+          opacity: 1,
+        },
+        inactive: {
+          opacity: isBaseline ? nonBaselineOpacity : 0.2,
+        },
+      },
+      zIndex: isBaseline ? 2 : 1,
+    });
+  });
+
+  return series;
 };
 
 const usePlotLines = props.timeSeriesMetadata.id === "hospitalised"; // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
@@ -72,14 +89,14 @@ const usePlotLines = props.timeSeriesMetadata.id === "hospitalised"; // https://
 // The y-axis automatically rescales to the data (ignoring the plotLines). We want the plotLines
 // to remain visible, so we limit the y-axis' ability to rescale, by defining a minimum range. This way the
 // plotLines remain visible even when the maximum data value is less than the maximum plotline value.
-const minRange = computed(() => usePlotLines
+const minRange = computed(() => usePlotLines && false
   ? appStore.capacitiesData?.reduce((acc, { value }) => Math.max(acc, value), 0)
   : undefined);
 
 const capacitiesPlotLines = computed(() => {
   const lines = new Array<Highcharts.AxisPlotLinesOptions>();
 
-  if (!usePlotLines) {
+  if (!usePlotLines || true) {
     return lines;
   }
 
@@ -106,7 +123,7 @@ const capacitiesPlotLines = computed(() => {
 const interventionsPlotBands = computed(() => {
   const bands = new Array<Highcharts.AxisPlotBandsOptions>();
   const usePlotBands = ["hospitalised", "new_hospitalised", "prevalence", "new_infected"].includes(props.seriesId); // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
-  if (!usePlotBands) {
+  if (!usePlotBands || true) {
     return bands;
   }
 
@@ -124,11 +141,12 @@ const chartInitialOptions = () => {
     },
     chart: {
       ...chartOptions,
-      height: props.chartHeight,
+      height: 250,
       marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
       marginBottom: 35,
     },
     exporting: {
+      // todo update this
       filename: `${props.timeSeriesMetadata.label} in ${appStore.currentScenario.parameters?.country}`,
       chartOptions: {
         title: {
@@ -154,7 +172,7 @@ const chartInitialOptions = () => {
       enabled: false,
     },
     tooltip: {
-      headerFormat: "<span style='font-size: 0.7rem; margin-bottom: 0.3rem;'>Day {point.x}</span><br/>",
+      headerFormat: `{series.name}<br/><span style='font-size: 0.7rem; margin-bottom: 0.3rem;'>Day {point.x}</span><br/>`,
       pointFormat: `<span style='font-weight: 500'>{point.y}</span> ${props.yUnits}`,
       valueDecimals: 0,
     },
@@ -194,8 +212,10 @@ watch(() => props.timeSeriesMetadata, () => {
  */
 watch(() => props.synchPoint, (synchPoint) => {
   if (synchPoint && chart?.series) {
-    // Get the point in this chart that has the same 'x' value as the hovered point from another chart
-    const point = chart.series[0].getValidPoints().find(({ x }) => x === synchPoint.x);
+    // Get the series in this chart that matches the series being hovered in another chart
+    const series = chart.series.find(series => series.options.custom?.id === synchPoint.series.options.custom?.id);
+    // Get the point in the matching series that has the same 'x' value as the hovered point from another chart
+    const point = series?.getValidPoints().find(({ x }) => x === synchPoint.x);
 
     if (point && point !== synchPoint) {
       point.onMouseOver();
@@ -232,8 +252,7 @@ watch(() => props.chartHeight, () => {
 
 <style lang="scss" scoped>
 .chart-container.time-series {
-  width: 100%;
   position: relative; /* Required for z-index to work */
-  left: -20px;
+  left: -10px;
 }
 </style>

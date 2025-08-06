@@ -1,5 +1,5 @@
 import type { AsyncDataRequestStatus } from "#app";
-import type { Metadata, NewScenarioData, ScenarioData, ScenarioResultData, ScenarioStatusData, TimeSeriesGroup, VersionData } from "~/types/apiResponseTypes";
+import type { DisplayInfo, Metadata, NewScenarioData, ScenarioData, ScenarioResultData, ScenarioStatusData, TimeSeriesGroup, VersionData } from "~/types/apiResponseTypes";
 import type { AppState, Comparison, Scenario } from "@/types/storeTypes";
 import type { FetchError } from "ofetch";
 import { type Parameter, type ParameterSet, TypeOfParameter } from "@/types/parameterTypes";
@@ -9,6 +9,7 @@ import { ExcelScenarioDownload } from "~/download/excelScenarioDownload";
 import type { ScenarioCapacity, ScenarioCost, ScenarioIntervention } from "~/types/resultTypes";
 import { CostBasis } from "~/types/unitTypes";
 import { getRangeForDependentParam } from "~/components/utils/parameters";
+import { getScenarioCategoryLabel } from "~/components/utils/highCharts";
 
 const emptyScenario = {
   runId: undefined,
@@ -84,6 +85,7 @@ export const useAppStore = defineStore("app", {
       }
     },
     timeSeriesGroups: (state): Array<TimeSeriesGroup> | undefined => state.metadata?.results.time_series_groups as TimeSeriesGroup[] | undefined,
+    allTimeSeriesMetadata: (state): Array<DisplayInfo> | undefined => state.metadata?.results.time_series,
     everyScenarioHasRunSuccessfully: (state): boolean => {
       return state.currentComparison.scenarios?.length > 0
         && state.currentComparison.scenarios?.every(s => s.status.data?.runSuccess);
@@ -95,9 +97,9 @@ export const useAppStore = defineStore("app", {
     everyScenarioHasCosts: (state): boolean => {
       return state.currentComparison.scenarios?.map(s => s.result.data?.costs).every(c => !!c && c.length > 0);
     },
-    axisLabel(state): string | undefined {
+    axisMetadata(state): Parameter | undefined {
       if (state.currentComparison.axis) {
-        return this.parametersMetadataById[state.currentComparison.axis].label;
+        return state.metadata?.parameters.find(param => param.id === state.currentComparison.axis);
       }
     },
     baselineScenario(state): Scenario | undefined {
@@ -299,8 +301,11 @@ export const useAppStore = defineStore("app", {
       )?.label;
       return name || costId;
     },
-    getScenarioAxisValue(scenario: Scenario): string | undefined {
-      return this.currentComparison.axis ? scenario.parameters?.[this.currentComparison.axis] : undefined;
+    getScenarioAxisValue(scenario: Scenario): string {
+      return (this.currentComparison.axis ? scenario.parameters?.[this.currentComparison.axis] : "") ?? "";
+    },
+    getScenarioAxisLabel(scenario: Scenario): string {
+      return getScenarioCategoryLabel(this.getScenarioAxisValue(scenario), this.axisMetadata);
     },
   },
 });

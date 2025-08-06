@@ -25,8 +25,7 @@ const chartContainer = ref<HTMLElement | null>(null);
 const chartParentEl = computed(() => chartContainer.value?.parentElement);
 const scenarios = computed(() => appStore.currentComparison.scenarios);
 const costBasis = computed(() => appStore.preferences.costBasis);
-const chartTitleOnExport = computed(() => `Losses by ${appStore.axisLabel?.toLocaleLowerCase()}`);
-const axisMetadata = computed(() => appStore.currentComparison.axis ? appStore.parametersMetadataById[appStore.currentComparison.axis] : undefined);
+const chartTitleOnExport = computed(() => `Losses by ${appStore.axisMetadata?.label.toLocaleLowerCase()}`);
 
 // There are 3 levels of data breakdown for costs:
 // 1) the top-level total for the scenario,
@@ -84,10 +83,10 @@ const chartInitialOptions = () => {
     title: { text: "" },
     xAxis: {
       categories: scenarios.value?.map(s => appStore.getScenarioAxisValue(s)) || [],
-      title: { text: appStore.axisLabel },
+      title: { text: appStore.axisMetadata?.label },
       labels: {
         style: { fontSize: appStore.currentComparison.axis === appStore.globeParameter?.id ? "0.8rem" : "1rem" },
-        formatter() { return costsChartMultiScenarioXAxisLabelFormatter(this.value as string, axisMetadata.value); },
+        formatter() { return costsChartMultiScenarioXAxisLabelFormatter(this.value as string, appStore.axisMetadata); },
         useHTML: true,
       },
     },
@@ -108,7 +107,7 @@ const chartInitialOptions = () => {
     legend: { enabled: false },
     tooltip: {
       shared: true,
-      formatter() { return costsChartMultiScenarioStackedTooltip(this, costBasis.value, axisMetadata.value); },
+      formatter() { return costsChartMultiScenarioStackedTooltip(this, costBasis.value, appStore.axisMetadata); },
     },
     plotOptions: {
       column: { stacking: "normal", groupPadding: 0.3 },

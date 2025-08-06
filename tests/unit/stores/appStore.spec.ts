@@ -803,15 +803,15 @@ describe("app store", () => {
         expect(store.everyScenarioHasCosts).toBe(true);
       });
 
-      it("can get the label for the axis of a comparison", async () => {
+      it("can get the metadata for the axis of a comparison", async () => {
         const store = useAppStore();
         await store.loadMetadata();
 
         store.currentComparison = { axis: "vaccine", baseline: "high", scenarios: [] };
-        expect(store.axisLabel).toEqual("Global vaccine investment");
+        expect(store.axisMetadata?.label).toEqual("Global vaccine investment");
 
         store.currentComparison.axis = "country";
-        expect(store.axisLabel).toEqual("Country");
+        expect(store.axisMetadata?.label).toEqual("Country");
       });
 
       it("can get the baseline scenario for a comparison", async () => {

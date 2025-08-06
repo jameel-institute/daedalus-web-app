@@ -2,7 +2,7 @@
   <ChartLegend
     :items="items"
     :row-height-rem="0.7"
-    class="costs-legend m-3"
+    class="costs-legend mb-3"
   />
 </template>
 
@@ -18,7 +18,6 @@ const items = computed((): LegendItem[] =>
       color: colorBlindSafeColors[index].rgb,
       label: appStore.getCostLabel(cost.id),
       shape: LegendShape.Circle,
-      value: cost.value,
     };
   }) || [],
 );
