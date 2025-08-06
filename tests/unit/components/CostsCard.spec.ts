@@ -70,23 +70,23 @@ describe("costs card", () => {
     const appStore = useAppStore();
     const component = await mountSuspended(CostsCard, { global: { stubs, plugins: [pinia] } });
 
-    expect(appStore.preferences.costBasis).toBe(CostBasis.USD);
+    expect(appStore.preferences.costBasis).toBe(CostBasis.PercentGDP);
 
     const gdpRadioButton = component.find(`input[type="radio"][value="${CostBasis.PercentGDP}"]`);
     const usdRadioButton = component.find(`input[type="radio"][value="${CostBasis.USD}"]`);
-    expect(gdpRadioButton.element.checked).toBe(false);
-    expect(usdRadioButton.element.checked).toBe(true);
-
-    await gdpRadioButton.setChecked();
-
     expect(gdpRadioButton.element.checked).toBe(true);
     expect(usdRadioButton.element.checked).toBe(false);
-    expect(appStore.preferences.costBasis).toBe(CostBasis.PercentGDP);
 
     await usdRadioButton.setChecked();
 
     expect(gdpRadioButton.element.checked).toBe(false);
     expect(usdRadioButton.element.checked).toBe(true);
     expect(appStore.preferences.costBasis).toBe(CostBasis.USD);
+
+    await gdpRadioButton.setChecked();
+
+    expect(gdpRadioButton.element.checked).toBe(true);
+    expect(usdRadioButton.element.checked).toBe(false);
+    expect(appStore.preferences.costBasis).toBe(CostBasis.PercentGDP);
   });
 });
