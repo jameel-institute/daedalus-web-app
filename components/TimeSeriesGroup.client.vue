@@ -14,9 +14,7 @@
         />
       </div>
       <CAccordionHeader class="border-top" @click="$emit('toggleOpen')">
-        <span aria-describedby="labelDescriptor">{{ activeSeriesMetadata?.label }}</span>
-        <span id="labelDescriptor" class="visually-hidden">{{ activeSeriesMetadata?.description }}</span>
-        <TooltipHelp :help-text="activeSeriesMetadata?.description" :classes="['ms-2', 'mb-1', 'smaller-icon']" />
+        <TimeSeriesHeader :series-metadata="activeSeriesMetadata" />
       </CAccordionHeader>
       <CAccordionBody @mouseleave="$emit('hideAllTooltips')">
         <TimeSeries
@@ -24,10 +22,10 @@
           :chart-height="props.chartHeight"
           :group-index="props.groupIndex"
           :hide-tooltips="props.hideTooltips"
-          :series-role="activeTimeSeriesRole"
+          :series-role="activeRole"
           :synch-point="props.synchPoint"
           :time-series-metadata="activeSeriesMetadata"
-          :y-units="yUnits"
+          :y-units="timeSeriesYUnits(props.seriesGroup.id)"
           @update-hover-point="(hoverPoint) => $emit('updateHoverPoint', hoverPoint)"
         />
       </CAccordionBody>
@@ -36,7 +34,9 @@
 </template>
 
 <script lang="ts" setup>
-import type { DisplayInfo, TimeSeriesGroup } from "~/types/apiResponseTypes";
+import type { TimeSeriesGroup } from "~/types/apiResponseTypes";
+import { timeSeriesYUnits } from "./utils/highCharts";
+import useTimeSeriesGroups from "~/composables/useTimeSeriesGroups";
 
 const props = defineProps<{
   seriesGroup: TimeSeriesGroup
@@ -53,34 +53,13 @@ defineEmits<{
   toggleOpen: []
 }>();
 
-const appStore = useAppStore();
-
 const accordionStyle = {
   "--cui-accordion-btn-focus-box-shadow": "none",
   "--cui-accordion-bg": "rgba(255, 255, 255, 0.7)",
 };
 
 const isDaily = ref(false);
-const activeTimeSeriesRole = computed(() => {
-  // Since we are using a switch we assume there are only two roles, and "total" role precedes "daily" role
-  const timeSeriesGroupRoles = Object.keys(props.seriesGroup.time_series).slice(0, 2); // ["total", "daily"]
-  return timeSeriesGroupRoles[Number(isDaily.value)];
-});
-const activeTimeSeriesId = computed(() => props.seriesGroup.time_series[activeTimeSeriesRole.value]);
-const activeSeriesMetadata = computed((): DisplayInfo | undefined => appStore.allTimeSeriesMetadata?.find(({ id }) => id === activeTimeSeriesId.value));
-
-const yUnits = computed(() => { // TODO: Make this depend on a 'units' property in metadata. https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-117/
-  switch (props.seriesGroup.id) {
-    case "hospitalisations":
-      return "in need of hospitalisation";
-    case "deaths":
-      return "deaths";
-    case "vaccinations":
-      return "vaccinated";
-    default:
-      return "cases";
-  }
-});
+const { activeRole, activeSeriesMetadata } = useTimeSeriesGroups(props.seriesGroup, isDaily);
 </script>
 
 <style lang="scss">
