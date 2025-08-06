@@ -26,22 +26,18 @@
 </template>
 
 <script setup lang="ts">
+import useSynchroniseCharts from "~/composables/useSynchroniseCharts";
+
 const appStore = useAppStore();
 
-const hoverPoint = ref<Highcharts.Point | null>(null);
-const hideTooltips = ref(false);
 const isDaily = ref(false);
 
-const updateHoverPoint = (point: Highcharts.Point) => {
-  hideTooltips.value = false;
-  hoverPoint.value = point;
-};
-
-const hideAllTooltipsAndCrosshairs = () => {
-  setTimeout(() => {
-    hideTooltips.value = true;
-  }, 500);
-};
+const {
+  hoverPoint,
+  hideTooltips,
+  updateHoverPoint,
+  hideAllTooltipsAndCrosshairs,
+} = useSynchroniseCharts();
 </script>
 
 <style lang="scss" scoped>
