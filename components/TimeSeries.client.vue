@@ -19,8 +19,9 @@ import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
-import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, menuItemDefinitionOptions, plotBandsColor, plotBandsColorName, plotLinesColor, plotLinesColorName } from "./utils/highCharts";
+import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, menuItemDefinitionOptions, plotBandsColor, plotBandsColorName, plotLinesColorName } from "./utils/highCharts";
 import { getTimeSeriesDataPoints } from "./utils/timeSeriesData";
+import useCapacitiesPlotLines from "~/composables/useCapacitiesPlotLines";
 
 const props = defineProps<{
   chartHeight: number
@@ -84,36 +85,7 @@ const getChartSeries = (): Array<Highcharts.SeriesLineOptions | Highcharts.Serie
 
 // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
 const showCapacities = computed(() => props.timeSeriesMetadata.id === "hospitalised");
-
-// The y-axis automatically rescales to the data (ignoring the plotLines). We want the plotLines
-// to remain visible, so we limit the y-axis' ability to rescale, by defining a minimum range. This way the
-// plotLines remain visible even when the maximum data value is less than the maximum plotLine value.
-const minRange = computed(() => showCapacities.value
-  ? appStore.capacitiesData?.reduce((acc, { value }) => Math.max(acc, value), 0)
-  : undefined);
-
-const capacitiesPlotLines = computed(() => {
-  if (!showCapacities.value) {
-    return [];
-  }
-
-  return appStore.capacitiesData?.map(({ id, value }) => {
-    const capacityLabel = appStore.metadata?.results.capacities.find(({ id: capacityId }) => capacityId === id)?.label;
-
-    return {
-      color: plotLinesColor,
-      label: {
-        text: `${capacityLabel}: ${value}`,
-        style: {
-          color: plotLinesColor,
-        },
-      },
-      width: 2,
-      value,
-      zIndex: 4, // Render plot line and label in front of the series line
-    };
-  }) as Array<Highcharts.AxisPlotLinesOptions>;
-});
+const { capacitiesPlotLines, minRange } = useCapacitiesPlotLines(showCapacities, appStore.capacitiesData);
 
 const interventionsPlotBands = computed(() => {
   const bands = new Array<Highcharts.AxisPlotBandsOptions>();

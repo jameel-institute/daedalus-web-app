@@ -51,8 +51,8 @@ const appStore = useAppStore();
 const { activeSeriesMetadata } = useTimeSeriesGroups(() => props.seriesGroup, () => props.isDaily);
 
 const capacities = computed(() => appStore.metadata?.results.capacities);
-// https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
 const capacityLabel = computed(() => capacities.value?.[0].label.toLocaleLowerCase());
+// https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
 const allowShowCapacities = computed(() => activeSeriesMetadata.value?.id === "hospitalised");
 const capacityVariesByScenario = computed(() => {
   const capacityId = capacities.value?.[0].id;

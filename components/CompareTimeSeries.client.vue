@@ -19,7 +19,7 @@ import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import type { TimeSeriesDataPoint } from "~/types/dataTypes";
-import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions, multiScenarioTimeSeriesColors, plotLinesColor } from "./utils/highCharts";
+import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions, multiScenarioTimeSeriesColors } from "./utils/highCharts";
 import { getTimeSeriesDataPoints } from "./utils/timeSeriesData";
 
 const props = defineProps<{
@@ -109,35 +109,7 @@ const getChartSeries = (): Highcharts.SeriesLineOptions[] => {
 
 const baselineCapacities = computed(() => appStore.baselineScenario?.result.data?.capacities);
 
-// The y-axis automatically rescales to the data (ignoring the plotLines). We want the plotLines
-// to remain visible, so we limit the y-axis' ability to rescale, by defining a minimum range. This way the
-// plotLines remain visible even when the maximum data value is less than the maximum plotLine value.
-const minRange = computed(() => props.showCapacities
-  ? appStore.baselineScenario?.result.data?.capacities?.reduce((acc, { value }) => Math.max(acc, value), 0)
-  : undefined);
-
-const capacitiesPlotLines = computed(() => {
-  if (!props.showCapacities || !baselineCapacities.value) {
-    return [];
-  }
-
-  return baselineCapacities.value?.map(({ id, value }) => {
-    const capacityLabel = appStore.metadata?.results.capacities.find(({ id: capacityId }) => capacityId === id)?.label;
-
-    return {
-      color: plotLinesColor,
-      label: {
-        text: `${capacityLabel} for baseline: ${value}`,
-        style: {
-          color: plotLinesColor,
-        },
-      },
-      width: 2,
-      value,
-      zIndex: 4, // Render plot line and label in front of the series line
-    };
-  }) as Array<Highcharts.AxisPlotLinesOptions>;
-});
+const { capacitiesPlotLines, minRange } = useCapacitiesPlotLines(() => props.showCapacities, baselineCapacities);
 
 const exportingChartTitle = computed(() => {
   return `${props.timeSeriesMetadata.label} by ${appStore.axisMetadata?.label.toLocaleLowerCase()}`;
