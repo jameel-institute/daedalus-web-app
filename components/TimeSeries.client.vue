@@ -103,6 +103,35 @@ const interventionsPlotBands = computed(() => {
   return bands;
 });
 
+const exportingOptions = computed(() => ({
+  filename: props.timeSeriesMetadata.label,
+  chartOptions: {
+    title: {
+      text: props.timeSeriesMetadata.label,
+    },
+    subtitle: {
+      text: props.timeSeriesMetadata.description,
+    },
+    chart: {
+      backgroundColor: chartBackgroundColorOnExporting,
+      height: 500,
+    },
+  },
+  buttons: {
+    contextButton: contextButtonOptions,
+  },
+  menuItemDefinitions: menuItemDefinitionOptions,
+}));
+
+const yAxisOptions = computed(() => ({
+  title: {
+    text: "",
+  },
+  min: 0,
+  minRange: minRange.value,
+  plotLines: capacitiesPlotLines.value,
+}));
+
 const chartInitialOptions = () => {
   return {
     credits: {
@@ -114,25 +143,7 @@ const chartInitialOptions = () => {
       marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
       marginBottom: 35,
     },
-    exporting: {
-      filename: props.timeSeriesMetadata.label,
-      chartOptions: {
-        title: {
-          text: props.timeSeriesMetadata.label,
-        },
-        subtitle: {
-          text: props.timeSeriesMetadata.description,
-        },
-        chart: {
-          backgroundColor: chartBackgroundColorOnExporting,
-          height: 500,
-        },
-      },
-      buttons: {
-        contextButton: contextButtonOptions,
-      },
-      menuItemDefinitions: menuItemDefinitionOptions,
-    },
+    exporting: exportingOptions.value,
     title: {
       text: "",
     },
@@ -150,40 +161,28 @@ const chartInitialOptions = () => {
       minTickInterval: 1,
       min: 1,
     },
-    yAxis: {
-      title: {
-        text: "",
-      },
-      min: 0,
-      minRange: minRange.value,
-      plotLines: capacitiesPlotLines.value,
-    },
+    yAxis: yAxisOptions.value,
     series: getChartSeries(),
   } as Highcharts.Options;
 };
 
 watch(() => props.timeSeriesMetadata, () => {
-  chart.value?.update({
-    exporting: {
-      filename: props.timeSeriesMetadata.label,
-      chartOptions: {
-        title: {
-          text: props.timeSeriesMetadata.label,
-        },
-        subtitle: {
-          text: props.timeSeriesMetadata.description,
-        },
-      },
-    },
+  let updates = {
+    exporting: exportingOptions.value,
     series: getChartSeries(),
     xAxis: {
       plotBands: interventionsPlotBands.value,
     },
-    yAxis: {
-      plotLines: capacitiesPlotLines.value,
-      minRange: minRange.value,
-    },
-  });
+  } as Highcharts.Options;
+
+  // Only update the yAxis if necessary, since doing so prevents the redraw animation.
+  if (chart.value && chart.value.yAxis[0].options.minRange !== minRange.value) {
+    // If the minRange has changed, update the chart to reflect this.
+    // This is necessary if the capacities have changed, for example.
+    updates = { ...updates, yAxis: yAxisOptions.value };
+  };
+
+  chart.value?.update(updates);
 });
 
 watch(() => chartContainer.value, () => {
