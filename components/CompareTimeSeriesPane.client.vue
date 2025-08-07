@@ -9,7 +9,7 @@
         <CompareTimeSeriesLegend />
       </div>
     </div>
-    <div class="time-series-container gap-2">
+    <div class="time-series-container">
       <CompareTimeSeriesGroup
         v-for="(seriesGroup, index) in appStore.timeSeriesGroups"
         :key="seriesGroup.id"
@@ -42,8 +42,14 @@ const {
 
 <style lang="scss" scoped>
 .time-series-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  .card {
+    flex: 1;
+    min-width: max(49%, 500px);
+  }
 }
 
 :deep(.form-check-label) {

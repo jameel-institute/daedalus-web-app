@@ -19,12 +19,13 @@ import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import type { TimeSeriesDataPoint } from "~/types/dataTypes";
-import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, menuItemDefinitionOptions } from "./utils/highCharts";
+import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions, multiScenarioTimeSeriesColors, plotLinesColor } from "./utils/highCharts";
 import { getTimeSeriesDataPoints } from "./utils/timeSeriesData";
 
 const props = defineProps<{
   groupIndex: number // Probably 0 to about 4
   hideTooltips: boolean
+  showCapacities: boolean
   synchPoint: Highcharts.Point | undefined
   timeSeriesMetadata: DisplayInfo
   yUnits: string
@@ -46,6 +47,8 @@ const { onMove } = useSynchronisableChart(
   (point: Highcharts.Point) => emit("updateHoverPoint", point),
 );
 const { zIndex } = useAdjacentCharts(() => props.groupIndex);
+
+const seriesColors = multiScenarioTimeSeriesColors.map(c => c.rgb);
 
 const chartContainerId = computed(() => `${props.timeSeriesMetadata.id}-container`);
 
@@ -78,7 +81,7 @@ const getChartSeries = (): Highcharts.SeriesLineOptions[] => {
       type: "line",
       data: scenarioData.dataPoints as TimeSeriesDataPoint[],
       name: `${appStore.axisMetadata?.label}: ${scenarioData.label}`,
-      color: colorBlindSafeColors.map(c => c.rgb)[index % colorBlindSafeColors.length],
+      color: seriesColors[index % seriesColors.length],
       marker: {
         enabled: false,
         symbol: "circle",
@@ -104,12 +107,41 @@ const getChartSeries = (): Highcharts.SeriesLineOptions[] => {
   return series;
 };
 
+const baselineCapacities = computed(() => appStore.baselineScenario?.result.data?.capacities);
+
 // The y-axis automatically rescales to the data (ignoring the plotLines). We want the plotLines
 // to remain visible, so we limit the y-axis' ability to rescale, by defining a minimum range. This way the
-// plotLines remain visible even when the maximum data value is less than the maximum plotline value.
-// const minRange = computed(() => showCapacities.value && false
-//   ? appStore.capacitiesData?.reduce((acc, { value }) => Math.max(acc, value), 0)
-//   : undefined);
+// plotLines remain visible even when the maximum data value is less than the maximum plotLine value.
+const minRange = computed(() => props.showCapacities
+  ? appStore.baselineScenario?.result.data?.capacities?.reduce((acc, { value }) => Math.max(acc, value), 0)
+  : undefined);
+
+const capacitiesPlotLines = computed(() => {
+  if (!props.showCapacities || !baselineCapacities.value) {
+    return [];
+  }
+
+  return baselineCapacities.value?.map(({ id, value }) => {
+    const capacityLabel = appStore.metadata?.results.capacities.find(({ id: capacityId }) => capacityId === id)?.label;
+
+    return {
+      color: plotLinesColor,
+      label: {
+        text: `${capacityLabel} for baseline: ${value}`,
+        style: {
+          color: plotLinesColor,
+        },
+      },
+      width: 2,
+      value,
+      zIndex: 4, // Render plot line and label in front of the series line
+    };
+  }) as Array<Highcharts.AxisPlotLinesOptions>;
+});
+
+const exportingChartTitle = computed(() => {
+  return `${props.timeSeriesMetadata.label} by ${appStore.axisMetadata?.label.toLocaleLowerCase()}`;
+});
 
 const chartInitialOptions = () => {
   return {
@@ -126,7 +158,7 @@ const chartInitialOptions = () => {
       filename: props.timeSeriesMetadata.label,
       chartOptions: {
         title: {
-          text: `${props.timeSeriesMetadata.label} by ${appStore.axisMetadata?.label.toLocaleLowerCase()}`,
+          text: exportingChartTitle.value,
         },
         subtitle: {
           text: props.timeSeriesMetadata.description,
@@ -169,14 +201,41 @@ const chartInitialOptions = () => {
         text: "",
       },
       min: 0,
-      // minRange: minRange.value, // TODO
+      minRange: minRange.value,
+      plotLines: capacitiesPlotLines.value,
     },
     series: getChartSeries(),
   } as Highcharts.Options;
 };
 
 watch(() => props.timeSeriesMetadata, () => {
-  chart.value?.update({ series: getChartSeries() });
+  chart.value?.update({
+    exporting: {
+      filename: props.timeSeriesMetadata.label,
+      chartOptions: {
+        title: {
+          text: exportingChartTitle.value,
+        },
+        subtitle: {
+          text: props.timeSeriesMetadata.description,
+        },
+      },
+    },
+    series: getChartSeries(),
+    yAxis: {
+      minRange: minRange.value,
+      plotLines: capacitiesPlotLines.value,
+    },
+  });
+});
+
+watch(() => props.showCapacities, () => {
+  chart.value?.update({
+    yAxis: {
+      minRange: minRange.value,
+      plotLines: capacitiesPlotLines.value,
+    },
+  });
 });
 
 watch(() => chartContainer.value, () => {

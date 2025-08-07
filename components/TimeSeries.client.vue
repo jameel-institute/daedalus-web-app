@@ -87,22 +87,20 @@ const showCapacities = computed(() => props.timeSeriesMetadata.id === "hospitali
 
 // The y-axis automatically rescales to the data (ignoring the plotLines). We want the plotLines
 // to remain visible, so we limit the y-axis' ability to rescale, by defining a minimum range. This way the
-// plotLines remain visible even when the maximum data value is less than the maximum plotline value.
+// plotLines remain visible even when the maximum data value is less than the maximum plotLine value.
 const minRange = computed(() => showCapacities.value
   ? appStore.capacitiesData?.reduce((acc, { value }) => Math.max(acc, value), 0)
   : undefined);
 
 const capacitiesPlotLines = computed(() => {
-  const lines = new Array<Highcharts.AxisPlotLinesOptions>();
-
   if (!showCapacities.value) {
-    return lines;
+    return [];
   }
 
-  appStore.capacitiesData?.forEach(({ id, value }) => {
+  return appStore.capacitiesData?.map(({ id, value }) => {
     const capacityLabel = appStore.metadata?.results.capacities.find(({ id: capacityId }) => capacityId === id)?.label;
 
-    lines.push({
+    return {
       color: plotLinesColor,
       label: {
         text: `${capacityLabel}: ${value}`,
@@ -113,10 +111,8 @@ const capacitiesPlotLines = computed(() => {
       width: 2,
       value,
       zIndex: 4, // Render plot line and label in front of the series line
-    });
-  });
-
-  return lines;
+    };
+  }) as Array<Highcharts.AxisPlotLinesOptions>;
 });
 
 const interventionsPlotBands = computed(() => {
@@ -195,7 +191,27 @@ const chartInitialOptions = () => {
 };
 
 watch(() => props.timeSeriesMetadata, () => {
-  chart.value?.update({ series: getChartSeries() });
+  chart.value?.update({
+    exporting: {
+      filename: props.timeSeriesMetadata.label,
+      chartOptions: {
+        title: {
+          text: props.timeSeriesMetadata.label,
+        },
+        subtitle: {
+          text: props.timeSeriesMetadata.description,
+        },
+      },
+    },
+    series: getChartSeries(),
+    xAxis: {
+      plotBands: interventionsPlotBands.value,
+    },
+    yAxis: {
+      plotLines: capacitiesPlotLines.value,
+      minRange: minRange.value,
+    },
+  });
 });
 
 watch(() => chartContainer.value, () => {
