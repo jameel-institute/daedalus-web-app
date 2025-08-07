@@ -61,7 +61,6 @@ export const useAppStore = defineStore("app", {
       return Object.fromEntries(state.metadata?.parameters?.map(param => [param.id, param]) || []);
     },
     globeParameter: (state): Parameter | undefined => state.metadata?.parameters.find(param => param.parameterType === TypeOfParameter.GlobeSelect),
-    timeSeriesData: (state): Record<string, number[]> | undefined => state.currentScenario.result.data?.time_series,
     capacitiesData: (state): Array<ScenarioCapacity> | undefined => state.currentScenario.result.data?.capacities,
     interventionsData: (state): Array<ScenarioIntervention> | undefined => state.currentScenario.result.data?.interventions,
     costsData: (state): Array<ScenarioCost> | undefined => state.currentScenario.result.data?.costs,

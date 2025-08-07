@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import { CIcon } from "@coreui/icons-vue";
-import useSynchroniseCharts from "~/composables/useSynchroniseCharts";
+import useSynchroniseCharts from "~/composables/useChartSynchroniser";
 
 const appStore = useAppStore();
 const { openedAccordions, chartHeightPx, minChartHeightPx } = useTimeSeriesAccordionHeights();
@@ -58,7 +58,7 @@ onMounted(() => {
   initializeAccordions();
 });
 
-watch(() => (Object.keys(appStore.timeSeriesData || {})), () => {
+watch(() => (Object.keys(appStore.currentScenario.result.data?.time_series || {})), () => {
   initializeAccordions();
 });
 </script>

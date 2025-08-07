@@ -30,7 +30,7 @@ const props = defineProps<{
   hideTooltips: boolean
   isDaily: boolean
   seriesGroup: TimeSeriesGroup
-  synchPoint: Highcharts.Point | null
+  synchPoint: Highcharts.Point | undefined
 }>();
 
 defineEmits<{
@@ -38,5 +38,5 @@ defineEmits<{
   updateHoverPoint: [hoverPoint: Highcharts.Point]
 }>();
 
-const { activeSeriesMetadata } = useTimeSeriesGroups(props.seriesGroup, props.isDaily);
+const { activeSeriesMetadata } = useTimeSeriesGroups(() => props.seriesGroup, () => props.isDaily);
 </script>

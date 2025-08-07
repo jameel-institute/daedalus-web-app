@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import type { Scenario } from "~/types/storeTypes";
-import { colorBlindSafeColors, type LegendItem, LegendShape, nonBaselineOpacity } from "./utils/highCharts";
+import { colorBlindSafeColors, type LegendItem, LegendShape } from "./utils/highCharts";
 
 const appStore = useAppStore();
 
@@ -25,7 +25,6 @@ const items = computed((): LegendItem[] => {
       color: colorBlindSafeColors[index].rgb,
       label: `${appStore.getScenarioAxisLabel(scenario)} ${(isBaseline ? " (baseline)" : "")}`,
       shape: LegendShape.Circle,
-      opacity: scenario === appStore.baselineScenario ? 1 : nonBaselineOpacity,
     };
   }) || [];
 

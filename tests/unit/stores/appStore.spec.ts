@@ -650,18 +650,6 @@ describe("app store", () => {
         });
       });
 
-      it("can get the time series data", async () => {
-        const store = useAppStore();
-        store.currentScenario = structuredClone(unloadedScenario);
-
-        expect(store.timeSeriesData).toEqual(undefined);
-        await store.loadScenarioResult(store.currentScenario);
-
-        await waitFor(() => {
-          expect(store.timeSeriesData).toEqual(mockResultData.time_series);
-        });
-      });
-
       it("can get the capacities data", async () => {
         const store = useAppStore();
         store.currentScenario = structuredClone(unloadedScenario);

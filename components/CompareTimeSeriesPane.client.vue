@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import useSynchroniseCharts from "~/composables/useSynchroniseCharts";
+import useSynchroniseCharts from "~/composables/useChartSynchroniser";
 
 const appStore = useAppStore();
 

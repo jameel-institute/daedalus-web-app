@@ -8,6 +8,6 @@
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 
 const props = defineProps<{
-  seriesMetadata: DisplayInfo
+  seriesMetadata: DisplayInfo | undefined
 }>();
 </script>

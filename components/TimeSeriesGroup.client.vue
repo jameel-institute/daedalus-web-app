@@ -44,7 +44,7 @@ const props = defineProps<{
   hideTooltips: boolean
   open: boolean
   chartHeight: number
-  synchPoint: Highcharts.Point | null
+  synchPoint: Highcharts.Point | undefined
 }>();
 
 defineEmits<{
@@ -59,7 +59,7 @@ const accordionStyle = {
 };
 
 const isDaily = ref(false);
-const { activeRole, activeSeriesMetadata } = useTimeSeriesGroups(props.seriesGroup, isDaily);
+const { activeRole, activeSeriesMetadata } = useTimeSeriesGroups(() => props.seriesGroup, isDaily);
 </script>
 
 <style lang="scss">

@@ -26,13 +26,8 @@ const props = defineProps<{
 const lineHeightRem = 0.15;
 
 const iStyle = (item: LegendItem) => {
-  const opacity = item.opacity || 1;
   const style = {
-    background: item.color.replace("rgb", "rgba")
-      .replace(")", `, ${opacity})`),
-    borderColor: item.color,
-    borderWidth: opacity !== 1 ? "0.2rem" : "0",
-    borderStyle: "solid",
+    background: item.color,
   };
   if (item.shape === LegendShape.Line) {
     return {

@@ -1,4 +1,3 @@
-import Highcharts from "highcharts/esm/highcharts";
 import convert, { type HSL } from "color-convert";
 import { abbreviateMillionsDollars } from "~/utils/money";
 import { costAsPercentOfGdp, gdpReferenceYear, humanReadableInteger, humanReadablePercentOfGdp } from "~/components/utils/formatters";
@@ -6,31 +5,43 @@ import { CostBasis } from "~/types/unitTypes";
 import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 import { countryFlagIconId } from "./countryFlag";
 
-const originalHighchartsColors = Highcharts.getOptions().colors!;
-const colorRgb = convert.hex.rgb(originalHighchartsColors[0] as string);
-const colorRgbAlpha = 0.3;
-export const plotBandsColor = `rgba(${colorRgb[0]},${colorRgb[1]},${colorRgb[2]},${colorRgbAlpha})`; // light blue
-export const plotLinesColor = "#FF0000"; // red;
-export const timeSeriesColors = originalHighchartsColors!.slice(1);
-
 export interface colorRgbHsl {
   name: string
   rgb: string
   hsl: HSL
 }
-// Colours from Bang Wong palette, see https://davidmathlogic.com/colorblind
-// RGB values derived from the Wong 2011 source https://www.nature.com/articles/nmeth.1618
-export const colorBlindSafeColors: colorRgbHsl[] = [
-  { name: "Vermillion", rgb: "rgb(213,94,0)", hsl: convert.rgb.hsl(213, 94, 0) }, // hsl: [26, 100, 42]
-  { name: "Bluish green", rgb: "rgb(0,158,115)", hsl: convert.rgb.hsl(0, 158, 115) }, // hsl: [164, 100, 31]
-  { name: "Sky blue", rgb: "rgb(86,180,233)", hsl: convert.rgb.hsl(86, 180, 233) }, // hsl: [202, 77, 63]
-  { name: "Reddish purple", rgb: "rgb(204,121,167)", hsl: convert.rgb.hsl(204, 121, 167) },
-  { name: "Yellow", rgb: "rgb(240,228,66)", hsl: convert.rgb.hsl(240, 228, 66) },
-  { name: "Blue", rgb: "rgb(0,114,178)", hsl: convert.rgb.hsl(0, 114, 178) },
-  { name: "Black", rgb: "rgb(0,0,0)", hsl: convert.rgb.hsl(0, 0, 0) },
+
+// Colours from Paul Tol palette, see https://davidmathlogic.com/colorblind
+// Archived Paul Tol site: https://web.archive.org/web/20250109045745/https://personal.sron.nl/~pault/#sec:qualitative
+const _brightColors: colorRgbHsl[] = [
+  { name: "Purple", rgb: "rgb(170,51,119)", hsl: convert.rgb.hsl(170, 51, 119) },
+  { name: "Cyan", rgb: "rgb(102,204,238)", hsl: convert.rgb.hsl(102, 204, 238) },
+  { name: "Blue", rgb: "rgb(68,119,170)", hsl: convert.rgb.hsl(68, 119, 170) },
+  { name: "Red", rgb: "rgb(238,102,119)", hsl: convert.rgb.hsl(238, 102, 119) },
+  { name: "Yellow", rgb: "rgb(204,187,68)", hsl: convert.rgb.hsl(204, 187, 68) },
+  { name: "Green", rgb: "rgb(34,136,51)", hsl: convert.rgb.hsl(34, 136, 51) },
 ];
 
-export const nonBaselineOpacity = 0.75;
+const vibrantColors: colorRgbHsl[] = [
+  { name: "Purple", rgb: "rgb(238,51,119)", hsl: convert.rgb.hsl(238, 51, 119) },
+  { name: "Cyan", rgb: "rgb(51,187,238)", hsl: convert.rgb.hsl(51, 187, 238) },
+  { name: "Blue", rgb: "rgb(0,119,187)", hsl: convert.rgb.hsl(0, 119, 187) },
+  { name: "Red", rgb: "rgb(204,51,17)", hsl: convert.rgb.hsl(204, 51, 17) },
+  { name: "Yellow", rgb: "rgb(238,119,51)", hsl: convert.rgb.hsl(238, 119, 51) },
+  { name: "Green", rgb: "rgb(0,153,136)", hsl: convert.rgb.hsl(0, 153, 136) },
+];
+
+export const colorBlindSafeColors = vibrantColors;
+
+export const plotLinesColorName = "Red";
+export const plotLinesColor = colorBlindSafeColors.find(c => c.name === plotLinesColorName)!.rgb;
+const colorRgbAlpha = 0.3;
+export const plotBandsColorName = "Cyan";
+export const plotBandsColor = colorBlindSafeColors
+  .find(c => c.name === plotBandsColorName)!
+  .rgb
+  .replace("rgb", "rgba")
+  .replace(")", `,${colorRgbAlpha})`);
 
 // Create a range of color variants varying in lightness (L) and saturation (S) channels.
 // These channels have configurable ranges of factors used to multiply the original L/S.
@@ -62,7 +73,6 @@ export interface LegendItem {
   color: string
   label: string
   shape: string
-  opacity?: number
 }
 
 export enum LegendShape {
