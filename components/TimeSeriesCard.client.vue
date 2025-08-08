@@ -7,7 +7,7 @@
           Time series
         </h2>
       </div>
-      <TimeSeriesLegend
+      <PlotLinesBandsLegend
         :show-plot-bands="true"
         :show-plot-lines="true"
       />

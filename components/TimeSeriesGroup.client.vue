@@ -25,7 +25,6 @@
           :series-role="activeRole"
           :synch-point="props.synchPoint"
           :time-series-metadata="activeSeriesMetadata"
-          :y-units="timeSeriesYUnits(props.seriesGroup.id)"
           @update-hover-point="(hoverPoint) => $emit('updateHoverPoint', hoverPoint)"
         />
       </CAccordionBody>
@@ -35,7 +34,6 @@
 
 <script lang="ts" setup>
 import type { TimeSeriesGroup } from "~/types/apiResponseTypes";
-import { timeSeriesYUnits } from "./utils/highCharts";
 import useTimeSeriesGroups from "~/composables/useTimeSeriesGroups";
 
 const props = defineProps<{

@@ -6,10 +6,9 @@
 </template>
 
 <script setup lang="ts">
-import { addAlphaToRgb, type LegendItem, LegendShape, plotBandsDefaultColor, plotBandsRgbAlpha, plotLinesColor } from "./utils/highCharts";
+import { addAlphaToRgb, type LegendItem, LegendShape, multiScenarioTimeSeriesColors, plotBandsDefaultColor, plotBandsRgbAlpha, plotLinesColor } from "./utils/highCharts";
 
 const props = defineProps<{
-  plotBandsAreBaselineOnly?: boolean
   showPlotBands: boolean
   showPlotLines: boolean
 }>();
@@ -30,9 +29,18 @@ const items = computed((): LegendItem[] => {
     return plotLineItems.value;
   }
 
+  let color;
+  if (appStore.currentScenario.runId) {
+    color = plotBandsDefaultColor;
+  } else {
+    const seriesColors = multiScenarioTimeSeriesColors.map(c => c.rgb);
+    const baselineIndex = appStore.currentComparison.scenarios.findIndex(s => s.runId === appStore.baselineScenario?.runId);
+    color = seriesColors[baselineIndex % seriesColors.length];
+  }
+
   const plotBandsItem = {
-    color: addAlphaToRgb(plotBandsDefaultColor, plotBandsRgbAlpha),
-    label: props.plotBandsAreBaselineOnly ? "Pandemic response (baseline scenario)" : "Pandemic response",
+    color: addAlphaToRgb(color, plotBandsRgbAlpha),
+    label: "Pandemic response",
     shape: LegendShape.Rectangle,
   };
   return [plotBandsItem, ...plotLineItems.value];

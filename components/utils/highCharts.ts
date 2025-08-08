@@ -258,17 +258,3 @@ export const costsChartMultiScenarioXAxisLabelFormatter = (category: string, axi
     return scenarioLabel;
   }
 };
-
-// TODO: Make this depend on a 'units' property in metadata. https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-117/
-export const timeSeriesYUnits = (seriesGroupId: string): string => {
-  switch (seriesGroupId) {
-    case "hospitalisations":
-      return "in need of hospitalisation";
-    case "deaths":
-      return "deaths";
-    case "vaccinations":
-      return "vaccinated";
-    default:
-      return "cases";
-  }
-};

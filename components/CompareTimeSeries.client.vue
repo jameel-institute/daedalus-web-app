@@ -21,9 +21,8 @@ import "highcharts/esm/highcharts-3d";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import type { TimeSeriesDataPoint, TimeSeriesIntervention } from "~/types/dataTypes";
 import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions, multiScenarioTimeSeriesColors } from "./utils/highCharts";
-import { getTimeSeriesDataPoints, seriesCanShowInterventions } from "./utils/timeSeriesData";
+import { getTimeSeriesDataPoints, seriesCanShowInterventions, timeSeriesYUnits } from "./utils/timeSeriesData";
 import { humanReadableInteger } from "./utils/formatters";
-import type { ScenarioIntervention } from "~/types/resultTypes";
 
 const props = defineProps<{
   groupIndex: number // Probably 0 to about 4
@@ -34,7 +33,6 @@ const props = defineProps<{
   timeSeriesMetadata: DisplayInfo
   toggledShowBaselineIntervention: boolean
   toggledShowAllInterventions: boolean
-  yUnits: string
 }>();
 
 const emit = defineEmits<{
@@ -58,6 +56,8 @@ const { zIndex } = useAdjacentCharts(() => props.groupIndex);
 const seriesColors = multiScenarioTimeSeriesColors.map(c => c.rgb);
 
 const chartContainerId = computed(() => `${props.timeSeriesMetadata.id}-container`);
+
+const yUnits = computed(() => timeSeriesYUnits(props.timeSeriesMetadata.id));
 
 const scenariosData = computed(() => {
   return appStore.currentComparison.scenarios.reduce((acc, scenario) => {
@@ -119,26 +119,23 @@ const getChartSeries = () => {
 const baselineCapacities = computed(() => appStore.baselineScenario?.result.data?.capacities);
 const { capacitiesPlotLines, minRange } = useCapacitiesPlotLines(() => props.showCapacities, baselineCapacities);
 
-const interventions = computed(() => {
-  if (!appStore.baselineScenario) {
-    return [];
+const interventions = computed((): TimeSeriesIntervention[] => {
+  // Iterate over all scenarios in any case, so that the color indices are consistent between plot bands and series.
+  const allInterventions = appStore.currentComparison.scenarios.reduce((acc, scenario, i) => {
+    const intervention = appStore.getScenarioResponseIntervention(scenario);
+    if (intervention && scenario.runId) {
+      acc[scenario.runId] = { ...intervention, color: seriesColors[i % seriesColors.length] };
+    };
+    return acc;
+  }, {} as Record<string, TimeSeriesIntervention>);
+
+  if (props.toggledShowAllInterventions) {
+    return Object.values(allInterventions);
+  } else if (props.toggledShowBaselineIntervention && appStore.baselineScenario?.runId) {
+    return [allInterventions[appStore.baselineScenario.runId]];
   }
 
-  let itns: Array<ScenarioIntervention | undefined> = [];
-  if (props.toggledShowAllInterventions) {
-    itns = appStore.currentComparison.scenarios.map(s => appStore.getScenarioResponseIntervention(s));
-  } else if (props.toggledShowBaselineIntervention) {
-    itns = [appStore.getScenarioResponseIntervention(appStore.baselineScenario)];
-  };
-
-  itns = itns.filter(itn => itn !== undefined);
-
-  return itns.map((itn, idx) => {
-    return {
-      ...itn,
-      color: seriesColors[idx % seriesColors.length],
-    } as TimeSeriesIntervention;
-  });
+  return [];
 });
 const showInterventions = computed(() => Number(interventions.value?.length) > 0 && seriesCanShowInterventions(props.timeSeriesMetadata.id));
 const { interventionsPlotBands } = useInterventionsPlotBands(showInterventions, interventions);
@@ -208,7 +205,7 @@ const chartInitialOptions = () => {
     tooltip: {
       formatter() {
         const dayText = `<span style='font-size: 0.7rem; margin-bottom: 0.3rem;'>Day ${this.x}</span><br/>`;
-        const yText = `<span style='font-weight: 500'>${humanReadableInteger(this.y?.toFixed(0) ?? "0")}</span> ${props.yUnits}`;
+        const yText = `<span style='font-weight: 500'>${humanReadableInteger(this.y?.toFixed(0) ?? "0")}</span> ${yUnits.value}`;
         if (this.series.options.custom?.isBaseline) {
           return `${this.series.name} (baseline)<br/>${dayText}${yText}`;
         }

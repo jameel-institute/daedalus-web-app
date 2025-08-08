@@ -20,7 +20,7 @@ import "highcharts/esm/modules/offline-exporting";
 import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, menuItemDefinitionOptions, plotBandsColorName, plotBandsDefaultColor, plotLinesColorName } from "./utils/highCharts";
-import { getTimeSeriesDataPoints, seriesCanShowInterventions } from "./utils/timeSeriesData";
+import { getTimeSeriesDataPoints, seriesCanShowInterventions, timeSeriesYUnits } from "./utils/timeSeriesData";
 import useCapacitiesPlotLines from "~/composables/useCapacitiesPlotLines";
 import type { TimeSeriesIntervention } from "~/types/dataTypes";
 
@@ -31,7 +31,6 @@ const props = defineProps<{
   synchPoint: Highcharts.Point | undefined
   seriesRole: string
   timeSeriesMetadata: DisplayInfo
-  yUnits: string
 }>();
 
 const emit = defineEmits<{
@@ -56,6 +55,8 @@ const seriesColors = colorBlindSafeColors
   .map(c => c.rgb);
 
 const chartContainerId = computed(() => `${props.timeSeriesMetadata.id}-container`);
+
+const yUnits = computed(() => timeSeriesYUnits(props.timeSeriesMetadata.id));
 
 const data = computed(() => getTimeSeriesDataPoints(appStore.currentScenario, props.timeSeriesMetadata.id));
 
@@ -142,7 +143,7 @@ const chartInitialOptions = () => {
     },
     tooltip: {
       headerFormat: "<span style='font-size: 0.7rem; margin-bottom: 0.3rem;'>Day {point.x}</span><br/>",
-      pointFormat: `<span style='font-weight: 500'>{point.y}</span> ${props.yUnits}`,
+      pointFormat: `<span style='font-weight: 500'>{point.y}</span> ${yUnits.value}`,
       valueDecimals: 0,
     },
     xAxis: { // Omit title to save vertical space on page

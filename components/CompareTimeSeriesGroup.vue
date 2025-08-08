@@ -23,7 +23,6 @@
         :synch-point="props.synchPoint"
         :three-d="props.threeD"
         :time-series-metadata="activeSeriesMetadata"
-        :y-units="timeSeriesYUnits(props.seriesGroup.id)"
         @update-hover-point="(hoverPoint) => $emit('updateHoverPoint', hoverPoint)"
       />
     </div>
@@ -32,7 +31,6 @@
 
 <script lang="ts" setup>
 import type { TimeSeriesGroup } from "~/types/apiResponseTypes";
-import { timeSeriesYUnits } from "./utils/highCharts";
 import useTimeSeriesGroups from "~/composables/useTimeSeriesGroups";
 
 const props = defineProps<{

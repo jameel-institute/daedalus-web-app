@@ -8,7 +8,7 @@ import { defineStore } from "pinia";
 import { ExcelScenarioDownload } from "~/download/excelScenarioDownload";
 import type { ScenarioCapacity, ScenarioCost, ScenarioIntervention } from "~/types/resultTypes";
 import { CostBasis } from "~/types/unitTypes";
-import { getRangeForDependentParam } from "~/components/utils/parameters";
+import { getRangeForDependentParam, sortOptions } from "~/components/utils/parameters";
 import { getScenarioCategoryLabel } from "~/components/utils/highCharts";
 
 const emptyScenario = {
@@ -227,6 +227,14 @@ export const useAppStore = defineStore("app", {
 
       this.currentComparison.baseline = baseline;
       this.currentComparison.axis = axis;
+
+      if (this.axisMetadata) {
+        const scenarioAxisValues = this.currentComparison.scenarios.map(s => this.getScenarioAxisValue(s));
+        const order = sortOptions(this.axisMetadata, scenarioAxisValues);
+        this.currentComparison.scenarios.sort((a, b) => {
+          return order.indexOf(this.getScenarioAxisValue(a)) - order.indexOf(this.getScenarioAxisValue(b));
+        });
+      }
     },
     async runComparison(axis: string, baselineParameters: ParameterSet, selectedScenarioOptions: string[]) {
       if (!this.metadata) {

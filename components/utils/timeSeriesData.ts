@@ -11,3 +11,27 @@ export const seriesCanShowInterventions = (seriesId: string) => {
   // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
   return ["hospitalised", "new_hospitalised", "prevalence", "new_infected"].includes(seriesId);
 };
+
+// TODO: Make this depend on a 'units' property in metadata. https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-117/
+export const timeSeriesYUnits = (seriesId: string): string => {
+  switch (seriesId) {
+    case "prevalence":
+      return "cases";
+    case "new_infected":
+      return "new cases";
+    case "hospitalised":
+      return "in need of hospitalisation";
+    case "new_hospitalised":
+      return "new hospitalisations needed";
+    case "dead":
+      return "deaths";
+    case "new_dead":
+      return "new deaths";
+    case "vaccinated":
+      return "vaccinated";
+    case "new_vaccinated":
+      return "new vaccinations";
+    default:
+      return "cases";
+  }
+};
