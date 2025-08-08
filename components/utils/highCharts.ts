@@ -34,13 +34,13 @@ const vibrantColors: colorRgbHsl[] = [
 export const colorBlindSafeColors = [...vibrantColors, { name: "Black", rgb: "rgb(0,0,0)", hsl: convert.rgb.hsl(0, 0, 0) }];
 export const plotLinesColorName = "Red";
 export const plotLinesColor = colorBlindSafeColors.find(c => c.name === plotLinesColorName)!.rgb;
-const colorRgbAlpha = 0.3;
+export const plotBandsRgbAlpha = 0.3;
 export const plotBandsColorName = "Cyan";
-export const plotBandsColor = colorBlindSafeColors
-  .find(c => c.name === plotBandsColorName)!
-  .rgb
-  .replace("rgb", "rgba")
-  .replace(")", `,${colorRgbAlpha})`);
+export const plotBandsDefaultColor = colorBlindSafeColors.find(c => c.name === plotBandsColorName)!.rgb;
+export const addAlphaToRgb = (colorRgb: string, alpha: number): string => {
+  return colorRgb.replace("rgb", "rgba").replace(")", `,${alpha})`);
+};
+
 // Order the colors to privelege those which are least similar to the plot lines color.
 const multiScenarioTimeSeriesColorsOrder = ["Cyan", "Green", "Yellow", "Blue", "Purple", "Black", "Red"];
 export const multiScenarioTimeSeriesColors = colorBlindSafeColors

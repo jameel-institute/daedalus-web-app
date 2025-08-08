@@ -662,18 +662,6 @@ describe("app store", () => {
         });
       });
 
-      it("can get the interventions data", async () => {
-        const store = useAppStore();
-        store.currentScenario = structuredClone(unloadedScenario);
-
-        expect(store.interventionsData).toEqual(undefined);
-        await store.loadScenarioResult(store.currentScenario);
-
-        await waitFor(() => {
-          expect(store.interventionsData).toEqual(mockResultData.interventions);
-        });
-      });
-
       it("can get the costs data and 'total' cost data", async () => {
         const store = useAppStore();
         store.currentScenario = structuredClone(unloadedScenario);

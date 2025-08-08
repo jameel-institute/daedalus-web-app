@@ -19,9 +19,10 @@ import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
-import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, menuItemDefinitionOptions, plotBandsColor, plotBandsColorName, plotLinesColorName } from "./utils/highCharts";
-import { getTimeSeriesDataPoints } from "./utils/timeSeriesData";
+import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, menuItemDefinitionOptions, plotBandsColorName, plotBandsDefaultColor, plotLinesColorName } from "./utils/highCharts";
+import { getTimeSeriesDataPoints, seriesCanShowInterventions } from "./utils/timeSeriesData";
 import useCapacitiesPlotLines from "~/composables/useCapacitiesPlotLines";
+import type { TimeSeriesIntervention } from "~/types/dataTypes";
 
 const props = defineProps<{
   chartHeight: number
@@ -86,22 +87,15 @@ const getChartSeries = (): Array<Highcharts.SeriesLineOptions | Highcharts.Serie
 // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
 const showCapacities = computed(() => props.timeSeriesMetadata.id === "hospitalised");
 const { capacitiesPlotLines, minRange } = useCapacitiesPlotLines(showCapacities, appStore.capacitiesData);
-
-const interventionsPlotBands = computed(() => {
-  const bands = new Array<Highcharts.AxisPlotBandsOptions>();
-  // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
-  const usingPlotBands = ["hospitalised", "new_hospitalised", "prevalence", "new_infected"]
-    .includes(props.timeSeriesMetadata.id);
-  if (!usingPlotBands) {
-    return bands;
-  }
-
-  appStore.interventionsData?.forEach(({ start, end }) => {
-    bands.push({ from: start, to: end, color: plotBandsColor });
-  });
-
-  return bands;
+const showInterventions = computed(() => seriesCanShowInterventions(props.timeSeriesMetadata.id));
+const interventions = computed(() => {
+  const intervention = {
+    ...appStore.getScenarioResponseIntervention(appStore.currentScenario),
+    color: plotBandsDefaultColor,
+  } as TimeSeriesIntervention;
+  return intervention ? [intervention] : [];
 });
+const { interventionsPlotBands } = useInterventionsPlotBands(showInterventions, interventions);
 
 const exportingOptions = computed(() => ({
   filename: props.timeSeriesMetadata.label,
@@ -123,11 +117,7 @@ const exportingOptions = computed(() => ({
   menuItemDefinitions: menuItemDefinitionOptions,
 }));
 
-const yAxisOptions = computed(() => ({
-  title: {
-    text: "",
-  },
-  min: 0,
+const yAxisUpdatableOptions = computed(() => ({
   minRange: minRange.value,
   plotLines: capacitiesPlotLines.value,
 }));
@@ -157,11 +147,17 @@ const chartInitialOptions = () => {
     },
     xAxis: { // Omit title to save vertical space on page
       crosshair: true,
-      plotBands: interventionsPlotBands.value,
       minTickInterval: 1,
       min: 1,
+      plotBands: interventionsPlotBands.value,
     },
-    yAxis: yAxisOptions.value,
+    yAxis: {
+      ...yAxisUpdatableOptions.value,
+      title: {
+        text: "",
+      },
+      min: 0,
+    },
     series: getChartSeries(),
   } as Highcharts.Options;
 };
@@ -179,7 +175,7 @@ watch(() => props.timeSeriesMetadata, () => {
   if (chart.value && chart.value.yAxis[0].options.minRange !== minRange.value) {
     // If the minRange has changed, update the chart to reflect this.
     // This is necessary if the capacities have changed, for example.
-    updates = { ...updates, yAxis: yAxisOptions.value };
+    updates = { ...updates, yAxis: yAxisUpdatableOptions.value };
   };
 
   chart.value?.update(updates);

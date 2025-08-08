@@ -1,5 +1,5 @@
 <template>
-  <div class="compare-time-series-legend rounded border d-flex align-items-center gap-3 px-2 py-1">
+  <div class="bg-white rounded border d-flex align-items-center gap-3 px-2 py-1 shadow-sm">
     <p class="m-0">
       {{ appStore.axisMetadata?.label }}:
     </p>
@@ -31,9 +31,3 @@ const items = computed((): LegendItem[] => {
   return all;
 });
 </script>
-
-<style lang="scss">
-.compare-time-series-legend {
-  background-color: white;
-}
-</style>

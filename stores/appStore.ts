@@ -62,7 +62,6 @@ export const useAppStore = defineStore("app", {
     },
     globeParameter: (state): Parameter | undefined => state.metadata?.parameters.find(param => param.parameterType === TypeOfParameter.GlobeSelect),
     capacitiesData: (state): Array<ScenarioCapacity> | undefined => state.currentScenario.result.data?.capacities,
-    interventionsData: (state): Array<ScenarioIntervention> | undefined => state.currentScenario.result.data?.interventions,
     costsData: (state): Array<ScenarioCost> | undefined => state.currentScenario.result.data?.costs,
     totalCost(): ScenarioCost | undefined {
       if (this.costsData?.[0]?.id === "total") {
@@ -305,6 +304,9 @@ export const useAppStore = defineStore("app", {
     },
     getScenarioAxisLabel(scenario: Scenario): string {
       return getScenarioCategoryLabel(this.getScenarioAxisValue(scenario), this.axisMetadata);
+    },
+    getScenarioResponseIntervention(scenario: Scenario): ScenarioIntervention | undefined {
+      return scenario.result.data?.interventions.find(({ id }) => id === "response");
     },
   },
 });

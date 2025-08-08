@@ -6,20 +6,35 @@
 </template>
 
 <script setup lang="ts">
-import { type LegendItem, LegendShape, plotBandsColor, plotLinesColor } from "./utils/highCharts";
+import { addAlphaToRgb, type LegendItem, LegendShape, plotBandsDefaultColor, plotBandsRgbAlpha, plotLinesColor } from "./utils/highCharts";
+
+const props = defineProps<{
+  plotBandsAreBaselineOnly?: boolean
+  showPlotBands: boolean
+  showPlotLines: boolean
+}>();
 
 const appStore = useAppStore();
 
-const items = computed((): LegendItem[] => {
-  const plotLineItems = appStore.metadata?.results.capacities.map((capacity) => {
+const plotLineItems = computed(() => {
+  if (!props.showPlotLines) {
+    return [];
+  }
+  return appStore.metadata?.results.capacities.map((capacity) => {
     return { color: plotLinesColor, label: capacity.label, shape: LegendShape.Line };
   }) ?? [];
+});
 
-  if (appStore.currentScenario.parameters?.response === "none") {
-    return plotLineItems;
+const items = computed((): LegendItem[] => {
+  if (appStore.currentScenario.parameters?.response === "none" || !props.showPlotBands) {
+    return plotLineItems.value;
   }
 
-  const plotBandsItem = { color: plotBandsColor, label: "Pandemic response", shape: LegendShape.Rectangle };
-  return [plotBandsItem, ...plotLineItems];
+  const plotBandsItem = {
+    color: addAlphaToRgb(plotBandsDefaultColor, plotBandsRgbAlpha),
+    label: props.plotBandsAreBaselineOnly ? "Pandemic response (baseline scenario)" : "Pandemic response",
+    shape: LegendShape.Rectangle,
+  };
+  return [plotBandsItem, ...plotLineItems.value];
 });
 </script>

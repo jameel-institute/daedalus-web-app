@@ -1,5 +1,5 @@
 import type { HSL } from "color-convert";
-import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, getColorVariants, plotBandsColor, timeSeriesColors } from "~/components/utils/highCharts";
+import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, getColorVariants, plotBandsDefaultColor, timeSeriesColors } from "~/components/utils/highCharts";
 import { CostBasis } from "~/types/unitTypes";
 import { mockMetadataResponseData } from "../../mocks/mockResponseData";
 import { TypeOfParameter } from "~/types/parameterTypes";
@@ -7,7 +7,7 @@ import { TypeOfParameter } from "~/types/parameterTypes";
 describe("plotBandsColor", () => {
   it("should be in the correct rgba format", () => {
     const rgbaFormat = /^rgba\((\d{1,3}),(\d{1,3}),(\d{1,3}),(\d(\.\d+)?)\)$/;
-    expect(plotBandsColor).toMatch(rgbaFormat);
+    expect(plotBandsDefaultColor).toMatch(rgbaFormat);
   });
 });
 

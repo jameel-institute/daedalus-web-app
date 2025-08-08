@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card shadow-sm">
     <div class="card-header d-flex align-items-center">
       <TimeSeriesHeader :series-metadata="activeSeriesMetadata" />
       <div v-if="allowShowCapacities" class="ms-auto">
@@ -18,7 +18,10 @@
         :group-index="props.groupIndex"
         :hide-tooltips="props.hideTooltips"
         :show-capacities="toggledShowCapacities && allowShowCapacities"
+        :toggled-show-baseline-intervention="toggledShowBaselineIntervention"
+        :toggled-show-all-interventions="toggledShowAllInterventions"
         :synch-point="props.synchPoint"
+        :three-d="props.threeD"
         :time-series-metadata="activeSeriesMetadata"
         :y-units="timeSeriesYUnits(props.seriesGroup.id)"
         @update-hover-point="(hoverPoint) => $emit('updateHoverPoint', hoverPoint)"
@@ -37,7 +40,10 @@ const props = defineProps<{
   hideTooltips: boolean
   isDaily: boolean
   seriesGroup: TimeSeriesGroup
+  toggledShowBaselineIntervention: boolean
+  toggledShowAllInterventions: boolean
   synchPoint: Highcharts.Point | undefined
+  threeD: boolean
 }>();
 
 defineEmits<{
@@ -51,16 +57,14 @@ const appStore = useAppStore();
 const { activeSeriesMetadata } = useTimeSeriesGroups(() => props.seriesGroup, () => props.isDaily);
 
 const capacities = computed(() => appStore.metadata?.results.capacities);
-const capacityLabel = computed(() => capacities.value?.[0].label.toLocaleLowerCase());
+const hospitalCapacityId = "hospital_capacity";
+const capacityLabel = computed(() => capacities.value?.find(c => c.id === hospitalCapacityId)?.label.toLocaleLowerCase());
 // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
 const allowShowCapacities = computed(() => activeSeriesMetadata.value?.id === "hospitalised");
 const capacityVariesByScenario = computed(() => {
-  const capacityId = capacities.value?.[0].id;
-  if (!capacityId) {
-    return false;
-  }
-  // E.g. scenarios may vary by the hospital_capacity parameter, and this is one of the capacities we can show.
-  const scenarioValues = appStore.currentComparison.scenarios.map(s => s.parameters?.[capacityId]);
+  const scenarioValues = appStore.currentComparison.scenarios.map((scenario) => {
+    return scenario.result.data?.capacities?.find(c => c.id === hospitalCapacityId)?.value;
+  });
   return !scenarioValues.every(v => v === scenarioValues[0]);
 });
 const switchLabel = computed(() => {

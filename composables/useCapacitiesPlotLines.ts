@@ -8,7 +8,7 @@ export default (
   const appStore = useAppStore();
 
   const capacitiesPlotLines = computed(() => {
-    if (!toValue(showCapacities) || !toValue(capacities)) {
+    if (!toValue(showCapacities)) {
       return [];
     }
 

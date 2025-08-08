@@ -17,17 +17,23 @@ import "highcharts/esm/modules/accessibility";
 import "highcharts/esm/modules/exporting";
 import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
+import "highcharts/esm/highcharts-3d";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
-import type { TimeSeriesDataPoint } from "~/types/dataTypes";
+import type { TimeSeriesDataPoint, TimeSeriesIntervention } from "~/types/dataTypes";
 import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions, multiScenarioTimeSeriesColors } from "./utils/highCharts";
-import { getTimeSeriesDataPoints } from "./utils/timeSeriesData";
+import { getTimeSeriesDataPoints, seriesCanShowInterventions } from "./utils/timeSeriesData";
+import { humanReadableInteger } from "./utils/formatters";
+import type { ScenarioIntervention } from "~/types/resultTypes";
 
 const props = defineProps<{
   groupIndex: number // Probably 0 to about 4
   hideTooltips: boolean
   showCapacities: boolean
   synchPoint: Highcharts.Point | undefined
+  threeD: boolean
   timeSeriesMetadata: DisplayInfo
+  toggledShowBaselineIntervention: boolean
+  toggledShowAllInterventions: boolean
   yUnits: string
 }>();
 
@@ -37,6 +43,7 @@ const emit = defineEmits<{
 
 const appStore = useAppStore();
 
+const areaSeriesDepth = 30;
 const chartContainer = ref<HTMLDivElement | null>(null);
 const chart = ref<Highcharts.Chart | undefined>(undefined);
 
@@ -68,8 +75,8 @@ const scenariosData = computed(() => {
   }, {} as Record<string, Record<string, string | TimeSeriesDataPoint[]>>);
 });
 
-const getChartSeries = (): Highcharts.SeriesLineOptions[] => {
-  const series: Highcharts.SeriesLineOptions[] = [];
+const getChartSeries = () => {
+  const series: Array<Highcharts.SeriesLineOptions | Highcharts.SeriesAreaOptions> = [];
   appStore.currentComparison.scenarios.forEach((scenario, index) => {
     if (!scenario.runId) {
       return;
@@ -78,10 +85,11 @@ const getChartSeries = (): Highcharts.SeriesLineOptions[] => {
     const scenarioData = scenariosData.value[scenario.runId];
 
     series.push({
-      type: "line",
+      type: props.threeD ? "area" : "line",
       data: scenarioData.dataPoints as TimeSeriesDataPoint[],
       name: `${appStore.axisMetadata?.label}: ${scenarioData.label}`,
       color: seriesColors[index % seriesColors.length],
+      fillOpacity: 0.4,
       marker: {
         enabled: false,
         symbol: "circle",
@@ -100,6 +108,7 @@ const getChartSeries = (): Highcharts.SeriesLineOptions[] => {
       custom: {
         synchronized: true,
         id: scenarioData.axisVal,
+        isBaseline,
       },
     });
   });
@@ -108,12 +117,64 @@ const getChartSeries = (): Highcharts.SeriesLineOptions[] => {
 };
 
 const baselineCapacities = computed(() => appStore.baselineScenario?.result.data?.capacities);
-
 const { capacitiesPlotLines, minRange } = useCapacitiesPlotLines(() => props.showCapacities, baselineCapacities);
+
+const interventions = computed(() => {
+  if (!appStore.baselineScenario) {
+    return [];
+  }
+
+  let itns: Array<ScenarioIntervention | undefined> = [];
+  if (props.toggledShowAllInterventions) {
+    itns = appStore.currentComparison.scenarios.map(s => appStore.getScenarioResponseIntervention(s));
+  } else if (props.toggledShowBaselineIntervention) {
+    itns = [appStore.getScenarioResponseIntervention(appStore.baselineScenario)];
+  };
+
+  itns = itns.filter(itn => itn !== undefined);
+
+  return itns.map((itn, idx) => {
+    return {
+      ...itn,
+      color: seriesColors[idx % seriesColors.length],
+    } as TimeSeriesIntervention;
+  });
+});
+const showInterventions = computed(() => Number(interventions.value?.length) > 0 && seriesCanShowInterventions(props.timeSeriesMetadata.id));
+const { interventionsPlotBands } = useInterventionsPlotBands(showInterventions, interventions);
 
 const exportingChartTitle = computed(() => {
   return `${props.timeSeriesMetadata.label} by ${appStore.axisMetadata?.label.toLocaleLowerCase()}`;
 });
+
+const exportingOptions = computed(() => ({
+  filename: props.timeSeriesMetadata.label,
+  chartOptions: {
+    title: {
+      text: exportingChartTitle.value,
+    },
+    subtitle: {
+      text: props.timeSeriesMetadata.description,
+    },
+    chart: {
+      backgroundColor: chartBackgroundColorOnExporting,
+      height: 500,
+      marginBottom: undefined,
+    },
+    legend: {
+      enabled: true,
+    },
+  },
+  buttons: {
+    contextButton: contextButtonOptions,
+  },
+  menuItemDefinitions: menuItemDefinitionOptions,
+}));
+
+const yAxisUpdatableOptions = computed(() => ({
+  minRange: minRange.value,
+  plotLines: capacitiesPlotLines.value,
+}));
 
 const chartInitialOptions = () => {
   return {
@@ -125,30 +186,19 @@ const chartInitialOptions = () => {
       height: 250,
       marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
       marginBottom: 55,
-    },
-    exporting: {
-      filename: props.timeSeriesMetadata.label,
-      chartOptions: {
-        title: {
-          text: exportingChartTitle.value,
-        },
-        subtitle: {
-          text: props.timeSeriesMetadata.description,
-        },
-        chart: {
-          backgroundColor: chartBackgroundColorOnExporting,
-          height: 500,
-          marginBottom: undefined,
-        },
-        legend: {
-          enabled: true,
-        },
+      options3d: {
+        enabled: props.threeD,
+        alpha: 15,
+        beta: 20,
+        depth: appStore.currentComparison.scenarios.length * areaSeriesDepth,
       },
-      buttons: {
-        contextButton: contextButtonOptions,
-      },
-      menuItemDefinitions: menuItemDefinitionOptions,
     },
+    plotOptions: {
+      area: {
+        depth: areaSeriesDepth,
+      },
+    },
+    exporting: exportingOptions.value,
     title: {
       text: "",
     },
@@ -156,9 +206,17 @@ const chartInitialOptions = () => {
       enabled: false,
     },
     tooltip: {
-      headerFormat: `{series.name}<br/><span style='font-size: 0.7rem; margin-bottom: 0.3rem;'>Day {point.x}</span><br/>`,
-      pointFormat: `<span style='font-weight: 500'>{point.y}</span> ${props.yUnits}`,
-      valueDecimals: 0,
+      formatter() {
+        const dayText = `<span style='font-size: 0.7rem; margin-bottom: 0.3rem;'>Day ${this.x}</span><br/>`;
+        const yText = `<span style='font-weight: 500'>${humanReadableInteger(this.y?.toFixed(0) ?? "0")}</span> ${props.yUnits}`;
+        if (this.series.options.custom?.isBaseline) {
+          return `${this.series.name} (baseline)<br/>${dayText}${yText}`;
+        }
+        const baselineSeries = this.series.chart.series.find(s => s.options.custom?.isBaseline);
+        const matchingPointInBaseline = baselineSeries?.data.find(p => p.x === this.x);
+        return `${this.series.name}<br/>${dayText}${yText}`
+          + ` (baseline: ${humanReadableInteger(matchingPointInBaseline?.y?.toFixed(0) ?? "0")})`;
+      },
     },
     xAxis: {
       title: {
@@ -167,14 +225,14 @@ const chartInitialOptions = () => {
       crosshair: true,
       minTickInterval: 1,
       min: 1,
+      plotBands: interventionsPlotBands.value,
     },
     yAxis: {
+      ...yAxisUpdatableOptions.value,
       title: {
         text: "",
       },
       min: 0,
-      minRange: minRange.value,
-      plotLines: capacitiesPlotLines.value,
     },
     series: getChartSeries(),
   } as Highcharts.Options;
@@ -182,31 +240,23 @@ const chartInitialOptions = () => {
 
 watch(() => props.timeSeriesMetadata, () => {
   chart.value?.update({
-    exporting: {
-      filename: props.timeSeriesMetadata.label,
-      chartOptions: {
-        title: {
-          text: exportingChartTitle.value,
-        },
-        subtitle: {
-          text: props.timeSeriesMetadata.description,
-        },
-      },
-    },
+    exporting: exportingOptions.value,
     series: getChartSeries(),
-    yAxis: {
-      minRange: minRange.value,
-      plotLines: capacitiesPlotLines.value,
-    },
+    yAxis: yAxisUpdatableOptions.value,
   });
 });
 
-watch(() => props.showCapacities, () => {
+watch(yAxisUpdatableOptions, newYAxisOptions => chart.value?.update({ yAxis: newYAxisOptions }));
+watch(interventionsPlotBands, newPlotBands => chart.value?.update({ xAxis: { plotBands: newPlotBands } }));
+
+watch(() => props.threeD, () => {
   chart.value?.update({
-    yAxis: {
-      minRange: minRange.value,
-      plotLines: capacitiesPlotLines.value,
+    chart: {
+      options3d: {
+        enabled: props.threeD,
+      },
     },
+    series: getChartSeries(),
   });
 });
 
