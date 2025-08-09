@@ -26,6 +26,7 @@
         v-else
         v-model="toggledShowBaselineIntervention"
         label="Show pandemic response intervention"
+        @update:model-value="handleToggleShowBaselineIntervention"
       />
       <CFormSwitch
         v-model="enable3d"

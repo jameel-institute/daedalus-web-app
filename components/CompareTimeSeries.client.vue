@@ -21,9 +21,10 @@ import "highcharts/esm/highcharts-3d";
 import "highcharts/esm/highcharts-more";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import type { TimeSeriesDataPoint, TimeSeriesIntervention } from "~/types/dataTypes";
-import { addAlphaToRgb, chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, getScenarioCategoryLabel, menuItemDefinitionOptions, multiScenarioTimeSeriesColors, plotBandsRgbAlpha } from "./utils/highCharts";
-import { getTimeSeriesDataPoints, seriesCanShowInterventions, timeSeriesYUnits } from "./utils/timeSeriesData";
+import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, getScenarioCategoryLabel, menuItemDefinitionOptions, multiScenarioTimeSeriesColors } from "./utils/highCharts";
+import { getTimeSeriesDataPoints, timeSeriesYUnits } from "./utils/timeSeriesData";
 import { humanReadableInteger } from "./utils/formatters";
+import useInterventionsAreaRanges from "~/composables/useInterventionsAreaRanges";
 
 const props = defineProps<{
   groupIndex: number // Probably 0 to about 4
@@ -132,46 +133,10 @@ const interventions = computed((): TimeSeriesIntervention[] => {
   return [];
 });
 
-const interventionsAreaRangeSeries = computed(() => {
-  return interventions.value.map((intervention, index) => {
-    return {
-      type: "arearange",
-      color: addAlphaToRgb(intervention.color, plotBandsRgbAlpha),
-      maxRange: appStore.currentComparison.scenarios.length - 1,
-      data: [{
-        x: intervention.start,
-        low: index,
-        high: index + 1,
-      }, {
-        x: intervention.end,
-        low: index,
-        high: index + 1,
-      }],
-      enableMouseTracking: false, // prevents tooltips
-      marker: {
-        enabled: false,
-      },
-      states: {
-        inactive: {
-          enabled: false,
-        },
-      },
-      custom: {
-        synchronized: false,
-        id: `intervention${index}`,
-      },
-    };
-  }).filter(x => !!x) as Highcharts.SeriesArearangeOptions[];
-});
-
-const showInterventions = computed(() => Number(interventions.value?.length) > 0 && seriesCanShowInterventions(props.timeSeriesMetadata.id));
+const { interventionsAreaRangeSeries, interventionsYAxisOptions } = useInterventionsAreaRanges(() => props.timeSeriesMetadata, interventions);
 
 const allSeries = computed(() => {
-  if (showInterventions.value) {
-    return [...chartTimeSeries.value, ...interventionsAreaRangeSeries.value] as Array<Highcharts.SeriesLineOptions | Highcharts.SeriesAreaOptions | Highcharts.SeriesArearangeOptions>;
-  }
-
-  return chartTimeSeries.value as Array<Highcharts.SeriesLineOptions | Highcharts.SeriesAreaOptions>;
+  return [...chartTimeSeries.value, ...interventionsAreaRangeSeries.value] as Array<Highcharts.SeriesLineOptions | Highcharts.SeriesAreaOptions | Highcharts.SeriesArearangeOptions>;
 });
 
 const exportingChartTitle = computed(() => {
@@ -211,18 +176,7 @@ const yAxisUpdatableOptions = computed(() => ([
     },
     min: 0,
   },
-  {
-    alignTicks: false,
-    gridLineWidth: 0,
-    title: {
-      text: "",
-    },
-    labels: {
-      enabled: false,
-    },
-    min: 0,
-    max: interventions.value.length,
-  },
+  interventionsYAxisOptions.value,
 ]));
 
 const chartInitialOptions = () => {

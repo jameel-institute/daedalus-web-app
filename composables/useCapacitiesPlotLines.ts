@@ -24,6 +24,7 @@ export default (
           style: {
             color: plotLinesColor,
           },
+          align: "middle",
         },
         width: 2,
         value,
