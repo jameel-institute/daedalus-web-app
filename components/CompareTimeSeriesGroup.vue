@@ -21,7 +21,7 @@
         :toggled-show-baseline-intervention="toggledShowBaselineIntervention"
         :toggled-show-all-interventions="toggledShowAllInterventions"
         :synch-point="props.synchPoint"
-        :three-d="props.threeD"
+        :enable3d="props.enable3d"
         :time-series-metadata="activeSeriesMetadata"
         @update-hover-point="(hoverPoint) => $emit('updateHoverPoint', hoverPoint)"
       />
@@ -41,7 +41,7 @@ const props = defineProps<{
   toggledShowBaselineIntervention: boolean
   toggledShowAllInterventions: boolean
   synchPoint: Highcharts.Point | undefined
-  threeD: boolean
+  enable3d: boolean
 }>();
 
 defineEmits<{

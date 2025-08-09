@@ -15,8 +15,8 @@ export default (
         from: start,
         to: end,
         color: addAlphaToRgb(color, plotBandsRgbAlpha),
-      } as Highcharts.AxisPlotBandsOptions;
-    });
+      };
+    }).filter(p => !!p) as Array<Highcharts.AxisPlotBandsOptions>;
   });
 
   return { interventionsPlotBands };
