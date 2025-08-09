@@ -10,7 +10,7 @@
     </CAlert>
     <div class="d-flex mb-3 flex-wrap gap-2">
       <h1 class="fs-3 mb-0 pt-1 pe-5 me-auto text-nowrap flex-fill">
-        Explore by {{ appStore.axisLabel?.toLocaleLowerCase() }}
+        {{ pageHeading }}
       </h1>
       <ParameterInfoCard :scenario="appStore.baselineScenario">
         <template #header>
@@ -44,8 +44,8 @@
             </CTab>
           </CTabList>
           <CTabContent class="">
-            <CTabPanel class="pt-3" item-key="costs">
-              <div class="d-flex align-items-start mx-2">
+            <CTabPanel item-key="costs">
+              <div class="d-flex align-items-center mx-2 mb-1">
                 <CostBasisToggler />
                 <div class="ms-auto">
                   <CompareCostsLegend />
@@ -54,9 +54,7 @@
               <CompareCostsChart />
             </CTabPanel>
             <CTabPanel item-key="timeseries">
-              <p class="time-series-example">
-                A time series
-              </p>
+              <CompareTimeSeriesPane />
             </CTabPanel>
           </CTabContent>
         </CTabs>
@@ -105,7 +103,7 @@
           :class="{ 'text-primary': scenarioIsBaseline(scenario) }"
         >
           <td>
-            {{ appStore.getScenarioAxisValue(scenario) }}
+            {{ appStore.getScenarioAxisLabel(scenario) }}
             <span v-if="scenarioIsBaseline(scenario)">
               (Baseline)
             </span>
@@ -175,6 +173,13 @@ appStore.downloadError = undefined;
 let statusInterval: NodeJS.Timeout;
 
 const axis = computed(() => appStore.currentComparison.axis);
+const pageHeading = computed(() => {
+  if (appStore.axisMetadata) {
+    return `Explore by ${appStore.axisMetadata?.label.toLocaleLowerCase()}`;
+  } else {
+    return "";
+  }
+});
 
 const totalCost = (scenario: Scenario) => {
   const cost = scenario?.result?.data?.costs[0].value;

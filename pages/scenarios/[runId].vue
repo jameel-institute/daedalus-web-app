@@ -38,7 +38,7 @@
       </p>
     </CAlert>
     <CAlert
-      v-if="!appStore.timeSeriesData && jobSlow && appStore.currentScenario.status.data?.runStatus"
+      v-if="!appStore.costsData && jobSlow && appStore.currentScenario.status.data?.runStatus"
       :color="jobReallySlow ? 'warning' : 'info'"
     >
       <p v-if="jobReallySlow">

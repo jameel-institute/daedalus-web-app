@@ -650,18 +650,6 @@ describe("app store", () => {
         });
       });
 
-      it("can get the time series data", async () => {
-        const store = useAppStore();
-        store.currentScenario = structuredClone(unloadedScenario);
-
-        expect(store.timeSeriesData).toEqual(undefined);
-        await store.loadScenarioResult(store.currentScenario);
-
-        await waitFor(() => {
-          expect(store.timeSeriesData).toEqual(mockResultData.time_series);
-        });
-      });
-
       it("can get the capacities data", async () => {
         const store = useAppStore();
         store.currentScenario = structuredClone(unloadedScenario);
@@ -671,18 +659,6 @@ describe("app store", () => {
 
         await waitFor(() => {
           expect(store.capacitiesData).toEqual(mockResultData.capacities);
-        });
-      });
-
-      it("can get the interventions data", async () => {
-        const store = useAppStore();
-        store.currentScenario = structuredClone(unloadedScenario);
-
-        expect(store.interventionsData).toEqual(undefined);
-        await store.loadScenarioResult(store.currentScenario);
-
-        await waitFor(() => {
-          expect(store.interventionsData).toEqual(mockResultData.interventions);
         });
       });
 
@@ -803,15 +779,15 @@ describe("app store", () => {
         expect(store.everyScenarioHasCosts).toBe(true);
       });
 
-      it("can get the label for the axis of a comparison", async () => {
+      it("can get the metadata for the axis of a comparison", async () => {
         const store = useAppStore();
         await store.loadMetadata();
 
         store.currentComparison = { axis: "vaccine", baseline: "high", scenarios: [] };
-        expect(store.axisLabel).toEqual("Global vaccine investment");
+        expect(store.axisMetadata?.label).toEqual("Global vaccine investment");
 
         store.currentComparison.axis = "country";
-        expect(store.axisLabel).toEqual("Country");
+        expect(store.axisMetadata?.label).toEqual("Country");
       });
 
       it("can get the baseline scenario for a comparison", async () => {
