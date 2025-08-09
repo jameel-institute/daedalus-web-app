@@ -72,7 +72,7 @@ const interventions = computed(() => {
 });
 const { interventionsAreaRangeSeries, interventionsYAxisOptions } = useInterventionsAreaRanges(() => props.timeSeriesMetadata, interventions);
 
-const getChartSeries = (): Array<Highcharts.SeriesLineOptions | Highcharts.SeriesAreaOptions | Highcharts.SeriesArearangeOptions> => {
+const chartSeries = computed((): Array<Highcharts.SeriesLineOptions | Highcharts.SeriesAreaOptions | Highcharts.SeriesArearangeOptions> => {
   return [{
     type: props.seriesRole === "total" ? "area" : "line",
     data: data.value,
@@ -95,7 +95,7 @@ const getChartSeries = (): Array<Highcharts.SeriesLineOptions | Highcharts.Serie
       id: appStore.currentScenario.runId,
     },
   }, ...interventionsAreaRangeSeries.value];
-};
+});
 
 const exportingOptions = computed(() => ({
   filename: props.timeSeriesMetadata.label,
@@ -163,14 +163,14 @@ const chartInitialOptions = () => {
       min: 1,
     },
     yAxis: yAxisUpdatableOptions.value,
-    series: getChartSeries(),
+    series: chartSeries.value,
   } as Highcharts.Options;
 };
 
 watch(() => props.timeSeriesMetadata, () => {
   let updates = {
     exporting: exportingOptions.value,
-    series: getChartSeries(),
+    series: chartSeries.value,
   } as Highcharts.Options;
 
   // Only update the yAxis if necessary, since doing so prevents the redraw animation.
