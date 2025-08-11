@@ -3,7 +3,7 @@
     <div class="d-flex flex-wrap align-items-center ms-1 mb-3 gap-4">
       <CFormSwitch
         v-model="isDaily"
-        label="New per day"
+        label="Show new events per day"
       />
       <div v-if="interventionVariesByScenario" class="d-flex align-items-center gap-2">
         <CFormLabel class="mb-0">
