@@ -86,11 +86,8 @@ const chartTimeSeries = computed(() => {
       name: `${appStore.axisMetadata?.label}: ${getScenarioCategoryLabel(scenarioAxisVal, appStore.axisMetadata)}`,
       color: seriesColors[index % seriesColors.length],
       fillOpacity: 0.4,
-      marker: {
-        enabled: false,
-        symbol: "circle",
-      },
       lineWidth: isBaseline ? 3 : 1.5,
+      opacity: isBaseline ? 1 : 0.5,
       states: {
         hover: {
           lineWidth: 3,
