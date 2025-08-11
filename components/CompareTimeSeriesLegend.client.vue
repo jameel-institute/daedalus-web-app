@@ -5,9 +5,9 @@
     </p>
     <ChartLegend
       :items="items"
-      :row-height-rem="0.9"
+      :row-height-rem="1"
       class="m-0 p-0 d-flex flex-direction-column flex-wrap column-gap-3 row-gap-1"
-      style="height: 2.1rem"
+      style="height: 2.3rem"
     />
   </div>
 </template>
@@ -24,7 +24,7 @@ const items = computed((): LegendItem[] => {
     return {
       color: multiScenarioTimeSeriesColors[index].rgb,
       label: `${appStore.getScenarioAxisLabel(scenario)} ${(isBaseline ? " (baseline)" : "")}`,
-      shape: LegendShape.Circle,
+      shape: LegendShape.Line,
     };
   }) || [];
 
