@@ -32,8 +32,6 @@ const props = defineProps<{
   synchPoint: Highcharts.Point | undefined
   enable3d: boolean
   timeSeriesMetadata: DisplayInfo
-  toggledShowBaselineIntervention: boolean
-  toggledShowAllInterventions: boolean
 }>();
 
 const emit = defineEmits<{

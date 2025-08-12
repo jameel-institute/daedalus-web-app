@@ -9,7 +9,6 @@
 import { addAlphaToRgb, type LegendItem, LegendShape, multiScenarioTimeSeriesColors, plotBandsDefaultColor, plotBandsRgbAlpha, plotLinesColor } from "./utils/highCharts";
 
 const props = defineProps<{
-  showPlotBands: boolean
   showPlotLines: boolean
 }>();
 
@@ -25,7 +24,7 @@ const plotLineItems = computed(() => {
 });
 
 const items = computed((): LegendItem[] => {
-  if (appStore.currentScenario.parameters?.response === "none" || !props.showPlotBands) {
+  if (appStore.currentScenario.parameters?.response === "none") {
     return plotLineItems.value;
   }
 

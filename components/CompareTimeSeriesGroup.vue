@@ -19,8 +19,6 @@
         :group-index="props.groupIndex"
         :hide-tooltips="props.hideTooltips"
         :show-capacities="toggledShowCapacities && allowShowCapacities"
-        :toggled-show-baseline-intervention="toggledShowBaselineIntervention"
-        :toggled-show-all-interventions="toggledShowAllInterventions"
         :synch-point="props.synchPoint"
         :enable3d="props.enable3d"
         :time-series-metadata="activeSeriesMetadata"
@@ -39,8 +37,6 @@ const props = defineProps<{
   hideTooltips: boolean
   isDaily: boolean
   seriesGroup: TimeSeriesGroup
-  toggledShowBaselineIntervention: boolean
-  toggledShowAllInterventions: boolean
   synchPoint: Highcharts.Point | undefined
   enable3d: boolean
 }>();
