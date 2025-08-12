@@ -87,7 +87,6 @@ const chartTimeSeries = computed(() => {
       color: seriesColors[index % seriesColors.length],
       fillOpacity: 0.4,
       marker: {
-        enabled: false,
         symbol: "circle",
       },
       lineWidth: isBaseline ? 3 : 1.5,

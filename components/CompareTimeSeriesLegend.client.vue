@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white rounded border d-flex align-items-center gap-3 px-2 py-1 shadow-sm">
-    <p class="m-0">
-      {{ appStore.axisMetadata?.label }}:
+    <p class="m-0 small">
+      Scenarios by {{ appStore.axisMetadata?.label.toLocaleLowerCase() }}:
     </p>
     <ChartLegend
       :items="items"
