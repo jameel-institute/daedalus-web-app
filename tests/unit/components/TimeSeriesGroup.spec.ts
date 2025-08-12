@@ -47,7 +47,6 @@ const getProps = (open = true) => ({
   open,
   chartHeightPx: 100,
   minChartHeightPx: 50,
-  synchGroupId: "synch-group-1",
   synchPoint: { x: 1, y: 2 },
 });
 

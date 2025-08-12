@@ -36,7 +36,6 @@ const props = {
   yUnits: "in need of hospitalisation",
   chartHeight: 100,
   seriesRole: "total",
-  synchGroupId: "synch-group-1",
   synchPoint: { x: 1, y: 2 },
 };
 

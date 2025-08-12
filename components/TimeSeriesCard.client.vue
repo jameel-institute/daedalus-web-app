@@ -7,7 +7,10 @@
           Time series
         </h2>
       </div>
-      <TimeSeriesLegend />
+      <PlotLinesBandsLegend
+        :show-plot-bands="true"
+        :show-plot-lines="true"
+      />
     </div>
     <div class="card-body p-0">
       <TimeSeriesGroup
@@ -16,9 +19,7 @@
         :series-group="seriesGroup"
         :group-index="index"
         :open="openedAccordions.includes(seriesGroup.id)"
-        :chart-height-px="chartHeightPx"
-        :min-chart-height-px="minChartHeightPx"
-        :synch-group-id="synchGroupId"
+        :chart-height="openedAccordions.includes(seriesGroup.id) ? chartHeightPx : minChartHeightPx"
         :hide-tooltips="hideTooltips"
         :synch-point="hoverPoint"
         @hide-all-tooltips="hideAllTooltipsAndCrosshairs"
@@ -31,47 +32,17 @@
 
 <script setup lang="ts">
 import { CIcon } from "@coreui/icons-vue";
-import Highcharts from "highcharts/esm/highcharts";
-import { useUniqueId } from "@coreui/vue";
+import useSynchroniseCharts from "~/composables/useChartSynchroniser";
 
 const appStore = useAppStore();
 const { openedAccordions, chartHeightPx, minChartHeightPx } = useTimeSeriesAccordionHeights();
 
-// All charts that synchronize with one another share the same synchGroupId.
-// A different group of charts that synchronize together would have a different synchGroupId.
-const { getUID } = useUniqueId();
-const synchGroupId = getUID();
-const hoverPoint = ref<Highcharts.Point | null>(null);
-const hideTooltips = ref(false);
-
-const updateHoverPoint = (point: Highcharts.Point) => {
-  hideTooltips.value = false;
-  hoverPoint.value = point;
-};
-
-/**
- * Here, we use Highcharts' 'wrap' utility to make the onContainerMouseLeave method of the Pointer class
- * ignore onContainerMouseLeave events for charts that are synchronized, which appears
- * to be necessary to prevent tooltips and crosshairs from disappearing when the mouse moves *within* a chart,
- * not (as might be expected) when it leaves the chart container.
- * That seems to be a side-effect of syncTooltipsAndCrosshairs calling point.onMouseOver().
- */
-Highcharts.wrap(
-  Highcharts.Pointer.prototype,
-  "onContainerMouseLeave",
-  function (this: Highcharts.Pointer, proceed, ...args) {
-    const chartIsGroupMember = this.chart.series[0].options.custom?.synchronizationGroupId === synchGroupId;
-    if (chartIsGroupMember) {
-      proceed.apply(this, args);
-    }
-  },
-);
-
-const hideAllTooltipsAndCrosshairs = () => {
-  setTimeout(() => {
-    hideTooltips.value = true;
-  }, 500);
-};
+const {
+  hoverPoint,
+  hideTooltips,
+  updateHoverPoint,
+  hideAllTooltipsAndCrosshairs,
+} = useSynchroniseCharts();
 
 const toggleOpen = (seriesGroupId: string) => {
   hideTooltips.value = true;
@@ -90,10 +61,7 @@ onMounted(() => {
   initializeAccordions();
 });
 
-watch(() => (Object.keys(appStore.timeSeriesData || {})), () => {
+watch(() => (Object.keys(appStore.currentScenario.result.data?.time_series || {})), () => {
   initializeAccordions();
 });
 </script>
-
-<style scoped lang="scss">
-</style>
