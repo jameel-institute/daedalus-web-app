@@ -13,8 +13,9 @@
       class="card-body py-1 px-0"
       @mouseleave="$emit('hideAllTooltips')"
     >
-      <CompareTimeSeries
+      <LazyCompareTimeSeries
         v-if="activeSeriesMetadata"
+        hydrate-on-idle
         :group-index="props.groupIndex"
         :hide-tooltips="props.hideTooltips"
         :show-capacities="toggledShowCapacities && allowShowCapacities"
