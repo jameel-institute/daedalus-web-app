@@ -10,6 +10,7 @@ import type { ScenarioCapacity, ScenarioCost, ScenarioIntervention } from "~/typ
 import { CostBasis } from "~/types/unitTypes";
 import { getRangeForDependentParam, sortOptions } from "~/components/utils/parameters";
 import { getScenarioCategoryLabel } from "~/components/utils/highCharts";
+import { responseInterventionId } from "~/components/utils/timeSeriesData";
 
 const emptyScenario = {
   runId: undefined,
@@ -314,7 +315,7 @@ export const useAppStore = defineStore("app", {
       return getScenarioCategoryLabel(this.getScenarioAxisValue(scenario), this.axisMetadata);
     },
     getScenarioResponseIntervention(scenario: Scenario): ScenarioIntervention | undefined {
-      return scenario.result.data?.interventions.find(({ id }) => id === "response");
+      return scenario.result.data?.interventions.find(({ id }) => id === responseInterventionId);
     },
   },
 });

@@ -18,7 +18,7 @@ export default (
     if (newSynchPoint && chart.value?.series) {
       // Get the series in this chart that matches the series being hovered in some chart
       const series = chart.value.series.find((series) => {
-        return series.options.custom?.id === newSynchPoint.series.options.custom?.id;
+        return series.options.custom?.scenarioId === newSynchPoint.series.options.custom?.scenarioId;
       });
 
       // Get the point in the matching series that has the same 'x' value as some chart's hovered point

@@ -31,3 +31,10 @@ export const timeSeriesYUnits = (seriesId: string): string => {
       return "cases";
   }
 };
+
+export const responseInterventionId = "response";
+
+// https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
+export const showInterventions = (seriesId: string): boolean => {
+  return ["hospitalised", "new_hospitalised", "prevalence", "new_infected"].includes(seriesId);
+};

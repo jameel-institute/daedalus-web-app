@@ -12,6 +12,7 @@ export default () => {
 
   const hideAllTooltipsAndCrosshairs = () => {
     setTimeout(() => {
+      hoverPoint.value = undefined;
       hideTooltips.value = true;
     }, 500);
   };

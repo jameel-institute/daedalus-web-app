@@ -17,13 +17,11 @@ import "highcharts/esm/modules/accessibility";
 import "highcharts/esm/modules/exporting";
 import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
-import "highcharts/esm/highcharts-more";
 import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, menuItemDefinitionOptions, plotBandsColorName, plotBandsDefaultColor, plotLinesColorName } from "./utils/highCharts";
 import { getTimeSeriesDataPoints, timeSeriesYUnits } from "./utils/timeSeriesData";
 import useCapacitiesPlotLines from "~/composables/useCapacitiesPlotLines";
-import type { TimeSeriesIntervention } from "~/types/dataTypes";
 
 const props = defineProps<{
   chartHeight: number
@@ -63,39 +61,44 @@ const data = computed(() => getTimeSeriesDataPoints(appStore.currentScenario, pr
 const showCapacities = computed(() => props.timeSeriesMetadata.id === "hospitalised");
 const { capacitiesPlotLines, minRange } = useCapacitiesPlotLines(showCapacities, appStore.capacitiesData);
 
-const interventions = computed(() => {
-  const intervention = {
-    ...appStore.getScenarioResponseIntervention(appStore.currentScenario),
+const intervention = computed(() => {
+  const intvn = appStore.getScenarioResponseIntervention(appStore.currentScenario);
+  if (!intvn) {
+    return undefined;
+  }
+  const label = `Intervention days ${intvn.start.toFixed(0)}–${intvn.end.toFixed(0)}`;
+  return {
+    ...intvn,
     color: plotBandsDefaultColor,
-  } as TimeSeriesIntervention;
-  return intervention ? [intervention] : [];
+    id: `${intvn.id}-${!!props.synchPoint}`, // to let Highcharts track individual plot bands for removePlotBand and addPlotBand
+    label: props.synchPoint ? label : "", // No label if nothing is hovered
+  };
 });
-const { interventionsAreaRangeSeries, interventionsYAxisOptions } = useInterventionsAreaRanges(() => props.timeSeriesMetadata, interventions);
 
-const chartSeries = computed((): Array<Highcharts.SeriesLineOptions | Highcharts.SeriesAreaOptions | Highcharts.SeriesArearangeOptions> => {
-  return [{
-    type: props.seriesRole === "total" ? "area" : "line",
-    data: data.value,
-    name: props.timeSeriesMetadata!.label,
-    color: seriesColors[props.groupIndex % seriesColors.length],
-    fillOpacity: 0.3,
-    marker: {
+const { interventionPlotBand } = useInterventionPlotBand(() => props.timeSeriesMetadata, intervention, chart);
+
+const chartTimeSeries = computed((): Array<Highcharts.SeriesLineOptions | Highcharts.SeriesAreaOptions> => ([{
+  type: props.seriesRole === "total" ? "area" : "line",
+  data: data.value,
+  name: props.timeSeriesMetadata!.label,
+  color: seriesColors[props.groupIndex % seriesColors.length],
+  fillOpacity: 0.3,
+  marker: {
+    enabled: false,
+  },
+  states: {
+    hover: {
+      lineWidthPlus: 0,
+    },
+    inactive: {
       enabled: false,
     },
-    states: {
-      hover: {
-        lineWidthPlus: 0,
-      },
-      inactive: {
-        enabled: false,
-      },
-    },
-    custom: {
-      synchronized: true,
-      id: appStore.currentScenario.runId,
-    },
-  }, ...interventionsAreaRangeSeries.value];
-});
+  },
+  custom: {
+    synchronized: true,
+    id: appStore.currentScenario.runId,
+  },
+}]));
 
 const exportingOptions = computed(() => ({
   filename: props.timeSeriesMetadata.label,
@@ -117,17 +120,10 @@ const exportingOptions = computed(() => ({
   menuItemDefinitions: menuItemDefinitionOptions,
 }));
 
-const yAxisUpdatableOptions = computed(() => ([
-  {
-    minRange: minRange.value,
-    plotLines: capacitiesPlotLines.value,
-    title: {
-      text: "",
-    },
-    min: 0,
-  },
-  interventionsYAxisOptions.value,
-]));
+const yAxisUpdatableOptions = computed(() => ({
+  minRange: minRange.value,
+  plotLines: capacitiesPlotLines.value,
+}));
 
 const chartInitialOptions = () => {
   return {
@@ -139,6 +135,7 @@ const chartInitialOptions = () => {
       height: props.chartHeight,
       marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
       marginBottom: 35,
+      marginTop: 15, // Enough space for a label to fit above the plot band
     },
     plotOptions: {
       arearange: {
@@ -161,16 +158,23 @@ const chartInitialOptions = () => {
       crosshair: true,
       minTickInterval: 1,
       min: 1,
+      plotBands: interventionPlotBand.value ? [interventionPlotBand.value] : [],
     },
-    yAxis: yAxisUpdatableOptions.value,
-    series: chartSeries.value,
+    yAxis: {
+      title: {
+        text: "",
+      },
+      min: 0,
+      ...yAxisUpdatableOptions.value,
+    },
+    series: chartTimeSeries.value,
   } as Highcharts.Options;
 };
 
 watch(() => props.timeSeriesMetadata, () => {
   let updates = {
     exporting: exportingOptions.value,
-    series: chartSeries.value,
+    series: chartTimeSeries.value,
   } as Highcharts.Options;
 
   // Only update the yAxis if necessary, since doing so prevents the redraw animation.

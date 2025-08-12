@@ -18,13 +18,12 @@ import "highcharts/esm/modules/exporting";
 import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 import "highcharts/esm/highcharts-3d";
-import "highcharts/esm/highcharts-more";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import type { TimeSeriesDataPoint, TimeSeriesIntervention } from "~/types/dataTypes";
 import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, getScenarioCategoryLabel, menuItemDefinitionOptions, multiScenarioTimeSeriesColors } from "./utils/highCharts";
-import { getTimeSeriesDataPoints, timeSeriesYUnits } from "./utils/timeSeriesData";
+import { getTimeSeriesDataPoints, showInterventions, timeSeriesYUnits } from "./utils/timeSeriesData";
 import { humanReadableInteger } from "./utils/formatters";
-import useInterventionsAreaRanges from "~/composables/useInterventionsAreaRanges";
+import useInterventionPlotBand from "~/composables/useInterventionPlotBand";
 
 const props = defineProps<{
   groupIndex: number // Probably 0 to about 4
@@ -102,7 +101,8 @@ const chartTimeSeries = computed(() => {
       zIndex: isBaseline ? 2 : 1,
       custom: {
         synchronized: true,
-        id: scenarioAxisVal,
+        scenarioId: scenario.runId, // Identify the series to match it with corresponding series in other charts.
+        showInterventions: showInterventions(props.timeSeriesMetadata.id),
         isBaseline,
       },
     };
@@ -112,31 +112,37 @@ const chartTimeSeries = computed(() => {
 const baselineCapacities = computed(() => appStore.baselineScenario?.result.data?.capacities);
 const { capacitiesPlotLines, minRange } = useCapacitiesPlotLines(() => props.showCapacities, baselineCapacities);
 
-const interventions = computed((): TimeSeriesIntervention[] => {
-  // Iterate over all scenarios in any case, so that the color indices are consistent between plot bands and series.
-  const allInterventions = appStore.currentComparison.scenarios.reduce((acc, scenario, i) => {
-    const intervention = appStore.getScenarioResponseIntervention(scenario);
-    if (intervention && scenario.runId) {
-      acc[scenario.runId] = { ...intervention, color: seriesColors[i % seriesColors.length] };
-    };
-    return acc;
-  }, {} as Record<string, TimeSeriesIntervention>);
+const intervention = computed((): TimeSeriesIntervention | undefined => {
+  // We plot the response intervention for whichever scenario's series is being hovered, or if none are hovered, the baseline scenario.
+  const hoveredScenario = appStore.currentComparison.scenarios.find(({ runId }) => {
+    return runId === props.synchPoint?.series?.options?.custom?.scenarioId;
+  }) ?? appStore.baselineScenario;
+  // The chart being hovered may be one that doesn't show interventions. If so, we don't need to update this chart's plot bands.
+  const hoveredChartShowsInterventions = props.synchPoint?.series?.options?.custom?.showInterventions === true;
 
-  if (props.toggledShowAllInterventions) {
-    return Object.values(allInterventions);
-  } else if (props.toggledShowBaselineIntervention && appStore.baselineScenario?.runId) {
-    const intervention = allInterventions[appStore.baselineScenario.runId];
-    return intervention ? [intervention] : [];
+  const foregroundedScenario = hoveredChartShowsInterventions ? hoveredScenario : appStore.baselineScenario;
+  if (!foregroundedScenario?.runId) {
+    return undefined;
   }
-
-  return [];
+  const intvn = appStore.getScenarioResponseIntervention(foregroundedScenario);
+  if (intvn) {
+    // Ensure that the color is consistent between plot bands and series, indicating which scenario is foregrounded.
+    const indexOfForegroundedSeries = appStore.currentComparison.scenarios.findIndex(({ runId }) => {
+      return runId === foregroundedScenario?.runId;
+    });
+    const scenarioAxisVal = appStore.getScenarioAxisValue(foregroundedScenario);
+    const label = `${getScenarioCategoryLabel(scenarioAxisVal, appStore.axisMetadata)} scenario: intervention days ${intvn.start.toFixed(0)}–${intvn.end.toFixed(0)}`;
+    return {
+      ...intvn,
+      color: seriesColors[indexOfForegroundedSeries % seriesColors.length],
+      id: `${foregroundedScenario.runId}-${!!props.synchPoint}`, // to let Highcharts track individual plot bands for removePlotBand and addPlotBand
+      label: props.synchPoint ? label : "", // No label if nothing is hovered
+    };
+  }
+  return undefined;
 });
 
-const { interventionsAreaRangeSeries, interventionsYAxisOptions } = useInterventionsAreaRanges(() => props.timeSeriesMetadata, interventions);
-
-const allSeries = computed(() => {
-  return [...chartTimeSeries.value, ...interventionsAreaRangeSeries.value] as Array<Highcharts.SeriesLineOptions | Highcharts.SeriesAreaOptions | Highcharts.SeriesArearangeOptions>;
-});
+const { interventionPlotBand } = useInterventionPlotBand(() => props.timeSeriesMetadata, intervention, chart);
 
 const exportingChartTitle = computed(() => {
   return `${props.timeSeriesMetadata.label} by ${appStore.axisMetadata?.label.toLocaleLowerCase()}`;
@@ -166,17 +172,10 @@ const exportingOptions = computed(() => ({
   menuItemDefinitions: menuItemDefinitionOptions,
 }));
 
-const yAxisUpdatableOptions = computed(() => ([
-  {
-    minRange: minRange.value,
-    plotLines: capacitiesPlotLines.value,
-    title: {
-      text: "",
-    },
-    min: 0,
-  },
-  interventionsYAxisOptions.value,
-]));
+const yAxisUpdatableOptions = computed(() => ({
+  minRange: minRange.value,
+  plotLines: capacitiesPlotLines.value,
+}));
 
 const chartInitialOptions = () => {
   return {
@@ -188,6 +187,7 @@ const chartInitialOptions = () => {
       height: 250,
       marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
       marginBottom: 55,
+      marginTop: 15, // Enough space for a label to fit above the plot band
       options3d: {
         enabled: props.enable3d,
         alpha: 15,
@@ -199,9 +199,6 @@ const chartInitialOptions = () => {
       area: {
         depth: areaSeriesDepth,
       },
-      arearange: {
-        yAxis: 1,
-      },
     },
     exporting: exportingOptions.value,
     title: {
@@ -210,6 +207,7 @@ const chartInitialOptions = () => {
     legend: {
       enabled: false,
     },
+    series: chartTimeSeries.value,
     tooltip: {
       formatter() {
         const dayText = `<span style='font-size: 0.7rem; margin-bottom: 0.3rem;'>Day ${this.x}</span><br/>`;
@@ -231,13 +229,19 @@ const chartInitialOptions = () => {
       minTickInterval: 1,
       min: 1,
       max: chartTimeSeries.value[0].data.length,
+      plotBands: interventionPlotBand.value ? [interventionPlotBand.value] : [],
     },
-    yAxis: yAxisUpdatableOptions.value,
-    series: allSeries.value,
-  } as Highcharts.Options;
+    yAxis: {
+      title: {
+        text: "",
+      },
+      min: 0,
+      ...yAxisUpdatableOptions.value,
+    },
+  };
 };
 
-watch([() => props.enable3d, () => props.timeSeriesMetadata, interventions, yAxisUpdatableOptions, chartTimeSeries], ([isThreeD], [wasThreeD]) => {
+watch([() => props.enable3d, () => props.timeSeriesMetadata, yAxisUpdatableOptions, chartTimeSeries], ([isThreeD], [wasThreeD]) => {
   if (!isThreeD && wasThreeD) {
     // Hover markers do not work after returning to 2D mode from 3D, so we need to destroy and recreate the chart.
     chart.value = Highcharts.chart(chartContainerId.value, chartInitialOptions());
@@ -255,10 +259,10 @@ watch([() => props.enable3d, () => props.timeSeriesMetadata, interventions, yAxi
 
     // TODO: See if we can update just subproperties of a series sometimes (e.g. when toggling New per day) to make
     // chart updates faster. See e.g. https://stackoverflow.com/questions/16407901/highchart-series-update-in-javascript
-    allSeries.value.forEach((series) => {
-      const seriesIsAlreadyInChart = chart.value?.series.map(s => s.options.custom?.id).includes(series.custom?.id);
+    chartTimeSeries.value.forEach((series) => {
+      const seriesIsAlreadyInChart = chart.value?.series.map(s => s.options.custom?.scenarioId).includes(series.custom?.scenarioId);
       if (seriesIsAlreadyInChart) {
-        const existingSeries = chart.value?.series.find(s => s.options.custom?.id === series.custom?.id);
+        const existingSeries = chart.value?.series.find(s => s.options.custom?.scenarioId === series.custom?.scenarioId);
         if (existingSeries) {
           existingSeries.update(series, false);
         }
@@ -268,7 +272,7 @@ watch([() => props.enable3d, () => props.timeSeriesMetadata, interventions, yAxi
     });
 
     const seriesToRemove = chart.value?.series.filter((series) => {
-      return !allSeries.value.map(s => s.custom?.id).includes(series.options.custom?.id);
+      return !chartTimeSeries.value.map(s => s.custom?.scenarioId).includes(series.options.custom?.scenarioId);
     });
     seriesToRemove?.forEach(s => s.remove(false));
     // Adding a minimal 'defer' value appears to cause the animations to have enough time to run.
