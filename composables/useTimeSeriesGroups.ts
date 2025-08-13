@@ -14,7 +14,7 @@ export default (seriesGroup: MaybeRefOrGetter<TimeSeriesGroup>, isDaily: MaybeRe
 
   const activeSeriesMetadata = computed((): DisplayInfo | undefined => {
     const activeTimeSeriesId = toValue(seriesGroup).time_series[activeRole.value];
-    return appStore.allTimeSeriesMetadata?.find(({ id }) => id === activeTimeSeriesId);
+    return appStore.metadata?.results.time_series?.find(({ id }) => id === activeTimeSeriesId);
   });
 
   return {

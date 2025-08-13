@@ -6,6 +6,12 @@ export default (chartIndex: MaybeRefOrGetter<number>) => {
   const appStore = useAppStore();
 
   return {
-    zIndex: computed(() => (Object.keys(appStore.allTimeSeriesMetadata!).length - toValue(chartIndex)) + 3),
+    zIndex: computed(() => {
+      const timeSeriesMetadata = appStore.metadata?.results.time_series;
+      if (!timeSeriesMetadata) {
+        return 0; // Default z-index if metadata is not available
+      }
+      return (Object.keys(timeSeriesMetadata).length - toValue(chartIndex)) + 3;
+    }),
   };
 };
