@@ -26,7 +26,7 @@ const plugins = [
         fetchStatus: "success",
       },
     },
-  }, false, { stubActions: false }),
+  }, true, { stubActions: false }),
 ];
 const props = {
   chartHeight: 100,
@@ -42,6 +42,8 @@ const mockDestroy = vi.fn();
 const mockUpdate = vi.fn();
 const mockRemovePlotBand = vi.fn();
 const mockAddPlotBand = vi.fn();
+const mockRemovePlotLine = vi.fn();
+const mockAddPlotLine = vi.fn();
 
 vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
   const actual = await importOriginal();
@@ -63,6 +65,8 @@ vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
           options: {
             minRange: 100,
           },
+          removePlotLine: vi.fn(arg => mockRemovePlotLine(arg)),
+          addPlotLine: vi.fn(arg => mockAddPlotLine(arg)),
         }],
       }),
       win: actual.default.win,
@@ -170,9 +174,9 @@ describe("time series", () => {
       }),
       yAxis: expect.objectContaining({
         minRange: undefined,
-        plotLines: [],
       }),
     }));
+    expect(mockRemovePlotLine).toHaveBeenCalledWith("hospital_capacity-434700");
     expect(mockRemovePlotBand).not.toHaveBeenCalled();
     expect(mockAddPlotBand).not.toHaveBeenCalled();
 
@@ -197,11 +201,12 @@ describe("time series", () => {
       }),
       yAxis: expect.objectContaining({
         minRange: 434700,
-        plotLines: expect.arrayContaining([
-          expect.objectContaining({
-            value: 434700,
-          }),
-        ]),
+      }),
+    }));
+    expect(mockAddPlotLine).toHaveBeenCalledWith(expect.objectContaining({
+      value: 434700,
+      label: expect.objectContaining({
+        text: "Hospital surge capacity: 434,700",
       }),
     }));
     expect(mockRemovePlotBand).not.toHaveBeenCalled();

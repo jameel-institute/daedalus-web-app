@@ -1,9 +1,11 @@
+import { humanReadableInteger } from "~/components/utils/formatters";
 import { plotLinesColor } from "~/components/utils/highCharts";
 import type { ScenarioCapacity } from "~/types/resultTypes";
 
 export default (
   showCapacities: MaybeRefOrGetter<boolean>,
   capacities: MaybeRefOrGetter<Array<ScenarioCapacity> | undefined>,
+  chart: MaybeRefOrGetter<Highcharts.Chart | undefined>,
 ) => {
   const appStore = useAppStore();
 
@@ -20,7 +22,7 @@ export default (
       return {
         color: plotLinesColor,
         label: {
-          text: `${capacityLabel}: ${value}`,
+          text: `${capacityLabel}: ${humanReadableInteger(value.toString())}`,
           style: {
             color: plotLinesColor,
           },
@@ -29,6 +31,7 @@ export default (
         width: 2,
         value,
         zIndex: 4, // Render label in front of the series line
+        id: `${id}-${value.toString()}`,
       };
     }) as Array<Highcharts.AxisPlotLinesOptions>;
   });
@@ -39,6 +42,21 @@ export default (
   const minRange = computed(() => toValue(showCapacities)
     ? toValue(capacities)?.reduce((acc, { value }) => Math.max(acc, value), 0)
     : undefined);
+
+  watch(capacitiesPlotLines, (newPlotLines, oldPlotLines) => {
+    const yAxis = toValue(chart)?.yAxis[0];
+    oldPlotLines.forEach((oldPlotLine) => {
+      if (oldPlotLine?.id && !newPlotLines.map(({ id }) => id).includes(oldPlotLine?.id)) {
+        yAxis?.removePlotLine(oldPlotLine.id);
+      }
+    });
+
+    newPlotLines.forEach((newPlotLine) => {
+      if (newPlotLine && !oldPlotLines.map(({ id }) => id).includes(newPlotLine?.id)) {
+        yAxis?.addPlotLine(newPlotLine);
+      }
+    });
+  });
 
   return {
     capacitiesPlotLines,

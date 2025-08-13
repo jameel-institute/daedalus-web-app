@@ -59,7 +59,7 @@ const data = computed(() => getTimeSeriesDataPoints(appStore.currentScenario, pr
 
 // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
 const showCapacities = computed(() => props.timeSeriesMetadata.id === "hospitalised");
-const { capacitiesPlotLines, minRange } = useCapacitiesPlotLines(showCapacities, appStore.capacitiesData);
+const { capacitiesPlotLines, minRange } = useCapacitiesPlotLines(showCapacities, appStore.capacitiesData, chart);
 
 const intervention = computed(() => {
   const intvn = appStore.getScenarioResponseIntervention(appStore.currentScenario);
@@ -124,11 +124,6 @@ const exportingOptions = computed(() => ({
   menuItemDefinitions: menuItemDefinitionOptions,
 }));
 
-const yAxisUpdatableOptions = computed(() => ({
-  minRange: minRange.value,
-  plotLines: capacitiesPlotLines.value,
-}));
-
 const chartInitialOptions = () => {
   return {
     credits: {
@@ -169,27 +164,20 @@ const chartInitialOptions = () => {
         text: "",
       },
       min: 0,
-      ...yAxisUpdatableOptions.value,
+      minRange: minRange.value,
+      plotLines: capacitiesPlotLines.value,
     },
     series: chartTimeSeries.value,
   } as Highcharts.Options;
 };
 
-watch(() => props.timeSeriesMetadata, () => {
-  let updates = {
-    exporting: exportingOptions.value,
-    series: chartTimeSeries.value,
-  } as Highcharts.Options;
-
-  // Only update the yAxis if necessary, since doing so prevents the redraw animation.
-  if (chart.value && chart.value.yAxis[0].options.minRange !== minRange.value) {
-    // If the minRange has changed, update the chart to reflect this.
-    // This is necessary if the capacities have changed, for example.
-    updates = { ...updates, yAxis: yAxisUpdatableOptions.value };
-  };
-
-  chart.value?.update(updates);
-});
+watch(() => props.timeSeriesMetadata, () => chart.value?.update({
+  exporting: exportingOptions.value,
+  series: chartTimeSeries.value,
+  yAxis: {
+    minRange: minRange.value,
+  },
+}));
 
 watch(() => chartContainer.value, () => {
   if (!chart.value) {
