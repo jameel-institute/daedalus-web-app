@@ -5,6 +5,7 @@ import checkValueIsInRange from "./checkValueIsInRange";
 
 export const numberOfTimePoints = 601;
 
+// TODO: These tests may be more robust if we assert on the peak values rather than first and last data points?
 export const checkTimeSeriesDataPoints = async (
   locator: Locator,
   expectedFirstDataPoint: TimeSeriesDataPoint,

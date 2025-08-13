@@ -59,13 +59,15 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.locator("#prevalence-container .highcharts-yaxis-labels")).toBeVisible();
   await expect(page.locator("#prevalence-container .highcharts-plot-band")).toBeVisible();
   await expect(page.locator("#prevalence-container").getByLabel("View chart menu, Chart")).toBeVisible();
+  await checkTimeSeriesDataPoints(page.locator("#prevalence-container"), [1, 33], [numberOfTimePoints, 770_000]);
 
   // Check can toggle time series to "New per day" and back
   await expect(page.getByText("New per day").first()).toBeVisible();
   await page.locator("#infectionsDailySwitch").check();
-  await expect(page.getByRole("button", { name: "New infections Number of new" })).toBeVisible();
+  await checkTimeSeriesDataPoints(page.locator("#new_infected-container"), [1, 0], [numberOfTimePoints, 210_000]);
+  await expect(page.getByRole("button", { name: "New infections" })).toBeVisible();
   await page.locator("#infectionsDailySwitch").setChecked(false);
-  await expect(page.getByRole("button", { name: "Prevalence Number of" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Prevalence" })).toBeVisible();
 
   await expect(page.locator("#hospitalised-container")).toBeVisible();
   await page.locator("#hospitalised-container").scrollIntoViewIfNeeded();
@@ -74,30 +76,36 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.locator("#hospitalised-container .highcharts-plot-band")).toBeVisible();
   await expect(page.locator("#hospitalised-container .highcharts-plot-line")).toBeInViewport();
   await expect(page.locator("#hospitalised-container").getByLabel("View chart menu, Chart")).toBeVisible();
+  await checkTimeSeriesDataPoints(page.locator("#hospitalised-container"), [1, 0], [numberOfTimePoints, 260_000]);
+
+  await page.locator("#hospitalisationsDailySwitch").check();
+  await checkTimeSeriesDataPoints(page.locator("#new_hospitalised-container"), [1, 0], [numberOfTimePoints, 21_000]);
+  await expect(page.getByRole("button", { name: "New hospitalisations" })).toBeVisible();
+  await page.locator("#hospitalisationsDailySwitch").setChecked(false);
 
   await expect(page.locator("#dead-container")).toBeVisible();
   await expect(page.locator("#dead-container .highcharts-xaxis-labels")).toBeVisible();
   await expect(page.locator("#dead-container .highcharts-yaxis-labels")).toBeVisible();
   await expect(page.locator("#dead-container").getByLabel("View chart menu, Chart")).toBeVisible();
+  await checkTimeSeriesDataPoints(page.locator("#dead-container"), [1, 0], [numberOfTimePoints, 11_000_000]);
+  await page.locator("#deathsDailySwitch").check();
+  await checkTimeSeriesDataPoints(page.locator("#new_dead-container"), [1, 0], [numberOfTimePoints, 2900]);
+  await expect(page.getByRole("button", { name: "New deaths" })).toBeVisible();
+  await page.locator("#deathsDailySwitch").setChecked(false);
 
   await expect(page.locator("#vaccinated-container")).toBeVisible();
   await expect(page.locator("#vaccinated-container .highcharts-xaxis-labels")).toBeVisible();
   await expect(page.locator("#vaccinated-container .highcharts-yaxis-labels")).toBeVisible();
   await expect(page.locator("#vaccinated-container").getByLabel("View chart menu, Chart")).toBeVisible();
+  await checkTimeSeriesDataPoints(page.locator("#vaccinated-container"), [1, 0], [numberOfTimePoints, 190_000_000]);
+  await page.locator("#vaccinationsDailySwitch").check();
+  await checkTimeSeriesDataPoints(page.locator("#new_vaccinated-container"), [1, 0], [numberOfTimePoints, 1_100_000]);
+  await expect(page.getByRole("button", { name: "New vaccinations" })).toBeVisible();
+  await page.locator("#vaccinationsDailySwitch").setChecked(false);
 
   const prevalence1DataStr = await page.locator("#prevalence-container").getAttribute("data-summary");
   const prevalence1Data = JSON.parse(prevalence1DataStr!);
   const prevalenceTimeSeries1LastY = prevalence1Data.lastDataPoint[1];
-
-  // TODO: These tests may be more robust if we assert on the peak values rather than first and last data points?
-  await checkTimeSeriesDataPoints(page.locator("#prevalence-container"), [1, 33], [numberOfTimePoints, 770_000]);
-  await checkTimeSeriesDataPoints(page.locator("#new_infected-container"), [1, 0], [numberOfTimePoints, 210_000]);
-  await checkTimeSeriesDataPoints(page.locator("#hospitalised-container"), [1, 0], [numberOfTimePoints, 260_000]);
-  await checkTimeSeriesDataPoints(page.locator("#new_hospitalised-container"), [1, 0], [numberOfTimePoints, 21_000]);
-  await checkTimeSeriesDataPoints(page.locator("#dead-container"), [1, 0], [numberOfTimePoints, 11_000_000]);
-  await checkTimeSeriesDataPoints(page.locator("#new_dead-container"), [1, 0], [numberOfTimePoints, 2900]);
-  await checkTimeSeriesDataPoints(page.locator("#vaccinated-container"), [1, 0], [numberOfTimePoints, 190_000_000]);
-  await checkTimeSeriesDataPoints(page.locator("#new_vaccinated-container"), [1, 0], [numberOfTimePoints, 1_100_000]);
 
   await expect(page.locator("#costsChartContainer text.highcharts-credits").first()).toBeVisible();
 
