@@ -54,8 +54,16 @@ const { activeSeriesMetadata } = useTimeSeriesGroups(() => props.seriesGroup, ()
 const capacities = computed(() => appStore.metadata?.results.capacities);
 const hospitalCapacityId = "hospital_capacity";
 const capacityLabel = computed(() => capacities.value?.find(c => c.id === hospitalCapacityId)?.label.toLocaleLowerCase());
-// https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
-const allowShowCapacities = computed(() => activeSeriesMetadata.value?.id === "hospitalised");
+const allowShowCapacities = computed(() => {
+  // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
+  const relevant = activeSeriesMetadata.value?.id === "hospitalised";
+
+  // Don't allow showing hospital capacity plot lines if we are comparing across countries.
+  const paramDependedUpon = appStore.parametersMetadataById[hospitalCapacityId].updateNumericFrom?.parameterId;
+  const commensurable = appStore.currentComparison.axis !== paramDependedUpon;
+
+  return relevant && commensurable;
+});
 const capacityVariesByScenario = computed(() => {
   const scenarioValues = appStore.currentComparison.scenarios.map((scenario) => {
     return scenario.result.data?.capacities?.find(c => c.id === hospitalCapacityId)?.value;
