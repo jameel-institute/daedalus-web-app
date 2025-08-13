@@ -20,7 +20,7 @@ import "highcharts/esm/modules/offline-exporting";
 import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, menuItemDefinitionOptions, plotBandsColorName, plotBandsDefaultColor, plotLinesColorName } from "./utils/highCharts";
-import { getTimeSeriesDataPoints, timeSeriesYUnits } from "./utils/timeSeriesData";
+import { getTimeSeriesDataPoints, showInterventions, timeSeriesYUnits } from "./utils/timeSeriesData";
 import useCapacitiesPlotLines from "~/composables/useCapacitiesPlotLines";
 
 const props = defineProps<{
@@ -47,7 +47,7 @@ const { onMove } = useSynchronisableChart(
   () => props.synchPoint,
   (point: Highcharts.Point) => emit("updateHoverPoint", point),
 );
-const { zIndex } = useAdjacentCharts(() => props.groupIndex);
+const { zIndex } = useAdjacentCharts(() => props.groupIndex, () => Number(appStore.timeSeriesGroups?.length));
 
 const seriesColors = colorBlindSafeColors
   .filter(c => ![plotBandsColorName, plotLinesColorName].includes(c.name))
@@ -66,12 +66,15 @@ const intervention = computed(() => {
   if (!intvn) {
     return undefined;
   }
+  // The chart being hovered may be one that doesn't show interventions. If so, we don't need to update this chart's plot bands.
+  const hoveredChartShowsInterventions = props.synchPoint?.series?.options?.custom?.showInterventions === true;
+  const triggerPlotBandUpdate = !!props.synchPoint && hoveredChartShowsInterventions;
   const label = `Intervention days ${intvn.start.toFixed(0)}–${intvn.end.toFixed(0)}`;
   return {
     ...intvn,
     color: plotBandsDefaultColor,
-    id: `${intvn.id}-${!!props.synchPoint}`, // to let Highcharts track individual plot bands for removePlotBand and addPlotBand
-    label: props.synchPoint ? label : "", // No label if nothing is hovered
+    id: `${intvn.id}-${triggerPlotBandUpdate}`, // id lets Highcharts track individual plot bands for removePlotBand and addPlotBand
+    label: triggerPlotBandUpdate ? label : "", // No label if nothing is hovered
   };
 });
 
@@ -97,6 +100,7 @@ const chartTimeSeries = computed((): Array<Highcharts.SeriesLineOptions | Highch
   custom: {
     synchronized: true,
     id: appStore.currentScenario.runId,
+    showInterventions: showInterventions(props.timeSeriesMetadata.id),
   },
 }]));
 

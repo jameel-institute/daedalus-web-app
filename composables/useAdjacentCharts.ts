@@ -2,16 +2,11 @@
 // so that the exporting context menu is always on top and clickable.
 // Also, they should be at least 3 so that they are above .accordion-button:focus
 
-export default (chartIndex: MaybeRefOrGetter<number>) => {
-  const appStore = useAppStore();
-
+export default (
+  chartIndex: MaybeRefOrGetter<number>,
+  totalNumberOfCharts: MaybeRefOrGetter<number>,
+) => {
   return {
-    zIndex: computed(() => {
-      const timeSeriesMetadata = appStore.metadata?.results.time_series;
-      if (!timeSeriesMetadata) {
-        return 0; // Default z-index if metadata is not available
-      }
-      return (Object.keys(timeSeriesMetadata).length - toValue(chartIndex)) + 3;
-    }),
+    zIndex: computed(() => (toValue(totalNumberOfCharts) - toValue(chartIndex)) + 3),
   };
 };
