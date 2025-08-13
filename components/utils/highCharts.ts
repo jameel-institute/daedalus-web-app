@@ -11,27 +11,33 @@ export interface colorRgbHsl {
   hsl: HSL
 }
 
-// Colours from Paul Tol palette, see https://davidmathlogic.com/colorblind
+// Two possible color palettes.
+// Palettes from Paul Tol, see https://davidmathlogic.com/colorblind
 // Archived Paul Tol site: https://web.archive.org/web/20250109045745/https://personal.sron.nl/~pault/#sec:qualitative
-const _brightColors: colorRgbHsl[] = [
+const brightColors: colorRgbHsl[] = [
   { name: "Purple", rgb: "rgb(170,51,119)", hsl: convert.rgb.hsl(170, 51, 119) },
-  { name: "Cyan", rgb: "rgb(102,204,238)", hsl: convert.rgb.hsl(102, 204, 238) },
   { name: "Blue", rgb: "rgb(68,119,170)", hsl: convert.rgb.hsl(68, 119, 170) },
-  { name: "Red", rgb: "rgb(238,102,119)", hsl: convert.rgb.hsl(238, 102, 119) },
   { name: "Yellow", rgb: "rgb(204,187,68)", hsl: convert.rgb.hsl(204, 187, 68) },
+  { name: "Cyan", rgb: "rgb(102,204,238)", hsl: convert.rgb.hsl(102, 204, 238) },
   { name: "Green", rgb: "rgb(34,136,51)", hsl: convert.rgb.hsl(34, 136, 51) },
+  { name: "Red", rgb: "rgb(238,102,119)", hsl: convert.rgb.hsl(238, 102, 119) },
 ];
 
 const vibrantColors: colorRgbHsl[] = [
   { name: "Purple", rgb: "rgb(238,51,119)", hsl: convert.rgb.hsl(238, 51, 119) },
-  { name: "Cyan", rgb: "rgb(51,187,238)", hsl: convert.rgb.hsl(51, 187, 238) },
   { name: "Blue", rgb: "rgb(0,119,187)", hsl: convert.rgb.hsl(0, 119, 187) },
-  { name: "Red", rgb: "rgb(204,51,17)", hsl: convert.rgb.hsl(204, 51, 17) },
   { name: "Yellow", rgb: "rgb(238,119,51)", hsl: convert.rgb.hsl(238, 119, 51) },
+  { name: "Cyan", rgb: "rgb(51,187,238)", hsl: convert.rgb.hsl(51, 187, 238) },
   { name: "Green", rgb: "rgb(0,153,136)", hsl: convert.rgb.hsl(0, 153, 136) },
+  { name: "Red", rgb: "rgb(204,51,17)", hsl: convert.rgb.hsl(204, 51, 17) },
 ];
 
-export const colorBlindSafeColors = [...vibrantColors, { name: "Black", rgb: "rgb(0,0,0)", hsl: convert.rgb.hsl(0, 0, 0) }];
+const doVibrantColors = true; // Set to true to use vibrant colors instead of bright ones
+
+export const colorBlindSafeColors = [
+  ...(doVibrantColors ? vibrantColors : brightColors),
+  { name: "Black", rgb: "rgb(0,0,0)", hsl: convert.rgb.hsl(0, 0, 0) },
+];
 export const plotLinesColorName = "Red";
 export const plotLinesColor = colorBlindSafeColors.find(c => c.name === plotLinesColorName)!.rgb;
 export const plotBandsRgbAlpha = 0.3;
