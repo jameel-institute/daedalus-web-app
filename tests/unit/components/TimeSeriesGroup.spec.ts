@@ -4,6 +4,8 @@ import type { DisplayInfo, ScenarioResultData } from "~/types/apiResponseTypes";
 import { emptyScenario, mockedMetadata, mockPinia } from "../mocks/mockPinia";
 import { mockResultResponseData } from "../mocks/mockResponseData";
 
+const mockUpdate = vi.fn();
+
 vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
   const actual = await importOriginal();
 
@@ -15,6 +17,12 @@ vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
         destroy: vi.fn(),
         setSize: vi.fn(),
         showResetZoom: vi.fn(),
+        update: vi.fn(arg => mockUpdate(arg)),
+        yAxis: [{
+          options: {
+            minRange: undefined,
+          },
+        }],
       }),
       win: actual.default.win,
       wrap: actual.default.wrap,
@@ -45,9 +53,7 @@ const getProps = (open = true) => ({
   groupIndex: 0,
   hideTooltips: false,
   open,
-  chartHeightPx: 100,
-  minChartHeightPx: 50,
-  synchGroupId: "synch-group-1",
+  chartHeight: 100,
   synchPoint: { x: 1, y: 2 },
 });
 
@@ -93,13 +99,33 @@ describe("timeSeriesGroup component", () => {
     });
 
     const toggleSwitch = component.find("#infectionsDailySwitch");
-    await toggleSwitch.setValue("true");
+    await toggleSwitch.setValue(true);
 
     expect(component.text()).toContain("New infections");
-
-    await toggleSwitch.trigger("click");
-
     expect(component.text()).not.toContain("Prevalence");
+
+    expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      series: expect.arrayContaining([
+        expect.objectContaining({
+          type: "line",
+          name: "New infections",
+        }),
+      ]),
+    }));
+
+    await toggleSwitch.setValue(false);
+
+    expect(component.text()).toContain("Prevalence");
+    expect(component.text()).not.toContain("New infections");
+
+    expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      series: expect.arrayContaining([
+        expect.objectContaining({
+          type: "area",
+          name: "Prevalence",
+        }),
+      ]),
+    }));
   });
 
   it("should emit toggleOpen when the accordion header is clicked", async () => {

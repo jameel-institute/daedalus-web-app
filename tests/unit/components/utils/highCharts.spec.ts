@@ -1,19 +1,35 @@
 import type { HSL } from "color-convert";
-import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, getColorVariants, plotBandsColor, timeSeriesColors } from "~/components/utils/highCharts";
+import { addAlphaToRgb, colorBlindSafeColors, costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, getColorVariants, plotBandsDefaultColor, plotLinesColor } from "~/components/utils/highCharts";
 import { CostBasis } from "~/types/unitTypes";
 import { mockMetadataResponseData } from "../../mocks/mockResponseData";
 import { TypeOfParameter } from "~/types/parameterTypes";
 
-describe("plotBandsColor", () => {
+const rgbFormat = /^rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)$/;
+
+describe("plotBandsDefaultColor", () => {
   it("should be in the correct rgba format", () => {
-    const rgbaFormat = /^rgba\((\d{1,3}),(\d{1,3}),(\d{1,3}),(\d(\.\d+)?)\)$/;
-    expect(plotBandsColor).toMatch(rgbaFormat);
+    expect(plotBandsDefaultColor).toMatch(rgbFormat);
   });
 });
 
-describe("timeSeriesColors", () => {
-  it("should be 9 colors long", () => {
-    expect(timeSeriesColors).toHaveLength(9);
+describe("plotLinesColor", () => {
+  it("should be in the correct rgba format", () => {
+    expect(plotLinesColor).toMatch(rgbFormat);
+  });
+});
+
+describe("colorBlindSafeColors", () => {
+  it("should be 7 colors long", () => {
+    expect(colorBlindSafeColors).toHaveLength(7);
+  });
+});
+
+describe("addAlphaToRgb", () => {
+  it("should convert rgb to rgba", () => {
+    const rgb = "rgb(255,0,0)";
+    const alpha = 0.5;
+    const rgba = addAlphaToRgb(rgb, alpha);
+    expect(rgba).toBe("rgba(255,0,0,0.5)");
   });
 });
 

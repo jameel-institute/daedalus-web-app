@@ -9,7 +9,7 @@ import { mountSuspended } from "@nuxt/test-utils/runtime";
 import Highcharts from "highcharts/esm/highcharts";
 import TimeSeries from "~/components/TimeSeries.client.vue";
 
-const timeSeriesId = mockedMetadata.results.time_series[1].id; // hospitalized
+const timeSeriesMetadata = mockedMetadata.results.time_series.find(({ id }) => id === "hospitalised");
 const stubs = {
   CIcon: true,
 };
@@ -26,22 +26,22 @@ const plugins = [
         fetchStatus: "success",
       },
     },
-  }),
+  }, false, { stubActions: false }),
 ];
 const props = {
-  seriesId: timeSeriesId,
-  seriesIndex: 0,
+  chartHeight: 100,
   groupIndex: 1,
   hideTooltips: false,
-  yUnits: "in need of hospitalisation",
-  chartHeight: 100,
   seriesRole: "total",
-  synchGroupId: "synch-group-1",
   synchPoint: { x: 1, y: 2 },
+  timeSeriesMetadata,
 };
 
 const mockSetSize = vi.fn();
 const mockDestroy = vi.fn();
+const mockUpdate = vi.fn();
+const mockRemovePlotBand = vi.fn();
+const mockAddPlotBand = vi.fn();
 
 vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
   const actual = await importOriginal();
@@ -54,6 +54,16 @@ vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
         destroy: mockDestroy,
         setSize: mockSetSize,
         showResetZoom: vi.fn(),
+        update: vi.fn(arg => mockUpdate(arg)),
+        xAxis: [{
+          removePlotBand: vi.fn(arg => mockRemovePlotBand(arg)),
+          addPlotBand: vi.fn(arg => mockAddPlotBand(arg)),
+        }],
+        yAxis: [{
+          options: {
+            minRange: 100,
+          },
+        }],
       }),
       win: actual.default.win,
       wrap: actual.default.wrap,
@@ -87,7 +97,7 @@ describe("time series", () => {
           backgroundColor: "transparent",
         }),
         exporting: expect.objectContaining({
-          filename: "Hospital demand in USA",
+          filename: "Hospital demand",
           chartOptions: expect.objectContaining({
             title: {
               text: "Hospital demand",
@@ -119,6 +129,7 @@ describe("time series", () => {
         }),
         series: expect.arrayContaining([
           expect.objectContaining({
+            type: "area",
             data: expect.arrayContaining([
               [1, 0],
               [2, 4.2465],
@@ -127,6 +138,74 @@ describe("time series", () => {
         ]),
       }),
     );
+  });
+
+  it("should update the chart when props change", async () => {
+    const component = await mountSuspended(TimeSeries, {
+      props,
+      global: { stubs, plugins },
+    });
+
+    const newTimeSeriesMetadata = mockedMetadata.results.time_series.find(({ id }) => id === "new_hospitalised");
+
+    await component.setProps({ seriesRole: "daily", timeSeriesMetadata: newTimeSeriesMetadata });
+
+    expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      series: expect.arrayContaining([
+        expect.objectContaining({
+          type: "line",
+          name: "New hospitalisations",
+        }),
+      ]),
+      exporting: expect.objectContaining({
+        filename: "New hospitalisations",
+        chartOptions: expect.objectContaining({
+          title: {
+            text: "New hospitalisations",
+          },
+          subtitle: {
+            text: "Number of new patients in need of hospitalisation per day",
+          },
+        }),
+      }),
+      yAxis: expect.objectContaining({
+        minRange: undefined,
+        plotLines: [],
+      }),
+    }));
+    expect(mockRemovePlotBand).not.toHaveBeenCalled();
+    expect(mockAddPlotBand).not.toHaveBeenCalled();
+
+    await component.setProps({ seriesRole: "total", timeSeriesMetadata });
+    expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      series: expect.arrayContaining([
+        expect.objectContaining({
+          type: "area",
+          name: "Hospital demand",
+        }),
+      ]),
+      exporting: expect.objectContaining({
+        filename: "Hospital demand",
+        chartOptions: expect.objectContaining({
+          title: {
+            text: "Hospital demand",
+          },
+          subtitle: {
+            text: "Infections requiring hospitalisation",
+          },
+        }),
+      }),
+      yAxis: expect.objectContaining({
+        minRange: 434700,
+        plotLines: expect.arrayContaining([
+          expect.objectContaining({
+            value: 434700,
+          }),
+        ]),
+      }),
+    }));
+    expect(mockRemovePlotBand).not.toHaveBeenCalled();
+    expect(mockAddPlotBand).not.toHaveBeenCalled();
   });
 
   it("should resize the chart when height changes", async () => {
