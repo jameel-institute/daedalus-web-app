@@ -47,16 +47,6 @@ export const addAlphaToRgb = (colorRgb: string, alpha: number): string => {
   return colorRgb.replace("rgb", "rgba").replace(")", `,${alpha})`);
 };
 
-// Order the colors to privelege those which are least similar to the plot lines color.
-const multiScenarioTimeSeriesColorsOrder = ["Cyan", "Green", "Yellow", "Blue", "Purple", "Black", "Red"];
-export const multiScenarioTimeSeriesColors = colorBlindSafeColors
-  .toSorted((a, b) => {
-    const aIndex = multiScenarioTimeSeriesColorsOrder.indexOf(a.name);
-    const bIndex = multiScenarioTimeSeriesColorsOrder.indexOf(b.name);
-    return aIndex - bIndex;
-  })
-  .filter(c => c.name !== plotLinesColorName);
-
 // Create a range of color variants varying in lightness (L) and saturation (S) channels.
 // These channels have configurable ranges of factors used to multiply the original L/S.
 // Does not alter hue (H), in order to maintain color-blind safeness.
