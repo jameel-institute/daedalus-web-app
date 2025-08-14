@@ -14,9 +14,7 @@
           v-if="showPlotBandsLinesLegend"
           class="bg-white rounded border d-flex align-items-center gap-3 shadow-sm"
         >
-          <PlotLinesBandsLegend
-            :show-plot-lines="!isDaily"
-          />
+          <PlotLinesBandsLegend :show-plot-lines="!isDaily" />
         </div>
         <CompareTimeSeriesLegend />
       </div>
