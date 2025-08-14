@@ -16,8 +16,8 @@ export interface colorRgbHsl {
 // Archived Paul Tol site: https://web.archive.org/web/20250109045745/https://personal.sron.nl/~pault/#sec:qualitative
 const brightColors: colorRgbHsl[] = [
   { name: "Purple", rgb: "rgb(170,51,119)", hsl: convert.rgb.hsl(170, 51, 119) },
-  { name: "Blue", rgb: "rgb(68,119,170)", hsl: convert.rgb.hsl(68, 119, 170) },
   { name: "Yellow", rgb: "rgb(204,187,68)", hsl: convert.rgb.hsl(204, 187, 68) },
+  { name: "Blue", rgb: "rgb(68,119,170)", hsl: convert.rgb.hsl(68, 119, 170) },
   { name: "Cyan", rgb: "rgb(102,204,238)", hsl: convert.rgb.hsl(102, 204, 238) },
   { name: "Green", rgb: "rgb(34,136,51)", hsl: convert.rgb.hsl(34, 136, 51) },
   { name: "Red", rgb: "rgb(238,102,119)", hsl: convert.rgb.hsl(238, 102, 119) },
@@ -25,8 +25,8 @@ const brightColors: colorRgbHsl[] = [
 
 const vibrantColors: colorRgbHsl[] = [
   { name: "Purple", rgb: "rgb(238,51,119)", hsl: convert.rgb.hsl(238, 51, 119) },
-  { name: "Blue", rgb: "rgb(0,119,187)", hsl: convert.rgb.hsl(0, 119, 187) },
   { name: "Yellow", rgb: "rgb(238,119,51)", hsl: convert.rgb.hsl(238, 119, 51) },
+  { name: "Blue", rgb: "rgb(0,119,187)", hsl: convert.rgb.hsl(0, 119, 187) },
   { name: "Cyan", rgb: "rgb(51,187,238)", hsl: convert.rgb.hsl(51, 187, 238) },
   { name: "Green", rgb: "rgb(0,153,136)", hsl: convert.rgb.hsl(0, 153, 136) },
   { name: "Red", rgb: "rgb(204,51,17)", hsl: convert.rgb.hsl(204, 51, 17) },
