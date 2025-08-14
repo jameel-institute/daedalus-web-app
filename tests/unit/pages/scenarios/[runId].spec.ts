@@ -92,13 +92,12 @@ describe("scenario result page", () => {
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
-    expect(component.text()).toContain("Parameters");
+    expect(component.text()).toContain("Change parameters");
 
     await waitFor(() => {
       expect(component.text()).toContain("United Kingdom");
       expect(component.text()).toContain("SARS 2004");
       expect(component.text()).toContain("30,500");
-      console.error(component.text());
       expect(component.text()).toContain("No closures");
       expect(component.text()).toContain("None");
     });

@@ -4,8 +4,8 @@
     <div class="card-header d-flex justify-content-between">
       <div class="d-flex align-items-center">
         <CIcon icon="cilBarChart" size="lg" class="mb-1 text-muted" />
-        <h2 class="fs-5 m-0 ms-3 chart-header">
-          Losses
+        <h2 class="fs-5 m-0 ms-3">
+          Losses after {{ scenarioDuration }} days
         </h2>
       </div>
     </div>
@@ -90,6 +90,8 @@ const totalCostAbbr = computed(() => {
 const valueOfStatisticalLife = computed(() => {
   return humanReadableInteger(appStore.currentScenario.result.data!.average_vsl.toString().split(".")[0]);
 });
+
+const scenarioDuration = computed(() => Object.values(appStore.timeSeriesData || {})[0].length - 1);
 </script>
 
 <style lang="scss" scoped>

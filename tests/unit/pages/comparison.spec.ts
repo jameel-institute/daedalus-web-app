@@ -124,6 +124,34 @@ describe("comparison page", () => {
     });
   });
 
+  it("should initialise with the losses tab selected", async () => {
+    const component = await mountSuspended(Comparison, { global: { plugins: [pinia], stubs } });
+
+    await waitFor(() => {
+      const tabPanes = component.findAll(".tab-pane");
+      expect(tabPanes[0].text()).toContain("Show losses");
+      expect(tabPanes[1].text()).toContain("A time series");
+      expect(tabPanes[0].isVisible()).toBe(true);
+      expect(tabPanes[1].isVisible()).toBe(false);
+    });
+  });
+
+  it("should render the baseline scenario's parameters in a parameter info card", async () => {
+    const component = await mountSuspended(Comparison, { global: { plugins: [pinia], stubs } });
+
+    const infoCard = component.find(".card");
+
+    await waitFor(() => {
+      const text = infoCard.text();
+      expect(text).toContain("Baseline scenario");
+      expect(text).toContain("United States");
+      expect(text).toContain("SARS 2004");
+      expect(text).toContain("Elimination");
+      expect(text).toContain("Medium");
+      expect(text).toContain("305,000");
+    });
+  });
+
   it("resets appStore.downloadError when the page is loaded", async () => {
     const piniaMock = mockPinia({
       metadata: mockMetadataResponseData as Metadata,

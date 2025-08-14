@@ -598,6 +598,7 @@ describe("app store", () => {
       store.metadata = mockedMetadata;
 
       const costLabel = store.getCostLabel("gdp_closures");
+
       expect(costLabel).toEqual("Closures");
     });
 
@@ -606,6 +607,7 @@ describe("app store", () => {
       store.metadata = mockedMetadata;
 
       const costLabel = store.getCostLabel("not_found");
+
       expect(costLabel).toEqual("not_found");
     });
 

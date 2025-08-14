@@ -145,7 +145,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   // Run a second analysis with a different parameter, using the parameters form on the results page.
   await page.getByRole("button", { name: "Parameters" }).first().click();
   // The following line has been known to fail locally on webkit, but pass on CI.
-  await expect(page.getByRole("heading", { name: "Edit parameters" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Change parameters" })).toBeVisible();
 
   await expectSelectParameterToHaveValueLabel(page, parameterLabels.country, "United States");
   await expectSelectParameterToHaveValueLabel(page, parameterLabels.pathogen, "SARS 2004");
@@ -176,14 +176,14 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
 
   // Test that the second analysis results page has the correct parameters within the parameters form modal.
   await page.getByRole("button", { name: "Parameters" }).first().click();
-  await expect(page.getByRole("heading", { name: "Edit parameters" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Change parameters" })).toBeVisible();
   await expectSelectParameterToHaveValueLabel(page, parameterLabels.country, "Philippines");
   await expectSelectParameterToHaveValueLabel(page, parameterLabels.pathogen, "SARS 2004");
   await expectSelectParameterToHaveValueLabel(page, parameterLabels.response, "Elimination");
   await expect(page.getByLabel("Medium")).toBeChecked();
   await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
   await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
-  const closeButton = page.getByLabel("Edit parameters").getByLabel("Close");
+  const closeButton = page.getByLabel("Change parameters").getByLabel("Close");
   await closeButton.click();
 
   // Test that the second analysis results page has visible time series and bar charts.
