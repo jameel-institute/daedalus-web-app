@@ -1,8 +1,32 @@
 <template>
   <div>
-    <h1>Comparison</h1>
+    <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
+      <CIconSvg size="xxl">
+        <img src="/icons/rotate-device.svg">
+      </CIconSvg>
+      <p class="mb-0">
+        Rotate your mobile device to landscape for the best experience.
+      </p>
+    </CAlert>
+    <div class="d-flex mb-3 flex-wrap gap-2">
+      <h1 class="fs-3 mb-0 pt-1 pe-5 me-auto text-nowrap flex-fill">
+        Explore by {{ appStore.axisLabel?.toLocaleLowerCase() }}
+      </h1>
+    </div>
     <CSpinner v-show="showSpinner" class="ms-3 mb-3 mt-3" />
-    <table v-if="appStore.currentComparison.scenarios">
+    <div v-if="appStore.everyScenarioHasCosts" class="col-12">
+      <div class="d-flex align-items-start mx-2">
+        <CostBasisToggler />
+        <div class="ms-auto">
+          <CompareCostsLegend />
+        </div>
+      </div>
+      <CompareCostsChart />
+    </div>
+    <h4 class="mt-3">
+      Table for debugging
+    </h4>
+    <table v-if="appStore.currentComparison.scenarios" class="mb-3">
       <thead>
         <tr>
           <th>
@@ -42,7 +66,7 @@
           :class="{ 'text-primary': scenarioIsBaseline(scenario) }"
         >
           <td>
-            {{ scenarioAxisValue(scenario) }}
+            {{ appStore.getScenarioAxisValue(scenario) }}
             <span v-if="scenarioIsBaseline(scenario)">
               (Baseline)
             </span>
@@ -95,11 +119,11 @@
         </tr>
       </tbody>
     </table>
-    <!-- <CompareCostsChart v-if="appStore.currentComparison.scenarios" /> -->
   </div>
 </template>
 
 <script setup lang="ts">
+import { CIconSvg } from "@coreui/icons-vue";
 import type { Scenario } from "~/types/storeTypes";
 
 const showSpinner = ref(true);
@@ -121,8 +145,7 @@ const totalCost = (scenario: Scenario) => {
   const { amount, unit } = abbreviateMillionsDollars(cost);
   return `$${amount} ${unit}`;
 };
-const scenarioAxisValue = (scenario: Scenario) => axis.value ? scenario.parameters?.[axis.value] : undefined;
-const scenarioIsBaseline = (scenario: Scenario) => scenarioAxisValue(scenario) === appStore.currentComparison.baseline;
+const scenarioIsBaseline = (scenario: Scenario) => appStore.getScenarioAxisValue(scenario) === appStore.currentComparison.baseline;
 
 watch(() => appStore.metadata, async (newMetadata) => {
   if (newMetadata) {
@@ -152,7 +175,7 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 th, tr, td {
   border: 1px solid black;
   padding: 5px;
