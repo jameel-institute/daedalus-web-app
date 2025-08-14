@@ -122,6 +122,8 @@ const intervention = computed((): TimeSeriesIntervention | undefined => {
   if (!foregroundedScenario?.runId) {
     return undefined;
   }
+  const triggerPlotBandUpdate = !!props.synchPoint && hoveredChartShowsInterventions;
+
   const intvn = appStore.getScenarioResponseIntervention(foregroundedScenario);
   if (intvn) {
     // Ensure that the color is consistent between plot bands and series, indicating which scenario is foregrounded.
@@ -133,8 +135,8 @@ const intervention = computed((): TimeSeriesIntervention | undefined => {
     return {
       ...intvn,
       color: seriesColors[indexOfForegroundedSeries % seriesColors.length],
-      id: `${foregroundedScenario.runId}-${!!props.synchPoint}`, // to let Highcharts track individual plot bands for removePlotBand and addPlotBand
-      label: props.synchPoint ? label : "", // No label if nothing is hovered
+      id: `${foregroundedScenario.runId}-${triggerPlotBandUpdate}`, // id lets Highcharts track individual plot bands for removePlotBand and addPlotBand
+      label: triggerPlotBandUpdate ? label : "", // No label if nothing is hovered
     };
   }
   return undefined;
