@@ -25,7 +25,11 @@ const chartContainer = ref<HTMLElement | null>(null);
 const chartParentEl = computed(() => chartContainer.value?.parentElement);
 const scenarios = computed(() => appStore.currentComparison.scenarios);
 const costBasis = computed(() => appStore.preferences.costBasis);
-const chartTitleOnExport = computed(() => `Losses by ${appStore.axisLabel?.toLocaleLowerCase()}`);
+const chartTitle = computed(() => {
+  const firstScenarioTimeSeries = appStore.currentComparison.scenarios[0].result?.data?.time_series;
+  const scenarioDuration = Object.values(firstScenarioTimeSeries || {})[0].length - 1;
+  return `Losses after ${scenarioDuration} days`;
+});
 const axisMetadata = computed(() => appStore.currentComparison.axis ? appStore.parametersMetadataById[appStore.currentComparison.axis] : undefined);
 
 // There are 3 levels of data breakdown for costs:
@@ -68,9 +72,8 @@ const chartInitialOptions = () => {
     colors: colorBlindSafeColors.map(color => color.rgb),
     chart: { ...chartOptions, height: chartHeightPx, width: targetWidth() },
     exporting: {
-      filename: chartTitleOnExport.value,
+      filename: chartTitle.value,
       chartOptions: {
-        title: { text: chartTitleOnExport.value },
         plotOptions: {
           column: {
             dataLabels: { allowOverlap: false, format: "{point.name}", enabled: true },
@@ -81,7 +84,13 @@ const chartInitialOptions = () => {
       buttons: { contextButton: { ...contextButtonOptions } },
       menuItemDefinitions: menuItemDefinitionOptions,
     },
-    title: { text: "" },
+    title: {
+      text: chartTitle.value,
+      style: {
+        fontWeight: "medium",
+        fontSize: "1.1rem",
+      },
+    },
     xAxis: {
       categories: scenarios.value?.map(s => appStore.getScenarioAxisValue(s)) || [],
       title: { text: appStore.axisLabel },
