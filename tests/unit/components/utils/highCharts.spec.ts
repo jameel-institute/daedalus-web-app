@@ -7,13 +7,13 @@ import { TypeOfParameter } from "~/types/parameterTypes";
 const rgbFormat = /^rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)$/;
 
 describe("plotBandsDefaultColor", () => {
-  it("should be in the correct rgba format", () => {
+  it("should be in the correct rgb format", () => {
     expect(plotBandsDefaultColor).toMatch(rgbFormat);
   });
 });
 
 describe("plotLinesColor", () => {
-  it("should be in the correct rgba format", () => {
+  it("should be in the correct rgb format", () => {
     expect(plotLinesColor).toMatch(rgbFormat);
   });
 });

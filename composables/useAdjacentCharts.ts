@@ -5,8 +5,6 @@
 export default (
   chartIndex: MaybeRefOrGetter<number>,
   totalNumberOfCharts: MaybeRefOrGetter<number>,
-) => {
-  return {
-    zIndex: computed(() => (toValue(totalNumberOfCharts) - toValue(chartIndex)) + 3),
-  };
-};
+) => ({
+  zIndex: computed(() => (toValue(totalNumberOfCharts) - toValue(chartIndex)) + 3),
+});

@@ -18,11 +18,6 @@ vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
         setSize: vi.fn(),
         showResetZoom: vi.fn(),
         update: vi.fn(arg => mockUpdate(arg)),
-        yAxis: [{
-          options: {
-            minRange: undefined,
-          },
-        }],
       }),
       win: actual.default.win,
       wrap: actual.default.wrap,

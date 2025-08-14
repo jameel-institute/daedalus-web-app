@@ -62,9 +62,6 @@ vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
           addPlotBand: vi.fn(arg => mockAddPlotBand(arg)),
         }],
         yAxis: [{
-          options: {
-            minRange: 100,
-          },
           removePlotLine: vi.fn(arg => mockRemovePlotLine(arg)),
           addPlotLine: vi.fn(arg => mockAddPlotLine(arg)),
         }],
