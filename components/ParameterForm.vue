@@ -14,134 +14,30 @@
         class="field-container"
       >
         <div v-if="renderAsRadios(parameter)" class="button-group-container">
-          <CRow class="pe-2">
-            <ParameterHeader :parameter="parameter" />
-          </CRow>
-          <CRow>
-            <CButtonGroup
-              role="group"
-              :aria-label="parameter.label"
-              :size="appStore.largeScreen ? 'lg' : undefined"
-              :class="`${pulsingParameters.includes(parameter.id) ? 'pulse' : ''}`"
-              @change="handleChange(parameter)"
-            >
-              <CTooltip
-                v-for="(option) in parameter.options"
-                :key="option.id"
-                :content="option.description"
-                placement="top"
-                :delay="100"
-              >
-                <template #toggler="{ togglerId, on }">
-                  <div
-                    class="radio-btn-container"
-                    :aria-describedby="togglerId"
-                    v-on="on"
-                  >
-                    <CFormCheck
-                      :id="option.id"
-                      v-model="formData[parameter.id]"
-                      type="radio"
-                      :button="{ color: 'primary', variant: 'outline' }"
-                      :name="parameter.id"
-                      autocomplete="off"
-                      :label="option.label"
-                      :value="option.id"
-                    />
-                  </div>
-                </template>
-              </CTooltip>
-            </CButtonGroup>
-          </CRow>
+          <ParameterRadio
+            v-model:parameter-value="formData[parameter.id]"
+            :parameter="parameter"
+            :pulsing="pulsingParameters.includes(parameter.id)"
+            @change="handleChange(parameter)"
+          />
         </div>
         <div v-else-if="renderAsSelect(parameter)" class="select-container">
-          <CRow>
-            <ParameterHeader :parameter="parameter" />
-            <VueSelect
-              v-model="formData![parameter.id]"
-              :input-id="parameter.id"
-              :aria="{ labelledby: `${parameter.id}-label`, required: true }"
-              :class="`form-control ${pulsingParameters.includes(parameter.id) ? 'pulse' : ''}`"
-              :options="paramOptsToSelectOpts(parameter.options || [])"
-              :is-clearable="false"
-              @option-selected="handleChange(parameter)"
-            >
-              <template #value="{ option }">
-                <div class="d-flex gap-2 align-items-center">
-                  <span
-                    v-if="parameter === appStore.globeParameter && countryFlagIds?.[option.value]"
-                    :class="`fi fi-${countryFlagIds[option.value]}`"
-                  />
-                  {{ option.label }}
-                </div>
-              </template>
-              <template #option="{ option }">
-                <div class="parameter-option">
-                  <span
-                    v-if="parameter === appStore.globeParameter && countryFlagIds?.[option.value]"
-                    :class="`fi fi-${countryFlagIds[option.value]} ms-1`"
-                  />
-                  <span>{{ option.label }}</span>
-                  <div
-                    v-if="option.description"
-                    :class="option.value === formData[parameter.id] ? 'text-dark' : 'text-muted'"
-                  >
-                    <small>{{ option.description }}</small>
-                  </div>
-                </div>
-              </template>
-            </VueSelect>
-          </CRow>
+          <ParameterSelect
+            v-model:parameter-value="formData[parameter.id]"
+            :parameter="parameter"
+            :pulsing="pulsingParameters.includes(parameter.id)"
+            @change="handleChange(parameter)"
+          />
         </div>
         <div v-else-if="parameter.parameterType === TypeOfParameter.Numeric">
-          <div class="d-flex numeric-header">
-            <ParameterHeader :parameter="parameter" />
-          </div>
-          <div class="d-flex flex-wrap">
-            <div class="flex-grow-1" :class="[warnButNotInvalid(parameter) ? 'has-warning' : '']">
-              <CFormInput
-                :id="parameter.id"
-                v-model="formData[parameter.id]"
-                :aria-label="parameter.label"
-                type="number"
-                :class="[
-                  pulsingParameters.includes(parameter.id) ? 'pulse' : '',
-                ]"
-                :min="dependentRange(parameter)?.min"
-                :max="dependentRange(parameter)?.max"
-                :step="parameter.step"
-                :size="appStore.largeScreen ? 'lg' : undefined"
-                :feedback-invalid="tooltipText(parameter)"
-                :data-valid="!invalidFields?.includes(parameter.id)"
-                :invalid="showTooltip(parameter)"
-                :tooltip-feedback="true"
-                @change="handleChange(parameter)"
-                @input="handleInput"
-              />
-              <CFormRange
-                :id="parameter.id"
-                v-model="formData[parameter.id]"
-                :aria-label="parameter.label"
-                :step="parameter.step"
-                :min="dependentRange(parameter)?.min"
-                :max="dependentRange(parameter)?.max"
-                @change="handleChange(parameter)"
-              />
-            </div>
-            <CButton
-              style="border: none;"
-              type="button"
-              color="secondary"
-              variant="ghost"
-              shape="rounded-pill"
-              :class="`${valueIsAtDefault(parameter) ? 'invisible' : ''} btn-sm ms-2 align-self-start`"
-              :aria-label="`Reset ${parameter.label} to default`"
-              title="Reset to default"
-              @click="resetParam(parameter)"
-            >
-              <CIcon icon="cilActionUndo" size="sm" />
-            </CButton>
-          </div>
+          <ParameterNumericInput
+            v-model:parameter-value="formData[parameter.id]"
+            :parameter="parameter"
+            :parameter-set="formData"
+            :pulsing="pulsingParameters.includes(parameter.id)"
+            :show-validations="showValidations"
+            @change="handleChange(parameter)"
+          />
         </div>
       </div>
       <CButton
@@ -166,15 +62,12 @@
 </template>
 
 <script lang="ts" setup>
-import { debounce } from "perfect-debounce";
 import type { Parameter, ParameterSet } from "@/types/parameterTypes";
 import { TypeOfParameter } from "@/types/parameterTypes";
 import { CIcon } from "@coreui/icons-vue";
-import VueSelect from "vue3-select-component";
-import ParameterHeader from "~/components/ParameterHeader.vue";
-import { getRangeForDependentParam, paramOptsToSelectOpts } from "~/components/utils/parameters";
-import { numericValueInvalid, numericValueIsOutOfRange } from "~/components/utils/validations";
-import { countryFlagIconId } from "~/components/utils/countryFlag";
+import { getRangeForDependentParam } from "~/components/utils/parameters";
+import { numericValueInvalid } from "~/components/utils/validations";
+import type { ParameterNumericInput } from "#components";
 
 const props = defineProps<{
   inModal: boolean
@@ -184,18 +77,10 @@ const appStore = useAppStore();
 
 const formSubmitting = ref(false);
 const showValidations = ref(false);
-const showWarnings = ref(false); // Show warning tooltip if there is any warning to show
 const mounted = ref(false);
 const invalidFields = ref<string[]>([]);
 
 const paramMetadata = computed(() => appStore.metadata?.parameters);
-
-const countryFlagIds = computed(() => {
-  return appStore.globeParameter?.options?.reduce((acc, option) => {
-    acc[option.id] = countryFlagIconId(option.id) || "";
-    return acc;
-  }, {} as { [key: string]: string });
-});
 
 const initialiseFormDataFromDefaults = () => {
   return paramMetadata.value?.reduce((acc, { id, defaultOption, options, updateNumericFrom }) => {
@@ -242,14 +127,6 @@ const runButtonDisabled = computed(() => {
   }
 });
 
-const warningFields = computed(() => {
-  return paramMetadata.value?.filter(p => numericValueIsOutOfRange(formData.value?.[p.id], p, formData.value)).map(p => p.id);
-});
-
-const warnButNotInvalid = (param: Parameter) => {
-  return warningFields.value?.includes(param.id) && !invalidFields.value?.includes(param.id);
-};
-
 const optionsAreTerse = (param: Parameter) => {
   const eachOptionIsASingleWord = param.options?.every((option) => {
     return !option.label.includes(" ");
@@ -266,13 +143,6 @@ const renderAsSelect = (param: Parameter) => {
   return !renderAsRadios(param) && [TypeOfParameter.Select, TypeOfParameter.GlobeSelect].includes(param.parameterType);
 };
 
-const dependentRange = (param: Parameter) => {
-  return getRangeForDependentParam(param, formData.value);
-};
-
-const showTooltip = (param: Parameter) => !!(warningFields.value?.includes(param.id) && showWarnings.value)
-  || !!(invalidFields.value?.includes(param.id) && showValidations.value);
-
 // Since some defaults depend on the values of other fields, this function should not be used to initialize form values.
 const defaultValue = (param: Parameter) => {
   if (!formData.value) {
@@ -287,29 +157,8 @@ const defaultValue = (param: Parameter) => {
   // Currently, due to the metadata schema, non-updatable numerics don't have default values available.
 };
 
-const valueIsAtDefault = (param: Parameter) => {
-  return formData.value![param.id] === defaultValue(param);
-};
-
 const resetParam = (param: Parameter) => {
   formData.value![param.id] = defaultValue(param) as string;
-};
-
-const tooltipText = (param: Parameter) => {
-  if (param.parameterType === TypeOfParameter.Numeric && invalidFields.value?.includes(param.id)) {
-    return "Field cannot be empty or negative.";
-  } else if (param.updateNumericFrom && warningFields.value?.includes(param.id)) {
-    const dependedUponParam = appStore.parametersMetadataById[param.updateNumericFrom.parameterId];
-    const range = dependentRange(param);
-
-    if (dependedUponParam && range) {
-      const selectedOption = dependedUponParam.options?.find(o => o.id === (formData.value ?? {})[dependedUponParam.id]);
-      return `NB: This value is outside the estimated range for ${selectedOption?.label} (${range.min}–${range.max}).`
-        + ` Proceed with caution.`;
-    }
-  } else {
-    return "This field is required.";
-  }
 };
 
 const pulse = (parameterId: string) => {
@@ -320,8 +169,6 @@ const pulse = (parameterId: string) => {
 };
 
 const handleChange = (param: Parameter) => {
-  showWarnings.value = true;
-
   if (parameterDependencies.value[param.id] === undefined || parameterDependencies.value[param.id]?.length === 0) {
     return;
   }
@@ -339,15 +186,6 @@ const handleChange = (param: Parameter) => {
   if (param.parameterType === TypeOfParameter.GlobeSelect) {
     appStore.globe.highlightedCountry = formData.value![param.id];
   };
-};
-
-const handleInput = () => {
-  // Stop showing warnings while the user is typing
-  showWarnings.value = false;
-
-  debounce(() => {
-    showWarnings.value = true;
-  }, 500)();
 };
 
 const submitForm = async () => {
@@ -391,7 +229,7 @@ watch(formData, () => {
 
   invalidFields.value = paramMetadata.value?.filter((param) => {
     const val = formData.value![param.id];
-    return ((!val && val !== 0) || numericValueInvalid(val, param));
+    return (!val || numericValueInvalid(val, param));
   }).map(p => p.id) || [];
 }, { deep: 1 });
 
@@ -430,7 +268,7 @@ onMounted(() => {
   margin-top: 2rem; // Align button with height of labels when it shares a row with an input.
 }
 
-.pulse {
+:deep(.pulse) {
   animation: pulse-animation 0.5s 1;
 
   &.infinite {
@@ -455,7 +293,7 @@ onMounted(() => {
    margin-right: 0.55rem;
 }
 
-.numeric-header {
+:deep(.numeric-header) {
   padding-right: 2.2rem;
 }
 
@@ -470,20 +308,6 @@ onMounted(() => {
 
 :deep(.has-warning .invalid-tooltip) {
   background-color: $warning;
-}
-
-:deep(.has-warning input[type=range].form-range) {
-  &::-webkit-slider-thumb {
-    background-color: $warning;
-  }
-
-  &::-moz-range-thumb {
-    background-color: $warning;
-  }
-
-  &::-ms-thumb {
-    background-color: $warning;
-  }
 }
 
 :deep(.single-value .fi) {

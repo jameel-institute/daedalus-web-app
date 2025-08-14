@@ -228,10 +228,6 @@ onUnmounted(() => {
   }
 }
 
-.time-series-example {
-  height: 500px;
-}
-
 th, tr, td {
   border: 1px solid black;
   padding: 5px;
