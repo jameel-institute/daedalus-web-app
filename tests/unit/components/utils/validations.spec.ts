@@ -7,11 +7,12 @@ const vaccineParam = mockMetadataResponseData.parameters.find(p => p.id === "vac
 describe("numericValueInvalid", () => {
   it("should return false for valid numeric values", () => {
     expect(numericValueInvalid("10", hospitalCapacityParam)).toBe(false);
-    expect(numericValueInvalid("0", hospitalCapacityParam)).toBe(false);
+    expect(numericValueInvalid("1", hospitalCapacityParam)).toBe(false);
   });
 
-  it("should return true for negative numeric values", () => {
+  it("should return true for negative / zero numeric values", () => {
     expect(numericValueInvalid("-1", hospitalCapacityParam)).toBe(true);
+    expect(numericValueInvalid("0", hospitalCapacityParam)).toBe(true);
   });
 
   it("should return true for non-numeric values", () => {

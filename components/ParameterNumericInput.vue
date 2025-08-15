@@ -104,7 +104,7 @@ const showTooltip = computed(() => !!(warn.value && showWarnings.value) || !!(in
 
 const tooltipText = computed(() => {
   if (props.parameter.parameterType === TypeOfParameter.Numeric && invalid.value) {
-    return "Field cannot be empty or negative.";
+    return "The field must contain a positive value.";
   } else if (props.parameter.updateNumericFrom && warn.value && !invalid.value) {
     const dependedUponParam = appStore.parametersMetadataById[props.parameter.updateNumericFrom!.parameterId];
 

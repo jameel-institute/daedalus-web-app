@@ -27,5 +27,6 @@ export const numericValueInvalid = (
     return true;
   }
 
-  return param.parameterType === TypeOfParameter.Numeric && (Number(value) < 0 || Number.isNaN(Number(value)));
+  return param.parameterType === TypeOfParameter.Numeric
+    && (!(Number(value) > 0) || Number.isNaN(Number(value)));
 };
