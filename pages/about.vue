@@ -168,6 +168,14 @@
       <a href="https://www.flaticon.com/" target="_blank">Flaticon</a>
     </p>
 
+    <p>
+      <strong>icon.svg</strong>
+      Icon by
+      <a href="https://github.com/afnizarnur/nataicons?ref=svgrepo.com" target="_blank">Afnizarnur</a>
+      in MIT License via
+      <a href="https://www.svgrepo.com/" target="_blank">SVG Repo</a>
+    </p>
+
     <h3>World map disclaimer and attribution</h3>
     <p>
       The country borders shown on the world map in DAEDALUS Explore are reflective of boundaries as
