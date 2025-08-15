@@ -1,9 +1,11 @@
 <template>
-  <div
-    id="compareCostsChartContainer"
-    ref="chartContainer"
-    :data-summary="JSON.stringify(seriesData)"
-  />
+  <div>
+    <div
+      id="compareCostsChartContainer"
+      ref="chartContainer"
+      :data-summary="JSON.stringify(seriesData)"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>
