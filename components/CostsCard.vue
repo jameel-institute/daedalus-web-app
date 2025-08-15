@@ -52,43 +52,39 @@
           <CostBasisToggler />
         </div>
       </div>
-      <div class="chart-and-table-container">
+      <div class="d-flex flex-wrap gap-3">
         <CostsChart id="costsChartContainer" />
-        <div class="flex-grow-1">
-          <CostsTable data-testid="costs-table" />
-        </div>
+        <CostsTable
+          data-testid="costs-table"
+          class="flex-grow-1 px-2"
+          :scenarios="[appStore.currentScenario]"
+        />
       </div>
-      <p class="fw-lighter vsl-display">
-        * Value of statistical life: {{ valueOfStatisticalLife }} Int'l$
-      </p>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { humanReadableInteger } from "./utils/formatters";
 import { costAsPercentOfGdp, gdpReferenceYear, humanReadablePercentOfGdp } from "@/components/utils/formatters";
 import { abbreviateMillionsDollars } from "@/utils/money";
 import { CIcon } from "@coreui/icons-vue";
 
 const appStore = useAppStore();
 
+const totalCost = computed(() => appStore.getScenarioTotalCost(appStore.currentScenario));
+
 // Display the 'headline' total cost in terms of a percentage of annual national GDP
 const gdpTotalCostPercent = computed(() => {
-  const totalAsPercentOfGdp = costAsPercentOfGdp(appStore.totalCost?.value, appStore.currentScenario.result.data?.gdp);
+  const totalAsPercentOfGdp = costAsPercentOfGdp(totalCost.value?.value, appStore.currentScenario.result.data?.gdp);
   return humanReadablePercentOfGdp(totalAsPercentOfGdp).percent;
 });
 
 const totalCostAbbr = computed(() => {
-  if (appStore.totalCost) {
-    return abbreviateMillionsDollars(appStore.totalCost?.value, true);
+  if (totalCost.value) {
+    return abbreviateMillionsDollars(totalCost.value?.value, true);
   } else {
     return undefined;
   }
-});
-
-const valueOfStatisticalLife = computed(() => {
-  return humanReadableInteger(appStore.currentScenario.result.data!.average_vsl.toString().split(".")[0]);
 });
 
 const scenarioDuration = computed(() => Object.values(appStore.timeSeriesData || {})[0].length - 1);
@@ -106,24 +102,9 @@ const scenarioDuration = computed(() => Object.values(appStore.timeSeriesData ||
   margin-bottom: 0;
 }
 
-.vsl-display {
-  font-size: $font-size-sm;
-}
 .card-body {
   display: flex;
   flex-direction: column;
-}
-.chart-and-table-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-.chart-and-table-container > :nth-child(2) {
-  flex-grow: 1;
-  display: flex;
-  justify-content: center;
 }
 
 .card-header {

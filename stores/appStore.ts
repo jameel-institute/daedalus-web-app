@@ -60,16 +60,14 @@ export const useAppStore = defineStore("app", {
     parametersMetadataById: (state): Record<string, Parameter> => {
       return Object.fromEntries(state.metadata?.parameters?.map(param => [param.id, param]) || []);
     },
+    axisMetadata: (state): Parameter | undefined => {
+      return state.metadata?.parameters.find(param => param.id === state.currentComparison.axis);
+    },
     globeParameter: (state): Parameter | undefined => state.metadata?.parameters.find(param => param.parameterType === TypeOfParameter.GlobeSelect),
     timeSeriesData: (state): Record<string, number[]> | undefined => state.currentScenario.result.data?.time_series,
     capacitiesData: (state): Array<ScenarioCapacity> | undefined => state.currentScenario.result.data?.capacities,
     interventionsData: (state): Array<ScenarioIntervention> | undefined => state.currentScenario.result.data?.interventions,
     costsData: (state): Array<ScenarioCost> | undefined => state.currentScenario.result.data?.costs,
-    totalCost(): ScenarioCost | undefined {
-      if (this.costsData?.[0]?.id === "total") {
-        return this.costsData[0];
-      }
-    },
     scenarioCountry(state): string | undefined {
       if (!this.globeParameter?.id) {
         return;
@@ -305,6 +303,12 @@ export const useAppStore = defineStore("app", {
     },
     getScenarioResponseInterventions(scenario: Scenario): ScenarioIntervention[] | undefined {
       return scenario.result.data?.interventions.filter(({ id }) => id === responseInterventionId);
+    },
+    getScenarioTotalCost(scenario: Scenario): ScenarioCost | undefined {
+      return scenario.result.data?.costs?.find(cost => cost.id === "total");
+    },
+    getScenarioLifeValue(scenario: Scenario): string | undefined {
+      return scenario.result.data?.average_vsl.toString().split(".")[0];
     },
   },
 });
