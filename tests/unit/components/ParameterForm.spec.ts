@@ -346,10 +346,10 @@ describe("parameter form", () => {
     const feedbackElement = component.find(".invalid-tooltip");
     // Expect the classes of the input not to contain is-invalid - this is our test of whether the feedback is visible.
     expect(numericInput.classes()).not.toContain("is-invalid");
-    await numericInput.setValue("-1"); // Invalid value
+    await numericInput.setValue("0"); // Invalid value
 
     expect(numericInput.classes()).toContain("is-invalid");
-    expect(feedbackElement.text()).toContain("Field cannot be empty or negative.");
+    expect(feedbackElement.text()).toContain("The field must contain a positive value.");
 
     const buttonEl = component.find("button[type='submit']");
     await buttonEl.trigger("click");
