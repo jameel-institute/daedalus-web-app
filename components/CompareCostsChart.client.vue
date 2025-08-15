@@ -43,9 +43,12 @@ const axisMetadata = computed(() => appStore.currentComparison.axis ? appStore.p
 const getSeries = (): Highcharts.SeriesColumnOptions[] => {
   // Take the first scenario's costs as an example to find out what the second-level breakdowns are.
   const secondLevelCostIds = scenarios.value[0].result.data?.costs[0].children?.map(c => c.id) || [];
-  seriesData.value = secondLevelCostIds?.map(costId => ({
+  seriesData.value = secondLevelCostIds?.map((costId, index) => ({
     type: "column",
     name: appStore.getCostLabel(costId),
+    borderWidth: 1,
+    borderColor: colorBlindSafeColors[index].rgb,
+    zIndex: secondLevelCostIds.length - index, // Ensure that stack segments are in front of each other from top to bottom.
     data: scenarios.value.map((scenario) => {
       const subCost = scenario.result.data?.costs[0].children?.find(c => c.id === costId);
       const dollarValue = subCost?.value;
@@ -120,7 +123,11 @@ const chartInitialOptions = () => {
       formatter() { return costsChartMultiScenarioStackedTooltip(this, costBasis.value, axisMetadata.value); },
     },
     plotOptions: {
-      column: { stacking: "normal", groupPadding: 0.3 },
+      column: {
+        stacking: "normal",
+        groupPadding: 0.3,
+        borderRadius: 0, // Border radius mucks up very small stack elements.
+      },
     },
   } as Highcharts.Options;
 };
