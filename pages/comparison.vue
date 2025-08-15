@@ -45,13 +45,7 @@
           </CTabList>
           <CTabContent class="">
             <CTabPanel class="pt-3" item-key="costs">
-              <div class="d-flex align-items-start mx-2">
-                <CostBasisToggler />
-                <div class="ms-auto">
-                  <CompareCostsLegend />
-                </div>
-              </div>
-              <CompareCostsChart />
+              <CompareCostsPane />
             </CTabPanel>
             <CTabPanel item-key="timeseries">
               <p class="time-series-example">
