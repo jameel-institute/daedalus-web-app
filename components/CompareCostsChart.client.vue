@@ -56,7 +56,9 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
       const costAsGdpPercent = costAsPercentOfGdp(dollarValue, scenario.result.data?.gdp);
       const y = costBasis.value === CostBasis.PercentGDP ? costAsGdpPercent : dollarValue;
       const name = appStore.getCostLabel(subCost?.id || "");
-      return { y, name, custom: { costAsGdpPercent } };
+      const opacity = scenario === appStore.baselineScenario ? 1 : 0.8;
+      const borderColor = scenario === appStore.baselineScenario ? "white" : "transparent";
+      return { y, name, custom: { costAsGdpPercent }, opacity, borderColor };
     }),
   } as Highcharts.SeriesColumnOptions)) || [];
 
@@ -98,8 +100,12 @@ const chartInitialOptions = () => {
       categories: scenarios.value?.map(s => appStore.getScenarioAxisValue(s)) || [],
       title: { text: appStore.axisLabel },
       labels: {
-        style: { fontSize: appStore.currentComparison.axis === appStore.globeParameter?.id ? "0.8rem" : "1rem" },
-        formatter() { return costsChartMultiScenarioXAxisLabelFormatter(this.value as string, axisMetadata.value); },
+        style: {
+          fontSize: appStore.currentComparison.axis === appStore.globeParameter?.id ? "0.8rem" : "1rem",
+        },
+        formatter() {
+          return costsChartMultiScenarioXAxisLabelFormatter(this.value as string, axisMetadata.value, appStore.currentComparison.baseline);
+        },
         useHTML: true,
       },
     },
