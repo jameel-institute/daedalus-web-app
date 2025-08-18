@@ -194,7 +194,7 @@ describe("costs chart", () => {
   });
 
   it("adds a resize event listener on mount and removes it on unmount", async () => {
-    vitest.useFakeTimers();
+    vi.useFakeTimers();
     const addEventListenerSpy = vi.spyOn(window, "addEventListener");
     const removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
 
@@ -213,6 +213,6 @@ describe("costs chart", () => {
 
     addEventListenerSpy.mockRestore();
     removeEventListenerSpy.mockRestore();
-    vitest.useRealTimers();
+    vi.useRealTimers();
   });
 });
