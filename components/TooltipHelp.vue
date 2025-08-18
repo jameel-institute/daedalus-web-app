@@ -1,17 +1,22 @@
 <template>
   <CTooltip
-    v-if="helpText"
+    v-if="(helpText && !listHeader && !listItems) || (listHeader && listItems && !helpText)"
     placement="top"
   >
     <template #content>
-      <template v-if="Array.isArray(helpText)">
-        <div v-for="(text, index) in helpText" :key="index">
-          {{ text }}
+      <template v-if="helpText">
+        {{ helpText }}
+      </template>
+      <template v-else-if="listHeader && listItems">
+        <div class="text-start m-2">
+          {{ listHeader }}
+          <ul>
+            <li v-for="(text, index) in listItems" :key="index">
+              {{ text }}
+            </li>
+          </ul>
         </div>
       </template>
-      <div v-else>
-        {{ helpText }}
-      </div>
     </template>
     <template #toggler="{ togglerId, on }">
       <CIconSvg
@@ -33,6 +38,8 @@ import { CIconSvg } from "@coreui/icons-vue";
 
 defineProps<{
   helpText?: string | string[]
+  listHeader?: string
+  listItems?: string[]
   classes: string[]
   infoIcon?: boolean
 }>();
