@@ -22,6 +22,15 @@
           <div class="d-flex flex-column">
             <span v-if="index === 0" class="boldish">
               {{ unitHeaderText }}
+              <span v-if="appStore.preferences.costBasis === CostBasis.PercentGDP">
+                <TooltipHelp
+                  :help-text="gdpVariesByScenario ? undefined : `${gdpFull}: ${scenarioGdp(scenarios[0])}`"
+                  :list-header="gdpVariesByScenario ? `${gdpFull}:` : undefined"
+                  :list-items="gdpVariesByScenario ? scenarios.map((s) => `${scenarioLabel(s)}: ${scenarioGdp(s)}`) : undefined"
+                  :classes="['ms-1']"
+                  :info-icon="true"
+                />
+              </span>
             </span>
             <span v-if="multiScenario" class="fw-medium">
               {{ scenarioLabel(scenario) }}
@@ -31,16 +40,31 @@
       </tr>
     </thead>
     <tbody id="costs-table-body">
+      <template v-if="multiScenario">
+        <tr class="bg-white fw-medium">
+          <td class="ps-2">
+            Total losses
+          </td>
+          <td
+            v-for="(scenario) in props.scenarios"
+            :key="scenario.runId"
+          >
+            {{ displayValue(scenario, 'total') }}
+          </td>
+        </tr>
+      </template>
       <template
         v-for="(childCost) in appStore.getScenarioTotalCost(props.scenarios[0])?.children"
         :key="childCost.id"
       >
         <tr>
-          <td class="ps-2 text-nowrap" :class="(multiScenario ? '' : 'w-75')">
+          <td class="ps-4 text-nowrap" :class="(multiScenario ? '' : 'w-75')">
             {{ appStore.getCostLabel(childCost.id) }}
             <span v-if="childCost.id === 'life_years'">
               <TooltipHelp
-                :help-text="tooltipHelpText"
+                :help-text="vslVariesByScenario ? undefined : `${vslFull}: ${valueOfStatisticalLife(scenarios[0])}`"
+                :list-header="vslVariesByScenario ? `${vslFull}:` : undefined"
+                :list-items="vslVariesByScenario ? scenarios.map((s) => `${scenarioLabel(s)}: ${valueOfStatisticalLife(s)}`) : undefined"
                 :classes="['ms-1']"
                 :info-icon="true"
               />
@@ -67,28 +91,9 @@
             {{ displayValue(scenario, grandChildCost.id) }}
           </td>
         </tr>
-        <tr
-          v-if="multiScenario && vslVariesByScenario && childCost.id === 'life_years'"
-          v-show="!accordioned"
-          class="nested-row fw-lighter text-xs bg-white"
-        >
-          <td>* Value of statistical life</td>
-          <td
-            v-for="(scenario) in props.scenarios"
-            :key="scenario.runId"
-          >
-            {{ valueOfStatisticalLife(scenario) }} Int'l$
-          </td>
-        </tr>
       </template>
     </tbody>
   </table>
-  <p
-    v-if="!multiScenario || !vslVariesByScenario"
-    class="fw-lighter text-xs mt-auto"
-  >
-    * Value of statistical life: {{ valueOfStatisticalLife(props.scenarios[0]) }} Int'l$
-  </p>
 </template>
 
 <script lang="ts" setup>
@@ -104,6 +109,8 @@ const props = defineProps<{
 
 const accordioned = ref(true);
 const appStore = useAppStore();
+const vslFull = "Value of statistical life";
+const gdpFull = `${gdpReferenceYear} GDP`;
 
 const multiScenario = computed(() => props.scenarios.length > 1);
 const unitHeaderText = computed(() => {
@@ -120,28 +127,28 @@ const scenarioLabel = (scenario: Scenario) => {
   }
 };
 
-const valueOfStatisticalLife = (scenario: Scenario) => {
-  const vsl = appStore.getScenarioLifeValue(scenario);
-  return vsl ? humanReadableInteger(vsl) : undefined;
+const gdpVariesByScenario = computed(() => {
+  return props.scenarios.some(scenario => scenario.result.data?.gdp !== props.scenarios[0].result.data?.gdp);
+});
+
+const scenarioGdp = (scenario: Scenario) => {
+  // TODO: Nicer to express these as billions instead of millions?
+  const gdp = scenario.result.data?.gdp?.toString() ?? "";
+  return `${humanReadableInteger(gdp.split(".")[0])} million USD`;
 };
 
 const vslVariesByScenario = computed(() => {
   return props.scenarios.some(scenario => appStore.getScenarioLifeValue(scenario) !== appStore.getScenarioLifeValue(props.scenarios[0]));
 });
 
-const tooltipHelpText = computed(() => {
-  if (vslVariesByScenario.value) {
-    return ["Value of statistical life:", ...props.scenarios.map((s) => {
-      return `${scenarioLabel(s)}: ${valueOfStatisticalLife(s)} Int'l$`;
-    })];
-  } else {
-    return `Value of statistical life: ${valueOfStatisticalLife(props.scenarios[0])} Int'l$`;
-  }
-});
+const valueOfStatisticalLife = (scenario: Scenario) => {
+  const vsl = appStore.getScenarioLifeValue(scenario);
+  return vsl ? `${humanReadableInteger(vsl)} Int'l$` : undefined;
+};
 
 const displayValue = (scenario: Scenario, costId: string): string | undefined => {
   const totalCost = appStore.getScenarioTotalCost(scenario);
-  let cost = totalCost?.children?.find(c => c.id === costId);
+  let cost = costId === "total" ? totalCost : totalCost?.children?.find(c => c.id === costId);
   if (!cost) {
     cost = totalCost?.children?.map(c => c.children).flat().find((grandChild) => {
       return !!grandChild && grandChild.id === costId;
@@ -154,7 +161,7 @@ const displayValue = (scenario: Scenario, costId: string): string | undefined =>
   switch (appStore.preferences.costBasis) {
     case CostBasis.PercentGDP:
     {
-      const percentOfGdp = costAsPercentOfGdp(valueInDollarTerms, appStore.currentScenario.result.data?.gdp);
+      const percentOfGdp = costAsPercentOfGdp(valueInDollarTerms, scenario.result.data?.gdp);
       return `${humanReadablePercentOfGdp(percentOfGdp).percent}%`;
     }
     case CostBasis.USD:
@@ -174,7 +181,7 @@ tr.nested-row {
   background-color: #f1f3f5;
 
   td:first-child {
-    padding-left: 1.5rem;
+    padding-left: 2.5rem;
   }
 }
 td {
