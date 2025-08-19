@@ -121,7 +121,7 @@ describe("costs table for the current scenario", () => {
     expect(tooltipTriggers.length).toBe(2);
 
     expect(tooltipTriggers[0].attributes("src")).toBe("/icons/info.svg");
-    await expectTooltipContents(tooltipTriggers[0], ["2018 GDP: 19,863,038 million USD"]);
+    await expectTooltipContents(tooltipTriggers[0], ["2018 GDP: $19,863.0 billion USD"]);
 
     expect(tooltipTriggers[1].attributes("src")).toBe("/icons/info.svg");
     await expectTooltipContents(tooltipTriggers[1], ["Value of statistical life: 2,799,263 Int'l$"]);
@@ -268,7 +268,7 @@ describe("costs table for all scenarios in a comparison", () => {
     expect(tooltipTriggers.length).toBe(2);
 
     expect(tooltipTriggers[0].attributes("src")).toBe("/icons/info.svg");
-    await expectTooltipContents(tooltipTriggers[0], ["2018 GDP: 19,863,038 million USD"]);
+    await expectTooltipContents(tooltipTriggers[0], ["2018 GDP: $19,863.0 billion USD"]);
 
     expect(tooltipTriggers[1].attributes("src")).toBe("/icons/info.svg");
     await expectTooltipContents(tooltipTriggers[1], ["Value of statistical life: 2,799,263 Int'l$"]);
@@ -318,8 +318,8 @@ describe("costs table for all scenarios in a comparison", () => {
     expect(tooltipTriggers[0].attributes("src")).toBe("/icons/info.svg");
     await expectTooltipContents(tooltipTriggers[0], [
       "2018 GDP:",
-      "<li>United Kingdom: 19,863,038 million USD</li>",
-      "<li>United States: 987,654,321 million USD</li>",
+      "<li>United Kingdom: $19,863.0 billion USD</li>",
+      "<li>United States: $987,654.3 billion USD</li>",
     ]);
 
     expect(tooltipTriggers[1].attributes("src")).toBe("/icons/info.svg");
