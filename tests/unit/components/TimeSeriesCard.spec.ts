@@ -74,6 +74,53 @@ describe("time series", () => {
     });
   });
 
+  it("should initialize accordions to all open for first-time visitors", async () => {
+    // Test with fresh state (empty openedTimeSeriesAccordions)
+    const component = await mountSuspended(TimeSeriesCard, { global: { stubs, plugins } });
+
+    const timeSeriesGroups = component.findAllComponents({ name: "TimeSeriesGroup.client" });
+    expect(timeSeriesGroups.length).toBe(4);
+
+    // All accordions should be open for first-time visitors
+    timeSeriesGroups.forEach((timeSeriesComponent) => {
+      expect(timeSeriesComponent.props().open).toBe(true);
+    });
+  });
+
+  it("should respect persisted accordion state", async () => {
+    // Test with pre-existing state
+    const pluginsWithState = [mockPinia(
+      {
+        currentScenario: {
+          ...emptyScenario,
+          parameters: {
+            country: "USA",
+          },
+          result: {
+            data: mockResultResponseData as ScenarioResultData,
+            fetchError: undefined,
+            fetchStatus: "success",
+          },
+        },
+        preferences: {
+          costBasis: "USD" as any,
+          openedTimeSeriesAccordions: ["infections", "deaths"], // Only some open
+        },
+      },
+    )];
+
+    const component = await mountSuspended(TimeSeriesCard, { global: { stubs, plugins: pluginsWithState } });
+
+    const timeSeriesGroups = component.findAllComponents({ name: "TimeSeriesGroup.client" });
+    expect(timeSeriesGroups.length).toBe(4);
+
+    // Only the persisted accordions should be open
+    expect(timeSeriesGroups[0].props().open).toBe(true); // infections
+    expect(timeSeriesGroups[1].props().open).toBe(false); // hospitalisations
+    expect(timeSeriesGroups[2].props().open).toBe(true); // deaths
+    expect(timeSeriesGroups[3].props().open).toBe(false); // vaccinations
+  });
+
   it("when an accordion's open state is toggled, it should switch state without affecting other accordions' states", async () => {
     const component = await mountSuspended(TimeSeriesCard, { global: { stubs, plugins } });
 

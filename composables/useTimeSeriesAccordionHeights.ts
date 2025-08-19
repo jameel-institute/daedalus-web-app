@@ -1,6 +1,14 @@
 export default () => {
   const appStore = useAppStore();
-  const openedAccordions = ref<string[]>([]);
+
+  // Use computed to sync with persisted preferences
+  const openedAccordions = computed({
+    get: () => appStore.preferences.openedTimeSeriesAccordions,
+    set: (value: string[]) => {
+      appStore.preferences.openedTimeSeriesAccordions = value;
+    },
+  });
+
   const accordionBodyYPadding = 8;
   const minAccordionHeight = 145;
   const maxAccordionHeight = 400;
