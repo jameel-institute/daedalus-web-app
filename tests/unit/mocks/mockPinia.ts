@@ -226,6 +226,10 @@ export const mockPinia = (
       currentScenario: emptyScenario,
       downloading: false,
       downloadError: undefined,
+      preferences: {
+        costBasis: "USD" as any,
+        openedTimeSeriesAccordions: [],
+      },
       ...appState,
     },
   };
