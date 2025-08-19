@@ -59,7 +59,7 @@
         :key="childCost.id"
       >
         <tr>
-          <td class="ps-4 text-nowrap" :class="(multiScenario ? '' : 'w-75')">
+          <td class="ps-4 text-nowrap" :class="(multiScenario ? '' : 'single-scenario-td')">
             {{ appStore.getCostLabel(childCost.id) }}
             <span v-if="childCost.id === 'life_years'">
               <TooltipHelp
@@ -133,9 +133,12 @@ const gdpVariesByScenario = computed(() => {
 });
 
 const scenarioGdp = (scenario: Scenario) => {
-  // TODO: Nicer to express these as billions instead of millions?
-  const gdp = scenario.result.data?.gdp?.toString() ?? "";
-  return `${humanReadableInteger(gdp.split(".")[0])} million USD`;
+  const gdp = scenario.result.data?.gdp;
+  if (!gdp) {
+    return;
+  }
+  const { amount, unit } = expressMillionsDollarsAsBillions(gdp, 1);
+  return `${amount} ${unit} USD`;
 };
 
 const vslVariesByScenario = computed(() => {
@@ -187,5 +190,8 @@ tr.nested-row {
 }
 td {
   padding-left: 0.5rem;
+}
+td.single-scenario-td {
+  width: 70%;
 }
 </style>
