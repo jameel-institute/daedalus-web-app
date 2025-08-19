@@ -6,6 +6,7 @@ import { CostBasis } from "~/types/unitTypes";
 import { costAsPercentOfGdp } from "~/components/utils/formatters";
 import type { ScenarioCost } from "~/types/resultTypes";
 import type { AsyncDataRequestStatus } from "#app";
+import { expectTooltipContents } from "./testUtils/tooltipUtils";
 
 const stubs = {
   CIcon: true,
@@ -84,10 +85,7 @@ describe("costs table for the current scenario", () => {
     const tooltipTriggers = component.findAll("img");
     expect(tooltipTriggers.length).toBe(1);
     expect(tooltipTriggers[0].attributes("src")).toBe("/icons/info.svg");
-    await tooltipTriggers[0].trigger("focus");
-    vi.advanceTimersByTime(1);
-    await nextTick();
-    expect(document.body.innerHTML).toContain("Value of statistical life: 2,799,263 Int'l$");
+    await expectTooltipContents(tooltipTriggers[0], ["Value of statistical life: 2,799,263 Int'l$"]);
   });
 
   it("should render costs table correctly, when cost basis is percent of GDP", async () => {
@@ -123,16 +121,10 @@ describe("costs table for the current scenario", () => {
     expect(tooltipTriggers.length).toBe(2);
 
     expect(tooltipTriggers[0].attributes("src")).toBe("/icons/info.svg");
-    await tooltipTriggers[0].trigger("focus");
-    vi.advanceTimersByTime(1);
-    await nextTick();
-    expect(document.body.innerHTML).toContain("2018 GDP: 19,863,038 million USD");
+    await expectTooltipContents(tooltipTriggers[0], ["2018 GDP: 19,863,038 million USD"]);
 
     expect(tooltipTriggers[1].attributes("src")).toBe("/icons/info.svg");
-    await tooltipTriggers[1].trigger("focus");
-    vi.advanceTimersByTime(1);
-    await nextTick();
-    expect(document.body.innerHTML).toContain("Value of statistical life: 2,799,263 Int'l$");
+    await expectTooltipContents(tooltipTriggers[1], ["Value of statistical life: 2,799,263 Int'l$"]);
   });
 });
 
@@ -225,10 +217,7 @@ describe("costs table for all scenarios in a comparison", () => {
     const tooltipTriggers = component.findAll("img");
     expect(tooltipTriggers.length).toBe(1);
     expect(tooltipTriggers[0].attributes("src")).toBe("/icons/info.svg");
-    await tooltipTriggers[0].trigger("focus");
-    vi.advanceTimersByTime(1);
-    await nextTick();
-    expect(document.body.innerHTML).toContain("Value of statistical life: 2,799,263 Int'l$");
+    await expectTooltipContents(tooltipTriggers[0], ["Value of statistical life: 2,799,263 Int'l$"]);
   });
 
   it("should render costs table correctly, when cost basis is percent of GDP", async () => {
@@ -279,16 +268,10 @@ describe("costs table for all scenarios in a comparison", () => {
     expect(tooltipTriggers.length).toBe(2);
 
     expect(tooltipTriggers[0].attributes("src")).toBe("/icons/info.svg");
-    await tooltipTriggers[0].trigger("focus");
-    vi.advanceTimersByTime(1);
-    await nextTick();
-    expect(document.body.innerHTML).toContain("2018 GDP: 19,863,038 million USD");
+    await expectTooltipContents(tooltipTriggers[0], ["2018 GDP: 19,863,038 million USD"]);
 
     expect(tooltipTriggers[1].attributes("src")).toBe("/icons/info.svg");
-    await tooltipTriggers[1].trigger("focus");
-    vi.advanceTimersByTime(1);
-    await nextTick();
-    expect(document.body.innerHTML).toContain("Value of statistical life: 2,799,263 Int'l$");
+    await expectTooltipContents(tooltipTriggers[1], ["Value of statistical life: 2,799,263 Int'l$"]);
   });
 
   it("should render tooltips with multiple values for VSL and GDP, when these values vary between scenarios", async () => {
@@ -333,21 +316,17 @@ describe("costs table for all scenarios in a comparison", () => {
     expect(tooltipTriggers.length).toBe(2);
 
     expect(tooltipTriggers[0].attributes("src")).toBe("/icons/info.svg");
-    await tooltipTriggers[0].trigger("focus");
-    vi.advanceTimersByTime(1);
-    await nextTick();
-    let innerHTML = document.body.innerHTML;
-    expect(innerHTML).toContain("2018 GDP:");
-    expect(innerHTML).toContain("<li>United Kingdom: 19,863,038 million USD</li>");
-    expect(innerHTML).toContain("<li>United States: 987,654,321 million USD</li>");
+    await expectTooltipContents(tooltipTriggers[0], [
+      "2018 GDP:",
+      "<li>United Kingdom: 19,863,038 million USD</li>",
+      "<li>United States: 987,654,321 million USD</li>",
+    ]);
 
     expect(tooltipTriggers[1].attributes("src")).toBe("/icons/info.svg");
-    await tooltipTriggers[1].trigger("focus");
-    vi.advanceTimersByTime(1);
-    await nextTick();
-    innerHTML = document.body.innerHTML;
-    expect(innerHTML).toContain("Value of statistical life:");
-    expect(innerHTML).toContain("<li>United Kingdom: 2,799,263 Int'l$</li>");
-    expect(innerHTML).toContain("<li>United States: 123,456,789 Int'l$</li>");
+    expectTooltipContents(tooltipTriggers[1], [
+      "Value of statistical life:",
+      "<li>United Kingdom: 2,799,263 Int'l$</li>",
+      "<li>United States: 123,456,789 Int'l$</li>",
+    ]);
   });
 });

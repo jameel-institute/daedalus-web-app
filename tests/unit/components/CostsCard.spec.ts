@@ -4,6 +4,7 @@ import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { mockResultResponseData } from "../mocks/mockResponseData";
 import { setActivePinia } from "pinia";
+import { expectTooltipContents } from "./testUtils/tooltipUtils";
 
 const stubs = {
   CIcon: true,
@@ -74,9 +75,6 @@ describe("costs card", () => {
     const tooltipTriggers = component.findAll("img");
     expect(tooltipTriggers.length).toBe(1);
     expect(tooltipTriggers[0].attributes("src")).toBe("/icons/info.svg");
-    await tooltipTriggers[0].trigger("focus");
-    vi.advanceTimersByTime(1);
-    await nextTick();
-    expect(document.body.innerHTML).toContain("Value of statistical life: 2,799,263 Int'l$");
+    await expectTooltipContents(tooltipTriggers[0], ["Value of statistical life: 2,799,263 Int'l$"]);
   });
 });
