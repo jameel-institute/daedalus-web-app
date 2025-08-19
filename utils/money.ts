@@ -40,9 +40,11 @@ export const expressMillionsDollarsAsBillions = (
   unit: string
 } => {
   let shortAmount = (amount / 1e3).toFixed(precision);
-  if (precision === 0) {
-    shortAmount = humanReadableInteger(shortAmount);
-  }
+  const beforeDecimal = shortAmount.split(".")[0];
+  const afterDecimal = shortAmount.split(".")[1];
+  shortAmount = [humanReadableInteger(beforeDecimal), afterDecimal]
+    .filter(Boolean)
+    .join(".");
   return {
     amount: shortAmount,
     unit: abbreviateUnits ? "B" : "billion",

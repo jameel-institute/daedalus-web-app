@@ -138,7 +138,7 @@ const scenarioGdp = (scenario: Scenario) => {
     return;
   }
   const { amount, unit } = expressMillionsDollarsAsBillions(gdp, 1);
-  return `${amount} ${unit} USD`;
+  return `$${amount} ${unit} USD`;
 };
 
 const vslVariesByScenario = computed(() => {
