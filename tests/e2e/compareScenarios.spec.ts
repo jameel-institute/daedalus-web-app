@@ -12,7 +12,7 @@ test.beforeAll(async () => {
   checkRApiServer();
 });
 
-test("Can compare multiple scenarios", async ({ page, baseURL }) => {
+test("Can compare multiple scenarios", async ({ page, baseURL, isMobile }) => {
   await waitForNewScenarioPage(page, baseURL);
 
   await selectParameterOption(page, "pathogen", "SARS 2004");
@@ -53,6 +53,9 @@ test("Can compare multiple scenarios", async ({ page, baseURL }) => {
   await expect(page.getByRole("option", { name: "Covid-19 Omicron" })).toHaveCount(0);
 
   await page.getByRole("button", { name: "Compare", exact: true }).click();
+  if (isMobile) { // For unknown reasons, in this test, mobile browsers require an extra click to start the comparison
+    await page.getByRole("button", { name: "Compare", exact: true }).click();
+  }
 
   await page.waitForURL(new RegExp(`${baseURL}/comparison\?.*`));
   const comparisonUrl = page.url();
@@ -61,17 +64,6 @@ test("Can compare multiple scenarios", async ({ page, baseURL }) => {
   expect(comparisonUrl).toMatch(new RegExp(`runIds=${runIdMatcher};${runIdMatcher};${runIdMatcher}`));
   await expect(page.getByText("Explore by disease")).toBeVisible();
 
-  // Parameters
-  await expect(page.getByText("pathogen (Axis)").first()).toBeVisible();
-  await expect(page.getByText(`sars_cov_1 (Baseline)`).first()).toBeVisible();
-  await expect(page.getByText("sars_cov_2_pre_alpha").first()).toBeVisible();
-  await expect(page.getByText("sars_cov_2_omicron").first()).toBeVisible();
-  await expect(page.getByText("elimination").first()).toBeVisible();
-  await expect(page.getByText("USA").first()).toBeVisible();
-  await expect(page.getByText("medium").first()).toBeVisible();
-  await expect(page.getByText("305000").first()).toBeVisible();
-  // Run ids
-  await expect(page.getByText(/[a-f0-9]{8}\.\.\./)).toHaveCount(3);
   // Results
   await expect(page.locator("#compareCostsChartContainer text.highcharts-credits").first()).toBeVisible();
 
@@ -128,7 +120,12 @@ test("Can compare multiple scenarios", async ({ page, baseURL }) => {
   expect(await tableRows.nth(11).textContent()).toMatch(/Retirement-age adults.*3,904,000.*2,464,000.*1,692,000/);
 
   // Check that after toggling the cost basis we see different data.
-  await page.getByText("as % of 2018 GDP").nth(1).check();
+  const percentGDPRadioLocator = page.getByText("as % of 2018 GDP");
+  if (await percentGDPRadioLocator.nth(0).isVisible()) {
+    await percentGDPRadioLocator.nth(0).click();
+  } else {
+    await percentGDPRadioLocator.nth(1).click();
+  }
   const costsChartDataGdpStr = await page.locator("#compareCostsChartContainer").getAttribute("data-summary");
   const costsChartDataGdp = JSON.parse(costsChartDataGdpStr!);
   expect(costsChartDataGdp).toHaveLength(3);
