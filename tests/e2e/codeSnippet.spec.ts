@@ -12,12 +12,7 @@ const expectedCodeSnippet = `model_result <- daedalus::daedalus(
 const browserSupportsClipboardPermissions = (browserName: string) => {
   // Not all browsers support setting clipboard permissions unfortunately, so we need to
   // skip the copy test for those
-  return [
-    "chromium",
-    "Microsoft Edge",
-    "Mobile Chrome",
-    "Google Chrome",
-  ].includes(browserName);
+  return browserName !== "webkit";
 };
 
 test("can see code snippet and copy to clipboard", async ({ page, browserName, baseURL, context }) => {
