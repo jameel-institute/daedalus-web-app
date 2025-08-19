@@ -75,38 +75,63 @@ const expectedPercentGDPSeries = [
 ];
 
 const expectedUSDSeries = [
-  expect.objectContaining({ name: "GDP", data: [
-    expect.objectContaining({ name: "GDP", y: 6530831.2856, custom: {
-      costAsGdpPercent: 32.87931628748886,
-    } }),
-    expect.objectContaining({ name: "GDP", y: 10000, custom: {
-      costAsGdpPercent: 0.050344764471232505,
-    } }),
-  ] }),
-  expect.objectContaining({ name: "Education", data: [
-    expect.objectContaining({
-      name: "Education",
-      y: 1538724.4678,
-      custom: {
-        costAsGdpPercent: 7.74667209175136,
-      },
-    }),
-    expect.objectContaining({
-      name: "Education",
-      y: 20000,
-      custom: {
-        costAsGdpPercent: 0.10068952894246501,
-      },
-    }),
-  ] }),
-  expect.objectContaining({ name: "Life years", data: [
-    expect.objectContaining({ name: "Life years", y: 855235.2535, custom: {
-      costAsGdpPercent: 4.305661740495233,
-    } }),
-    expect.objectContaining({ name: "Life years", y: 30000, custom: {
-      costAsGdpPercent: expect.closeTo(0.151, 0.001),
-    } }),
-  ] }),
+  expect.objectContaining({
+    name: "GDP",
+    data: [
+      expect.objectContaining({
+        name: "GDP",
+        y: 6530831.2856,
+        custom: {
+          costAsGdpPercent: 32.87931628748886,
+        },
+      }),
+      expect.objectContaining({
+        name: "GDP",
+        y: 10000,
+        custom: {
+          costAsGdpPercent: 0.050344764471232505,
+        },
+      }),
+    ],
+  }),
+  expect.objectContaining({
+    name: "Education",
+    data: [
+      expect.objectContaining({
+        name: "Education",
+        y: 1538724.4678,
+        custom: {
+          costAsGdpPercent: 7.74667209175136,
+        },
+      }),
+      expect.objectContaining({
+        name: "Education",
+        y: 20000,
+        custom: {
+          costAsGdpPercent: 0.10068952894246501,
+        },
+      }),
+    ],
+  }),
+  expect.objectContaining({
+    name: "Life years",
+    data: [
+      expect.objectContaining({
+        name: "Life years",
+        y: 855235.2535,
+        custom: {
+          costAsGdpPercent: 4.305661740495233,
+        },
+      }),
+      expect.objectContaining({
+        name: "Life years",
+        y: 30000,
+        custom: {
+          costAsGdpPercent: expect.closeTo(0.151, 0.001),
+        },
+      }),
+    ],
+  }),
 ];
 
 describe("costs chart", () => {
@@ -139,7 +164,7 @@ describe("costs chart", () => {
       expect(chartSpy).toHaveBeenCalledWith(
         "compareCostsChartContainer",
         expect.objectContaining({
-          chart: expect.objectContaining({ height: 400, style: { fontFamily: "ImperialSansText, sans-serif" } }),
+          chart: expect.objectContaining({ height: 500, style: { fontFamily: "ImperialSansText, sans-serif" } }),
           title: expect.objectContaining({ text: "Losses after 599 days" }),
           exporting: expect.objectContaining({
             filename: "Losses after 599 days",
@@ -206,7 +231,7 @@ describe("costs chart", () => {
 
     vi.advanceTimersByTime(25);
 
-    expect(mockSetSize).toHaveBeenCalledWith(-10, 400, expect.objectContaining({ duration: 250 }));
+    expect(mockSetSize).toHaveBeenCalledWith(-24, 500, expect.objectContaining({ duration: 250 }));
 
     component.unmount();
     expect(removeEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));

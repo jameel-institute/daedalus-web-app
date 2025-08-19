@@ -6,6 +6,7 @@
           <CButton
             class="btn p-0 text-decoration-none text-muted"
             color="link"
+            data-testid="toggle-costs-table"
             :aria-expanded="accordioned"
             :aria-label="accordioned ? 'Expand costs table' : 'Collapse costs table'"
             aria-controls="costs-table-body"
