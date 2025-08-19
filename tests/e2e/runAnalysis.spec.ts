@@ -48,9 +48,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.getByText("305,000").first()).toBeVisible();
 
   // Check for GDP percentage headline figure
-  await expect(page.getByText(/\d{1,3}(\.\d+)?%of 2018 GDP/)).toBeVisible({ timeout: 20000 });
+  await expect(page.locator("#totalsContainer").getByText(/\d{1,3}(\.\d+)?%of 2018 GDP/)).toBeVisible({ timeout: 10000 });
   // Check for USD$ headline figure
-  await expect(page.getByText(/\$.*USD \d{1,3}\.\d[BTM]$/)).toBeVisible();
+  await expect(page.locator("#totalsContainer").getByText(/\$.*USD \d{1,3}\.\d[BTM]$/)).toBeVisible();
 
   await expect(page.locator("#prevalence-container")).toBeVisible();
   await page.locator("#prevalence-container").scrollIntoViewIfNeeded();
@@ -63,8 +63,8 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   // Check can toggle time series to "New per day" and back
   await expect(page.getByText("New per day").first()).toBeVisible();
   await page.locator("#infectionsDailySwitch").check();
-  await checkTimeSeriesDataPoints(page.locator("#new_infected-container"), 7_500_000);
   await expect(page.getByRole("button", { name: "New infections" })).toBeVisible();
+  await checkTimeSeriesDataPoints(page.locator("#new_infected-container"), 7_500_000);
   await page.locator("#infectionsDailySwitch").setChecked(false);
   await expect(page.getByRole("button", { name: "Prevalence" })).toBeVisible();
 
@@ -142,12 +142,28 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   expect(costsChartDataUsd[3].data[1].y).toEqual(0);
   checkValueIsInRange(costsChartDataUsd[3].data[2].y, 6_412_000, costTolerance);
 
+  const expandCostsTableButton = page.getByTestId("toggle-costs-table");
+  await expandCostsTableButton.click();
+  const tableRows = page.locator("#costs-table-body tr");
+  expect(await tableRows.nth(0).textContent()).toMatch(/GDP.*5,450,000/);
+  expect(await tableRows.nth(1).textContent()).toMatch(/Closures.*5,036,000/);
+  expect(await tableRows.nth(2).textContent()).toMatch(/Absences.*414,000/);
+  expect(await tableRows.nth(3).textContent()).toMatch(/Education.*3,803,000/);
+  expect(await tableRows.nth(4).textContent()).toMatch(/Closures.*3,795,000/);
+  expect(await tableRows.nth(5).textContent()).toMatch(/Absences.*8,000/);
+  expect(await tableRows.nth(6).textContent()).toMatch(/Life years.*26,351,000/);
+  expect(await tableRows.nth(7).textContent()).toMatch(/Preschool-age children.*1,612,000/);
+  expect(await tableRows.nth(8).textContent()).toMatch(/School-age children.*15,079,000/);
+  expect(await tableRows.nth(9).textContent()).toMatch(/Working-age adults.*5,756,000/);
+  expect(await tableRows.nth(10).textContent()).toMatch(/Retirement-age adults.*3,904,000/);
+
   // Check that after toggling the cost basis we see different data.
   await page.getByLabel("as % of 2018 GDP").check();
   const costsChartDataGdpStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
   const costsChartDataGdp = JSON.parse(costsChartDataGdpStr!);
   expect(costsChartDataGdp).toHaveLength(4);
   checkBarChartDataIsDifferent(costsChartDataUsd, costsChartDataGdp);
+  expect(await tableRows.nth(0).textContent()).toMatch(/GDP.*27\.4%/);
 
   // Run a second analysis with a different parameter, using the parameters form on the results page.
   await page.getByRole("button", { name: "Parameters" }).first().click();

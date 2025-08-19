@@ -111,12 +111,29 @@ test("Can compare multiple scenarios", async ({ page, baseURL }) => {
   checkValueIsInRange(lifeYearsSeries.data[1].custom.costAsGdpPercent, 29, costTolerance);
   checkValueIsInRange(lifeYearsSeries.data[2].custom.costAsGdpPercent, 16, costTolerance);
 
+  const expandCostsTableButton = page.getByTestId("toggle-costs-table");
+  await expandCostsTableButton.click();
+  const tableRows = page.locator("#costs-table-body tr");
+  expect(await tableRows.nth(0).textContent()).toMatch(/Total losses.*35,605,000.*13,456,000.*11,696,000/);
+  expect(await tableRows.nth(1).textContent()).toMatch(/GDP.*5,450,000.*5,264,000.*5,373,000/);
+  expect(await tableRows.nth(2).textContent()).toMatch(/Closures.*5,036,000.*5,036,000.*5,076,000/);
+  expect(await tableRows.nth(3).textContent()).toMatch(/Absences.*414,000.*228,000.*296,000/);
+  expect(await tableRows.nth(4).textContent()).toMatch(/Education.*3,803,000.*3,801,000.*3,833,000/);
+  expect(await tableRows.nth(5).textContent()).toMatch(/Closures.*3,795,000.*3,795,000.*3,826,000/);
+  expect(await tableRows.nth(6).textContent()).toMatch(/Absences.*8,000.*6,000.*8,000/);
+  expect(await tableRows.nth(7).textContent()).toMatch(/Life years.*26,351,000.*4,391,000.*2,489,000/);
+  expect(await tableRows.nth(8).textContent()).toMatch(/Preschool-age children.*1,612,000.*3,000.*8,000/);
+  expect(await tableRows.nth(9).textContent()).toMatch(/School-age children.*15,079,000.*1,882,000.*709,000/);
+  expect(await tableRows.nth(10).textContent()).toMatch(/Working-age adults.*5,756,000.*41,000.*81,000/);
+  expect(await tableRows.nth(11).textContent()).toMatch(/Retirement-age adults.*3,904,000.*2,464,000.*1,692,000/);
+
   // Check that after toggling the cost basis we see different data.
-  await page.getByLabel("as % of 2018 GDP").check();
+  await page.getByText("as % of 2018 GDP").nth(1).check();
   const costsChartDataGdpStr = await page.locator("#compareCostsChartContainer").getAttribute("data-summary");
   const costsChartDataGdp = JSON.parse(costsChartDataGdpStr!);
   expect(costsChartDataGdp).toHaveLength(3);
   checkBarChartDataIsDifferent(costsChartDataUsd, costsChartDataGdp);
+  expect(await tableRows.nth(0).textContent()).toMatch(/Total losses.*179%.*67\.7%.*58\.9%/);
 
   // Test we can navigate back to baseline scenario
   await page.getByRole("link", { name: "Baseline scenario" }).first().click();
