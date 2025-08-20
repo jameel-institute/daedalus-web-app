@@ -22,6 +22,7 @@ import type { DisplayInfo } from "~/types/apiResponseTypes";
 import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeLargePalette, contextButtonOptions, menuItemDefinitionOptions, plotBandsColorName, plotBandsDefaultColor, plotLinesColorName } from "./utils/highCharts";
 import { getTimeSeriesDataPoints, showInterventions, timeSeriesYUnits } from "./utils/timeSeriesData";
 import useCapacitiesPlotLines from "~/composables/useCapacitiesPlotLines";
+import type { ScenarioIntervention } from "~/types/resultTypes";
 
 const props = defineProps<{
   chartHeight: number
@@ -61,24 +62,26 @@ const data = computed(() => getTimeSeriesDataPoints(appStore.currentScenario, pr
 const showCapacities = computed(() => props.timeSeriesMetadata.id === "hospitalised");
 const { capacitiesPlotLines, minRange } = useCapacitiesPlotLines(showCapacities, appStore.capacitiesData, chart);
 
-const intervention = computed(() => {
-  const intvn = appStore.getScenarioResponseIntervention(appStore.currentScenario);
-  if (!intvn) {
+const interventions = computed(() => {
+  const intvns = appStore.getScenarioResponseInterventions(appStore.currentScenario);
+  if (!intvns) {
     return undefined;
   }
   // The chart being hovered may be one that doesn't show interventions. If so, we don't need to update this chart's plot bands.
   const hoveredChartShowsInterventions = props.synchPoint?.series?.options?.custom?.showInterventions === true;
   const triggerPlotBandUpdate = !!props.synchPoint && hoveredChartShowsInterventions;
-  const label = `Intervention days ${intvn.start.toFixed(0)}–${intvn.end.toFixed(0)}`;
-  return {
-    ...intvn,
-    color: plotBandsDefaultColor,
-    id: `${intvn.id}-${triggerPlotBandUpdate}`, // id lets Highcharts track individual plot bands for removePlotBand and addPlotBand
-    label: triggerPlotBandUpdate ? label : "", // No label if nothing is hovered
-  };
+
+  return intvns.map((intvn: ScenarioIntervention) => {
+    const label = triggerPlotBandUpdate
+      ? `Intervention days ${intvn.start.toFixed(0)}–${intvn.end.toFixed(0)}`
+      : ""; // No label if nothing is hovered
+    // id lets Highcharts track unique plot bands for removePlotBand and addPlotBand
+    const id = `${intvn.id}-${intvn.start}-${intvn.end}-${triggerPlotBandUpdate}`;
+    return { ...intvn, color: plotBandsDefaultColor, id, label };
+  });
 });
 
-const { interventionPlotBand } = useInterventionPlotBand(() => props.timeSeriesMetadata, intervention, chart);
+const { interventionPlotBands } = useInterventionPlotBands(() => props.timeSeriesMetadata, interventions, chart);
 
 const chartTimeSeries = computed((): Array<Highcharts.SeriesLineOptions | Highcharts.SeriesAreaOptions> => ([{
   type: props.seriesRole === "total" ? "area" : "line",
@@ -157,7 +160,7 @@ const chartInitialOptions = () => {
       crosshair: true,
       minTickInterval: 1,
       min: 1,
-      plotBands: interventionPlotBand.value ? [interventionPlotBand.value] : [],
+      plotBands: interventionPlotBands.value,
     },
     yAxis: {
       title: {

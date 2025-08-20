@@ -303,8 +303,8 @@ export const useAppStore = defineStore("app", {
     getScenarioAxisValue(scenario: Scenario): string | undefined {
       return this.currentComparison.axis ? scenario.parameters?.[this.currentComparison.axis] : undefined;
     },
-    getScenarioResponseIntervention(scenario: Scenario): ScenarioIntervention | undefined {
-      return scenario.result.data?.interventions.find(({ id }) => id === responseInterventionId);
+    getScenarioResponseInterventions(scenario: Scenario): ScenarioIntervention[] | undefined {
+      return scenario.result.data?.interventions.filter(({ id }) => id === responseInterventionId);
     },
   },
 });

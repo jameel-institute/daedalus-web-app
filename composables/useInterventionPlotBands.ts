@@ -5,20 +5,20 @@ import type { TimeSeriesIntervention } from "~/types/dataTypes";
 
 export default (
   timeSeriesMetadata: MaybeRefOrGetter<DisplayInfo>,
-  intervention: MaybeRefOrGetter<TimeSeriesIntervention | undefined>,
+  interventions: MaybeRefOrGetter<TimeSeriesIntervention[] | undefined>,
   chart: MaybeRefOrGetter<Highcharts.Chart | undefined>,
 ) => {
-  const interventionPlotBand = computed(() => {
+  const interventionPlotBands = computed(() => {
     if (!showInterventions(toValue(timeSeriesMetadata).id)) {
       return;
     }
 
-    const intvn = toValue(intervention);
+    const intvns = toValue(interventions);
 
-    if (!intvn) {
+    if (!intvns) {
       return;
     }
-    return {
+    return intvns.map(intvn => ({
       id: intvn.id,
       from: Number(intvn.start.toFixed(0)),
       to: Number(intvn.end.toFixed(0)),
@@ -34,19 +34,24 @@ export default (
         },
         y: -5, // Label above plot band
       },
-    } as Highcharts.AxisPlotBandsOptions;
+    } as Highcharts.AxisPlotBandsOptions));
   });
 
-  watch(interventionPlotBand, (newPlotBand, oldPlotBand) => {
+  watch(interventionPlotBands, (newBands, oldBands) => {
     const xAxis = toValue(chart)?.xAxis[0];
-    if (oldPlotBand?.id && oldPlotBand?.id !== newPlotBand?.id) {
-      xAxis?.removePlotBand(oldPlotBand.id);
-    }
 
-    if (newPlotBand && oldPlotBand?.id !== newPlotBand?.id) {
-      xAxis?.addPlotBand(newPlotBand);
-    }
+    oldBands?.filter(({ id }) => {
+      return !!id && !newBands?.map(n => n.id).includes(id);
+    }).forEach(({ id }) => {
+      !!id && xAxis?.removePlotBand(id);
+    });
+
+    newBands?.forEach((newBand) => {
+      if (!oldBands?.map(o => o.id).includes(newBand.id)) {
+        xAxis?.addPlotBand(newBand);
+      }
+    });
   });
 
-  return { interventionPlotBand };
+  return { interventionPlotBands };
 };
