@@ -47,7 +47,7 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
     type: "column",
     name: appStore.getCostLabel(costId),
     borderWidth: 1,
-    borderColor: colorBlindSafeColors[index].rgb,
+    borderColor: colorBlindSafeSmallPalette[index].rgb,
     zIndex: secondLevelCostIds.length - index, // Ensure that stack segments are in front of each other from top to bottom.
     data: scenarios.value.map((scenario) => {
       const subCost = scenario.result.data?.costs[0].children?.find(c => c.id === costId);
