@@ -11,7 +11,15 @@ export interface colorRgbHsl {
   hsl: HSL
 }
 
-// Two possible color palettes.
+// Colours from Bang Wong palette, see https://davidmathlogic.com/colorblind
+// RGB values derived from the Wong 2011 source https://www.nature.com/articles/nmeth.1618
+export const colorBlindSafeSmallPalette: colorRgbHsl[] = [
+  { name: "Vermillion", rgb: "rgb(213,94,0)", hsl: convert.rgb.hsl(213, 94, 0) }, // hsl: [26, 100, 42]
+  { name: "Bluish green", rgb: "rgb(0,158,115)", hsl: convert.rgb.hsl(0, 158, 115) }, // hsl: [164, 100, 31]
+  { name: "Sky blue", rgb: "rgb(86,180,233)", hsl: convert.rgb.hsl(86, 180, 233) }, // hsl: [202, 77, 63]
+];
+
+// Two possible larger colour palettes, intended for charts that need more colours.
 // Palettes from Paul Tol, see https://davidmathlogic.com/colorblind
 // Archived Paul Tol site: https://web.archive.org/web/20250109045745/https://personal.sron.nl/~pault/#sec:qualitative
 const brightColors: colorRgbHsl[] = [
@@ -34,15 +42,15 @@ const vibrantColors: colorRgbHsl[] = [
 
 const doVibrantColors = true; // Set to true to use vibrant colors instead of bright ones
 
-export const colorBlindSafeColors = [
+export const colorBlindSafeLargePalette = [
   ...(doVibrantColors ? vibrantColors : brightColors),
   { name: "Black", rgb: "rgb(0,0,0)", hsl: convert.rgb.hsl(0, 0, 0) },
 ];
 export const plotLinesColorName = "Red";
-export const plotLinesColor = colorBlindSafeColors.find(c => c.name === plotLinesColorName)!.rgb;
+export const plotLinesColor = colorBlindSafeLargePalette.find(c => c.name === plotLinesColorName)!.rgb;
 export const plotBandsRgbAlpha = 0.3;
 export const plotBandsColorName = "Cyan";
-export const plotBandsDefaultColor = colorBlindSafeColors.find(c => c.name === plotBandsColorName)!.rgb;
+export const plotBandsDefaultColor = colorBlindSafeLargePalette.find(c => c.name === plotBandsColorName)!.rgb;
 export const addAlphaToRgb = (colorRgb: string, alpha: number): string => {
   return colorRgb.replace("rgb", "rgba").replace(")", `,${alpha})`);
 };

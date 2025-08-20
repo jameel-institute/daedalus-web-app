@@ -19,7 +19,7 @@ import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
-import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, menuItemDefinitionOptions, plotBandsColorName, plotBandsDefaultColor, plotLinesColorName } from "./utils/highCharts";
+import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeLargePalette, contextButtonOptions, menuItemDefinitionOptions, plotBandsColorName, plotBandsDefaultColor, plotLinesColorName } from "./utils/highCharts";
 import { getTimeSeriesDataPoints, showInterventions, timeSeriesYUnits } from "./utils/timeSeriesData";
 import useCapacitiesPlotLines from "~/composables/useCapacitiesPlotLines";
 
@@ -49,7 +49,7 @@ const { onMove } = useSynchronisableChart(
 );
 const { zIndex } = useAdjacentCharts(() => props.groupIndex, () => Number(appStore.timeSeriesGroups?.length));
 
-const seriesColors = colorBlindSafeColors
+const seriesColors = colorBlindSafeLargePalette
   .filter(c => ![plotBandsColorName, plotLinesColorName].includes(c.name))
   .map(c => c.rgb);
 
@@ -172,7 +172,7 @@ const chartInitialOptions = () => {
 };
 
 watch(() => props.timeSeriesMetadata, () => {
-  if (chart.value?.yAxis[0].options?.minRange !== minRange.value) {
+  if (chart.value?.yAxis?.[0]?.options?.minRange !== minRange.value) {
     chart.value?.yAxis[0].update({ minRange: minRange.value });
   };
 

@@ -1,5 +1,5 @@
 import type { HSL } from "color-convert";
-import { addAlphaToRgb, colorBlindSafeColors, costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, getColorVariants, plotBandsDefaultColor, plotLinesColor } from "~/components/utils/highCharts";
+import { addAlphaToRgb, colorBlindSafeLargePalette, costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, getColorVariants, plotBandsDefaultColor, plotLinesColor } from "~/components/utils/highCharts";
 import { CostBasis } from "~/types/unitTypes";
 import { mockMetadataResponseData } from "../../mocks/mockResponseData";
 import { TypeOfParameter } from "~/types/parameterTypes";
@@ -20,7 +20,7 @@ describe("plotLinesColor", () => {
 
 describe("colorBlindSafeColors", () => {
   it("should be 7 colors long", () => {
-    expect(colorBlindSafeColors).toHaveLength(7);
+    expect(colorBlindSafeLargePalette).toHaveLength(7);
   });
 });
 
