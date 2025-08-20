@@ -43,6 +43,7 @@ export default defineNuxtConfig({
     "@nuxt/test-utils/module", // https://nuxt.com/docs/getting-started/testing#setup
     "@nuxt/eslint",
     "@vueuse/nuxt",
+    "@vue-macros/nuxt",
   ],
 
   vite: {

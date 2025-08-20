@@ -3,7 +3,7 @@ import { numericValueInvalid } from "~/components/utils/validations";
 import type { Parameter } from "~/types/parameterTypes";
 
 export default (
-  scenariosToCompareAgainstBaseline: MaybeRefOrGetter<Array<string>>,
+  scenariosToCompareAgainstBaseline: Ref<Array<string>>,
   parameter: MaybeRefOrGetter<Parameter | undefined>,
 ) => {
   const tooFewScenarios = computed(() => toValue(scenariosToCompareAgainstBaseline).length < MIN_SCENARIOS_COMPARED_TO_BASELINE);

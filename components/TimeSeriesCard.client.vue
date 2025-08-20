@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import { CIcon } from "@coreui/icons-vue";
-import useSynchroniseCharts from "~/composables/useChartSynchroniser";
+import useSynchroniseCharts from "~/composables/useSynchroniseCharts";
 
 const appStore = useAppStore();
 const { openedAccordions, chartHeightPx, minChartHeightPx } = useTimeSeriesAccordionHeights();

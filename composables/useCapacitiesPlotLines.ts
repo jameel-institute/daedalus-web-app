@@ -5,7 +5,7 @@ import type { ScenarioCapacity } from "~/types/resultTypes";
 export default (
   showCapacities: MaybeRefOrGetter<boolean>,
   capacities: MaybeRefOrGetter<Array<ScenarioCapacity> | undefined>,
-  chart: MaybeRefOrGetter<Highcharts.Chart | undefined>,
+  chart: Ref<Highcharts.Chart | undefined>,
 ) => {
   const appStore = useAppStore();
 
@@ -44,7 +44,7 @@ export default (
     : undefined);
 
   watch(capacitiesPlotLines, (newPlotLines, oldPlotLines) => {
-    const yAxis = toValue(chart)?.yAxis[0];
+    const yAxis = chart.value?.yAxis[0];
     oldPlotLines.forEach((oldPlotLine) => {
       if (oldPlotLine?.id && !newPlotLines.map(({ id }) => id).includes(oldPlotLine?.id)) {
         yAxis?.removePlotLine(oldPlotLine.id);
