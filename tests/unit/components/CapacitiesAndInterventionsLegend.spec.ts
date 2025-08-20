@@ -1,4 +1,4 @@
-import PlotLinesBandsLegend from "~/components/PlotLinesBandsLegend.vue";
+import CapacitiesAndInterventionsLegend from "~/components/CapacitiesAndInterventionsLegend.vue";
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 
@@ -8,7 +8,7 @@ const stubs = {
 
 describe("time series", () => {
   it("should render the correct labels for the plot lines and plot bands", async () => {
-    const component = await mountSuspended(PlotLinesBandsLegend, {
+    const component = await mountSuspended(CapacitiesAndInterventionsLegend, {
       global: { stubs, plugins: [mockPinia()] },
       props: { showPlotLines: true },
     });
@@ -21,7 +21,7 @@ describe("time series", () => {
   });
 
   it("should not render the plot lines label when props say not to", async () => {
-    const component = await mountSuspended(PlotLinesBandsLegend, {
+    const component = await mountSuspended(CapacitiesAndInterventionsLegend, {
       global: { stubs, plugins: [mockPinia()] },
       props: { showPlotLines: false },
     });
@@ -41,7 +41,7 @@ describe("time series", () => {
       },
     });
 
-    const component = await mountSuspended(PlotLinesBandsLegend, {
+    const component = await mountSuspended(CapacitiesAndInterventionsLegend, {
       global: { stubs, plugins: [pinia] },
       props: { showPlotLines: true },
     });
