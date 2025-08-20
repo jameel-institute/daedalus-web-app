@@ -18,7 +18,7 @@ describe("plotLinesColor", () => {
   });
 });
 
-describe("colorBlindSafeColors", () => {
+describe("colorBlindSafeLargePalette", () => {
   it("should be 7 colors long", () => {
     expect(colorBlindSafeLargePalette).toHaveLength(7);
   });
