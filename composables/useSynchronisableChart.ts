@@ -1,4 +1,4 @@
-// This composable should be used alongside useChartSynchroniser.
+// This composable should be used alongside useSynchroniseCharts.
 // This composable is to be used by the child component whose siblings are synchronised by a parent.
 import throttle from "lodash.throttle";
 
