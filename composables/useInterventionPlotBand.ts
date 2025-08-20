@@ -4,16 +4,16 @@ import type { DisplayInfo } from "~/types/apiResponseTypes";
 import type { TimeSeriesIntervention } from "~/types/dataTypes";
 
 export default (
-  timeSeriesMetadata: Ref<DisplayInfo>,
-  intervention: Ref<TimeSeriesIntervention | undefined>,
-  chart: Ref<Highcharts.Chart | undefined>,
+  timeSeriesMetadata: MaybeRefOrGetter<DisplayInfo>,
+  intervention: MaybeRefOrGetter<TimeSeriesIntervention | undefined>,
+  chart: MaybeRefOrGetter<Highcharts.Chart | undefined>,
 ) => {
   const interventionPlotBand = computed(() => {
-    if (!showInterventions(timeSeriesMetadata.value.id)) {
+    if (!showInterventions(toValue(timeSeriesMetadata).id)) {
       return;
     }
 
-    const intvn = intervention.value;
+    const intvn = toValue(intervention);
 
     if (!intvn) {
       return;
@@ -38,7 +38,7 @@ export default (
   });
 
   watch(interventionPlotBand, (newPlotBand, oldPlotBand) => {
-    const xAxis = chart.value?.xAxis[0];
+    const xAxis = toValue(chart)?.xAxis[0];
     if (oldPlotBand?.id && oldPlotBand?.id !== newPlotBand?.id) {
       xAxis?.removePlotBand(oldPlotBand.id);
     }

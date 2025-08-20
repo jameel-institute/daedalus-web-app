@@ -1,18 +1,20 @@
-// This composable should be used alongside useSychroniseCharts.
+// This composable should be used alongside useChartSynchroniser.
 // This composable is to be used by the child component whose siblings are synchronised by a parent.
 import throttle from "lodash.throttle";
 
 export default (
-  chart: Ref<Highcharts.Chart | undefined>,
-  hideTooltips: Ref<boolean>,
-  synchPoint: Ref<Highcharts.Point | undefined>,
+  chartRef: MaybeRefOrGetter<Highcharts.Chart | undefined>,
+  hideTooltips: MaybeRefOrGetter<boolean>,
+  synchPoint: MaybeRefOrGetter<Highcharts.Point | undefined>,
   emitHoverPoint: (point: Highcharts.Point) => void,
 ) => {
+  const chart = computed(() => toValue(chartRef));
+
   /**
    * Synchronize tooltips and crosshairs between charts.
    * Demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
    */
-  watch(synchPoint, (newSynchPoint) => {
+  watch(() => toValue(synchPoint), (newSynchPoint) => {
     if (newSynchPoint && chart.value?.series) {
       // Get the series in this chart that matches the series being hovered in some chart
       const series = chart.value.series.find((series) => {
@@ -28,9 +30,9 @@ export default (
     }
   });
 
-  watch(hideTooltips, (shouldHide) => {
+  watch(() => toValue(hideTooltips), (shouldHide) => {
     if (shouldHide) {
-      chart.value?.pointer.reset(false, 0); // Hide all tooltips and crosshairs
+      toValue(chartRef)?.pointer.reset(false, 0); // Hide all tooltips and crosshairs
     }
   });
 

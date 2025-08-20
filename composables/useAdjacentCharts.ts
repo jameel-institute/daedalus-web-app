@@ -3,8 +3,8 @@
 // Also, they should be at least 3 so that they are above .accordion-button:focus
 
 export default (
-  chartIndex: Ref<number>,
+  chartIndex: MaybeRefOrGetter<number>,
   totalNumberOfCharts: MaybeRefOrGetter<number>,
 ) => ({
-  zIndex: computed(() => (toValue(totalNumberOfCharts) - chartIndex.value) + 3),
+  zIndex: computed(() => (toValue(totalNumberOfCharts) - toValue(chartIndex)) + 3),
 });
