@@ -40,6 +40,7 @@ const props = {
 const mockSetSize = vi.fn();
 const mockDestroy = vi.fn();
 const mockUpdate = vi.fn();
+const mockYAxisUpdate = vi.fn();
 const mockRemovePlotBand = vi.fn();
 const mockAddPlotBand = vi.fn();
 const mockRemovePlotLine = vi.fn();
@@ -64,6 +65,7 @@ vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
         yAxis: [{
           removePlotLine: vi.fn(arg => mockRemovePlotLine(arg)),
           addPlotLine: vi.fn(arg => mockAddPlotLine(arg)),
+          update: vi.fn(arg => mockYAxisUpdate(arg)),
         }],
       }),
       win: actual.default.win,
@@ -169,15 +171,15 @@ describe("time series", () => {
           },
         }),
       }),
-      yAxis: expect.objectContaining({
-        minRange: undefined,
-      }),
     }));
     expect(mockRemovePlotLine).toHaveBeenCalledWith("hospital_capacity-434700");
     expect(mockRemovePlotBand).not.toHaveBeenCalled();
     expect(mockAddPlotBand).not.toHaveBeenCalled();
 
     await component.setProps({ seriesRole: "total", timeSeriesMetadata });
+    expect(mockYAxisUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      minRange: 434700,
+    }));
     expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({
       series: expect.arrayContaining([
         expect.objectContaining({
@@ -195,9 +197,6 @@ describe("time series", () => {
             text: "Infections requiring hospitalisation",
           },
         }),
-      }),
-      yAxis: expect.objectContaining({
-        minRange: 434700,
       }),
     }));
     expect(mockAddPlotLine).toHaveBeenCalledWith(expect.objectContaining({

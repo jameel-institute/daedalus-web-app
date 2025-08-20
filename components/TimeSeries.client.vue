@@ -171,13 +171,16 @@ const chartInitialOptions = () => {
   } as Highcharts.Options;
 };
 
-watch(() => props.timeSeriesMetadata, () => chart.value?.update({
-  exporting: exportingOptions.value,
-  series: chartTimeSeries.value,
-  yAxis: {
-    minRange: minRange.value,
-  },
-}));
+watch(() => props.timeSeriesMetadata, () => {
+  if (chart.value?.yAxis[0].options?.minRange !== minRange.value) {
+    chart.value?.yAxis[0].update({ minRange: minRange.value });
+  };
+
+  chart.value?.update({
+    exporting: exportingOptions.value,
+    series: chartTimeSeries.value,
+  });
+});
 
 watch(() => chartContainer.value, () => {
   if (!chart.value) {
