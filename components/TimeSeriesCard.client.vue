@@ -58,7 +58,7 @@ onMounted(() => {
   initializeAccordions();
 });
 
-watch(() => (Object.keys(appStore.currentScenario.result.data?.time_series || {})), () => {
+watch(() => (Object.keys(appStore.currentScenario.result || {})), () => {
   initializeAccordions();
 });
 </script>

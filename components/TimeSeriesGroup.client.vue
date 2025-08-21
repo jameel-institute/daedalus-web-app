@@ -34,7 +34,7 @@
 
 <script lang="ts" setup>
 import type { TimeSeriesGroup } from "~/types/apiResponseTypes";
-import useTimeSeriesGroups from "~/composables/useTimeSeriesGroups";
+import useTimeSeriesGroup from "~/composables/useTimeSeriesGroup";
 
 const props = defineProps<{
   seriesGroup: TimeSeriesGroup
@@ -57,7 +57,7 @@ const accordionStyle = {
 };
 
 const isDaily = ref(false);
-const { activeRole, activeSeriesMetadata } = useTimeSeriesGroups(() => props.seriesGroup, isDaily);
+const { activeRole, activeSeriesMetadata } = useTimeSeriesGroup(() => props.seriesGroup, isDaily);
 </script>
 
 <style lang="scss">

@@ -30,7 +30,6 @@ describe("time series", () => {
     expect(lineItem.exists()).toBe(false);
   });
 
-  // appStore.currentScenario.parameters?.response === "none"
   it("should not render the intervention plot bands if the current scenario does not involve interventions", async () => {
     const pinia = mockPinia({
       currentScenario: {

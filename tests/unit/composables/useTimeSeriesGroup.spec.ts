@@ -1,7 +1,7 @@
 import { setActivePinia } from "pinia";
 import { mockPinia } from "../mocks/mockPinia";
 
-describe("useTimeSeriesGroups", () => {
+describe("useTimeSeriesGroup", () => {
   it("should return the correct active role and active time series metadata", () => {
     setActivePinia(mockPinia());
 
@@ -14,7 +14,7 @@ describe("useTimeSeriesGroups", () => {
         daily: "new_hospitalised",
       },
     });
-    const { activeRole, activeSeriesMetadata } = useTimeSeriesGroups(timeSeriesGroup, isDaily);
+    const { activeRole, activeSeriesMetadata } = useTimeSeriesGroup(timeSeriesGroup, isDaily);
 
     expect(activeRole.value).toBe("daily");
     expect(activeSeriesMetadata.value).toEqual({
