@@ -10,7 +10,7 @@ export default (
   const appStore = useAppStore();
 
   const capacitiesPlotLines = computed(() => {
-    if (!toValue(showCapacities)) {
+    if (!toValue(showCapacities) || !toValue(capacities)?.length) {
       return [];
     }
 
@@ -39,21 +39,25 @@ export default (
   // The y-axis automatically rescales to the data (ignoring the plotLines). We want the plotLines
   // to remain visible, so we limit the y-axis' ability to rescale, by defining a minimum range. This way the
   // plotLines remain visible even when the maximum data value is less than the maximum plotLine value.
-  const minRange = computed(() => toValue(showCapacities)
-    ? toValue(capacities)?.reduce((acc, { value }) => Math.max(acc, value), 0)
-    : undefined);
+  const minRange = computed(() => {
+    const caps = toValue(capacities);
+    if (toValue(showCapacities) && caps?.length) {
+      return caps.reduce((acc, { value }) => Math.max(acc, value), 0);
+    }
+  });
 
-  watch(capacitiesPlotLines, (newPlotLines, oldPlotLines) => {
+  watch(capacitiesPlotLines, (newLines, oldLines) => {
     const yAxis = toValue(chart)?.yAxis[0];
-    oldPlotLines.forEach((oldPlotLine) => {
-      if (oldPlotLine?.id && !newPlotLines.map(({ id }) => id).includes(oldPlotLine?.id)) {
-        yAxis?.removePlotLine(oldPlotLine.id);
-      }
+
+    oldLines?.filter(({ id }) => {
+      return !!id && !newLines?.map(n => n.id).includes(id);
+    }).forEach(({ id }) => {
+      !!id && yAxis?.removePlotLine(id);
     });
 
-    newPlotLines.forEach((newPlotLine) => {
-      if (newPlotLine && !oldPlotLines.map(({ id }) => id).includes(newPlotLine?.id)) {
-        yAxis?.addPlotLine(newPlotLine);
+    newLines?.forEach((newLine) => {
+      if (!oldLines?.map(o => o.id).includes(newLine.id)) {
+        yAxis?.addPlotLine(newLine);
       }
     });
   });
