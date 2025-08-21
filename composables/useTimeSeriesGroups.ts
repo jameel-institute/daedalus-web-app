@@ -6,13 +6,14 @@ import type { DisplayInfo, TimeSeriesGroup } from "~/types/apiResponseTypes";
 export default (seriesGroup: MaybeRefOrGetter<TimeSeriesGroup>, isDaily: MaybeRefOrGetter<boolean>) => {
   const appStore = useAppStore();
 
-  const activeRole = computed(() => {
-    // Since we are using a switch UI, we assume there are only two roles, and "total" role precedes "daily" role
-    const timeSeriesGroupRoles = Object.keys(toValue(seriesGroup).time_series).slice(0, 2); // ["total", "daily"]
-    return timeSeriesGroupRoles[Number(toValue(isDaily))];
-  });
+  const activeRole = computed(() => appStore.metadata?.results.time_series_roles.map(r => r.id)
+    .find(roleId => toValue(isDaily) ? roleId === "daily" : roleId !== "daily"),
+  );
 
   const activeSeriesMetadata = computed((): DisplayInfo | undefined => {
+    if (!activeRole.value) {
+      return;
+    }
     const activeTimeSeriesId = toValue(seriesGroup).time_series[activeRole.value];
     return appStore.metadata?.results.time_series?.find(({ id }) => id === activeTimeSeriesId);
   });
