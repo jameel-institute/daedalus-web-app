@@ -8,7 +8,7 @@ export default (
   interventions: MaybeRefOrGetter<TimeSeriesIntervention[] | undefined>,
   chart: MaybeRefOrGetter<Highcharts.Chart | undefined>,
 ) => {
-  const interventionPlotBands = computed(() => {
+  const interventionsPlotBands = computed(() => {
     const intvns = toValue(interventions);
     if (!showInterventions(toValue(timeSeriesMetadata).id) || !intvns) {
       return [];
@@ -33,7 +33,7 @@ export default (
     } as Highcharts.AxisPlotBandsOptions));
   });
 
-  watch(interventionPlotBands, (newBands, oldBands) => {
+  watch(interventionsPlotBands, (newBands, oldBands) => {
     const xAxis = toValue(chart)?.xAxis[0];
 
     oldBands?.filter(({ id }) => {
@@ -49,5 +49,5 @@ export default (
     });
   });
 
-  return { interventionPlotBands };
+  return { initialInterventionsPlotBands: interventionsPlotBands.value };
 };

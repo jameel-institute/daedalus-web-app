@@ -26,9 +26,9 @@ describe("useCapacitiesPlotLines", () => {
     const capacities = ref<Array<ScenarioCapacity> | undefined>(undefined);
     const chart = ref(Highcharts.chart("", {}));
 
-    const { capacitiesPlotLines, minRange } = useCapacitiesPlotLines(showCapacities, capacities, chart);
+    const { initialCapacitiesPlotLines, minRange } = useCapacitiesPlotLines(showCapacities, capacities, chart);
 
-    expect(capacitiesPlotLines.value).toEqual([]);
+    expect(initialCapacitiesPlotLines).toEqual([]);
     expect(minRange.value).toBeUndefined();
     expect(mockRemovePlotLine).not.toHaveBeenCalled();
     expect(mockAddPlotLine).not.toHaveBeenCalled();
@@ -36,7 +36,6 @@ describe("useCapacitiesPlotLines", () => {
     capacities.value = [];
     await nextTick();
 
-    expect(capacitiesPlotLines.value).toEqual([]);
     expect(minRange.value).toBeUndefined();
     expect(mockRemovePlotLine).not.toHaveBeenCalled();
     expect(mockAddPlotLine).not.toHaveBeenCalled();
@@ -48,10 +47,6 @@ describe("useCapacitiesPlotLines", () => {
     expectedCallsToAddPlotLine++;
     await nextTick();
 
-    expect(capacitiesPlotLines.value).toEqual([expect.objectContaining({
-      id: "hospital_capacity-2000",
-      value: 2000,
-    })]);
     expect(minRange.value).toBe(2000);
     expect(mockRemovePlotLine).not.toHaveBeenCalled();
     expect(mockAddPlotLine).toHaveBeenCalledTimes(expectedCallsToAddPlotLine);
@@ -64,7 +59,6 @@ describe("useCapacitiesPlotLines", () => {
     expectedCallsToRemovePlotLine++;
     await nextTick();
 
-    expect(capacitiesPlotLines.value).toEqual([]);
     expect(minRange.value).toBeUndefined();
     expect(mockRemovePlotLine).toHaveBeenCalledTimes(expectedCallsToRemovePlotLine);
     expect(mockRemovePlotLine.mock.lastCall).toEqual(["hospital_capacity-2000"]);
@@ -74,10 +68,6 @@ describe("useCapacitiesPlotLines", () => {
     expectedCallsToAddPlotLine++;
     await nextTick();
 
-    expect(capacitiesPlotLines.value).toEqual([expect.objectContaining({
-      id: "hospital_capacity-2000",
-      value: 2000,
-    })]);
     expect(minRange.value).toBe(2000);
     expect(mockRemovePlotLine).toHaveBeenCalledTimes(expectedCallsToRemovePlotLine);
     expect(mockAddPlotLine).toHaveBeenCalledTimes(expectedCallsToAddPlotLine);
@@ -96,17 +86,6 @@ describe("useCapacitiesPlotLines", () => {
     expectedCallsToAddPlotLine++; // Only one _new_ plot line - we should keep the first plot line.
     await nextTick();
 
-    expect(capacitiesPlotLines.value).toHaveLength(2);
-    expect(capacitiesPlotLines.value).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        id: "icu_capacity-2500",
-        value: 2500,
-      }),
-      expect.objectContaining({
-        id: "hospital_capacity-2000",
-        value: 2000,
-      }),
-    ]));
     expect(minRange.value).toBe(2500);
     expect(mockRemovePlotLine).toHaveBeenCalledTimes(expectedCallsToRemovePlotLine);
     expect(mockAddPlotLine).toHaveBeenCalledTimes(expectedCallsToAddPlotLine);

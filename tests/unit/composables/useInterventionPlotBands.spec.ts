@@ -75,16 +75,15 @@ describe("useInterventionsPlotBands", () => {
     const interventions = ref<Array<TimeSeriesIntervention> | undefined>(undefined);
     const chart = ref(Highcharts.chart("", {}));
 
-    const { interventionPlotBands } = useInterventionPlotBands(timeSeriesMetadata, interventions, chart);
+    const { initialInterventionsPlotBands } = useInterventionPlotBands(timeSeriesMetadata, interventions, chart);
 
-    expect(interventionPlotBands.value).toEqual([]);
+    expect(initialInterventionsPlotBands).toEqual([]);
     expect(mockRemovePlotBand).not.toHaveBeenCalled();
     expect(mockAddPlotBand).not.toHaveBeenCalled();
 
     interventions.value = [];
     await nextTick();
 
-    expect(interventionPlotBands.value).toEqual([]);
     expect(mockRemovePlotBand).not.toHaveBeenCalled();
     expect(mockAddPlotBand).not.toHaveBeenCalled();
 
@@ -92,7 +91,6 @@ describe("useInterventionsPlotBands", () => {
     expectedCallsToAddPlotBand++;
     await nextTick();
 
-    expect(interventionPlotBands.value).toEqual([intvn1plotBandExpectation]);
     expect(mockRemovePlotBand).not.toHaveBeenCalled();
     expect(mockAddPlotBand).toHaveBeenCalledTimes(expectedCallsToAddPlotBand);
     expect(mockAddPlotBand.mock.lastCall).toEqual([intvn1plotBandExpectation]);
@@ -101,7 +99,6 @@ describe("useInterventionsPlotBands", () => {
     expectedCallsToRemovePlotBand++;
     await nextTick();
 
-    expect(interventionPlotBands.value).toEqual([]);
     expect(mockRemovePlotBand).toHaveBeenCalledTimes(expectedCallsToRemovePlotBand);
     expect(mockRemovePlotBand.mock.lastCall).toEqual([intvn1.id]);
     expect(mockAddPlotBand).toHaveBeenCalledTimes(expectedCallsToAddPlotBand);
@@ -110,7 +107,6 @@ describe("useInterventionsPlotBands", () => {
     expectedCallsToAddPlotBand++;
     await nextTick();
 
-    expect(interventionPlotBands.value).toEqual([intvn1plotBandExpectation]);
     expect(mockRemovePlotBand).toHaveBeenCalledTimes(expectedCallsToRemovePlotBand);
     expect(mockAddPlotBand).toHaveBeenCalledTimes(expectedCallsToAddPlotBand);
     expect(mockAddPlotBand.mock.lastCall).toEqual([intvn1plotBandExpectation]);
@@ -119,10 +115,6 @@ describe("useInterventionsPlotBands", () => {
     expectedCallsToAddPlotBand++; // Only one _new_ plot band - we should keep the first plot band.
     await nextTick();
 
-    expect(interventionPlotBands.value).toHaveLength(2);
-    expect(interventionPlotBands.value).toEqual(
-      expect.arrayContaining([intvn1plotBandExpectation, intvn2plotBandExpectation]),
-    );
     expect(mockRemovePlotBand).toHaveBeenCalledTimes(expectedCallsToRemovePlotBand);
     expect(mockAddPlotBand).toHaveBeenCalledTimes(expectedCallsToAddPlotBand);
     expect(mockAddPlotBand.mock.lastCall).toEqual([intvn2plotBandExpectation]);

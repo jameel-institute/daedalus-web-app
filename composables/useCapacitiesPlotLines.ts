@@ -63,7 +63,7 @@ export default (
   });
 
   return {
-    capacitiesPlotLines,
+    initialCapacitiesPlotLines: capacitiesPlotLines.value,
     minRange,
   };
 };

@@ -60,7 +60,7 @@ const data = computed(() => getTimeSeriesDataPoints(appStore.currentScenario, pr
 
 // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
 const showCapacities = computed(() => props.timeSeriesMetadata.id === "hospitalised");
-const { capacitiesPlotLines, minRange } = useCapacitiesPlotLines(showCapacities, appStore.capacitiesData, chart);
+const { initialCapacitiesPlotLines, minRange } = useCapacitiesPlotLines(showCapacities, appStore.capacitiesData, chart);
 
 const interventions = computed(() => {
   const intvns = appStore.getScenarioResponseInterventions(appStore.currentScenario);
@@ -81,7 +81,7 @@ const interventions = computed(() => {
   });
 });
 
-const { interventionPlotBands } = useInterventionPlotBands(() => props.timeSeriesMetadata, interventions, chart);
+const { initialInterventionsPlotBands } = useInterventionPlotBands(() => props.timeSeriesMetadata, interventions, chart);
 
 const chartTimeSeries = computed((): Array<Highcharts.SeriesLineOptions | Highcharts.SeriesAreaOptions> => ([{
   type: props.seriesRole === "total" ? "area" : "line",
@@ -160,7 +160,7 @@ const chartInitialOptions = () => {
       crosshair: true,
       minTickInterval: 1,
       min: 1,
-      plotBands: interventionPlotBands.value,
+      plotBands: initialInterventionsPlotBands,
     },
     yAxis: {
       title: {
@@ -168,7 +168,7 @@ const chartInitialOptions = () => {
       },
       min: 0,
       minRange: minRange.value,
-      plotLines: capacitiesPlotLines.value,
+      plotLines: initialCapacitiesPlotLines,
     },
     series: chartTimeSeries.value,
   } as Highcharts.Options;
