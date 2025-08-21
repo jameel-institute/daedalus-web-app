@@ -623,6 +623,17 @@ describe("app store", () => {
       expect(store.getScenarioAxisValue(scenario)).toEqual("high");
     });
 
+    it("getScenarioResponseInterventions returns the response interventions for a given scenario", async () => {
+      const store = useAppStore();
+
+      const intvn = { id: "response", start: 1, end: 2 };
+      const irrelevantIntvn = { id: "irrelevant", start: 1, end: 2 };
+      const scenario = structuredClone(unloadedScenario);
+      scenario.result.data = { ...mockResultData, interventions: [intvn, irrelevantIntvn] };
+
+      expect(store.getScenarioResponseInterventions(scenario)).toEqual([intvn]);
+    });
+
     describe("getters", () => {
       it("can provide a map of parameter id to parameter metadata, for easier look-up", async () => {
         const store = useAppStore();

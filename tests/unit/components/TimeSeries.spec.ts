@@ -209,6 +209,61 @@ describe("time series", () => {
     expect(mockAddPlotBand).not.toHaveBeenCalled();
   });
 
+  it("can handle more than one intervention per series", async () => {
+    const chartSpy = vi.spyOn(Highcharts, "chart");
+    await mountSuspended(TimeSeries, {
+      props,
+      global: {
+        stubs,
+        plugins: [mockPinia({
+          currentScenario: {
+            ...emptyScenario,
+            parameters: {
+              country: "USA",
+            },
+            result: {
+              data: {
+                ...mockResultResponseData as ScenarioResultData,
+                interventions: [
+                  {
+                    id: "response",
+                    start: 30.9,
+                    end: 200.1,
+                  },
+                  {
+                    id: "response",
+                    start: 250,
+                    end: 600,
+                  },
+                ],
+              },
+              fetchError: undefined,
+              fetchStatus: "success",
+            },
+          },
+        }, true, { stubActions: false })],
+      },
+    });
+
+    expect(chartSpy).toHaveBeenCalledWith(
+      "hospitalised-container",
+      expect.objectContaining({
+        xAxis: expect.objectContaining({
+          plotBands: expect.arrayContaining([
+            expect.objectContaining({
+              from: 31,
+              to: 200,
+            }),
+            expect.objectContaining({
+              from: 250,
+              to: 600,
+            }),
+          ]),
+        }),
+      }),
+    );
+  });
+
   it("should resize the chart when height changes", async () => {
     const component = await mountSuspended(TimeSeries, {
       props,
