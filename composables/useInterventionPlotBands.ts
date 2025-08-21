@@ -9,15 +9,11 @@ export default (
   chart: MaybeRefOrGetter<Highcharts.Chart | undefined>,
 ) => {
   const interventionPlotBands = computed(() => {
-    if (!showInterventions(toValue(timeSeriesMetadata).id)) {
-      return;
-    }
-
     const intvns = toValue(interventions);
-
-    if (!intvns) {
-      return;
+    if (!showInterventions(toValue(timeSeriesMetadata).id) || !intvns) {
+      return [];
     }
+
     return intvns.map(intvn => ({
       id: intvn.id,
       from: Number(intvn.start.toFixed(0)),
