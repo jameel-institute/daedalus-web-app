@@ -3,13 +3,11 @@
 import throttle from "lodash.throttle";
 
 export default (
-  chartRef: MaybeRefOrGetter<Highcharts.Chart | undefined>,
+  chart: Ref<Highcharts.Chart | undefined>,
   hideTooltips: MaybeRefOrGetter<boolean>,
   synchPoint: MaybeRefOrGetter<Highcharts.Point | undefined>,
   emitHoverPoint: (point: Highcharts.Point) => void,
 ) => {
-  const chart = computed(() => toValue(chartRef));
-
   /**
    * Synchronize tooltips and crosshairs between charts.
    * Demo: https://www.highcharts.com/demo/highcharts/synchronized-charts
@@ -32,7 +30,7 @@ export default (
 
   watch(() => toValue(hideTooltips), (shouldHide) => {
     if (shouldHide) {
-      toValue(chartRef)?.pointer.reset(false, 0); // Hide all tooltips and crosshairs
+      chart.value?.pointer.reset(false, 0); // Hide all tooltips and crosshairs
     }
   });
 
