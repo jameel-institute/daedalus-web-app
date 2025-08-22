@@ -4,7 +4,10 @@
     ref="chartContainer"
     class="chart-container time-series"
     :style="{ zIndex, height: 'fit-content' }"
-    :data-summary="JSON.stringify({ firstDataPoint: data[0], lastDataPoint: data[data.length - 1], dataLength: data.length })"
+    :data-summary="JSON.stringify({
+      dataLength: data.length,
+      maxValue: Math.max(...data.map(d => d[1])),
+    })"
     @mousemove="onMove"
     @touchmove="onMove"
     @touchstart="onMove"
