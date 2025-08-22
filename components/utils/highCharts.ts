@@ -1,4 +1,3 @@
-import Highcharts from "highcharts/esm/highcharts";
 import convert, { type HSL } from "color-convert";
 import { abbreviateMillionsDollars } from "~/utils/money";
 import { costAsPercentOfGdp, gdpReferenceYear, humanReadableInteger, humanReadablePercentOfGdp } from "~/components/utils/formatters";
@@ -6,29 +5,55 @@ import { CostBasis } from "~/types/unitTypes";
 import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 import { countryFlagIconId } from "./countryFlag";
 
-// Fixes z-index issue:
-// https://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting#html
-Highcharts.HTMLElement.useForeignObject = true;
-
-const originalHighchartsColors = Highcharts.getOptions().colors!;
-const colorRgb = convert.hex.rgb(originalHighchartsColors[0] as string);
-const colorRgbAlpha = 0.3;
-export const plotBandsColor = `rgba(${colorRgb[0]},${colorRgb[1]},${colorRgb[2]},${colorRgbAlpha})`; // light blue
-export const plotLinesColor = "#FF0000"; // red;
-export const timeSeriesColors = originalHighchartsColors!.slice(1);
-
 export interface colorRgbHsl {
   name: string
   rgb: string
   hsl: HSL
 }
+
 // Colours from Bang Wong palette, see https://davidmathlogic.com/colorblind
 // RGB values derived from the Wong 2011 source https://www.nature.com/articles/nmeth.1618
-export const colorBlindSafeColors: colorRgbHsl[] = [
+export const colorBlindSafeSmallPalette: colorRgbHsl[] = [
   { name: "Vermillion", rgb: "rgb(213,94,0)", hsl: convert.rgb.hsl(213, 94, 0) }, // hsl: [26, 100, 42]
   { name: "Bluish green", rgb: "rgb(0,158,115)", hsl: convert.rgb.hsl(0, 158, 115) }, // hsl: [164, 100, 31]
   { name: "Sky blue", rgb: "rgb(86,180,233)", hsl: convert.rgb.hsl(86, 180, 233) }, // hsl: [202, 77, 63]
 ];
+
+// Two possible larger colour palettes, intended for charts that need more colours.
+// Palettes from Paul Tol, see https://davidmathlogic.com/colorblind
+// Archived Paul Tol site: https://web.archive.org/web/20250109045745/https://personal.sron.nl/~pault/#sec:qualitative
+const brightColors: colorRgbHsl[] = [
+  { name: "Purple", rgb: "rgb(170,51,119)", hsl: convert.rgb.hsl(170, 51, 119) },
+  { name: "Yellow", rgb: "rgb(204,187,68)", hsl: convert.rgb.hsl(204, 187, 68) },
+  { name: "Blue", rgb: "rgb(68,119,170)", hsl: convert.rgb.hsl(68, 119, 170) },
+  { name: "Cyan", rgb: "rgb(102,204,238)", hsl: convert.rgb.hsl(102, 204, 238) },
+  { name: "Green", rgb: "rgb(34,136,51)", hsl: convert.rgb.hsl(34, 136, 51) },
+  { name: "Red", rgb: "rgb(238,102,119)", hsl: convert.rgb.hsl(238, 102, 119) },
+];
+
+const vibrantColors: colorRgbHsl[] = [
+  { name: "Purple", rgb: "rgb(238,51,119)", hsl: convert.rgb.hsl(238, 51, 119) },
+  { name: "Yellow", rgb: "rgb(238,119,51)", hsl: convert.rgb.hsl(238, 119, 51) },
+  { name: "Blue", rgb: "rgb(0,119,187)", hsl: convert.rgb.hsl(0, 119, 187) },
+  { name: "Cyan", rgb: "rgb(51,187,238)", hsl: convert.rgb.hsl(51, 187, 238) },
+  { name: "Green", rgb: "rgb(0,153,136)", hsl: convert.rgb.hsl(0, 153, 136) },
+  { name: "Red", rgb: "rgb(204,51,17)", hsl: convert.rgb.hsl(204, 51, 17) },
+];
+
+const doVibrantColors = true; // Set to true to use vibrant colors instead of bright ones
+
+export const colorBlindSafeLargePalette = [
+  ...(doVibrantColors ? vibrantColors : brightColors),
+  { name: "Black", rgb: "rgb(0,0,0)", hsl: convert.rgb.hsl(0, 0, 0) },
+];
+export const plotLinesColorName = "Red";
+export const plotLinesColor = colorBlindSafeLargePalette.find(c => c.name === plotLinesColorName)!.rgb;
+export const plotBandsRgbAlpha = 0.3;
+export const plotBandsColorName = "Cyan";
+export const plotBandsDefaultColor = colorBlindSafeLargePalette.find(c => c.name === plotBandsColorName)!.rgb;
+export const addAlphaToRgb = (colorRgb: string, alpha: number): string => {
+  return colorRgb.replace("rgb", "rgba").replace(")", `,${alpha})`);
+};
 
 // Create a range of color variants varying in lightness (L) and saturation (S) channels.
 // These channels have configurable ranges of factors used to multiply the original L/S.

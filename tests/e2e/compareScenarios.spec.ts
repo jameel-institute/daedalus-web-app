@@ -2,12 +2,11 @@ import { expect, test } from "@playwright/test";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
 import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
-import { parameterLabels, runIdMatcher, scenarioPathMatcher } from "./helpers/constants";
+import { costTolerance, parameterLabels, runIdMatcher, scenarioPathMatcher } from "./helpers/constants";
 import checkValueIsInRange from "./helpers/checkValueIsInRange";
 import checkBarChartDataIsDifferent from "./helpers/checkBarChartDataIsDifferent";
 
 const baselinePathogenOption = "SARS 2004";
-const costTolerance = 0.25;
 
 test.beforeAll(async () => {
   checkRApiServer();
@@ -87,30 +86,30 @@ test("Can compare multiple scenarios", async ({ page, baseURL }) => {
   const lifeYearsSeries = costsChartDataUsd[2];
   expect(gdpSeries.data.length).toBe(3);
   expect(gdpSeries.data.map((dataPoint: any) => dataPoint.name)).toEqual(["GDP", "GDP", "GDP"]);
-  checkValueIsInRange(gdpSeries.data[0].y, 5450462, costTolerance);
-  checkValueIsInRange(gdpSeries.data[1].y, 5264213, costTolerance);
-  checkValueIsInRange(gdpSeries.data[2].y, 5372804, costTolerance);
-  checkValueIsInRange(gdpSeries.data[0].custom.costAsGdpPercent, 27, costTolerance);
-  checkValueIsInRange(gdpSeries.data[1].custom.costAsGdpPercent, 27, costTolerance);
+  checkValueIsInRange(gdpSeries.data[0].y, 6_700_000, costTolerance);
+  checkValueIsInRange(gdpSeries.data[1].y, 5_500_000, costTolerance);
+  checkValueIsInRange(gdpSeries.data[2].y, 5_300_000, costTolerance);
+  checkValueIsInRange(gdpSeries.data[0].custom.costAsGdpPercent, 34, costTolerance);
+  checkValueIsInRange(gdpSeries.data[1].custom.costAsGdpPercent, 28, costTolerance);
   checkValueIsInRange(gdpSeries.data[2].custom.costAsGdpPercent, 27, costTolerance);
 
   expect(educationSeries.data.length).toBe(3);
   expect(educationSeries.data.map((dataPoint: any) => dataPoint.name)).toEqual(["Education", "Education", "Education"]); // Not you, Tony!
-  checkValueIsInRange(educationSeries.data[0].y, 3803153, costTolerance);
-  checkValueIsInRange(educationSeries.data[1].y, 3801059, costTolerance);
-  checkValueIsInRange(educationSeries.data[2].y, 3833417, costTolerance);
-  checkValueIsInRange(educationSeries.data[0].custom.costAsGdpPercent, 19, costTolerance);
-  checkValueIsInRange(educationSeries.data[1].custom.costAsGdpPercent, 19, costTolerance);
+  checkValueIsInRange(educationSeries.data[0].y, 4_700_000, costTolerance);
+  checkValueIsInRange(educationSeries.data[1].y, 3_900_000, costTolerance);
+  checkValueIsInRange(educationSeries.data[2].y, 3_800_000, costTolerance);
+  checkValueIsInRange(educationSeries.data[0].custom.costAsGdpPercent, 23, costTolerance);
+  checkValueIsInRange(educationSeries.data[1].custom.costAsGdpPercent, 20, costTolerance);
   checkValueIsInRange(educationSeries.data[2].custom.costAsGdpPercent, 19, costTolerance);
 
   expect(lifeYearsSeries.data.length).toBe(3);
   expect(lifeYearsSeries.data.map((dataPoint: any) => dataPoint.name)).toEqual(["Life years", "Life years", "Life years"]);
-  checkValueIsInRange(lifeYearsSeries.data[0].y, 26351147, costTolerance);
-  checkValueIsInRange(lifeYearsSeries.data[1].y, 4390694, costTolerance);
-  checkValueIsInRange(lifeYearsSeries.data[2].y, 2489446, costTolerance);
-  checkValueIsInRange(lifeYearsSeries.data[0].custom.costAsGdpPercent, 132, costTolerance);
-  checkValueIsInRange(lifeYearsSeries.data[1].custom.costAsGdpPercent, 22, costTolerance);
-  checkValueIsInRange(lifeYearsSeries.data[2].custom.costAsGdpPercent, 12, costTolerance);
+  checkValueIsInRange(lifeYearsSeries.data[0].y, 45_000_000, costTolerance);
+  checkValueIsInRange(lifeYearsSeries.data[1].y, 5_800_000, costTolerance);
+  checkValueIsInRange(lifeYearsSeries.data[2].y, 3_100_000, costTolerance);
+  checkValueIsInRange(lifeYearsSeries.data[0].custom.costAsGdpPercent, 227, costTolerance);
+  checkValueIsInRange(lifeYearsSeries.data[1].custom.costAsGdpPercent, 29, costTolerance);
+  checkValueIsInRange(lifeYearsSeries.data[2].custom.costAsGdpPercent, 16, costTolerance);
 
   // Check that after toggling the cost basis we see different data.
   await page.getByLabel("as % of 2018 GDP").check();

@@ -8,14 +8,14 @@
 
 <script setup lang="ts">
 import type { ScenarioCost } from "~/types/resultTypes";
-import { colorBlindSafeColors, type LegendItem, LegendShape } from "./utils/highCharts";
+import { colorBlindSafeLargePalette, type LegendItem, LegendShape } from "./utils/highCharts";
 
 const appStore = useAppStore();
 
 const items = computed((): LegendItem[] =>
   appStore.currentComparison.scenarios[0].result.data?.costs[0].children?.map((cost: ScenarioCost, index: number) => {
     return {
-      color: colorBlindSafeColors[index].rgb,
+      color: colorBlindSafeLargePalette[index].rgb,
       label: appStore.getCostLabel(cost.id),
       shape: LegendShape.Circle,
       value: cost.value,
