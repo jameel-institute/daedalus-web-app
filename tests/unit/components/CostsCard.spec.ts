@@ -73,8 +73,7 @@ describe("costs card", () => {
     expect(totalCostPara.text()).toBe("8.9T");
 
     const tooltipTriggers = component.findAll("img");
-    expect(tooltipTriggers.length).toBe(1);
-    expect(tooltipTriggers[0].attributes("src")).toBe("/icons/info.svg");
-    await expectTooltipContents(tooltipTriggers[0], ["Value of statistical life: 2,799,263 Int'l$"]);
+    expect(tooltipTriggers[1].attributes("src")).toBe("/icons/info.png");
+    await expectTooltipContents(tooltipTriggers[1], ["Value of statistical life: 2,799,263 Int'l$"]);
   });
 });

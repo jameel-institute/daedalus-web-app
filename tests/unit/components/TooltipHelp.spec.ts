@@ -62,7 +62,7 @@ describe("tooltip help", () => {
     expect(img.classes().includes("class-1")).toBe(true);
     expect(img.classes().includes("class-2")).toBe(true);
 
-    expect(component.find("img").attributes("src")).toBe("/icons/info.svg");
+    expect(component.find("img").attributes("src")).toBe("/icons/info.png");
   });
 
   it("renders nothing when no help text or list props", () => {

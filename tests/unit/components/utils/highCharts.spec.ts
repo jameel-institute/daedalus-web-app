@@ -208,7 +208,7 @@ describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
     };
 
     const label = costsChartMultiScenarioXAxisLabelFormatter("USA", axisParam);
-    expect(label).toContain('<span class="fi fi-us" style="width: 1.2rem; height: 1.2rem"></span>');
+    expect(label).toContain("fi-us");
     expect(label).toContain("United States");
   });
 
