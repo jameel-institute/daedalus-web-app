@@ -54,9 +54,15 @@
             {{ appStore.getCostLabel(childCost.id) }}
             <span v-if="childCost.id === 'life_years'">
               <TooltipHelp
-                :help-text="vslVariesByScenario ? undefined : `${vslFull}: ${valueOfStatisticalLife(scenarios[0])}`"
-                :list-header="vslVariesByScenario ? `${vslFull}:` : undefined"
-                :list-items="vslVariesByScenario ? scenarios.map((s) => `${scenarioLabel(s)}: ${valueOfStatisticalLife(s)}`) : undefined"
+                :help-text="vslVariesByScenario
+                  ? undefined
+                  : `${vslFull}: ${vslLabel(scenarios[0])}`"
+                :list-header="vslVariesByScenario
+                  ? `${vslFull}:`
+                  : undefined"
+                :list-items="vslVariesByScenario
+                  ? scenarios.map((s) => `${scenarioLabel(s)}: ${vslLabel(s)}`)
+                  : undefined"
                 :classes="['ms-1']"
                 :info-icon="true"
               />
@@ -122,7 +128,7 @@ const vslVariesByScenario = computed(() => {
   return props.scenarios.some(scenario => appStore.getScenarioLifeValue(scenario) !== appStore.getScenarioLifeValue(props.scenarios[0]));
 });
 
-const valueOfStatisticalLife = (scenario: Scenario) => {
+const vslLabel = (scenario: Scenario) => {
   const vsl = appStore.getScenarioLifeValue(scenario);
   return vsl ? `${humanReadableInteger(vsl)} Int'l$` : undefined;
 };

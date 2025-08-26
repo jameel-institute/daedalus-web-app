@@ -14,9 +14,16 @@
           <span>
             as % of {{ gdpReferenceYear }} GDP
             <TooltipHelp
-              :help-text="gdpVariesByScenario ? undefined : `${gdpReferenceYear} GDP: ${scenarioGdp(scenarios[0])}`"
-              :list-header="gdpVariesByScenario ? `${gdpReferenceYear} GDPs:` : undefined"
-              :list-items="gdpVariesByScenario ? scenarios.map((s) => `${scenarioLabel(s)}: ${scenarioGdp(s)}`) : undefined"
+              :help-text="gdpVariesByScenario
+                ? undefined
+                : `${gdpReferenceYear} GDP: ${scenarioGdpLabel(scenarios[0])}`
+              "
+              :list-header="gdpVariesByScenario
+                ? `${gdpReferenceYear} GDPs:`
+                : undefined"
+              :list-items="gdpVariesByScenario
+                ? scenarios.map((s) => `${scenarioLabel(s)}: ${scenarioGdpLabel(s)}`)
+                : undefined"
               :classes="['ms-1']"
               :info-icon="true"
             />
@@ -51,7 +58,7 @@ const gdpVariesByScenario = computed(() => {
   return props.scenarios.some(scenario => scenario.result.data?.gdp !== props.scenarios[0].result.data?.gdp);
 });
 
-const scenarioGdp = (scenario: Scenario) => {
+const scenarioGdpLabel = (scenario: Scenario) => {
   const gdp = scenario.result.data?.gdp;
   if (!gdp) {
     return;
