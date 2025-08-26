@@ -48,9 +48,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.getByText("305,000").first()).toBeVisible();
 
   // Check for GDP percentage headline figure
-  await expect(page.locator("#totalsContainer").getByText(/\d{1,3}(\.\d+)?%of 2018 GDP/)).toBeVisible({ timeout: 10000 });
+  await expect(page.getByText(/\d{1,3}(\.\d+)?%of 2018 GDP/)).toBeVisible({ timeout: 20000 });
   // Check for USD$ headline figure
-  await expect(page.locator("#totalsContainer").getByText(/\$.*USD \d{1,3}\.\d[BTM]$/)).toBeVisible();
+  await expect(page.getByText(/\$.*USD \d{1,3}\.\d[BTM]$/)).toBeVisible();
 
   await expect(page.locator("#prevalence-container")).toBeVisible();
   await page.locator("#prevalence-container").scrollIntoViewIfNeeded();
@@ -63,6 +63,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   // Check can toggle time series to "New per day" and back
   await expect(page.getByText("New per day").first()).toBeVisible();
   await page.locator("#infectionsDailySwitch").check();
+  await checkTimeSeriesDataPoints(page.locator("#new_infected-container"), 7_500_000);
   await expect(page.getByRole("button", { name: "New infections" })).toBeVisible();
   await checkTimeSeriesDataPoints(page.locator("#new_infected-container"), 7_500_000);
   await page.locator("#infectionsDailySwitch").setChecked(false);

@@ -120,7 +120,7 @@ test("Can compare multiple scenarios", async ({ page, baseURL, isMobile }) => {
   expect(await tableRows.nth(11).textContent()).toMatch(/Retirement-age adults.*3,904,000.*2,464,000.*1,692,000/);
 
   // Check that after toggling the cost basis we see different data.
-  await page.getByText("as % of 2018 GDP").nth(1).check();
+  await page.getByLabel("as % of 2018 GDP").check();
   const costsChartDataGdpStr = await page.locator("#compareCostsChartContainer").getAttribute("data-summary");
   const costsChartDataGdp = JSON.parse(costsChartDataGdpStr!);
   expect(costsChartDataGdp).toHaveLength(3);
