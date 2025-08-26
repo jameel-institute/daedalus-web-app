@@ -26,10 +26,6 @@ const vaccineParameter = mockMetadataResponseData.parameters.find(p => p.id === 
 const hospitalCapacityParameter = mockMetadataResponseData.parameters.find(p => p.id === "hospital_capacity")!;
 const countryParameter = mockMetadataResponseData.parameters.find(p => p.id === "country")!;
 
-vi.mock("~/components/utils/countryFlag", () => ({
-  countryFlagIconId: vi.fn(id => id === "AUS" ? "au" : ""),
-}));
-
 const getOptionFromMenu = (wrapper: VueWrapper, optionText: string) => {
   const matcher = new RegExp(optionText, "i");
   return wrapper.findAll(".parameter-option").find(el => matcher.test(el.text()));

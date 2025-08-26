@@ -3,7 +3,7 @@ import { abbreviateMillionsDollars } from "~/utils/money";
 import { costAsPercentOfGdp, gdpReferenceYear, humanReadablePercentOfGdp } from "~/components/utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
-import { countryFlagIconId } from "./countryFlag";
+import { countryFlagClass } from "./countryFlag";
 import { getScenarioLabel } from "./comparisons";
 
 export interface colorRgbHsl {
@@ -248,10 +248,10 @@ export const costsChartMultiScenarioXAxisLabelFormatter = (category: string, axi
   if (axisParam?.parameterType === TypeOfParameter.GlobeSelect) {
     return `<div class="d-flex gap-2 align-items-center mb-2">
       <span
-        class="fi fi-${countryFlagIconId(category)} border"
-        style="width: 1.2rem; height: 0.9rem;"
+        class="${countryFlagClass(category)}"
+        style="width: 1rem; height: 0.75rem;"
       ></span>
-      <span>${scenarioLabel}</span>
+      <span class="mt-1">${scenarioLabel}</span>
     </div>`;
   } else {
     return scenarioLabel;
