@@ -9,7 +9,20 @@
         type="radio"
         :label="`as % of ${gdpReferenceYear} GDP`"
         :value="CostBasis.PercentGDP"
-      />
+      >
+        <template #label>
+          <span>
+            as % of {{ gdpReferenceYear }} GDP
+            <TooltipHelp
+              :help-text="gdpVariesByScenario ? undefined : `${gdpReferenceYear} GDP: ${scenarioGdp(scenarios[0])}`"
+              :list-header="gdpVariesByScenario ? `${gdpReferenceYear} GDPs:` : undefined"
+              :list-items="gdpVariesByScenario ? scenarios.map((s) => `${scenarioLabel(s)}: ${scenarioGdp(s)}`) : undefined"
+              :classes="['ms-1']"
+              :info-icon="true"
+            />
+          </span>
+        </template>
+      </CFormCheck>
       <CFormCheck
         id="costBasisUsd"
         v-model="appStore.preferences.costBasis"
@@ -25,6 +38,33 @@
 <script lang="ts" setup>
 import { CostBasis } from "~/types/unitTypes";
 import { gdpReferenceYear } from "@/components/utils/formatters";
+import type { Scenario } from "~/types/storeTypes";
+import { getScenarioLabel } from "./utils/comparisons";
+
+const props = defineProps<{
+  scenarios: Scenario[]
+}>();
 
 const appStore = useAppStore();
+
+const gdpVariesByScenario = computed(() => {
+  return props.scenarios.some(scenario => scenario.result.data?.gdp !== props.scenarios[0].result.data?.gdp);
+});
+
+const scenarioGdp = (scenario: Scenario) => {
+  const gdp = scenario.result.data?.gdp;
+  if (!gdp) {
+    return;
+  }
+  const { amount, unit } = expressMillionsDollarsAsBillions(gdp, 1);
+  return `$${amount} ${unit} USD`;
+};
+
+const scenarioLabel = (scenario: Scenario) => {
+  const axisVal = appStore.getScenarioAxisValue(scenario);
+  if (axisVal) {
+    const label = getScenarioLabel(axisVal, appStore.axisMetadata);
+    return `${label}${scenario === appStore.baselineScenario ? " (baseline)" : ""}`;
+  }
+};
 </script>

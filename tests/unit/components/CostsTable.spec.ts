@@ -82,10 +82,9 @@ describe("costs table for the current scenario", () => {
 
     expectedCostsForNoneScenario.forEach(cost => expect(componentText).toContain(cost));
 
-    const tooltipTriggers = component.findAll("img");
-    expect(tooltipTriggers.length).toBe(1);
-    expect(tooltipTriggers[0].attributes("src")).toBe("/icons/info.svg");
-    await expectTooltipContents(tooltipTriggers[0], ["Value of statistical life: 2,799,263 Int'l$"]);
+    const tooltipTrigger = component.find("img");
+    expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
+    await expectTooltipContents(tooltipTrigger, ["Value of statistical life: 2,799,263 Int'l$"]);
   });
 
   it("should render costs table correctly, when cost basis is percent of GDP", async () => {
@@ -117,14 +116,9 @@ describe("costs table for the current scenario", () => {
       });
     });
 
-    const tooltipTriggers = component.findAll("img");
-    expect(tooltipTriggers.length).toBe(2);
-
-    expect(tooltipTriggers[0].attributes("src")).toBe("/icons/info.svg");
-    await expectTooltipContents(tooltipTriggers[0], ["2018 GDP: $19,863.0 billion USD"]);
-
-    expect(tooltipTriggers[1].attributes("src")).toBe("/icons/info.svg");
-    await expectTooltipContents(tooltipTriggers[1], ["Value of statistical life: 2,799,263 Int'l$"]);
+    const tooltipTrigger = component.find("img");
+    expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
+    await expectTooltipContents(tooltipTrigger, ["Value of statistical life: 2,799,263 Int'l$"]);
   });
 });
 
@@ -214,10 +208,9 @@ describe("costs table for all scenarios in a comparison", () => {
       expect(componentText).toContain(cost);
     });
 
-    const tooltipTriggers = component.findAll("img");
-    expect(tooltipTriggers.length).toBe(1);
-    expect(tooltipTriggers[0].attributes("src")).toBe("/icons/info.svg");
-    await expectTooltipContents(tooltipTriggers[0], ["Value of statistical life: 2,799,263 Int'l$"]);
+    const tooltipTrigger = component.find("img");
+    expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
+    await expectTooltipContents(tooltipTrigger, ["Value of statistical life: 2,799,263 Int'l$"]);
   });
 
   it("should render costs table correctly, when cost basis is percent of GDP", async () => {
@@ -264,14 +257,9 @@ describe("costs table for all scenarios in a comparison", () => {
       });
     });
 
-    const tooltipTriggers = component.findAll("img");
-    expect(tooltipTriggers.length).toBe(2);
-
-    expect(tooltipTriggers[0].attributes("src")).toBe("/icons/info.svg");
-    await expectTooltipContents(tooltipTriggers[0], ["2018 GDP: $19,863.0 billion USD"]);
-
-    expect(tooltipTriggers[1].attributes("src")).toBe("/icons/info.svg");
-    await expectTooltipContents(tooltipTriggers[1], ["Value of statistical life: 2,799,263 Int'l$"]);
+    const tooltipTrigger = component.find("img");
+    expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
+    await expectTooltipContents(tooltipTrigger, ["Value of statistical life: 2,799,263 Int'l$"]);
   });
 
   it("should render tooltips with multiple values for VSL and GDP, when these values vary between scenarios", async () => {
@@ -312,18 +300,9 @@ describe("costs table for all scenarios in a comparison", () => {
       props: { scenarios: store.currentComparison.scenarios },
     });
 
-    const tooltipTriggers = component.findAll("img");
-    expect(tooltipTriggers.length).toBe(2);
-
-    expect(tooltipTriggers[0].attributes("src")).toBe("/icons/info.svg");
-    await expectTooltipContents(tooltipTriggers[0], [
-      "2018 GDP:",
-      "<li>United Kingdom: $19,863.0 billion USD</li>",
-      "<li>United States: $987,654.3 billion USD</li>",
-    ]);
-
-    expect(tooltipTriggers[1].attributes("src")).toBe("/icons/info.svg");
-    expectTooltipContents(tooltipTriggers[1], [
+    const tooltipTrigger = component.find("img");
+    expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
+    expectTooltipContents(tooltipTrigger, [
       "Value of statistical life:",
       "<li>United Kingdom: 2,799,263 Int'l$</li>",
       "<li>United States: 123,456,789 Int'l$</li>",

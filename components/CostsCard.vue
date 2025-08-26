@@ -49,7 +49,7 @@
           </p>
         </div>
         <div class="me-2 ms-auto gap-3 align-self-end d-flex">
-          <CostBasisToggler />
+          <CostBasisToggler :scenarios="[appStore.currentScenario]" />
         </div>
       </div>
       <div class="d-flex flex-wrap gap-3">

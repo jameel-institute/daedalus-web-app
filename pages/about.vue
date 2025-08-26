@@ -169,11 +169,11 @@
     </p>
 
     <p>
-      <strong>icon.svg</strong>
+      <strong>info.png</strong>
       Icon by
-      <a href="https://github.com/afnizarnur/nataicons?ref=svgrepo.com" target="_blank">Afnizarnur</a>
-      in MIT License via
-      <a href="https://www.svgrepo.com/" target="_blank">SVG Repo</a>
+      <a href="https://www.flaticon.com/free-icons/info" target="_blank">Digby Garrett</a>
+      in Flaticon License via
+      <a href="https://www.flaticon.com/" target="_blank">Flaticon</a>
     </p>
 
     <h3>World map disclaimer and attribution</h3>

@@ -23,15 +23,6 @@
           <div class="d-flex flex-column">
             <span v-if="index === 0" class="boldish">
               {{ unitHeaderText }}
-              <span v-if="appStore.preferences.costBasis === CostBasis.PercentGDP">
-                <TooltipHelp
-                  :help-text="gdpVariesByScenario ? undefined : `${gdpFull}: ${scenarioGdp(scenarios[0])}`"
-                  :list-header="gdpVariesByScenario ? `${gdpFull}:` : undefined"
-                  :list-items="gdpVariesByScenario ? scenarios.map((s) => `${scenarioLabel(s)}: ${scenarioGdp(s)}`) : undefined"
-                  :classes="['ms-1']"
-                  :info-icon="true"
-                />
-              </span>
             </span>
             <span v-if="multiScenario" class="fw-medium">
               {{ scenarioLabel(scenario) }}
@@ -111,7 +102,6 @@ const props = defineProps<{
 const accordioned = ref(true);
 const appStore = useAppStore();
 const vslFull = "Value of statistical life";
-const gdpFull = `${gdpReferenceYear} GDP`;
 
 const multiScenario = computed(() => props.scenarios.length > 1);
 const unitHeaderText = computed(() => {
@@ -126,19 +116,6 @@ const scenarioLabel = (scenario: Scenario) => {
     const label = getScenarioLabel(axisVal, appStore.axisMetadata);
     return `${label}${scenario === appStore.baselineScenario ? " (baseline)" : ""}`;
   }
-};
-
-const gdpVariesByScenario = computed(() => {
-  return props.scenarios.some(scenario => scenario.result.data?.gdp !== props.scenarios[0].result.data?.gdp);
-});
-
-const scenarioGdp = (scenario: Scenario) => {
-  const gdp = scenario.result.data?.gdp;
-  if (!gdp) {
-    return;
-  }
-  const { amount, unit } = expressMillionsDollarsAsBillions(gdp, 1);
-  return `$${amount} ${unit} USD`;
 };
 
 const vslVariesByScenario = computed(() => {

@@ -24,7 +24,7 @@
         :class="classes"
       >
         <img
-          :src="`/icons/${infoIcon ? 'info' : 'circleQuestion'}.svg`"
+          :src="`/icons/${infoIcon ? 'info.png' : 'circleQuestion.svg'}`"
           :aria-describedby="togglerId"
           v-on="on"
         >

@@ -2,7 +2,7 @@
   <CRow class="mx-2">
     <div class="col-12 col-xl-6 d-flex flex-column">
       <div class="d-flex align-items-start justify-content-between">
-        <CostBasisToggler />
+        <CostBasisToggler :scenarios="appStore.currentComparison.scenarios" />
         <CompareCostsLegend />
       </div>
       <CompareCostsChart />
