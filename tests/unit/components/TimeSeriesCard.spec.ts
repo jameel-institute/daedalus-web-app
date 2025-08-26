@@ -9,28 +9,41 @@ const seriesIds = mockedMetadata.results.time_series.map(series => series.id);
 const stubs = {
   CIcon: true,
 };
-const plugins = [mockPinia(
-  {
-    currentScenario: {
-      ...emptyScenario,
-      parameters: {
-        country: "USA",
-      },
-      result: {
-        data: mockResultResponseData as ScenarioResultData,
-        fetchError: undefined,
-        fetchStatus: "success",
-      },
+const plugins = [mockPinia({
+  currentScenario: {
+    ...emptyScenario,
+    parameters: {
+      country: "USA",
+    },
+    result: {
+      data: mockResultResponseData as ScenarioResultData,
+      fetchError: undefined,
+      fetchStatus: "success",
     },
   },
-)];
+}, true, { stubActions: false })];
 
 const mockReset = vi.fn();
 const mockOnContainerMouseLeave = vi.fn();
 const mockOnMouseOver = vi.fn();
+const mockRemovePlotBand = vi.fn();
+const mockAddPlotBand = vi.fn();
 
 vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
   const actual = await importOriginal();
+  const series = {
+    options: {
+      custom: {
+        scenarioId: "successfulResponseRunId",
+        showInterventions: true,
+      },
+    },
+    getValidPoints: () => [{
+      x: 1,
+      y: 2,
+      onMouseOver: vi.fn(() => mockOnMouseOver()),
+    }],
+  };
 
   return {
     default: {
@@ -40,17 +53,15 @@ vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
         destroy: vi.fn(),
         setSize: vi.fn(),
         showResetZoom: vi.fn(),
+        series: [series],
         pointer: {
           reset: vi.fn(() => mockReset()),
           onContainerMouseLeave: vi.fn(() => mockOnContainerMouseLeave()),
         },
-        hoverPoint: { x: 1, y: 99 },
-        series: [{
-          getValidPoints: () => [{
-            x: 1,
-            y: 2,
-            onMouseOver: vi.fn(() => mockOnMouseOver()),
-          }],
+        hoverPoint: { x: 1, y: 99, series },
+        xAxis: [{
+          removePlotBand: vi.fn(arg => mockRemovePlotBand(arg)),
+          addPlotBand: vi.fn(arg => mockAddPlotBand(arg)),
         }],
       }),
       win: actual.default.win,
@@ -102,45 +113,64 @@ describe("time series", () => {
 
     const timeSeriesGroups = component.findAllComponents({ name: "TimeSeriesGroup.client" });
     expect(timeSeriesGroups.length).toBe(4);
-    timeSeriesGroups.forEach((timeSeriesComponent) => {
-      expect(timeSeriesComponent.props().open).toBe(true);
+    timeSeriesGroups.forEach((timeSeriesGroup) => {
+      expect(timeSeriesGroup.props().open).toBe(true);
     });
 
     const timeSeries = component.findAllComponents({ name: "TimeSeries.client" });
-    expect(timeSeries.length).toBe(8);
+    const expectedNumberOfTimeSeries = 4;
+    expect(timeSeries.length).toBe(expectedNumberOfTimeSeries);
+    expect(component.find("#prevalence-container").element.style._values["z-index"]).toEqual(7);
+    expect(component.find("#hospitalised-container").element.style._values["z-index"]).toEqual(6);
+    expect(component.find("#dead-container").element.style._values["z-index"]).toEqual(5);
+    expect(component.find("#vaccinated-container").element.style._values["z-index"]).toEqual(4);
 
     // Close the first time series group by toggling the accordion
     const accordionHeaderComponent = timeSeriesGroups[0].findComponent({ name: "CAccordionHeader" });
     await accordionHeaderComponent.trigger("click");
-
     await nextTick();
 
     expect(timeSeriesGroups[0].props().open).toBe(false);
     expect(timeSeriesGroups[1].props().open).toBe(true);
     expect(timeSeriesGroups[2].props().open).toBe(true);
     expect(timeSeriesGroups[3].props().open).toBe(true);
-
-    // All 8 time series charts should have been reset (hide all tooltips and crosshairs)
+    // All time series charts should have been reset (hide all tooltips and crosshairs)
     // by the toggling of the accordion
-    expect(mockReset).toHaveBeenCalledTimes(8);
+    expect(mockReset).toHaveBeenCalledTimes(expectedNumberOfTimeSeries);
 
-    // find a div with id prevalence-container
     const prevalenceTimeSeries = component.find("#prevalence-container");
 
+    // Hover on the time series
     prevalenceTimeSeries.trigger("mousemove");
     await nextTick();
 
     // mousemove should trigger the tooltips and crosshairs to be synchronized
-    expect(mockOnMouseOver).toHaveBeenCalledTimes(8);
+    expect(mockOnMouseOver).toHaveBeenCalledTimes(expectedNumberOfTimeSeries);
     // The onContainerMouseLeave function should not have been called after mousemove
     expect(mockOnContainerMouseLeave).not.toHaveBeenCalled();
+    const numberOfTimeSeriesThatEnablePlotBands = 2;
+    expect(mockRemovePlotBand).toHaveBeenCalledTimes(numberOfTimeSeriesThatEnablePlotBands);
+    expect(mockAddPlotBand).toHaveBeenCalledTimes(numberOfTimeSeriesThatEnablePlotBands);
+    expect(mockAddPlotBand).toHaveBeenCalledWith(expect.objectContaining({
+      label: expect.objectContaining({
+        text: "Intervention days 30–600", // Has label text because series is hovered.
+      }),
+    }));
 
-    timeSeries[0].trigger("mouseleave");
+    const accordionBodyComponent = timeSeriesGroups[0].findComponent({ name: "CAccordionBody" });
+    accordionBodyComponent.trigger("mouseleave");
 
-    // All 8 time series charts should have been reset (hide all tooltips and crosshairs) once more
-    // by the mouse leaving one of the time series
+    // All time series charts should have been reset (hide all tooltips and crosshairs)
+    // once more (hence `* 2`, for this second event) by the mouse leaving one of the time series
     await waitFor(() => {
-      expect(mockReset).toHaveBeenCalledTimes(8 * 2);
+      expect(mockReset).toHaveBeenCalledTimes(expectedNumberOfTimeSeries * 2);
+      expect(mockRemovePlotBand).toHaveBeenCalledTimes(numberOfTimeSeriesThatEnablePlotBands * 2);
+      expect(mockAddPlotBand).toHaveBeenCalledTimes(numberOfTimeSeriesThatEnablePlotBands * 2);
+      expect(mockAddPlotBand).toHaveBeenCalledWith(expect.objectContaining({
+        label: expect.objectContaining({
+          text: "", // No label text because series is not hovered.
+        }),
+      }));
     });
   });
 });

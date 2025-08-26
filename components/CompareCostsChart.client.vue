@@ -13,7 +13,7 @@ import "highcharts/esm/modules/exporting";
 import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
-import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeColors, contextButtonOptions, costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, menuItemDefinitionOptions, yAxisTitle } from "./utils/highCharts";
+import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeSmallPalette, contextButtonOptions, costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, menuItemDefinitionOptions, yAxisTitle } from "./utils/highCharts";
 import { costAsPercentOfGdp } from "@/components/utils/formatters";
 import { CostBasis } from "@/types/unitTypes";
 import { debounce } from "perfect-debounce";
@@ -47,7 +47,7 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
     type: "column",
     name: appStore.getCostLabel(costId),
     borderWidth: 1,
-    borderColor: colorBlindSafeColors[index].rgb,
+    borderColor: colorBlindSafeSmallPalette[index].rgb,
     zIndex: secondLevelCostIds.length - index, // Ensure that stack segments are in front of each other from top to bottom.
     data: scenarios.value.map((scenario) => {
       const subCost = scenario.result.data?.costs[0].children?.find(c => c.id === costId);
@@ -72,7 +72,7 @@ const targetWidth = () => {
 const chartInitialOptions = () => {
   return {
     credits: { text: "Highcharts" },
-    colors: colorBlindSafeColors.map(color => color.rgb),
+    colors: colorBlindSafeSmallPalette.map(color => color.rgb),
     chart: { ...chartOptions, height: chartHeightPx, width: targetWidth() },
     exporting: {
       filename: chartTitle.value,

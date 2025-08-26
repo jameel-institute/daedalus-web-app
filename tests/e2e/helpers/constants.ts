@@ -9,3 +9,5 @@ export const parameterLabels = {
   hospital_capacity: "Hospital surge capacity",
 };
 Object.freeze(parameterLabels);
+
+export const costTolerance = 0.25;

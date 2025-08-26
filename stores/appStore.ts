@@ -9,6 +9,7 @@ import { ExcelScenarioDownload } from "~/download/excelScenarioDownload";
 import type { ScenarioCapacity, ScenarioCost, ScenarioIntervention } from "~/types/resultTypes";
 import { CostBasis } from "~/types/unitTypes";
 import { getRangeForDependentParam } from "~/components/utils/parameters";
+import { responseInterventionId } from "~/components/utils/timeSeriesData";
 
 const emptyScenario = {
   runId: undefined,
@@ -301,6 +302,9 @@ export const useAppStore = defineStore("app", {
     },
     getScenarioAxisValue(scenario: Scenario): string | undefined {
       return this.currentComparison.axis ? scenario.parameters?.[this.currentComparison.axis] : undefined;
+    },
+    getScenarioResponseInterventions(scenario: Scenario): ScenarioIntervention[] | undefined {
+      return scenario.result.data?.interventions.filter(({ id }) => id === responseInterventionId);
     },
   },
 });
