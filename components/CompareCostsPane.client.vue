@@ -1,18 +1,16 @@
 <template>
   <CRow class="mx-2">
-    <div class="d-flex d-xl-none align-items-start justify-content-between">
-      <CostBasisToggler />
-      <CompareCostsLegend />
-    </div>
-    <CompareCostsChart class="col-12 col-xl-6" />
     <div class="col-12 col-xl-6 d-flex flex-column">
-      <div class="d-none d-xl-flex align-items-start justify-content-start gap-4">
-        <CompareCostsLegend />
+      <div class="d-flex align-items-start justify-content-between">
         <CostBasisToggler />
+        <CompareCostsLegend />
       </div>
+      <CompareCostsChart />
+    </div>
+    <div class="col-12 col-xl-6 d-flex flex-column">
       <CostsTable
         :scenarios="appStore.currentComparison.scenarios"
-        class="w-full mt-3"
+        class="w-full mt-5"
       />
     </div>
   </CRow>
