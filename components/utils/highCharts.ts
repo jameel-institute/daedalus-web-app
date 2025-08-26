@@ -247,7 +247,10 @@ export const costsChartMultiScenarioXAxisLabelFormatter = (category: string, axi
 
   if (axisParam?.parameterType === TypeOfParameter.GlobeSelect) {
     return `<div class="d-flex gap-2 align-items-center mb-2">
-      <span class="fi fi-${countryFlagIconId(category)}" style="width: 1.2rem; height: 1.2rem"></span>
+      <span
+        class="fi fi-${countryFlagIconId(category)} border"
+        style="width: 1.2rem; height: 0.9rem;"
+      ></span>
       <span>${scenarioLabel}</span>
     </div>`;
   } else {

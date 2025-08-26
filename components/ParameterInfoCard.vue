@@ -21,7 +21,8 @@
               </span>
               <span
                 v-if="parameter === appStore.globeParameter && countryFlag"
-                :class="`fi fi-${countryFlag} ms-1 align-self-center mb-1`"
+                :class="`fi fi-${countryFlag} ms-1 align-self-center mb-1 border`"
+                style="width: 1.2rem; height: 0.9rem;"
               />
             </span>
           </template>
