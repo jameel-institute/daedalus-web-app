@@ -130,7 +130,7 @@ const vslVariesByScenario = computed(() => {
 
 const vslLabel = (scenario: Scenario) => {
   const vsl = appStore.getScenarioLifeValue(scenario);
-  return vsl ? `${humanReadableInteger(vsl)} Int'l$` : undefined;
+  return `${humanReadableInteger(vsl)} Int'l$`;
 };
 
 const displayValue = (scenario: Scenario, costId: string): string | undefined => {
