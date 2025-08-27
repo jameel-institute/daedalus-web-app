@@ -19,6 +19,6 @@ test("can see expected parameter help", async ({ page, baseURL }) => {
   // dropdown option help
   const selectContainer = page.locator(".select-container:has-text('Response')");
   await selectContainer.locator("button.dropdown-icon").click();
-  const option = selectContainer.locator(":nth-match(.parameter-option, 1)");
+  const option = selectContainer.locator(":nth-match(.menu .parameter-option, 1)");
   await expect(option).toHaveText(/No pandemic mitigation: all sectors are fully open/);
 });

@@ -21,7 +21,7 @@
     <template #toggler="{ togglerId, on }">
       <CIconSvg
         class="icon help-icon opacity-50 p-0"
-        :class="[...classes, infoIcon ? 'info-icon' : 'question-icon']"
+        :class="classes"
       >
         <img
           :src="`/icons/${infoIcon ? 'info.png' : 'circleQuestion.svg'}`"
@@ -51,7 +51,7 @@ defineProps<{
 </script>
 
 <style lang="scss" scoped>
-.icon:not(.icon-c-s):not(.icon-custom-size).info-icon {
+.icon:not(.icon-c-s):not(.icon-custom-size).help-icon {
   width: 0.8rem;
   height: 0.8rem;
   margin-bottom: 0.1rem;

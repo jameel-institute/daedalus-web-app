@@ -28,7 +28,7 @@ const countryParameter = mockMetadataResponseData.parameters.find(p => p.id === 
 
 const getOptionFromMenu = (wrapper: VueWrapper, optionText: string) => {
   const matcher = new RegExp(optionText, "i");
-  return wrapper.findAll(".parameter-option").find(el => matcher.test(el.text()));
+  return wrapper.findAll(".menu .parameter-option").find(el => matcher.test(el.text()));
 };
 
 const getOptionTagFromControl = (wrapper: VueWrapper, optionText: string) => {
@@ -43,7 +43,7 @@ const openMenu = async (wrapper: VueWrapper) => {
 const enterAndSelectCustomOption = async (wrapper: VueWrapper, customValue: string) => {
   const inputEl = wrapper.find("input.search-input");
   await inputEl.setValue(Number(customValue));
-  expect(wrapper.findAll(".parameter-option")).toHaveLength(0);
+  expect(wrapper.findAll(".menu .parameter-option")).toHaveLength(0);
   const customMenuOption = wrapper.find(".taggable-no-options");
   const formattedCustomValue = new Intl.NumberFormat().format(Number(customValue));
   expect(customMenuOption.text()).toMatch(new RegExp(`Press enter to add custom option: ${formattedCustomValue}`));
@@ -278,13 +278,13 @@ describe("scenario select", () => {
     await enterAndSelectCustomOption(wrapper, "12345");
 
     await openMenu(wrapper);
-    expect(wrapper.findAll(".parameter-option")).toHaveLength(3);
+    expect(wrapper.findAll(".menu ")).toHaveLength(3);
 
     const customOptionTag = wrapper.find("button.multi-value");
     await customOptionTag.trigger("click");
 
     await openMenu(wrapper);
-    expect(wrapper.findAll(".parameter-option")).toHaveLength(3);
+    expect(wrapper.findAll(".menu .parameter-option")).toHaveLength(3);
   });
 
   it("does not list any custom options from the menu after the custom option is deselected by backspace", async () => {
@@ -301,14 +301,14 @@ describe("scenario select", () => {
     await enterAndSelectCustomOption(wrapper, "12345");
 
     await openMenu(wrapper);
-    expect(wrapper.findAll(".parameter-option")).toHaveLength(3);
+    expect(wrapper.findAll(".menu .parameter-option")).toHaveLength(3);
 
     const customOptionTag = wrapper.find("button.multi-value");
     expect(customOptionTag.isVisible()).toBe(true);
     await customOptionTag.trigger("keydown", { key: "Backspace" });
 
     await openMenu(wrapper);
-    expect(wrapper.findAll(".parameter-option")).toHaveLength(3);
+    expect(wrapper.findAll(".menu .parameter-option")).toHaveLength(3);
   });
 
   it("rejects non-numeric inputs for numeric parameters", async () => {
@@ -345,7 +345,7 @@ describe("scenario select", () => {
     const baselineOptionLabel = pathogenParameter.options!.find(o => o.id === baselineOption)!.label;
 
     await openMenu(wrapper);
-    const menuOptions = wrapper.findAll(".parameter-option");
+    const menuOptions = wrapper.findAll(".menu .parameter-option");
     expect(menuOptions).toHaveLength(6); // 6 options excluding the baseline
     expect(menuOptions.map(o => o.text()).join()).not.toMatch(new RegExp(baselineOptionLabel)); // Baseline option should not be present
   });
@@ -373,7 +373,7 @@ describe("scenario select", () => {
       },
     });
     await openMenu(wrapper);
-    const menuOptions = wrapper.findAll(".parameter-option");
+    const menuOptions = wrapper.findAll(".menu parameter-option");
     expect(menuOptions).toHaveLength(2); // 2 options excluding the baseline
     expect(menuOptions.map(o => o.text()).join()).not.toMatch(/26,200/); // Baseline option should not be present
   });
@@ -426,7 +426,7 @@ describe("scenario select", () => {
     expect(selectContainer.classes()).toContain("open");
 
     // Select all options
-    const menuOptions = wrapper.findAll(".parameter-option");
+    const menuOptions = wrapper.findAll(".menu .parameter-option");
     menuOptions.forEach(option => option.trigger("click"));
     await wrapper.vm.$nextTick();
 
@@ -450,7 +450,7 @@ describe("scenario select", () => {
 
     await openMenu(wrapper);
     // Select all options
-    const options = wrapper.findAll(".parameter-option");
+    const options = wrapper.findAll(".menu .parameter-option");
     options.forEach(option => option.trigger("click"));
     await wrapper.vm.$nextTick();
 
