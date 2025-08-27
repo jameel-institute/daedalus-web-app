@@ -304,8 +304,8 @@ describe("costs table for all scenarios in a comparison", () => {
     expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
     expectTooltipContents(tooltipTrigger, [
       "Value of statistical life:",
-      "<li>United Kingdom: 2,799,264 Int'l$</li>",
-      "<li>United States: 123,456,789 Int'l$</li>",
+      "United Kingdom: 2,799,264 Int'l$",
+      "United States: 123,456,789 Int'l$",
     ]);
   });
 });

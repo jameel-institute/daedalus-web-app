@@ -106,8 +106,8 @@ describe("cost basis toggler", () => {
     expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
     await expectTooltipContents(tooltipTrigger, [
       "2018 GDPs:",
-      "<li>United Kingdom (baseline): $19,863.0 billion USD</li>",
-      "<li>United States: $123.5 billion USD</li>",
+      "United Kingdom (baseline): $19,863.0 billion USD",
+      "United States: $123.5 billion USD",
     ]);
   });
 });

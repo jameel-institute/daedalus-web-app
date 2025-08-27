@@ -52,11 +52,9 @@ describe("tooltip help", () => {
     vi.advanceTimersByTime(1);
     await nextTick();
 
-    expect(document.body.innerHTML).toContain(`Get ready to read an unordered list `
-      + `<ul>`
-      + `<li>some help text</li>`
-      + `<li>on separate lines</li>`
-      + `</ul>`);
+    expect(document.body.innerHTML).toMatch(
+      /Get ready to read an unordered list\s*<ul.*><li.*>some help text<\/li><li.*>on separate lines<\/li><\/ul>/,
+    );
 
     const img = component.find("img");
     expect(img.classes().includes("class-1")).toBe(true);

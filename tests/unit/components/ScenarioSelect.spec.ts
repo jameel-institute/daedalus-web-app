@@ -278,7 +278,7 @@ describe("scenario select", () => {
     await enterAndSelectCustomOption(wrapper, "12345");
 
     await openMenu(wrapper);
-    expect(wrapper.findAll(".menu ")).toHaveLength(3);
+    expect(wrapper.findAll(".menu .parameter-option")).toHaveLength(3);
 
     const customOptionTag = wrapper.find("button.multi-value");
     await customOptionTag.trigger("click");
@@ -373,7 +373,7 @@ describe("scenario select", () => {
       },
     });
     await openMenu(wrapper);
-    const menuOptions = wrapper.findAll(".menu parameter-option");
+    const menuOptions = wrapper.findAll(".menu .parameter-option");
     expect(menuOptions).toHaveLength(2); // 2 options excluding the baseline
     expect(menuOptions.map(o => o.text()).join()).not.toMatch(/26,200/); // Baseline option should not be present
   });
