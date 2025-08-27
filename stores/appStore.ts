@@ -308,7 +308,10 @@ export const useAppStore = defineStore("app", {
       return scenario.result.data?.costs?.find(cost => cost.id === "total");
     },
     getScenarioLifeValue(scenario: Scenario): string | undefined {
-      return scenario.result.data?.average_vsl.toString().split(".")[0];
+      const vsl = scenario.result.data?.average_vsl;
+      if (vsl) {
+        return Math.round(vsl).toString();
+      }
     },
   },
 });

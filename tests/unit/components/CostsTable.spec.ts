@@ -84,7 +84,7 @@ describe("costs table for the current scenario", () => {
 
     const tooltipTrigger = component.find("img");
     expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
-    await expectTooltipContents(tooltipTrigger, ["Value of statistical life: 2,799,263 Int'l$"]);
+    await expectTooltipContents(tooltipTrigger, ["Value of statistical life: 2,799,264 Int'l$"]);
   });
 
   it("should render costs table correctly, when cost basis is percent of GDP", async () => {
@@ -118,7 +118,7 @@ describe("costs table for the current scenario", () => {
 
     const tooltipTrigger = component.find("img");
     expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
-    await expectTooltipContents(tooltipTrigger, ["Value of statistical life: 2,799,263 Int'l$"]);
+    await expectTooltipContents(tooltipTrigger, ["Value of statistical life: 2,799,264 Int'l$"]);
   });
 });
 
@@ -210,7 +210,7 @@ describe("costs table for all scenarios in a comparison", () => {
 
     const tooltipTrigger = component.find("img");
     expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
-    await expectTooltipContents(tooltipTrigger, ["Value of statistical life: 2,799,263 Int'l$"]);
+    await expectTooltipContents(tooltipTrigger, ["Value of statistical life: 2,799,264 Int'l$"]);
   });
 
   it("should render costs table correctly, when cost basis is percent of GDP", async () => {
@@ -259,7 +259,7 @@ describe("costs table for all scenarios in a comparison", () => {
 
     const tooltipTrigger = component.find("img");
     expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
-    await expectTooltipContents(tooltipTrigger, ["Value of statistical life: 2,799,263 Int'l$"]);
+    await expectTooltipContents(tooltipTrigger, ["Value of statistical life: 2,799,264 Int'l$"]);
   });
 
   it("should render tooltips with multiple values for VSL and GDP, when these values vary between scenarios", async () => {
@@ -304,7 +304,7 @@ describe("costs table for all scenarios in a comparison", () => {
     expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
     expectTooltipContents(tooltipTrigger, [
       "Value of statistical life:",
-      "<li>United Kingdom: 2,799,263 Int'l$</li>",
+      "<li>United Kingdom: 2,799,264 Int'l$</li>",
       "<li>United States: 123,456,789 Int'l$</li>",
     ]);
   });

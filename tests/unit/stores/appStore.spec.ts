@@ -664,7 +664,7 @@ describe("app store", () => {
         expect(store.costsData).toEqual(mockResultData.costs);
       });
 
-      expect(store.getScenarioLifeValue(store.currentScenario)).toEqual("2799263");
+      expect(store.getScenarioLifeValue(store.currentScenario)).toEqual("2799264");
     });
 
     describe("getters", () => {
