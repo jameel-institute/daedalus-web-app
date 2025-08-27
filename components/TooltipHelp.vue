@@ -21,7 +21,7 @@
     <template #toggler="{ togglerId, on }">
       <CIconSvg
         class="icon help-icon opacity-50 p-0"
-        :class="classes"
+        :class="[...classes, infoIcon ? 'info-icon' : 'question-icon']"
       >
         <img
           :src="`/icons/${infoIcon ? 'info.png' : 'circleQuestion.svg'}`"
@@ -49,3 +49,11 @@ defineProps<{
 // Bear in mind that this means the image will be cached by the browser, so to update the image, you must also change
 // the file name.
 </script>
+
+<style lang="scss" scoped>
+.icon:not(.icon-c-s):not(.icon-custom-size).info-icon {
+  width: 0.8rem;
+  height: 0.8rem;
+  margin-bottom: 0.1rem;
+}
+</style>
