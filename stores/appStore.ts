@@ -203,7 +203,6 @@ export const useAppStore = defineStore("app", {
 
       const { data, status, error } = await useFetch(
         `/api/scenarios/${scenario.runId}/result`,
-        { dedupe: "defer" },
       ) as {
         data: Ref<ScenarioResultData>
         status: Ref<AsyncDataRequestStatus>
