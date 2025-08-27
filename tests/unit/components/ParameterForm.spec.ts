@@ -197,6 +197,54 @@ describe("parameter form", () => {
     expect(submitButton.element.disabled).toBe(false);
   });
 
+  it("does not show the 'advanced usage' popover button when not in a modal", async () => {
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
+      global: {
+        stubs,
+        plugins: [mockPinia(
+          { currentScenario: scenarioWithParameters },
+          true,
+          { stubActions: false },
+        )],
+      },
+    });
+
+    const popoverContainer = component.find("#advanced-usage-popover-container");
+    expect(popoverContainer.classes()).toContain("d-none");
+    expect(popoverContainer.classes()).not.toContain("d-flex");
+  });
+
+  it("shows the 'advanced usage' popover button when not in a modal", async () => {
+    vi.useFakeTimers();
+
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: true },
+      global: {
+        stubs,
+        plugins: [mockPinia(
+          { currentScenario: scenarioWithParameters },
+          true,
+          { stubActions: false },
+        )],
+      },
+    });
+
+    const popoverContainer = component.find("#advanced-usage-popover-container");
+    expect(popoverContainer.classes()).toContain("d-flex");
+    expect(popoverContainer.classes()).not.toContain("d-none");
+
+    expect(component.text()).not.toContain("R users can run the model directly");
+
+    await popoverContainer.findAll("p").find(p => p.text() === "Advanced usage")!.trigger("click");
+
+    vi.advanceTimersByTime(1);
+    await nextTick();
+    expect(component.text()).toContain("R users can run the model directly");
+
+    vi.useRealTimers();
+  });
+
   it("updates the numeric input's min, max, and default values based on the selected option", async () => {
     const maskStockpileParameter = {
       ...updatableNumericParameter,

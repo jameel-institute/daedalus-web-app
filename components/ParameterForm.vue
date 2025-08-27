@@ -40,19 +40,21 @@
           />
         </div>
       </div>
-      <CButton
-        id="run-button"
-        color="primary"
-        :size="appStore.largeScreen ? 'lg' : undefined"
-        type="submit"
-        :disabled="runButtonDisabled"
-        class="ms-auto align-self-start"
-        @click="submitForm"
-      >
-        Run
-        <CSpinner v-if="formSubmitting && appStore.metadataFetchStatus !== 'error'" size="sm" class="ms-1" />
-        <CIcon v-else icon="cilArrowRight" />
-      </CButton>
+      <div class="ms-auto align-self-start d-flex flex-column">
+        <CButton
+          id="run-button"
+          color="primary"
+          :size="appStore.largeScreen ? 'lg' : undefined"
+          type="submit"
+          :disabled="runButtonDisabled"
+          @click="submitForm"
+        >
+          Run
+          <CSpinner v-if="formSubmitting && appStore.metadataFetchStatus !== 'error'" size="sm" class="ms-1" />
+          <CIcon v-else icon="cilArrowRight" />
+        </CButton>
+        <AdvancedUsagePopover class="mt-3" :display="props.inModal" />
+      </div>
     </CForm>
     <CAlert v-else-if="!appStore.metadata && appStore.metadataFetchStatus === 'error'" color="warning">
       Failed to initialise. {{ appStore.metadataFetchError }}
