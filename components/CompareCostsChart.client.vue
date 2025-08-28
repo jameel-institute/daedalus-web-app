@@ -56,9 +56,7 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
       const costAsGdpPercent = costAsPercentOfGdp(dollarValue, scenario.result.data?.gdp);
       const y = costBasis.value === CostBasis.PercentGDP ? costAsGdpPercent : dollarValue;
       const name = appStore.getCostLabel(subCost?.id || "");
-      const opacity = scenario === appStore.baselineScenario ? 1 : 0.8;
-      const borderColor = scenario === appStore.baselineScenario ? "white" : "transparent";
-      return { y, name, custom: { costAsGdpPercent }, opacity, borderColor };
+      return { y, name, custom: { costAsGdpPercent } };
     }),
   } as Highcharts.SeriesColumnOptions)) || [];
 
