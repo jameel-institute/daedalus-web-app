@@ -63,7 +63,8 @@ const data = computed(() => getTimeSeriesDataPoints(appStore.currentScenario, pr
 
 // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
 const showCapacities = computed(() => props.timeSeriesMetadata.id === "hospitalised");
-const { initialCapacitiesPlotLines, minRange } = useCapacitiesPlotLines(showCapacities, appStore.capacitiesData, chart);
+const capacities = computed(() => appStore.currentScenario.result.data?.capacities);
+const { initialCapacitiesPlotLines, minRange } = useCapacitiesPlotLines(showCapacities, capacities, chart);
 
 const interventions = computed(() => {
   const intvns = appStore.getScenarioResponseInterventions(appStore.currentScenario);

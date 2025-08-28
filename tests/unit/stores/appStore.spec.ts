@@ -644,7 +644,7 @@ describe("app store", () => {
       await store.loadScenarioResult(store.currentScenario);
 
       await waitFor(() => {
-        expect(store.costsData).toEqual(mockResultData.costs);
+        expect(store.currentScenario.result.data?.costs).toEqual(mockResultData.costs);
       });
 
       const totalCost = store.getScenarioTotalCost(store.currentScenario);
@@ -663,7 +663,7 @@ describe("app store", () => {
       await store.loadScenarioResult(store.currentScenario);
 
       await waitFor(() => {
-        expect(store.costsData).toEqual(mockResultData.costs);
+        expect(store.currentScenario.result.data?.costs).toEqual(mockResultData.costs);
       });
 
       expect(store.getScenarioLifeValue(store.currentScenario)).toEqual("2799264");
@@ -703,54 +703,6 @@ describe("app store", () => {
 
         await waitFor(() => {
           expect(store.globeParameter!.id).toEqual("country");
-        });
-      });
-
-      it("can get the time series data", async () => {
-        const store = useAppStore();
-        store.currentScenario = structuredClone(unloadedScenario);
-
-        expect(store.timeSeriesData).toEqual(undefined);
-        await store.loadScenarioResult(store.currentScenario);
-
-        await waitFor(() => {
-          expect(store.timeSeriesData).toEqual(mockResultData.time_series);
-        });
-      });
-
-      it("can get the capacities data", async () => {
-        const store = useAppStore();
-        store.currentScenario = structuredClone(unloadedScenario);
-
-        expect(store.capacitiesData).toEqual(undefined);
-        await store.loadScenarioResult(store.currentScenario);
-
-        await waitFor(() => {
-          expect(store.capacitiesData).toEqual(mockResultData.capacities);
-        });
-      });
-
-      it("can get the interventions data", async () => {
-        const store = useAppStore();
-        store.currentScenario = structuredClone(unloadedScenario);
-
-        expect(store.interventionsData).toEqual(undefined);
-        await store.loadScenarioResult(store.currentScenario);
-
-        await waitFor(() => {
-          expect(store.interventionsData).toEqual(mockResultData.interventions);
-        });
-      });
-
-      it("can get the costs data", async () => {
-        const store = useAppStore();
-        store.currentScenario = structuredClone(unloadedScenario);
-
-        expect(store.costsData).toEqual(undefined);
-        await store.loadScenarioResult(store.currentScenario);
-
-        await waitFor(() => {
-          expect(store.costsData).toEqual(mockResultData.costs);
         });
       });
 

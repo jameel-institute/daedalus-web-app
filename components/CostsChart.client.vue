@@ -165,8 +165,8 @@ const chartInitialOptions = () => {
   } as Highcharts.Options;
 };
 
-watch(() => chartContainer.value, () => {
-  if (appStore.costsData && !chart && chartContainer.value) {
+watch([chartContainer, totalCost], () => {
+  if (totalCost.value && !chart && chartContainer.value) {
     chart = Highcharts.chart("costsChartContainer", chartInitialOptions());
   }
 });

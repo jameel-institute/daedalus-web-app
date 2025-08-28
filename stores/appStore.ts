@@ -6,7 +6,7 @@ import { type Parameter, type ParameterSet, TypeOfParameter } from "@/types/para
 import { debounce } from "perfect-debounce";
 import { defineStore } from "pinia";
 import { ExcelScenarioDownload } from "~/download/excelScenarioDownload";
-import type { ScenarioCapacity, ScenarioCost, ScenarioIntervention } from "~/types/resultTypes";
+import type { ScenarioCost, ScenarioIntervention } from "~/types/resultTypes";
 import { CostBasis } from "~/types/unitTypes";
 import { getRangeForDependentParam } from "~/components/utils/parameters";
 import { responseInterventionId } from "~/components/utils/timeSeriesData";
@@ -64,10 +64,6 @@ export const useAppStore = defineStore("app", {
       return state.metadata?.parameters.find(param => param.id === state.currentComparison.axis);
     },
     globeParameter: (state): Parameter | undefined => state.metadata?.parameters.find(param => param.parameterType === TypeOfParameter.GlobeSelect),
-    timeSeriesData: (state): Record<string, number[]> | undefined => state.currentScenario.result.data?.time_series,
-    capacitiesData: (state): Array<ScenarioCapacity> | undefined => state.currentScenario.result.data?.capacities,
-    interventionsData: (state): Array<ScenarioIntervention> | undefined => state.currentScenario.result.data?.interventions,
-    costsData: (state): Array<ScenarioCost> | undefined => state.currentScenario.result.data?.costs,
     scenarioCountry(state): string | undefined {
       if (!this.globeParameter?.id) {
         return;
