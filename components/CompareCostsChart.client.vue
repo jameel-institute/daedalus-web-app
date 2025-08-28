@@ -15,7 +15,7 @@ import "highcharts/esm/modules/exporting";
 import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
-import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeSmallPalette, contextButtonOptions, costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, menuItemDefinitionOptions, yAxisTitle } from "./utils/highCharts";
+import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, costsPalette, menuItemDefinitionOptions, yAxisTitle } from "./utils/highCharts";
 import { costAsPercentOfGdp } from "@/components/utils/formatters";
 import { CostBasis } from "@/types/unitTypes";
 import { debounce } from "perfect-debounce";
@@ -32,6 +32,7 @@ const chartTitle = computed(() => {
   const scenarioDuration = Object.values(firstScenarioTimeSeries || {})[0].length - 1;
   return `Losses after ${scenarioDuration} days`;
 });
+const rgbPalette = costsPalette.map(color => color.rgb);
 
 // There are 3 levels of data breakdown for costs:
 // 1) the top-level total for the scenario,
@@ -48,7 +49,7 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
     type: "column",
     name: appStore.getCostLabel(costId),
     borderWidth: 1,
-    borderColor: colorBlindSafeSmallPalette[index].rgb,
+    borderColor: rgbPalette[index % rgbPalette.length],
     zIndex: secondLevelCostIds.length - index, // Ensure that stack segments are in front of each other from top to bottom.
     data: scenarios.value.map((scenario) => {
       const subCost = scenario.result.data?.costs[0].children?.find(c => c.id === costId);
@@ -77,7 +78,7 @@ const targetWidth = () => {
 const chartInitialOptions = () => {
   return {
     credits: { text: "Highcharts" },
-    colors: colorBlindSafeSmallPalette.map(color => color.rgb),
+    colors: rgbPalette,
     chart: { ...chartOptions, height: chartHeightPx, width: targetWidth() },
     exporting: {
       filename: chartTitle.value,

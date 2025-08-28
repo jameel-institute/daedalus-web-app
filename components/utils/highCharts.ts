@@ -14,11 +14,12 @@ export interface colorRgbHsl {
 
 // Colours from Bang Wong palette, see https://davidmathlogic.com/colorblind
 // RGB values derived from the Wong 2011 source https://www.nature.com/articles/nmeth.1618
-export const colorBlindSafeSmallPalette: colorRgbHsl[] = [
+const colorBlindSafeSmallPalette: colorRgbHsl[] = [
   { name: "Vermillion", rgb: "rgb(213,94,0)", hsl: convert.rgb.hsl(213, 94, 0) }, // hsl: [26, 100, 42]
   { name: "Bluish green", rgb: "rgb(0,158,115)", hsl: convert.rgb.hsl(0, 158, 115) }, // hsl: [164, 100, 31]
   { name: "Sky blue", rgb: "rgb(86,180,233)", hsl: convert.rgb.hsl(86, 180, 233) }, // hsl: [202, 77, 63]
 ];
+export const costsPalette = colorBlindSafeSmallPalette;
 
 // Two possible larger colour palettes, intended for charts that need more colours.
 // Palettes from Paul Tol, see https://davidmathlogic.com/colorblind
