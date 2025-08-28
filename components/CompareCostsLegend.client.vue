@@ -18,7 +18,6 @@ const items = computed((): LegendItem[] =>
       color: colorBlindSafeLargePalette[index].rgb,
       label: appStore.getCostLabel(cost.id),
       shape: LegendShape.Circle,
-      value: cost.value,
     };
   }) || [],
 );
