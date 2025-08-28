@@ -13,7 +13,7 @@ import "highcharts/esm/modules/exporting";
 import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
-import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeSmallPalette, contextButtonOptions, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, getColorVariants, menuItemDefinitionOptions, yAxisTitle } from "@/components/utils/highCharts";
+import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, costsPalette, getColorVariants, menuItemDefinitionOptions, yAxisTitle } from "@/components/utils/highCharts";
 import { costAsPercentOfGdp } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import { debounce } from "perfect-debounce";
@@ -30,7 +30,7 @@ const totalCost = computed(() => appStore.getScenarioTotalCost(appStore.currentS
 const columnColors = computed((): string[][] => {
   return totalCost.value?.children?.map((cost, i) => {
     const numberOfColorVariants = Math.max(cost.children?.length || 1);
-    return getColorVariants(colorBlindSafeSmallPalette[i], numberOfColorVariants);
+    return getColorVariants(costsPalette[i], numberOfColorVariants);
   }) || [[]];
 });
 

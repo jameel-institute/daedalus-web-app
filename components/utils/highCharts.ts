@@ -14,11 +14,12 @@ export interface colorRgbHsl {
 
 // Colours from Bang Wong palette, see https://davidmathlogic.com/colorblind
 // RGB values derived from the Wong 2011 source https://www.nature.com/articles/nmeth.1618
-export const colorBlindSafeSmallPalette: colorRgbHsl[] = [
+const colorBlindSafeSmallPalette: colorRgbHsl[] = [
   { name: "Vermillion", rgb: "rgb(213,94,0)", hsl: convert.rgb.hsl(213, 94, 0) }, // hsl: [26, 100, 42]
   { name: "Bluish green", rgb: "rgb(0,158,115)", hsl: convert.rgb.hsl(0, 158, 115) }, // hsl: [164, 100, 31]
   { name: "Sky blue", rgb: "rgb(86,180,233)", hsl: convert.rgb.hsl(86, 180, 233) }, // hsl: [202, 77, 63]
 ];
+export const costsPalette = colorBlindSafeSmallPalette;
 
 // Two possible larger colour palettes, intended for charts that need more colours.
 // Palettes from Paul Tol, see https://davidmathlogic.com/colorblind
@@ -242,18 +243,27 @@ export const costsChartYAxisTickFormatter = (value: string | number, costBasis: 
   }
 };
 
-export const costsChartMultiScenarioXAxisLabelFormatter = (category: string, axisParam: Parameter | undefined) => {
+export const costsChartMultiScenarioXAxisLabelFormatter = (
+  category: string,
+  axisParam: Parameter | undefined,
+  baseline: string | undefined,
+) => {
   const scenarioLabel = getScenarioLabel(category, axisParam);
+  const paramIsCountry = axisParam?.parameterType === TypeOfParameter.GlobeSelect;
+  const marginForFlag = paramIsCountry ? "mt-1" : "";
+  const scenarioLabelSpan = baseline && category === baseline
+    ? `<span class="fw-medium text-primary-emphasis ${marginForFlag}">${scenarioLabel} (baseline)</span>`
+    : `<span class="${marginForFlag}">${scenarioLabel}</span>`;
 
-  if (axisParam?.parameterType === TypeOfParameter.GlobeSelect) {
+  if (paramIsCountry) {
     return `<div class="d-flex gap-2 align-items-center mb-2">
       <span
         class="${countryFlagClass(category)}"
         style="width: 1rem; height: 0.75rem;"
       ></span>
-      <span class="mt-1">${scenarioLabel}</span>
+      ${scenarioLabelSpan}
     </div>`;
   } else {
-    return scenarioLabel;
+    return scenarioLabelSpan;
   }
 };

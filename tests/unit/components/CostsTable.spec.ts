@@ -204,8 +204,13 @@ describe("costs table for all scenarios in a comparison", () => {
     expect(componentText).toContain(expectedTotalForNoneScenario);
     expect(componentText).toContain(expectedTotalForMediumScenario);
 
-    [...expectedCostsForNoneScenario, ...expectedCostsForMediumScenario].forEach((cost) => {
-      expect(componentText).toContain(cost);
+    const baselineTdClass = "text-primary-emphasis";
+    expectedCostsForNoneScenario.forEach((cost) => {
+      expect(component.findAll("td").find(td => td.text() === cost)!.classes()).not.toContain(baselineTdClass);
+    });
+
+    expectedCostsForMediumScenario.forEach((cost) => {
+      expect(component.findAll("td").find(td => td.text() === cost)!.classes()).toContain(baselineTdClass);
     });
 
     const tooltipTrigger = component.find("img");
