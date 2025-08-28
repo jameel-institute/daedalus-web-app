@@ -97,7 +97,7 @@ const chartInitialOptions = () => {
     },
     xAxis: {
       categories: scenarios.value?.map(s => appStore.getScenarioAxisValue(s)) || [],
-      title: { text: appStore.axisLabel },
+      title: { text: appStore.axisMetadata?.label },
       labels: {
         style: { fontSize: appStore.currentComparison.axis === appStore.globeParameter?.id ? "0.8rem" : "1rem" },
         formatter() { return costsChartMultiScenarioXAxisLabelFormatter(this.value as string, appStore.axisMetadata); },
