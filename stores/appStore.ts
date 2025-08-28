@@ -1,4 +1,4 @@
-import type { AsyncDataRequestStatus } from "#app";
+import type { AsyncDataRequestStatus, NuxtApp } from "#app";
 import type { Metadata, NewScenarioData, ScenarioData, ScenarioResultData, ScenarioStatusData, TimeSeriesGroup, VersionData } from "~/types/apiResponseTypes";
 import type { AppState, Comparison, Scenario } from "@/types/storeTypes";
 import type { FetchError } from "ofetch";
@@ -201,7 +201,6 @@ export const useAppStore = defineStore("app", {
 
       const { data, status, error } = await useFetch(
         `/api/scenarios/${scenario.runId}/result`,
-        { dedupe: "defer" },
       ) as {
         data: Ref<ScenarioResultData>
         status: Ref<AsyncDataRequestStatus>
@@ -263,10 +262,12 @@ export const useAppStore = defineStore("app", {
         }) || [],
       );
     },
-    async refreshComparisonStatuses() {
-      await Promise.all(this.currentComparison.scenarios?.map(async (scenario) => {
-        await this.refreshScenarioStatus(scenario);
-      }) || []);
+    async refreshComparisonStatuses(nuxtInstance: NuxtApp) {
+      nuxtInstance.runWithContext(async () => {
+        await Promise.all(this.currentComparison.scenarios?.map(async (scenario) => {
+          await this.refreshScenarioStatus(scenario);
+        }) || []);
+      });
     },
     async loadComparisonResults() {
       await Promise.all(this.currentComparison.scenarios?.map(async (scenario) => {
