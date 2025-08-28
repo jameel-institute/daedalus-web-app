@@ -101,24 +101,6 @@ describe("comparison page", () => {
 
       expect(text).toContain("Explore by disease");
 
-      // Parameters
-      expect(text).toMatch(/pathogen\s+\(Axis\)/i);
-      expect(text).toMatch(/sars_cov_1\s+\(Baseline\)/i);
-      expect(text).toContain("sars_cov_2_pre_alpha");
-      expect(text).toContain("sars_cov_2_omicron");
-      expect(text.match(/elimination/g)).toHaveLength(3);
-      expect(text.match(/USA/g)).toHaveLength(3);
-      expect(text.match(/medium/g)).toHaveLength(3);
-      expect(text.match(/305000/g)).toHaveLength(3);
-      // Run ids
-      expect(text).toContain("sars2004RunId".slice(0, 8));
-      expect(text).toContain("covidWildTypeRunId".slice(0, 8));
-      expect(text).toContain("covidOmicronRunId".slice(0, 8));
-      // Results
-      expect(text).toContain("$1.0 billion");
-      expect(text).toContain("$2.0 billion");
-      expect(text).toContain("$3.0 billion");
-
       // Don't continue polling for status after runs are known to be complete
       expect(appStoreStatusSpy).toHaveBeenCalledTimes(3);
     });

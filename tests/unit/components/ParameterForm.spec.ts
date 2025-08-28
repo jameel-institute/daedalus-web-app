@@ -18,8 +18,8 @@ const { mockNavigateTo } = vi.hoisted(() => ({
 }));
 mockNuxtImport("navigateTo", () => mockNavigateTo);
 
-vi.mock("~/components/utils/countryFlag", () => ({
-  countryFlagIconId: vi.fn((countryId: string) => {
+vi.mock("country-iso-3-to-2", () => ({
+  default: vi.fn((countryId: string) => {
     switch (countryId) {
       case "CLD":
         return "cl";
@@ -81,7 +81,7 @@ describe("parameter form", () => {
     expect(vueSelects[0].props("modelValue")).toBe("1");
 
     await vueSelects[0].find(".dropdown-icon").trigger("click");
-    const renderedOptions = vueSelects[0].findAll(".parameter-option");
+    const renderedOptions = vueSelects[0].findAll(".menu .parameter-option");
     expect(renderedOptions.length).toBe(6);
     expect(renderedOptions[0].find("span").text()).toBe("Option 1");
     expect(renderedOptions[0].find("div.text-dark").text()).toBe("Option 1 description");
@@ -97,7 +97,7 @@ describe("parameter form", () => {
     expect(vueSelects[1].props("modelValue")).toBe("HVN");
     expect(vueSelects[1].find(".single-value span.fi").classes()).toContain("fi-hv"); // flag
     await vueSelects[1].find(".dropdown-icon").trigger("click");
-    const renderedCountryOptions = vueSelects[1].findAll(".parameter-option");
+    const renderedCountryOptions = vueSelects[1].findAll(".menu .parameter-option");
     expect(renderedCountryOptions.length).toBe(2);
     expect(renderedCountryOptions[0].text()).toBe("Cloud Nine");
     expect(renderedCountryOptions[0].find(".fi").classes()).toContain("fi-cl"); // flag

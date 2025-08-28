@@ -634,6 +634,39 @@ describe("app store", () => {
       expect(store.getScenarioResponseInterventions(scenario)).toEqual([intvn]);
     });
 
+    it("can get the 'total' cost data for a given scenario", async () => {
+      const store = useAppStore();
+      store.currentScenario = structuredClone(unloadedScenario);
+
+      expect(store.getScenarioTotalCost(store.currentScenario)).toEqual(undefined);
+      await store.loadScenarioResult(store.currentScenario);
+
+      await waitFor(() => {
+        expect(store.costsData).toEqual(mockResultData.costs);
+      });
+
+      const totalCost = store.getScenarioTotalCost(store.currentScenario);
+
+      expect(totalCost?.id).toEqual("total");
+      expect(totalCost?.value).toEqual(1086625.0137);
+      expect(totalCost?.children?.length).toEqual(3);
+    });
+
+    it("can get the 'value of statistical life' for a given scenario", async () => {
+      const store = useAppStore();
+      store.currentScenario = structuredClone(unloadedScenario);
+
+      expect(store.getScenarioLifeValue(store.currentScenario)).toEqual(undefined);
+
+      await store.loadScenarioResult(store.currentScenario);
+
+      await waitFor(() => {
+        expect(store.costsData).toEqual(mockResultData.costs);
+      });
+
+      expect(store.getScenarioLifeValue(store.currentScenario)).toEqual("2799264");
+    });
+
     describe("getters", () => {
       it("can provide a map of parameter id to parameter metadata, for easier look-up", async () => {
         const store = useAppStore();
@@ -648,6 +681,16 @@ describe("app store", () => {
           expect(store.parametersMetadataById).toHaveProperty("response");
           expect(store.parametersMetadataById.country.parameterType).toEqual("globeSelect");
         });
+      });
+
+      it("can get the current axis parameter", async () => {
+        const store = useAppStore();
+        await store.loadMetadata();
+
+        expect(store.axisMetadata).toEqual(undefined);
+        store.currentComparison = { axis: "vaccine", baseline: "high", scenarios: [] };
+        expect(store.axisMetadata!.id).toEqual("vaccine");
+        expect(store.axisMetadata!.parameterType).toEqual("select");
       });
 
       it("can get the globe parameter", async () => {
@@ -697,21 +740,16 @@ describe("app store", () => {
         });
       });
 
-      it("can get the costs data and 'total' cost data", async () => {
+      it("can get the costs data", async () => {
         const store = useAppStore();
         store.currentScenario = structuredClone(unloadedScenario);
 
         expect(store.costsData).toEqual(undefined);
-        expect(store.totalCost).toEqual(undefined);
         await store.loadScenarioResult(store.currentScenario);
 
         await waitFor(() => {
           expect(store.costsData).toEqual(mockResultData.costs);
         });
-
-        expect(store.totalCost?.id).toEqual("total");
-        expect(store.totalCost?.value).toEqual(1086625.0137);
-        expect(store.totalCost?.children?.length).toEqual(3);
       });
 
       it("can determine which country is of interest to the current scenario or comparison", async () => {

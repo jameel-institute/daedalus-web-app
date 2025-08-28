@@ -1,9 +1,10 @@
 import convert, { type HSL } from "color-convert";
 import { abbreviateMillionsDollars } from "~/utils/money";
-import { costAsPercentOfGdp, gdpReferenceYear, humanReadableInteger, humanReadablePercentOfGdp } from "~/components/utils/formatters";
+import { costAsPercentOfGdp, gdpReferenceYear, humanReadablePercentOfGdp } from "~/components/utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
-import { countryFlagIconId } from "./countryFlag";
+import { countryFlagClass } from "./countryFlag";
+import { getScenarioLabel } from "./comparisons";
 
 export interface colorRgbHsl {
   name: string
@@ -193,15 +194,6 @@ export const costsChartSingleScenarioTooltip = (context: unknown, costBasis: Cos
   return `<span style="font-size: 0.8rem;">${headerText}<br/><br/>${pointsText}</span>`;
 };
 
-// 'Category' is the internal name for the x-axis in a multi-scenario costs chart, i.e. it denotes which scenario the column refers to.
-const getScenarioCategoryLabel = (category: string, axisParam: Parameter | undefined): string => {
-  if (axisParam?.parameterType === TypeOfParameter.Numeric) {
-    return humanReadableInteger(category);
-  } else {
-    return axisParam?.options?.find(o => o.id === category)?.label || "";
-  }
-};
-
 // Tooltip text for a stacked column in a multi-scenario costs chart (shared tooltip for all points in the stack)
 export const costsChartMultiScenarioStackedTooltip = (context: unknown, costBasis: CostBasis, axisParam: Parameter | undefined) => {
   const contextInstance = context as TooltipPointInstance;
@@ -210,7 +202,7 @@ export const costsChartMultiScenarioStackedTooltip = (context: unknown, costBasi
     return;
   }
 
-  let headerText = `${axisParam.label}: <b>${getScenarioCategoryLabel(point.category as string, axisParam)}</b>`;
+  let headerText = `${axisParam.label}: <b>${getScenarioLabel(point.category as string, axisParam)}</b>`;
 
   if (costBasis === CostBasis.PercentGDP) {
     const percentOfGdp = humanReadablePercentOfGdp(point.total);
@@ -251,12 +243,15 @@ export const costsChartYAxisTickFormatter = (value: string | number, costBasis: 
 };
 
 export const costsChartMultiScenarioXAxisLabelFormatter = (category: string, axisParam: Parameter | undefined) => {
-  const scenarioLabel = getScenarioCategoryLabel(category, axisParam);
+  const scenarioLabel = getScenarioLabel(category, axisParam);
 
   if (axisParam?.parameterType === TypeOfParameter.GlobeSelect) {
     return `<div class="d-flex gap-2 align-items-center mb-2">
-      <span class="fi fi-${countryFlagIconId(category)}" style="width: 1.2rem; height: 1.2rem"></span>
-      <span>${scenarioLabel}</span>
+      <span
+        class="${countryFlagClass(category)}"
+        style="width: 1rem; height: 0.75rem;"
+      ></span>
+      <span class="mt-1">${scenarioLabel}</span>
     </div>`;
   } else {
     return scenarioLabel;

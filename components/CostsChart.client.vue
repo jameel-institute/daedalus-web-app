@@ -24,16 +24,18 @@ const seriesData = ref<Highcharts.SeriesColumnOptions[]>([]); // This only exist
 const chartContainer = ref<HTMLElement | null>(null);
 const chartParentEl = computed(() => chartContainer.value?.parentElement);
 
+const totalCost = computed(() => appStore.getScenarioTotalCost(appStore.currentScenario));
+
 // A range of colors per column, to be used for the breakdowns within each column.
 const columnColors = computed((): string[][] => {
-  return appStore.totalCost?.children?.map((cost, i) => {
+  return totalCost.value?.children?.map((cost, i) => {
     const numberOfColorVariants = Math.max(cost.children?.length || 1);
     return getColorVariants(colorBlindSafeSmallPalette[i], numberOfColorVariants);
   }) || [[]];
 });
 
 // We need as many series as there are breakdowns in the most broken-down column.
-const numberOfSeries = computed(() => appStore.totalCost?.children?.reduce((max, cost) => {
+const numberOfSeries = computed(() => totalCost.value?.children?.reduce((max, cost) => {
   return Math.max(max, cost.children?.length || 0);
 }, 0) || 0);
 
@@ -53,7 +55,7 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
   for (let rowIndex = 0; rowIndex < numberOfSeries.value; rowIndex++) {
     series.push({
       type: "column",
-      data: appStore.totalCost?.children?.map((cost, columnIndex) => {
+      data: totalCost.value?.children?.map((cost, columnIndex) => {
         const subCost = cost.children?.[rowIndex];
         // If there is no Nth child for some cost, we still need to create a breakdown for the stack with a y-value of 0,
         // to ensure that any subsequent data points will belong to the correct column.
@@ -78,8 +80,7 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
   return series;
 };
 
-const costLabels = computed(() =>
-  appStore.totalCost?.children?.map(cost => appStore.getCostLabel(cost.id)) || []);
+const costLabels = computed(() => totalCost.value?.children?.map(cost => appStore.getCostLabel(cost.id)) || []);
 
 const chartHeightPx = 400;
 

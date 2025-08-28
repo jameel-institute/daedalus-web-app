@@ -1,8 +1,8 @@
 <template>
   <ChartLegend
     :items="items"
-    :row-height-rem="0.7"
-    class="costs-legend m-3"
+    :row-height-rem="0.9"
+    class="costs-legend m-3 mt-0"
   />
 </template>
 

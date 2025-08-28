@@ -57,10 +57,9 @@ const iStyle = (item: LegendItem) => {
 }
 
 .legend-item {
-  display: table-row;
+  display: flex;
 
   span {
-    display: table-cell;
     padding-left: 0.5rem;
     vertical-align: bottom;
     white-space: pre;

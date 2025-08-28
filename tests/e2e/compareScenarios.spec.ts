@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
 import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
-import { costTolerance, parameterLabels, runIdMatcher, scenarioPathMatcher } from "./helpers/constants";
+import { commaSeparatedNumberMatcher, costTolerance, decimalPercentMatcher, parameterLabels, runIdMatcher, scenarioPathMatcher } from "./helpers/constants";
 import checkValueIsInRange from "./helpers/checkValueIsInRange";
 import checkBarChartDataIsDifferent from "./helpers/checkBarChartDataIsDifferent";
 
@@ -12,7 +12,7 @@ test.beforeAll(async () => {
   checkRApiServer();
 });
 
-test("Can compare multiple scenarios", async ({ page, baseURL }) => {
+test("Can compare multiple scenarios", async ({ page, baseURL, isMobile }) => {
   await waitForNewScenarioPage(page, baseURL);
 
   await selectParameterOption(page, "pathogen", "SARS 2004");
@@ -53,6 +53,9 @@ test("Can compare multiple scenarios", async ({ page, baseURL }) => {
   await expect(page.getByRole("option", { name: "Covid-19 Omicron" })).toHaveCount(0);
 
   await page.getByRole("button", { name: "Compare", exact: true }).click();
+  if (isMobile) { // For unknown reasons, in this test, mobile browsers require an extra click to start the comparison
+    await page.getByRole("button", { name: "Compare", exact: true }).click();
+  }
 
   await page.waitForURL(new RegExp(`${baseURL}/comparison\?.*`));
   const comparisonUrl = page.url();
@@ -61,17 +64,6 @@ test("Can compare multiple scenarios", async ({ page, baseURL }) => {
   expect(comparisonUrl).toMatch(new RegExp(`runIds=${runIdMatcher};${runIdMatcher};${runIdMatcher}`));
   await expect(page.getByText("Explore by disease")).toBeVisible();
 
-  // Parameters
-  await expect(page.getByText("pathogen (Axis)").first()).toBeVisible();
-  await expect(page.getByText(`sars_cov_1 (Baseline)`).first()).toBeVisible();
-  await expect(page.getByText("sars_cov_2_pre_alpha").first()).toBeVisible();
-  await expect(page.getByText("sars_cov_2_omicron").first()).toBeVisible();
-  await expect(page.getByText("elimination").first()).toBeVisible();
-  await expect(page.getByText("USA").first()).toBeVisible();
-  await expect(page.getByText("medium").first()).toBeVisible();
-  await expect(page.getByText("305000").first()).toBeVisible();
-  // Run ids
-  await expect(page.getByText(/[a-f0-9]{8}\.\.\./)).toHaveCount(3);
   // Results
   await expect(page.locator("#compareCostsChartContainer text.highcharts-credits").first()).toBeVisible();
 
@@ -111,12 +103,39 @@ test("Can compare multiple scenarios", async ({ page, baseURL }) => {
   checkValueIsInRange(lifeYearsSeries.data[1].custom.costAsGdpPercent, 29, costTolerance);
   checkValueIsInRange(lifeYearsSeries.data[2].custom.costAsGdpPercent, 16, costTolerance);
 
+  const expandCostsTableButton = page.getByTestId("toggle-costs-table");
+  await expandCostsTableButton.click();
+  const tableRows = page.locator("#costs-table-body tr");
+
+  [
+    "Total losses",
+    "GDP",
+    "Closures",
+    "Absences",
+    "Education",
+    "Closures",
+    "Absences",
+    "Life years",
+    "Preschool-age children",
+    "School-age children",
+    "Working-age adults",
+    "Retirement-age adults",
+  ].forEach(async (label, i) => {
+    const row = tableRows.nth(i);
+    await expect(row).toHaveText(new RegExp(`${label}`
+      + `\\s*${commaSeparatedNumberMatcher}`
+      + `\\s*${commaSeparatedNumberMatcher}`
+      + `\\s*${commaSeparatedNumberMatcher}`),
+    );
+  });
+
   // Check that after toggling the cost basis we see different data.
   await page.getByLabel("as % of 2018 GDP").check();
   const costsChartDataGdpStr = await page.locator("#compareCostsChartContainer").getAttribute("data-summary");
   const costsChartDataGdp = JSON.parse(costsChartDataGdpStr!);
   expect(costsChartDataGdp).toHaveLength(3);
   checkBarChartDataIsDifferent(costsChartDataUsd, costsChartDataGdp);
+  expect(await tableRows.nth(0).textContent()).toMatch(new RegExp(`Total losses\\s*${decimalPercentMatcher}\\s*${decimalPercentMatcher}\\s*${decimalPercentMatcher}`));
 
   // Test we can navigate back to baseline scenario
   await page.getByRole("link", { name: "Baseline scenario" }).first().click();

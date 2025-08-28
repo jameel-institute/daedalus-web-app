@@ -20,8 +20,9 @@
                 {{ paramDisplayText(parameter) }}
               </span>
               <span
-                v-if="parameter === appStore.globeParameter && countryFlag"
-                :class="`fi fi-${countryFlag} ms-1 align-self-center mb-1`"
+                v-if="parameter === appStore.globeParameter"
+                :class="`${countryFlagClass(props.scenario?.parameters?.country)} ms-1 align-self-center mb-1`"
+                style="width: 1.2rem; height: 0.9rem"
               />
             </span>
           </template>
@@ -34,7 +35,7 @@
 <script setup lang="ts">
 import type { Parameter } from "~/types/parameterTypes";
 import { humanReadableInteger } from "./utils/formatters";
-import { countryFlagIconId } from "./utils/countryFlag";
+import { countryFlagClass } from "./utils/countryFlag";
 import type { Scenario } from "~/types/storeTypes";
 
 const props = defineProps<{
@@ -57,8 +58,6 @@ const paramDisplayText = (param: Parameter) => {
     }
   }
 };
-
-const countryFlag = computed(() => countryFlagIconId(props.scenario?.parameters?.country));
 </script>
 
 <style lang="scss" scoped>
