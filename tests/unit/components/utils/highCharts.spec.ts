@@ -208,7 +208,7 @@ describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
     };
 
     const label = costsChartMultiScenarioXAxisLabelFormatter("USA", axisParam, "CAN");
-    expect(label).toContain('<span class="fi fi-us" style="width: 1.2rem; height: 1.2rem"></span>');
+    expect(label).toContain("fi-us");
     expect(label).toContain("United States");
     expect(label).not.toContain("baseline");
   });
@@ -225,8 +225,10 @@ describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
       ordered: false,
     };
 
-    const label = costsChartMultiScenarioXAxisLabelFormatter("high", axisParam);
+    const label = costsChartMultiScenarioXAxisLabelFormatter("high", axisParam, "medium");
     expect(label).toContain("High");
+    expect(label).not.toContain("fi");
+    expect(label).not.toContain("baseline");
   });
 
   it("should return the correct label for a numeric parameter", () => {
@@ -238,8 +240,10 @@ describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
       ordered: false,
     };
 
-    const label = costsChartMultiScenarioXAxisLabelFormatter("12345", axisParam);
+    const label = costsChartMultiScenarioXAxisLabelFormatter("12345", axisParam, "999");
     expect(label).toContain("12,345");
+    expect(label).not.toContain("fi");
+    expect(label).not.toContain("baseline");
   });
 
   it("should return the correct label for a baseline scenario", () => {
@@ -256,6 +260,7 @@ describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
 
     const label = costsChartMultiScenarioXAxisLabelFormatter("high", axisParam, "high");
     expect(label).toContain("High (baseline)");
+    expect(label).not.toContain("fi");
   });
 
   it("should return the correct label for a non-baseline scenario", () => {
@@ -272,6 +277,7 @@ describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
 
     const label = costsChartMultiScenarioXAxisLabelFormatter("high", axisParam, "low");
     expect(label).toContain("High");
+    expect(label).not.toContain("fi");
     expect(label).not.toContain("baseline");
   });
 
@@ -288,7 +294,7 @@ describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
     };
 
     const label = costsChartMultiScenarioXAxisLabelFormatter("USA", axisParam, "USA");
-    expect(label).toContain('<span class="fi fi-us" style="width: 1.2rem; height: 1.2rem"></span>');
+    expect(label).toContain("fi-us");
     expect(label).toContain("United States (baseline)");
   });
 });

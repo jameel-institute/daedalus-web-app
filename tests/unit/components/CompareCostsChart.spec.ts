@@ -173,7 +173,7 @@ describe("costs chart", () => {
       expect(chartSpy).toHaveBeenCalledWith(
         "compareCostsChartContainer",
         expect.objectContaining({
-          chart: expect.objectContaining({ height: 400, style: { fontFamily: "ImperialSansText, sans-serif" } }),
+          chart: expect.objectContaining({ height: 500, style: { fontFamily: "ImperialSansText, sans-serif" } }),
           title: expect.objectContaining({ text: "Losses after 599 days" }),
           exporting: expect.objectContaining({
             filename: "Losses after 599 days",
@@ -228,7 +228,7 @@ describe("costs chart", () => {
   });
 
   it("adds a resize event listener on mount and removes it on unmount", async () => {
-    vitest.useFakeTimers();
+    vi.useFakeTimers();
     const addEventListenerSpy = vi.spyOn(window, "addEventListener");
     const removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
 
@@ -240,13 +240,13 @@ describe("costs chart", () => {
 
     vi.advanceTimersByTime(25);
 
-    expect(mockSetSize).toHaveBeenCalledWith(-10, 400, expect.objectContaining({ duration: 250 }));
+    expect(mockSetSize).toHaveBeenCalledWith(-24, 500, expect.objectContaining({ duration: 250 }));
 
     component.unmount();
     expect(removeEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));
 
     addEventListenerSpy.mockRestore();
     removeEventListenerSpy.mockRestore();
-    vitest.useRealTimers();
+    vi.useRealTimers();
   });
 });

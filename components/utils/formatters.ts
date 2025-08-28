@@ -7,7 +7,10 @@ export const stringIsInteger = (num: string): boolean => {
 
 // Convert strings to human readable format (i.e. with comma-separated thousands).
 // TODO: Localize number formatting.
-export const humanReadableInteger = (num: string): string => {
+export const humanReadableInteger = (num: string | undefined): string => {
+  if (num === undefined) {
+    return "";
+  }
   return stringIsInteger(num) ? new Intl.NumberFormat().format(Number.parseInt(num)) : num;
 };
 

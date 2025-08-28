@@ -4,7 +4,7 @@ import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
 import { checkTimeSeriesDataPoints } from "./helpers/checkTimeSeriesDataPoints";
-import { costTolerance, parameterLabels, scenarioPathMatcher } from "./helpers/constants";
+import { commaSeparatedNumberMatcher, costTolerance, decimalPercentMatcher, parameterLabels, scenarioPathMatcher } from "./helpers/constants";
 import checkBarChartDataIsDifferent from "./helpers/checkBarChartDataIsDifferent";
 import checkValueIsInRange from "./helpers/checkValueIsInRange";
 
@@ -65,6 +65,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await page.locator("#infectionsDailySwitch").check();
   await checkTimeSeriesDataPoints(page.locator("#new_infected-container"), 7_500_000);
   await expect(page.getByRole("button", { name: "New infections" })).toBeVisible();
+  await checkTimeSeriesDataPoints(page.locator("#new_infected-container"), 7_500_000);
   await page.locator("#infectionsDailySwitch").setChecked(false);
   await expect(page.getByRole("button", { name: "Prevalence" })).toBeVisible();
 
@@ -142,12 +143,45 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   expect(costsChartDataUsd[3].data[1].y).toEqual(0);
   checkValueIsInRange(costsChartDataUsd[3].data[2].y, 6_412_000, costTolerance);
 
+  const expandCostsTableButton = page.getByTestId("toggle-costs-table");
+  await expandCostsTableButton.click();
+  const tableRows = page.locator("#costs-table-body tr");
+  expect(await tableRows.nth(0).textContent()).toMatch(new RegExp(`GDP\\s*${commaSeparatedNumberMatcher}`));
+  expect(await tableRows.nth(1).textContent()).toMatch(new RegExp(`Closures\\s*${commaSeparatedNumberMatcher}`));
+  expect(await tableRows.nth(2).textContent()).toMatch(new RegExp(`Absences\\s*${commaSeparatedNumberMatcher}`));
+  expect(await tableRows.nth(3).textContent()).toMatch(new RegExp(`Education\\s*${commaSeparatedNumberMatcher}`));
+  expect(await tableRows.nth(4).textContent()).toMatch(new RegExp(`Closures\\s*${commaSeparatedNumberMatcher}`));
+  expect(await tableRows.nth(5).textContent()).toMatch(new RegExp(`Absences\\s*${commaSeparatedNumberMatcher}`));
+  expect(await tableRows.nth(6).textContent()).toMatch(new RegExp(`Life years\\s*${commaSeparatedNumberMatcher}`));
+  expect(await tableRows.nth(7).textContent()).toMatch(new RegExp(`Preschool-age children\\s*${commaSeparatedNumberMatcher}`));
+  expect(await tableRows.nth(8).textContent()).toMatch(new RegExp(`School-age children\\s*${commaSeparatedNumberMatcher}`));
+  expect(await tableRows.nth(9).textContent()).toMatch(new RegExp(`Working-age adults\\s*${commaSeparatedNumberMatcher}`));
+  expect(await tableRows.nth(10).textContent()).toMatch(new RegExp(`Retirement-age adults\\s*${commaSeparatedNumberMatcher}`));
+
+  [
+    "GDP",
+    "Closures",
+    "Absences",
+    "Education",
+    "Closures",
+    "Absences",
+    "Life years",
+    "Preschool-age children",
+    "School-age children",
+    "Working-age adults",
+    "Retirement-age adults",
+  ].forEach(async (label, i) => {
+    const row = tableRows.nth(i);
+    await expect(row).toHaveText(new RegExp(`${label}\\s*${commaSeparatedNumberMatcher}`));
+  });
+
   // Check that after toggling the cost basis we see different data.
   await page.getByLabel("as % of 2018 GDP").check();
   const costsChartDataGdpStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
   const costsChartDataGdp = JSON.parse(costsChartDataGdpStr!);
   expect(costsChartDataGdp).toHaveLength(4);
   checkBarChartDataIsDifferent(costsChartDataUsd, costsChartDataGdp);
+  expect(await tableRows.nth(0).textContent()).toMatch(new RegExp(`GDP\\s*${decimalPercentMatcher}`));
 
   // Run a second analysis with a different parameter, using the parameters form on the results page.
   await page.getByRole("button", { name: "Parameters" }).first().click();

@@ -27,8 +27,8 @@
       <template #option="{ option }">
         <div class="parameter-option">
           <span
-            v-if="parameterAxis.id === appStore.globeParameter?.id && countryFlagIds[option.value]"
-            :class="`fi fi-${countryFlagIds[option.value]} ms-1 me-2`"
+            v-if="parameterAxis.id === appStore.globeParameter?.id"
+            :class="countryFlagClass(option.value)"
           />
           <span>{{ option.label }}</span>
           <div
@@ -113,7 +113,7 @@ import type { ParameterSelectOption } from "./utils/parameters";
 import { formatOptionLabel, humanReadableInteger, stringIsInteger } from "./utils/formatters";
 import { getRangeForDependentParam, sortOptions } from "./utils/parameters";
 import { numericValueIsOutOfRange } from "~/components/utils/validations";
-import { countryFlagIconId } from "~/components/utils/countryFlag";
+import { countryFlagClass } from "~/components/utils/countryFlag";
 
 const { showValidationFeedback, parameterAxis, labelId } = defineProps<{
   showValidationFeedback: boolean
@@ -147,16 +147,6 @@ const options = computed(() => [...predefinedSelectOptions.value, ...customOptio
 const parameterIsNumeric = computed(() => parameterAxis?.parameterType === TypeOfParameter.Numeric);
 const dependentRange = computed(() => getRangeForDependentParam(parameterAxis, appStore.currentScenario.parameters));
 const rangeText = computed(() => `${dependedOnParamOptionLabel.value} (${dependentRange.value?.min}–${dependentRange.value?.max})`);
-const countryFlagIds = computed(() => {
-  if (parameterAxis.id !== appStore.globeParameter?.id) {
-    return {};
-  }
-
-  return predefinedSelectOptions.value.reduce((acc, option) => {
-    acc[option.value] = countryFlagIconId(option.value) || "";
-    return acc;
-  }, {} as { [key: string]: string });
-});
 
 const isOutOfRange = (value: string) => numericValueIsOutOfRange(value, parameterAxis, appStore.currentScenario.parameters);
 const valuesOutOfRange = computed(() => selected.value.concat(baselineOption.value?.id ?? []).filter(o => isOutOfRange(o)));

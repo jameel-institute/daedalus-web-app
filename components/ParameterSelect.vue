@@ -11,10 +11,10 @@
       @option-selected="$emit('change')"
     >
       <template #value="{ option }">
-        <div class="d-flex gap-2 align-items-center">
+        <div class="d-flex gap-2 align-items-center parameter-option">
           <span
-            v-if="props.parameter === appStore.globeParameter && countryFlagIds?.[option.value]"
-            :class="`fi fi-${countryFlagIds[option.value]}`"
+            v-if="props.parameter === appStore.globeParameter"
+            :class="countryFlagClass(option.value)"
           />
           {{ option.label }}
         </div>
@@ -22,8 +22,8 @@
       <template #option="{ option }">
         <div class="parameter-option">
           <span
-            v-if="props.parameter === appStore.globeParameter && countryFlagIds?.[option.value]"
-            :class="`fi fi-${countryFlagIds[option.value]} ms-1`"
+            v-if="props.parameter === appStore.globeParameter"
+            :class="countryFlagClass(option.value)"
           />
           <span>{{ option.label }}</span>
           <div
@@ -40,7 +40,7 @@
 
 <script lang="ts" setup>
 import VueSelect from "vue3-select-component";
-import { countryFlagIconId } from "~/components/utils/countryFlag";
+import { countryFlagClass } from "~/components/utils/countryFlag";
 
 import { paramOptsToSelectOpts } from "~/components/utils/parameters";
 import type { Parameter } from "@/types/parameterTypes";
@@ -55,11 +55,4 @@ defineEmits(["change"]);
 const parameterValue = defineModel("parameterValue", { type: String, required: true });
 
 const appStore = useAppStore();
-
-const countryFlagIds = computed(() => {
-  return appStore.globeParameter?.options?.reduce((acc, option) => {
-    acc[option.id] = countryFlagIconId(option.id) || "";
-    return acc;
-  }, {} as { [key: string]: string });
-});
 </script>

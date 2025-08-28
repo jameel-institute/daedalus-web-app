@@ -1,9 +1,11 @@
 <template>
-  <div
-    id="compareCostsChartContainer"
-    ref="chartContainer"
-    :data-summary="JSON.stringify(seriesData)"
-  />
+  <div>
+    <div
+      id="compareCostsChartContainer"
+      ref="chartContainer"
+      :data-summary="JSON.stringify(seriesData)"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -30,7 +32,6 @@ const chartTitle = computed(() => {
   const scenarioDuration = Object.values(firstScenarioTimeSeries || {})[0].length - 1;
   return `Losses after ${scenarioDuration} days`;
 });
-const axisMetadata = computed(() => appStore.currentComparison.axis ? appStore.parametersMetadataById[appStore.currentComparison.axis] : undefined);
 
 // There are 3 levels of data breakdown for costs:
 // 1) the top-level total for the scenario,
@@ -67,10 +68,10 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
   return seriesData.value;
 };
 
-const chartHeightPx = 400;
-
+const chartHeightPx = 500;
+const rowPadding = 12;
 const targetWidth = () => {
-  return chartParentEl.value ? chartParentEl.value.clientWidth - 10 : 0;
+  return chartParentEl.value ? chartParentEl.value.clientWidth - (2 * rowPadding) : 0;
 };
 
 const chartInitialOptions = () => {
@@ -106,7 +107,7 @@ const chartInitialOptions = () => {
           fontSize: appStore.currentComparison.axis === appStore.globeParameter?.id ? "0.8rem" : "1rem",
         },
         formatter() {
-          return costsChartMultiScenarioXAxisLabelFormatter(this.value as string, axisMetadata.value, appStore.currentComparison.baseline);
+          return costsChartMultiScenarioXAxisLabelFormatter(this.value as string, appStore.axisMetadata, appStore.currentComparison.baseline);
         },
         useHTML: true,
       },
@@ -133,7 +134,7 @@ const chartInitialOptions = () => {
     tooltip: {
       shared: true,
       formatter() {
-        return costsChartMultiScenarioStackedTooltip(this, costBasis.value, axisMetadata.value);
+        return costsChartMultiScenarioStackedTooltip(this, costBasis.value, appStore.axisMetadata);
       },
     },
     plotOptions: {

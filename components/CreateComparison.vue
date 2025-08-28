@@ -144,7 +144,7 @@ const baselineIsOutOfRange = computed(() =>
 const getDependentParamValueForScenarioOption = (parameter: Parameter, scenarioOption: string) => {
   const scenarioParameters = { ...baselineParameters.value, [chosenAxisId.value]: scenarioOption };
   const range = getRangeForDependentParam(parameter, scenarioParameters);
-  return range ? humanReadableInteger(range?.default.toString()) : "";
+  return humanReadableInteger(range?.default.toString());
 };
 
 const handleCloseModal = () => {

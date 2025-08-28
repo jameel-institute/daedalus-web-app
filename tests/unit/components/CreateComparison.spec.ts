@@ -195,8 +195,8 @@ describe("create comparison button and modal", () => {
 
     const comboboxEl = getComboboxEl(wrapper);
     await comboboxEl.trigger("click");
-    await wrapper.findAll(".parameter-option").find(el => /United States/i.test(el.text()))!.trigger("click");
-    await wrapper.findAll(".parameter-option").find(el => /Thailand/i.test(el.text()))!.trigger("click");
+    await wrapper.findAll(".menu .parameter-option").find(el => /United States/i.test(el.text()))!.trigger("click");
+    await wrapper.findAll(".menu .parameter-option").find(el => /Thailand/i.test(el.text()))!.trigger("click");
 
     expect(wrapper.find(".alert").text()).toContain("United States: 334,400");
     expect(wrapper.find(".alert").text()).toContain("Thailand: 22,000");
@@ -292,7 +292,7 @@ describe("create comparison button and modal", () => {
     // Altering the selection removes the validation feedback
     const comboboxEl = getComboboxEl(wrapper);
     await comboboxEl.trigger("click");
-    await wrapper.findAll(".parameter-option").find(el => /greece/i.test(el.text()))!.trigger("click");
+    await wrapper.findAll(".menu .parameter-option").find(el => /greece/i.test(el.text()))!.trigger("click");
     expect(wrapper.find(".invalid-tooltip").exists()).toBe(false);
     expect(wrapper.find(".vue-select").classes()).not.toContain("is-invalid");
     expect(wrapper.find(".vue-select").classes()).not.toContain("has-warning");
@@ -450,8 +450,8 @@ describe("create comparison button and modal", () => {
 
     const comboboxEl = getComboboxEl(wrapper);
     await comboboxEl.trigger("click");
-    await wrapper.findAll(".parameter-option").find(el => /United States/i.test(el.text()))!.trigger("click");
-    await wrapper.findAll(".parameter-option").find(el => /Thailand/i.test(el.text()))!.trigger("click");
+    await wrapper.findAll(".menu .parameter-option").find(el => /United States/i.test(el.text()))!.trigger("click");
+    await wrapper.findAll(".menu .parameter-option").find(el => /Thailand/i.test(el.text()))!.trigger("click");
 
     const buttonEl = wrapper.find("button[type='submit']");
     expect(buttonEl.attributes("disabled")).not.toBe("");
