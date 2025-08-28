@@ -2,7 +2,7 @@
   <ChartLegend
     :items="items"
     :row-height-rem="0.9"
-    class="costs-legend m-3 mt-0"
+    class="bg-white mb-3 shadow-sm border rounded p-2 w-fit"
   />
 </template>
 
@@ -23,16 +23,3 @@ const items = computed((): LegendItem[] =>
   }) || [],
 );
 </script>
-
-<style lang="scss">
-.legend-container.costs-legend {
-  border-color: var(--cui-border-color);
-  border-width: var(--cui-border-width);
-  border-style: var(--cui-border-style);
-  border-radius: 0.25rem;
-  box-shadow: var(--cui-box-shadow-sm);
-  background-color: white;
-  padding: 0.5rem !important;
-  width: fit-content;
-}
-</style>
