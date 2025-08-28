@@ -46,7 +46,6 @@
 import { CostBasis } from "~/types/unitTypes";
 import { gdpReferenceYear } from "@/components/utils/formatters";
 import type { Scenario } from "~/types/storeTypes";
-import { getScenarioLabel } from "./utils/comparisons";
 
 const props = defineProps<{
   scenarios: Scenario[]
@@ -67,11 +66,6 @@ const scenarioGdpLabel = (scenario: Scenario) => {
   return `$${amount} ${unit} USD`;
 };
 
-const scenarioLabel = (scenario: Scenario) => {
-  const axisVal = appStore.getScenarioAxisValue(scenario);
-  if (axisVal) {
-    const label = getScenarioLabel(axisVal, appStore.axisMetadata);
-    return `${label}${scenario === appStore.baselineScenario ? " (baseline)" : ""}`;
-  }
-};
+const scenarioLabel = (scenario: Scenario) => `${appStore.getScenarioAxisLabel(scenario)}`
+  + `${scenario === appStore.baselineScenario ? " (baseline)" : ""}`;
 </script>

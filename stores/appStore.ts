@@ -10,6 +10,7 @@ import type { ScenarioCost, ScenarioIntervention } from "~/types/resultTypes";
 import { CostBasis } from "~/types/unitTypes";
 import { getRangeForDependentParam } from "~/components/utils/parameters";
 import { responseInterventionId } from "~/components/utils/timeSeriesData";
+import { getScenarioLabel } from "~/components/utils/comparisons";
 
 const emptyScenario = {
   runId: undefined,
@@ -297,6 +298,12 @@ export const useAppStore = defineStore("app", {
     },
     getScenarioAxisValue(scenario: Scenario): string | undefined {
       return this.currentComparison.axis ? scenario.parameters?.[this.currentComparison.axis] : undefined;
+    },
+    getScenarioAxisLabel(scenario: Scenario): string | undefined {
+      const axisVal = this.getScenarioAxisValue(scenario);
+      if (axisVal) {
+        return getScenarioLabel(axisVal, this.axisMetadata);
+      }
     },
     getScenarioResponseInterventions(scenario: Scenario): ScenarioIntervention[] | undefined {
       return scenario.result.data?.interventions.filter(({ id }) => id === responseInterventionId);

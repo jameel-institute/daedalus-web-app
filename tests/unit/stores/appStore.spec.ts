@@ -625,6 +625,19 @@ describe("app store", () => {
       expect(store.getScenarioAxisValue(scenario)).toEqual("high");
     });
 
+    it("getScenarioAxisLabel returns the label for the axis parameter for a given scenario", async () => {
+      const store = useAppStore();
+      store.metadata = mockMetadataResponseData;
+
+      const scenario = structuredClone(unloadedScenario);
+      store.currentComparison = { axis: "country", baseline: "ARG", scenarios: [] };
+
+      expect(store.getScenarioAxisLabel(scenario)).toEqual("United States");
+
+      store.currentComparison = { axis: "vaccine", baseline: "high", scenarios: [] };
+      expect(store.getScenarioAxisLabel(scenario)).toEqual("High");
+    });
+
     it("getScenarioResponseInterventions returns the response interventions for a given scenario", async () => {
       const store = useAppStore();
 
