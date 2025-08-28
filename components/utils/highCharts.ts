@@ -255,17 +255,18 @@ export const costsChartMultiScenarioXAxisLabelFormatter = (
   axisParam: Parameter | undefined,
   baseline: string | undefined,
 ) => {
-  let scenarioLabel = getScenarioCategoryLabel(category, axisParam);
-  if (baseline && category === baseline) {
-    scenarioLabel = `${scenarioLabel} (baseline)`;
-  }
+  const scenarioLabel = getScenarioCategoryLabel(category, axisParam);
+  const isBaseline = baseline && category === baseline;
+  const scenarioLabelSpan = isBaseline
+    ? `<span class="fw-medium">${scenarioLabel} (baseline)</span>`
+    : `<span>${scenarioLabel}</span>`;
 
   if (axisParam?.parameterType === TypeOfParameter.GlobeSelect) {
     return `<div class="d-flex gap-2 align-items-center mb-2">
       <span class="fi fi-${countryFlagIconId(category)}" style="width: 1.2rem; height: 1.2rem"></span>
-      <span>${scenarioLabel}</span>
+      ${scenarioLabelSpan}
     </div>`;
   } else {
-    return scenarioLabel;
+    return scenarioLabelSpan;
   }
 };
