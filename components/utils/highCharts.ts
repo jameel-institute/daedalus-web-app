@@ -248,14 +248,13 @@ export const costsChartMultiScenarioXAxisLabelFormatter = (
   baseline: string | undefined,
 ) => {
   const scenarioLabel = getScenarioLabel(category, axisParam);
-  const isBaseline = baseline && category === baseline;
   const paramIsCountry = axisParam?.parameterType === TypeOfParameter.GlobeSelect;
   const marginForFlag = paramIsCountry ? "mt-1" : "";
-  const scenarioLabelSpan = isBaseline
+  const scenarioLabelSpan = baseline && category === baseline
     ? `<span class="fw-medium text-primary-emphasis ${marginForFlag}">${scenarioLabel} (baseline)</span>`
     : `<span class="${marginForFlag}">${scenarioLabel}</span>`;
 
-  if (axisParam?.parameterType === TypeOfParameter.GlobeSelect) {
+  if (paramIsCountry) {
     return `<div class="d-flex gap-2 align-items-center mb-2">
       <span
         class="${countryFlagClass(category)}"
