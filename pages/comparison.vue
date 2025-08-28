@@ -64,6 +64,7 @@ import { CIcon, CIconSvg } from "@coreui/icons-vue";
 
 const showSpinner = ref(true);
 
+const nuxtApp = useNuxtApp();
 const appStore = useAppStore();
 const { everyScenarioHasRunSuccessfully } = storeToRefs(appStore);
 const query = useRoute().query;
@@ -79,7 +80,9 @@ watch(() => appStore.metadata, async (newMetadata) => {
 
 const stopWatchingComparison = watch(() => appStore.currentComparison, async (currentComp) => {
   if (!statusInterval && appStore.everyScenarioHasARunId) {
-    statusInterval = setInterval(appStore.refreshComparisonStatuses, 200);
+    statusInterval = setInterval(() => {
+      appStore.refreshComparisonStatuses(nuxtApp);
+    }, 200);
   }
   if (currentComp.scenarios?.every(s => s.status.data?.done)) {
     clearInterval(statusInterval);

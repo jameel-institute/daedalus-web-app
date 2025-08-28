@@ -270,6 +270,8 @@ describe("app store", () => {
     it("can retrieve a comparison's scenarios' statuses from the R API", async () => {
       const store = useAppStore();
 
+      const nuxtApp = useNuxtApp();
+
       store.currentComparison = structuredClone({
         axis: "vaccine",
         baseline: "high",
@@ -292,7 +294,7 @@ describe("app store", () => {
         ],
       });
 
-      await store.refreshComparisonStatuses();
+      await store.refreshComparisonStatuses(nuxtApp);
 
       await waitFor(() => {
         expect(store.currentComparison.scenarios.find(s => s.runId === "123")?.status).toEqual({
