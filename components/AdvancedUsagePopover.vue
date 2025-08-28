@@ -24,11 +24,24 @@
           <p class="fw-bolder">
             Advanced usage
           </p>
-          <p>This dashboard offers a simplified interface to the <code>DAEDALUS</code> model, allowing users to explore the model with a few top-level parameter options.</p>
-          <p class="mb-0">
-            For fine-grained control over model parameters and functionality, R users can run the model directly through
+          <p>
+            This dashboard offers a simplified interface to the <code>DAEDALUS</code> model,
+            allowing users to explore the model with a few top-level parameter options.
+          </p>
+          <p>
+            For fine-grained control over model parameters and functionality,
+            R users can run the model directly through
             <!-- eslint-disable-next-line vue/singleline-html-element-content-newline -->
             <NuxtLink to="https://jameel-institute.github.io/daedalus/" target="_blank">the DAEDALUS R package</NuxtLink>.
+          </p>
+          <p class="mb-0">
+            Click
+            <a
+              id="showRCode"
+              href="#"
+              @click.prevent="$emit('showRCode')"
+            >here</a> to see the R code snippet
+            for running the model with the current parameter set.
           </p>
         </div>
       </template>
@@ -42,9 +55,11 @@ import { CIcon } from "@coreui/icons-vue";
 const props = defineProps({
   display: {
     type: Boolean,
-    required: true,
+    default: true,
   },
 });
+
+defineEmits(["showRCode"]);
 
 // Use div as container, instead of body, so that modal is not closed when popover is clicked
 const popoverContainer = ref<HTMLElement | undefined>(undefined);

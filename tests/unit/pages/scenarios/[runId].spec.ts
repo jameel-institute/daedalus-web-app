@@ -217,4 +217,75 @@ describe("scenario result page", () => {
     expect(component.text()).not.toContain("Thank you for waiting.");
     expect(spinner.isVisible()).toBe(false);
   });
+
+  it("opens the code snippet when the link from the advanced usage popover in the 'CreateComparison' modal is clicked", async () => {
+    mockRoute.mockReturnValue({
+      params: {
+        runId: successfulRunId,
+      },
+    });
+
+    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
+
+    await waitFor(() => {
+      expect(component.text()).toContain("Compare against other scenarios");
+      expect(component.text()).not.toContain("Use this R code snippet");
+    });
+
+    const createComparisonModalSelector = "[aria-labelledby='chooseAxisModalTitle']";
+    await component.findAll("button").find(b => b.text() === "Compare against other scenarios")!.trigger("click");
+    const countryButton = component
+      .find(createComparisonModalSelector)
+      .find("#axisOptions")
+      .findAll("button")[0];
+    await countryButton.trigger("click");
+    const popoverContainer = component.find("#advanced-usage-popover-container");
+    await popoverContainer.findAll("p").find(p => p.text() === "Advanced usage")!.trigger("click");
+    vi.advanceTimersByTime(1);
+    await nextTick();
+
+    await component.find("#showRCode").trigger("click");
+
+    expect(component.find(createComparisonModalSelector).exists()).toBe(false);
+    expect(component.text()).toContain("Use this R code snippet");
+  });
+
+  it("opens the code snippet when the link from the advanced usage popover in the 'EditParameters' modal is clicked", async () => {
+    mockRoute.mockReturnValue({
+      params: {
+        runId: successfulRunId,
+      },
+    });
+
+    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
+
+    await waitFor(() => {
+      expect(component.text()).toContain("Change parameters");
+      expect(component.text()).not.toContain("Use this R code snippet");
+    });
+
+    const editParamsModalTitleSelector = "#editParamsModalTitle";
+    expect(document.body.querySelector(editParamsModalTitleSelector)).toBeNull();
+
+    const editParametersModalButton = component.findAllComponents({ name: "CButton" }).find(b => b.text() === "Change parameters");
+    await editParametersModalButton!.trigger("click");
+
+    // Modal is teleported out of component to document body.
+    expect(document.body.querySelector(editParamsModalTitleSelector)).not.toBeNull();
+
+    const popoverContainer = document.body.querySelector("#advanced-usage-popover-container");
+    expect(popoverContainer!.classList).toContain("d-flex");
+    expect(popoverContainer!.classList).not.toContain("d-none");
+    popoverContainer!.querySelector(".trigger")!.dispatchEvent(new MouseEvent("click"));
+
+    vi.advanceTimersByTime(1);
+    await nextTick();
+
+    popoverContainer!.querySelector("#showRCode")!.dispatchEvent(new MouseEvent("click"));
+
+    await nextTick();
+
+    expect(document.body.querySelector(editParamsModalTitleSelector)).toBeNull();
+    expect(component.text()).toContain("Use this R code snippet");
+  });
 });

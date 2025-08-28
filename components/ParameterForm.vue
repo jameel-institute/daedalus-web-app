@@ -53,7 +53,11 @@
           <CSpinner v-if="formSubmitting && appStore.metadataFetchStatus !== 'error'" size="sm" class="ms-1" />
           <CIcon v-else icon="cilArrowRight" />
         </CButton>
-        <AdvancedUsagePopover class="mt-3" :display="props.inModal" />
+        <AdvancedUsagePopover
+          class="mt-3"
+          :display="props.inModal"
+          @show-r-code="$emit('showRCode')"
+        />
       </div>
     </CForm>
     <CAlert v-else-if="!appStore.metadata && appStore.metadataFetchStatus === 'error'" color="warning">
@@ -74,6 +78,8 @@ import type { ParameterNumericInput } from "#components";
 const props = defineProps<{
   inModal: boolean
 }>();
+
+defineEmits(["showRCode"]);
 
 const appStore = useAppStore();
 

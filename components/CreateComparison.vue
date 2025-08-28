@@ -27,9 +27,16 @@
         </CModalTitle>
       </CModalHeader>
       <CModalBody>
-        <p class="fs-5 form-label">
-          Which parameter would you like to explore?
-        </p>
+        <div class="d-flex">
+          <p class="fs-5 form-label">
+            Which parameter would you like to explore?
+          </p>
+          <AdvancedUsagePopover
+            class="ms-auto align-self-start"
+            :display="!!chosenParameterAxis"
+            @show-r-code="handleShowRCode"
+          />
+        </div>
         <div id="axisOptions" class="d-flex gap-2 flex-wrap">
           <CButton
             v-for="param in appStore.metadata?.parameters.filter((p) => !chosenAxisId || chosenAxisId === p.id)"
@@ -119,6 +126,8 @@ import { numericValueIsOutOfRange } from "~/components/utils/validations";
 import { getRangeForDependentParam } from "~/components/utils/parameters";
 import { humanReadableInteger } from "~/components/utils/formatters";
 
+const emit = defineEmits(["showRCode"]);
+
 const appStore = useAppStore();
 const FORM_LABEL_ID = "scenarioOptions";
 const selectedScenarioOptions = ref<string[]>([]);
@@ -150,6 +159,11 @@ const getDependentParamValueForScenarioOption = (parameter: Parameter, scenarioO
 const handleCloseModal = () => {
   modalVisible.value = false;
   chosenAxisId.value = "";
+};
+
+const handleShowRCode = () => {
+  handleCloseModal();
+  emit("showRCode");
 };
 
 const handleClickAxis = (axis: Parameter) => {
