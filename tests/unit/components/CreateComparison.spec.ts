@@ -74,6 +74,40 @@ const getHospitalCapacityButton = (axisOptionsEl: DOMWrapper<Element>) => {
   return hospitalCapacityButton;
 };
 
+const clickCountryButton = async (wrapper: VueWrapper) => {
+  const modalEl = getModalEl(wrapper);
+  const axisOptionsEl = modalEl.find("#axisOptions");
+  const countryButton = getCountryButton(axisOptionsEl);
+  await countryButton.trigger("click");
+
+  expect(axisOptionsEl.findAll("button")).toHaveLength(1);
+  expect(countryButton.classes()).toContain("bg-primary");
+
+  return { modalEl, axisOptionsEl, countryButton };
+};
+
+const expectModalHasNoAxisSelected = (wrapper: VueWrapper) => {
+  const newModalEl = getModalEl(wrapper);
+  const newaxisOptionsEl = newModalEl.find("#axisOptions");
+
+  expect(newModalEl.text()).not.toContain("Compare baseline scenario");
+  expect(newaxisOptionsEl.findAll("button")).toHaveLength(5);
+  newaxisOptionsEl.findAll("button").forEach((button) => {
+    expect(button.classes()).not.toContain("bg-primary");
+  });
+};
+
+const expectAdvancedUsageButtonHidden = (wrapper: VueWrapper, expectHidden: boolean) => {
+  const popoverContainer = wrapper.find("#advanced-usage-popover-container");
+  if (expectHidden) {
+    expect(popoverContainer.classes()).not.toContain("d-flex");
+    expect(popoverContainer.classes()).toContain("d-none");
+  } else {
+    expect(popoverContainer.classes()).toContain("d-flex");
+    expect(popoverContainer.classes()).not.toContain("d-none");
+  }
+};
+
 const errorResponseData = { error: "Test failed due to wrong parameters" };
 
 beforeEach(() => {
@@ -126,32 +160,30 @@ describe("create comparison button and modal", () => {
     expect(axisButtons[4].text()).toEqual("Hospital surge capacity");
 
     axisButtons.forEach(button => expect(button.classes()).not.toContain("bg-primary"));
+
+    expectAdvancedUsageButtonHidden(wrapper, true);
   });
 
   it("reveals the scenario select once an axis is chosen, and re-hides it when axis is de-selected", async () => {
     const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
     await openModal(wrapper);
-    const modalEl = getModalEl(wrapper);
-    const axisOptionsEl = modalEl.find("#axisOptions");
-    const countryButton = getCountryButton(axisOptionsEl);
-    await countryButton.trigger("click");
-
-    expect(axisOptionsEl.findAll("button")).toHaveLength(1);
-    expect(countryButton.classes()).toContain("bg-primary");
+    const { modalEl, axisOptionsEl, countryButton } = await clickCountryButton(wrapper);
 
     expect(modalEl.text()).toContain("Compare baseline scenario United Kingdom against:");
     expect(getComboboxEl(wrapper).isVisible()).toBe(true);
+    expectAdvancedUsageButtonHidden(wrapper, false);
 
     // Click the already-selected parameter axis button to deselect it
     await countryButton.trigger("click");
 
-    // Hides the scenario selection section and reveals all parameter axis buttons
+    // Hides the scenario selection section and reveals all parameter axis buttons, and 'Advanced usage' button
     expect(modalEl.text()).not.toContain("Compare baseline scenario");
     expect(getComboboxEl(wrapper).exists()).toBe(false);
     expect(axisOptionsEl.findAll("button")).toHaveLength(5);
     axisOptionsEl.findAll("button").forEach((button) => {
       expect(button.classes()).not.toContain("bg-primary");
     });
+    expectAdvancedUsageButtonHidden(wrapper, true);
 
     const diseaseButton = getDiseaseButton(axisOptionsEl);
     await diseaseButton.trigger("click");
@@ -159,6 +191,7 @@ describe("create comparison button and modal", () => {
     expect(axisOptionsEl.findAll("button")).toHaveLength(1);
     expect(diseaseButton.classes()).toContain("bg-primary");
     expect(modalEl.text()).toContain("Compare baseline scenario SARS 2004 against:");
+    expectAdvancedUsageButtonHidden(wrapper, false);
 
     // Click the already-selected parameter axis button to deselect it
     await diseaseButton.trigger("click");
@@ -205,10 +238,7 @@ describe("create comparison button and modal", () => {
   it("renders the correct options for the select", async () => {
     const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
     await openModal(wrapper);
-    const modalEl = getModalEl(wrapper);
-    const axisOptionsEl = modalEl.find("#axisOptions");
-    const countryButton = getCountryButton(axisOptionsEl);
-    await countryButton.trigger("click");
+    const { axisOptionsEl, countryButton } = await clickCountryButton(wrapper);
 
     // No country options are pre-selected
     expect(wrapper.find("button.multi-value").exists()).toBe(false);
@@ -273,10 +303,7 @@ describe("create comparison button and modal", () => {
 
     const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
     await openModal(wrapper);
-    const modalEl = getModalEl(wrapper);
-    const axisOptionsEl = modalEl.find("#axisOptions");
-    const countryButton = getCountryButton(axisOptionsEl);
-    await countryButton.trigger("click");
+    await clickCountryButton(wrapper);
 
     // Until submit button is clicked, there is no feedback shown
     expect(wrapper.find(".invalid-tooltip").exists()).toBe(false);
@@ -390,29 +417,30 @@ describe("create comparison button and modal", () => {
     const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
 
     await openModal(wrapper);
-
-    const modalEl = getModalEl(wrapper);
-    const axisOptionsEl = modalEl.find("#axisOptions");
-    const countryButton = axisOptionsEl.findAll("button")[0];
-    await countryButton.trigger("click");
-
-    expect(axisOptionsEl.findAll("button")).toHaveLength(1);
-    expect(countryButton.classes()).toContain("bg-primary");
-
+    await clickCountryButton(wrapper);
     await wrapper.find(".btn-close").trigger("click");
 
     expect(getModalEl(wrapper).exists()).toBe(false);
-
     await openModal(wrapper);
 
-    const newModalEl = getModalEl(wrapper);
-    const newaxisOptionsEl = newModalEl.find("#axisOptions");
+    expectModalHasNoAxisSelected(wrapper);
+  });
 
-    expect(newModalEl.text()).not.toContain("Compare baseline scenario");
-    expect(newaxisOptionsEl.findAll("button")).toHaveLength(5);
-    newaxisOptionsEl.findAll("button").forEach((button) => {
-      expect(button.classes()).not.toContain("bg-primary");
-    });
+  it("clears the choice of axis when the code snippet is requested", async () => {
+    const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
+
+    await openModal(wrapper);
+    await clickCountryButton(wrapper);
+
+    await wrapper.findAll("p").find(el => el.text().includes("Advanced usage"))?.trigger("click");
+    vi.advanceTimersByTime(1);
+    await nextTick();
+    await wrapper.find("#showRCode").trigger("click");
+
+    expect(getModalEl(wrapper).exists()).toBe(false);
+    await openModal(wrapper);
+
+    expectModalHasNoAxisSelected(wrapper);
   });
 
   it("on valid submission, it makes a POST request and navigates to the comparison", async () => {
@@ -442,11 +470,7 @@ describe("create comparison button and modal", () => {
     const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
 
     await openModal(wrapper);
-
-    const modalEl = getModalEl(wrapper);
-    const axisOptionsEl = modalEl.find("#axisOptions");
-    const countryButton = axisOptionsEl.findAll("button")[0];
-    await countryButton.trigger("click");
+    await clickCountryButton(wrapper);
 
     const comboboxEl = getComboboxEl(wrapper);
     await comboboxEl.trigger("click");
