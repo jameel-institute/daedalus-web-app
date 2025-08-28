@@ -258,7 +258,7 @@ export const costsChartMultiScenarioXAxisLabelFormatter = (
   const scenarioLabel = getScenarioCategoryLabel(category, axisParam);
   const isBaseline = baseline && category === baseline;
   const scenarioLabelSpan = isBaseline
-    ? `<span class="fw-medium">${scenarioLabel} (baseline)</span>`
+    ? `<span class="fw-medium text-primary-emphasis">${scenarioLabel} (baseline)</span>`
     : `<span>${scenarioLabel}</span>`;
 
   if (axisParam?.parameterType === TypeOfParameter.GlobeSelect) {
