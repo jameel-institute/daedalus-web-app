@@ -6,7 +6,7 @@ import type { TimeSeriesIntervention } from "~/types/dataTypes";
 export default (
   timeSeriesMetadata: MaybeRefOrGetter<DisplayInfo>,
   interventions: MaybeRefOrGetter<TimeSeriesIntervention[] | undefined>,
-  chart: MaybeRefOrGetter<Highcharts.Chart | undefined>,
+  xAxis: MaybeRefOrGetter<Highcharts.Axis | undefined>,
 ) => {
   const interventionsPlotBands = computed(() => {
     const intvns = toValue(interventions);
@@ -34,17 +34,15 @@ export default (
   });
 
   watch(interventionsPlotBands, (newBands, oldBands) => {
-    const xAxis = toValue(chart)?.xAxis[0];
-
     oldBands?.filter(({ id }) => {
       return !!id && !newBands?.map(n => n.id).includes(id);
     }).forEach(({ id }) => {
-      !!id && xAxis?.removePlotBand(id);
+      !!id && toValue(xAxis)?.removePlotBand(id);
     });
 
     newBands?.forEach((newBand) => {
       if (!oldBands?.map(o => o.id).includes(newBand.id)) {
-        xAxis?.addPlotBand(newBand);
+        toValue(xAxis)?.addPlotBand(newBand);
       }
     });
   });

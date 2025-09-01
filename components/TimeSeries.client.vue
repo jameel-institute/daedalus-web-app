@@ -66,7 +66,7 @@ const capacities = computed(() => appStore.currentScenario.result.data?.capaciti
     ?.label || "";
   return { ...capacity, id: `${capacity.id}-${capacity.value}`, label, color: plotLinesColor };
 }));
-const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(showCapacities, capacities, chart);
+const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(showCapacities, capacities, () => chart.value?.yAxis[0]);
 
 const interventions = computed(() => {
   // The chart being hovered may be one that doesn't show interventions. If so, we don't need to update any chart's plot bands.
@@ -83,7 +83,7 @@ const interventions = computed(() => {
   });
 });
 
-const { initialInterventionsPlotBands } = useInterventionPlotBands(() => props.timeSeriesMetadata, interventions, chart);
+const { initialInterventionsPlotBands } = useInterventionPlotBands(() => props.timeSeriesMetadata, interventions, () => chart.value?.xAxis[0]);
 
 const chartTimeSeries = computed((): Array<Highcharts.SeriesLineOptions | Highcharts.SeriesAreaOptions> => ([{
   type: props.seriesRole === "total" ? "area" : "line",

@@ -126,7 +126,7 @@ const capacities = computed(() => {
     return { ...capacity, id, label };
   });
 });
-const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(() => props.showCapacities, capacities, chart);
+const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(() => props.showCapacities, capacities, () => chart.value?.yAxis[0]);
 
 // Plot the response interventions as plot bands for whichever scenario's series is being hovered,
 // or if none are hovered, the baseline scenario.
@@ -150,7 +150,7 @@ const interventions = computed(() => {
   });
 });
 
-const { initialInterventionsPlotBands } = useInterventionPlotBands(() => props.timeSeriesMetadata, interventions, chart);
+const { initialInterventionsPlotBands } = useInterventionPlotBands(() => props.timeSeriesMetadata, interventions, () => chart.value?.xAxis[0]);
 
 const exportingChartTitle = computed(() => {
   return `${props.timeSeriesMetadata.label} by ${appStore.axisMetadata?.label.toLocaleLowerCase()}`;

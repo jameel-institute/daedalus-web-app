@@ -42,6 +42,7 @@ const items = computed((): LegendItem[] => {
     label: "Pandemic response",
     shape: LegendShape.Rectangle,
   };
+
   return [plotBandsItem, ...plotLineItems.value];
 });
 </script>

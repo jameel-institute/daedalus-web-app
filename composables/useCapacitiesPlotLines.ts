@@ -5,7 +5,7 @@ import type { TimeSeriesCapacity } from "~/types/dataTypes";
 export default (
   showCapacities: MaybeRefOrGetter<boolean>,
   capacities: MaybeRefOrGetter<Array<TimeSeriesCapacity> | undefined>,
-  chart: MaybeRefOrGetter<Highcharts.Chart | undefined>,
+  yAxis: MaybeRefOrGetter<Highcharts.Axis | undefined>,
 ) => {
   const capacitiesPlotLines = computed(() => {
     if (!toValue(showCapacities) || !toValue(capacities)?.length) {
@@ -40,25 +40,23 @@ export default (
     }
   });
 
-  const yAxis = computed(() => toValue(chart)?.yAxis[0]);
-
   watch(capacitiesPlotLines, (newLines, oldLines) => {
     oldLines?.filter(({ id }) => {
       return !!id && !newLines?.map(n => n.id).includes(id);
     }).forEach(({ id }) => {
-      !!id && yAxis.value?.removePlotLine(id);
+      !!id && toValue(yAxis)?.removePlotLine(id);
     });
 
     newLines?.forEach((newLine) => {
       if (!oldLines?.map(o => o.id).includes(newLine.id)) {
-        yAxis.value?.addPlotLine(newLine);
+        toValue(yAxis)?.addPlotLine(newLine);
       }
     });
   });
 
   watch(minRange, (newMinRange) => {
-    if (yAxis.value?.options?.minRange !== newMinRange) {
-      yAxis.value?.update({ minRange: newMinRange });
+    if (toValue(yAxis)?.options?.minRange !== newMinRange) {
+      toValue(yAxis)?.update({ minRange: newMinRange });
     };
   });
 
