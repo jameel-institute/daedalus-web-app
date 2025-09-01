@@ -6,10 +6,7 @@
         label="Show new events per day"
       />
       <div class="d-flex align-items-stretch gap-2 ms-auto">
-        <div
-          v-if="showPlotBandsLinesLegend"
-          class="bg-white rounded border d-flex align-items-center gap-3 shadow-sm"
-        >
+        <div class="bg-white rounded border d-flex align-items-center gap-3 shadow-sm">
           <CapacitiesAndInterventionsLegend :show-plot-lines="!isDaily" />
         </div>
         <CompareTimeSeriesLegend />
@@ -44,9 +41,6 @@ const {
   updateHoverPoint,
   hideAllTooltipsAndCrosshairs,
 } = useSynchroniseCharts();
-
-// todo - huh? why this logic?
-const showPlotBandsLinesLegend = computed(() => !isDaily.value);
 </script>
 
 <style lang="scss" scoped>

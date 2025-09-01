@@ -51,7 +51,7 @@ const appStore = useAppStore();
 const { activeSeriesMetadata } = useTimeSeriesGroup(() => props.seriesGroup, () => props.isDaily);
 
 const capacityLabel = computed(() => {
-  return appStore.metadata?.results.capacities?.map(c => c.label.toLocaleLowerCase());
+  return appStore.metadata?.results.capacities?.map(c => c.label.toLocaleLowerCase()).join(", ");
 });
 const allowShowCapacities = computed(() => {
   return showCapacities(activeSeriesMetadata.value?.id);

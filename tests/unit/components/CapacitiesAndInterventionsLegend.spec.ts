@@ -2,10 +2,6 @@ import CapacitiesAndInterventionsLegend from "~/components/CapacitiesAndInterven
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 
-const stubs = {
-  CIcon: true,
-};
-
 const mediumScenario = {
   ...emptyScenario,
   runId: "test-run-id",
@@ -26,7 +22,7 @@ describe("time series", () => {
     const pinia = mockPinia({ currentScenario: mediumScenario });
 
     const component = await mountSuspended(CapacitiesAndInterventionsLegend, {
-      global: { stubs, plugins: [pinia] },
+      global: { plugins: [pinia] },
       props: { showPlotLines: true },
     });
 
@@ -43,7 +39,7 @@ describe("time series", () => {
     const pinia = mockPinia({ currentScenario: noneScenario });
 
     const component = await mountSuspended(CapacitiesAndInterventionsLegend, {
-      global: { stubs, plugins: [pinia] },
+      global: { plugins: [pinia] },
       props: { showPlotLines: true },
     });
 
@@ -64,7 +60,7 @@ describe("time series", () => {
     });
 
     const component = await mountSuspended(CapacitiesAndInterventionsLegend, {
-      global: { stubs, plugins: [pinia] },
+      global: { plugins: [pinia] },
       props: { showPlotLines: true },
     });
 
@@ -87,7 +83,7 @@ describe("time series", () => {
     });
 
     const component = await mountSuspended(CapacitiesAndInterventionsLegend, {
-      global: { stubs, plugins: [pinia] },
+      global: { plugins: [pinia] },
       props: { showPlotLines: false },
     });
 
