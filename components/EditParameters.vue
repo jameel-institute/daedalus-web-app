@@ -11,7 +11,10 @@
         </CModalTitle>
       </CModalHeader>
       <CModalBody>
-        <ParameterForm :in-modal="true" />
+        <ParameterForm
+          :in-modal="true"
+          @show-r-code="handleShowRCode"
+        />
       </CModalBody>
     </CModal>
   </Teleport>
@@ -24,7 +27,14 @@
 <script lang="ts" setup>
 import { CIcon } from "@coreui/icons-vue";
 
+const emit = defineEmits(["showRCode"]);
+
 const modalVisible = ref(false);
+
+const handleShowRCode = () => {
+  modalVisible.value = false;
+  emit("showRCode");
+};
 </script>
 
 <style lang="scss" scoped>

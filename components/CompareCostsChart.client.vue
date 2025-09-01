@@ -58,7 +58,11 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
       const costAsGdpPercent = costAsPercentOfGdp(dollarValue, scenario.result.data?.gdp);
       const y = costBasis.value === CostBasis.PercentGDP ? costAsGdpPercent : dollarValue;
       const name = appStore.getCostLabel(subCost?.id || "");
-      return { y, name, custom: { costAsGdpPercent } };
+      return {
+        y,
+        name,
+        custom: { costAsGdpPercent },
+      };
     }),
   } as Highcharts.SeriesColumnOptions)) || [];
 
@@ -100,8 +104,12 @@ const chartInitialOptions = () => {
       categories: scenarios.value?.map(s => appStore.getScenarioAxisValue(s)) || [],
       title: { text: appStore.axisMetadata?.label },
       labels: {
-        style: { fontSize: appStore.currentComparison.axis === appStore.globeParameter?.id ? "0.8rem" : "1rem" },
-        formatter() { return costsChartMultiScenarioXAxisLabelFormatter(this.value as string, appStore.axisMetadata); },
+        style: {
+          fontSize: appStore.currentComparison.axis === appStore.globeParameter?.id ? "0.8rem" : "1rem",
+        },
+        formatter() {
+          return costsChartMultiScenarioXAxisLabelFormatter(this.value as string, appStore.axisMetadata, appStore.currentComparison.baseline);
+        },
         useHTML: true,
       },
     },
@@ -111,18 +119,24 @@ const chartInitialOptions = () => {
       title: { text: costsChartYAxisTitle(costBasis.value) },
       stackLabels: {
         enabled: true,
-        formatter() { return costsChartStackLabelFormatter(this.total, costBasis.value); },
+        formatter() {
+          return costsChartStackLabelFormatter(this.total, costBasis.value);
+        },
       },
       labels: {
         enabled: true,
-        formatter() { return costsChartYAxisTickFormatter(this.value, costBasis.value); },
+        formatter() {
+          return costsChartYAxisTickFormatter(this.value, costBasis.value);
+        },
       },
     },
     series: getSeries(),
     legend: { enabled: false },
     tooltip: {
       shared: true,
-      formatter() { return costsChartMultiScenarioStackedTooltip(this, costBasis.value, appStore.axisMetadata); },
+      formatter() {
+        return costsChartMultiScenarioStackedTooltip(this, costBasis.value, appStore.axisMetadata);
+      },
     },
     plotOptions: {
       column: {
