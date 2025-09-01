@@ -1,5 +1,5 @@
 import type { HSL } from "color-convert";
-import { addAlphaToRgb, colorBlindSafeLargePalette, costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, getColorVariants, plotBandsDefaultColor, plotLinesColor } from "~/components/utils/highCharts";
+import { addAlphaToRgb, colorBlindSafeLargePalette, costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, getColorVariants, plotBandsDefaultColor, plotLinesColor } from "~/components/utils/charts";
 import { CostBasis } from "~/types/unitTypes";
 import { mockMetadataResponseData } from "../../mocks/mockResponseData";
 import { TypeOfParameter } from "~/types/parameterTypes";

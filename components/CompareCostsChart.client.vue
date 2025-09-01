@@ -15,7 +15,8 @@ import "highcharts/esm/modules/exporting";
 import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
-import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeSmallPalette, contextButtonOptions, costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, menuItemDefinitionOptions, yAxisTitle } from "./utils/highCharts";
+import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions } from "@/components/utils/charts";
+import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, costsChartYAxisTitle } from "@/components/utils/costCharts";
 import { costAsPercentOfGdp } from "@/components/utils/formatters";
 import { CostBasis } from "@/types/unitTypes";
 import { debounce } from "perfect-debounce";
@@ -48,7 +49,7 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
     type: "column",
     name: appStore.getCostLabel(costId),
     borderWidth: 1,
-    borderColor: colorBlindSafeSmallPalette[index].rgb,
+    borderColor: costsChartPalette[index].rgb,
     zIndex: secondLevelCostIds.length - index, // Ensure that stack segments are in front of each other from top to bottom.
     data: scenarios.value.map((scenario) => {
       const subCost = scenario.result.data?.costs[0].children?.find(c => c.id === costId);
@@ -73,7 +74,7 @@ const targetWidth = () => {
 const chartInitialOptions = () => {
   return {
     credits: { text: "Highcharts" },
-    colors: colorBlindSafeSmallPalette.map(color => color.rgb),
+    colors: costsChartPalette.map(color => color.rgb),
     chart: { ...chartOptions, height: chartHeightPx, width: targetWidth() },
     exporting: {
       filename: chartTitle.value,
@@ -107,7 +108,7 @@ const chartInitialOptions = () => {
     yAxis: {
       gridLineColor: "lightgrey",
       min: 0,
-      title: { text: yAxisTitle(costBasis.value) },
+      title: { text: costsChartYAxisTitle(costBasis.value) },
       stackLabels: {
         enabled: true,
         formatter() { return costsChartStackLabelFormatter(this.total, costBasis.value); },
@@ -141,7 +142,7 @@ watch(() => [chartContainer.value, appStore.everyScenarioHasCosts], () => {
 
 watch(() => costBasis.value, () => {
   if (chart) {
-    chart.update({ yAxis: { title: { text: yAxisTitle(costBasis.value) } }, series: getSeries() });
+    chart.update({ yAxis: { title: { text: costsChartYAxisTitle(costBasis.value) } }, series: getSeries() });
   }
 });
 

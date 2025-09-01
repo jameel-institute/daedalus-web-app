@@ -48,9 +48,7 @@
               <CompareCostsPane />
             </CTabPanel>
             <CTabPanel item-key="timeseries">
-              <p class="time-series-example">
-                A time series
-              </p>
+              <CompareTimeSeriesPane />
             </CTabPanel>
           </CTabContent>
         </CTabs>

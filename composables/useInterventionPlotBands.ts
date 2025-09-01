@@ -1,4 +1,4 @@
-import { addAlphaToRgb, plotBandsRgbAlpha } from "~/components/utils/highCharts";
+import { addAlphaToRgb, plotBandsRgbAlpha } from "~/components/utils/timeSeriesCharts";
 import { showInterventions } from "~/components/utils/timeSeriesData";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import type { TimeSeriesIntervention } from "~/types/dataTypes";
@@ -14,18 +14,18 @@ export default (
       return [];
     }
 
-    return intvns.map(intvn => ({
-      id: intvn.id,
-      from: Number(intvn.start.toFixed(0)),
-      to: Number(intvn.end.toFixed(0)),
-      color: addAlphaToRgb(intvn.color, plotBandsRgbAlpha),
+    return intvns.map(({ id, start, end, color, label }) => ({
+      id,
+      from: Number(start.toFixed(0)),
+      to: Number(end.toFixed(0)),
+      color: addAlphaToRgb(color, plotBandsRgbAlpha),
       label: {
-        text: intvn.label,
+        text: label,
         align: "center",
         inside: false,
         verticalAlign: "top",
         style: {
-          color: intvn.color,
+          color,
           fontSize: "0.7em",
         },
         y: -5, // Label above plot band
