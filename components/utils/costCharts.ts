@@ -104,18 +104,27 @@ export const costsChartYAxisTickFormatter = (value: string | number, costBasis: 
   }
 };
 
-export const costsChartMultiScenarioXAxisLabelFormatter = (category: string, axisParam: Parameter | undefined) => {
+export const costsChartMultiScenarioXAxisLabelFormatter = (
+  category: string,
+  axisParam: Parameter | undefined,
+  baseline: string | undefined,
+) => {
   const scenarioLabel = getScenarioLabel(category, axisParam);
+  const paramIsCountry = axisParam?.parameterType === TypeOfParameter.GlobeSelect;
+  const marginForFlag = paramIsCountry ? "mt-1" : "";
+  const scenarioLabelSpan = baseline && category === baseline
+    ? `<span class="fw-medium text-primary-emphasis ${marginForFlag}">${scenarioLabel} (baseline)</span>`
+    : `<span class="${marginForFlag}">${scenarioLabel}</span>`;
 
-  if (axisParam?.parameterType === TypeOfParameter.GlobeSelect) {
+  if (paramIsCountry) {
     return `<div class="d-flex gap-2 align-items-center mb-2">
       <span
         class="${countryFlagClass(category)}"
         style="width: 1rem; height: 0.75rem;"
       ></span>
-      <span class="mt-1">${scenarioLabel}</span>
+      ${scenarioLabelSpan}
     </div>`;
   } else {
-    return scenarioLabel;
+    return scenarioLabelSpan;
   }
 };

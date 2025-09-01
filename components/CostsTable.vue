@@ -40,6 +40,7 @@
           <td
             v-for="(scenario) in props.scenarios"
             :key="scenario.runId"
+            :class="scenarioClass(scenario)"
           >
             {{ displayValue(scenario, 'total') }}
           </td>
@@ -50,7 +51,7 @@
         :key="childCost.id"
       >
         <tr>
-          <td class="ps-4 text-nowrap" :class="(multiScenario ? '' : 'single-scenario-td')">
+          <td class="ps-4 text-nowrap" :class="{ 'single-scenario-td': !multiScenario }">
             {{ appStore.getCostLabel(childCost.id) }}
             <span v-if="childCost.id === 'life_years'">
               <TooltipHelp
@@ -71,6 +72,7 @@
           <td
             v-for="(scenario) in props.scenarios"
             :key="scenario.runId"
+            :class="scenarioClass(scenario)"
           >
             {{ displayValue(scenario, childCost.id) }}
           </td>
@@ -85,6 +87,7 @@
           <td
             v-for="(scenario) in props.scenarios"
             :key="scenario.runId"
+            :class="scenarioClass(scenario)"
           >
             {{ displayValue(scenario, grandChildCost.id) }}
           </td>
@@ -154,6 +157,10 @@ const displayValue = (scenario: Scenario, costId: string): string | undefined =>
           }).format(valueInDollarTerms);
     }
   }
+};
+
+const scenarioClass = (scenario: Scenario) => {
+  return multiScenario.value && scenario === appStore.baselineScenario ? "text-primary-emphasis" : "";
 };
 </script>
 
