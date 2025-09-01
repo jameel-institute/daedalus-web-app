@@ -29,10 +29,10 @@
         <CModalBody>
           <p>
             Use this R code snippet to run the model directly with the daedalus package for the current parameters.
-            See the <NuxtLink to="https://jameel-institute.github.io/daedalus/" target="_blank">
-              daedalus documentation
-            </NuxtLink>
-            for installation instructions and further details.
+            See the
+            <!-- eslint-disable-next-line vue/singleline-html-element-content-newline -->
+            <NuxtLink to="https://jameel-institute.github.io/daedalus/" target="_blank">daedalus documentation</NuxtLink> for
+            installation instructions and further details.
           </p>
           <div class="code p-3">
             <button
@@ -61,6 +61,8 @@ const appStore = useAppStore();
 
 const modalVisible = ref(false);
 const copied = ref(false);
+
+defineExpose({ modalVisible });
 
 const parameters = computed(() => appStore.currentScenario.parameters);
 const codeSnippet = computed(() => {
