@@ -1,4 +1,4 @@
-import type { ScenarioResultData } from "~/types/apiResponseTypes";
+import type { DisplayInfo, ScenarioResultData } from "~/types/apiResponseTypes";
 import {
   emptyScenario,
   mockedMetadata,
@@ -10,9 +10,6 @@ import Highcharts from "highcharts/esm/highcharts";
 import TimeSeries from "~/components/TimeSeries.client.vue";
 
 const timeSeriesMetadata = mockedMetadata.results.time_series.find(({ id }) => id === "hospitalised");
-const stubs = {
-  CIcon: true,
-};
 const plugins = [
   mockPinia({
     currentScenario: {
@@ -33,8 +30,8 @@ const props = {
   groupIndex: 1,
   hideTooltips: false,
   seriesRole: "total",
-  synchPoint: { x: 1, y: 2 },
-  timeSeriesMetadata,
+  synchPoint: { x: 1, y: 2 } as Highcharts.Point,
+  timeSeriesMetadata: timeSeriesMetadata as DisplayInfo,
 };
 
 const mockSetSize = vi.fn();
@@ -80,20 +77,13 @@ vi.mock("highcharts/esm/modules/export-data", () => ({}));
 vi.mock("highcharts/esm/modules/offline-exporting", () => ({}));
 
 describe("time series", () => {
-  afterAll(() => {
-    vi.clearAllMocks();
-  });
-
   it("should initialise the chart with the correct options", async () => {
     const chartSpy = vi.spyOn(Highcharts, "chart");
 
-    await mountSuspended(TimeSeries, {
-      props,
-      global: { stubs, plugins },
-    });
+    await mountSuspended(TimeSeries, { props, global: { plugins } });
 
     expect(chartSpy).toHaveBeenCalledWith(
-      "hospitalised-container",
+      "time-series-1",
       expect.objectContaining({
         chart: expect.objectContaining({
           height: props.chartHeight,
@@ -144,10 +134,7 @@ describe("time series", () => {
   });
 
   it("should update the chart when props change", async () => {
-    const component = await mountSuspended(TimeSeries, {
-      props,
-      global: { stubs, plugins },
-    });
+    const component = await mountSuspended(TimeSeries, { props, global: { plugins } });
 
     const newTimeSeriesMetadata = mockedMetadata.results.time_series.find(({ id }) => id === "new_hospitalised");
 
@@ -214,7 +201,6 @@ describe("time series", () => {
     await mountSuspended(TimeSeries, {
       props,
       global: {
-        stubs,
         plugins: [mockPinia({
           currentScenario: {
             ...emptyScenario,
@@ -246,7 +232,7 @@ describe("time series", () => {
     });
 
     expect(chartSpy).toHaveBeenCalledWith(
-      "hospitalised-container",
+      "time-series-1",
       expect.objectContaining({
         xAxis: expect.objectContaining({
           plotBands: expect.arrayContaining([
@@ -265,10 +251,7 @@ describe("time series", () => {
   });
 
   it("should resize the chart when height changes", async () => {
-    const component = await mountSuspended(TimeSeries, {
-      props,
-      global: { stubs, plugins },
-    });
+    const component = await mountSuspended(TimeSeries, { props, global: { plugins } });
 
     await component.setProps({ chartHeight: 200 });
     // Allow enough time for debounce to finish
@@ -278,10 +261,7 @@ describe("time series", () => {
   });
 
   it("should destroy the chart when the component is unmounted", async () => {
-    const component = await mountSuspended(TimeSeries, {
-      props,
-      global: { stubs, plugins },
-    });
+    const component = await mountSuspended(TimeSeries, { props, global: { plugins } });
 
     component.unmount();
     expect(mockDestroy).toHaveBeenCalled();

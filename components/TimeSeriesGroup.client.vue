@@ -33,11 +33,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { TimeSeriesGroup } from "~/types/apiResponseTypes";
+import type { TimeSeriesGrouping } from "~/types/apiResponseTypes";
 import useTimeSeriesGroup from "~/composables/useTimeSeriesGroup";
 
 const props = defineProps<{
-  seriesGroup: TimeSeriesGroup
+  seriesGroup: TimeSeriesGrouping
   groupIndex: number
   hideTooltips: boolean
   open: boolean

@@ -1,5 +1,5 @@
 import type { AsyncDataRequestStatus, NuxtApp } from "#app";
-import type { Metadata, NewScenarioData, ScenarioData, ScenarioResultData, ScenarioStatusData, TimeSeriesGroup, VersionData } from "~/types/apiResponseTypes";
+import type { Metadata, NewScenarioData, ScenarioData, ScenarioResultData, ScenarioStatusData, TimeSeriesGrouping, VersionData } from "~/types/apiResponseTypes";
 import type { AppState, Comparison, Scenario } from "@/types/storeTypes";
 import type { FetchError } from "ofetch";
 import { type Parameter, type ParameterSet, TypeOfParameter } from "@/types/parameterTypes";
@@ -79,7 +79,7 @@ export const useAppStore = defineStore("app", {
         return state.currentScenario.parameters[this.globeParameter.id!];
       }
     },
-    timeSeriesGroups: (state): Array<TimeSeriesGroup> | undefined => state.metadata?.results.time_series_groups as TimeSeriesGroup[] | undefined,
+    timeSeriesGroups: (state): Array<TimeSeriesGrouping> | undefined => state.metadata?.results.time_series_groups as TimeSeriesGrouping[] | undefined,
     everyScenarioHasRunSuccessfully: (state): boolean => {
       return state.currentComparison.scenarios?.length > 0
         && state.currentComparison.scenarios?.every(s => s.status.data?.runSuccess);

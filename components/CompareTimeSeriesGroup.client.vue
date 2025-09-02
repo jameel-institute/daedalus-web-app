@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { TimeSeriesGroup } from "~/types/apiResponseTypes";
+import type { TimeSeriesGrouping } from "~/types/apiResponseTypes";
 import useTimeSeriesGroup from "~/composables/useTimeSeriesGroup";
 import { showCapacities } from "./utils/timeSeriesData";
 
@@ -36,7 +36,7 @@ const props = defineProps<{
   groupIndex: number
   hideTooltips: boolean
   isDaily: boolean
-  seriesGroup: TimeSeriesGroup
+  seriesGroup: TimeSeriesGrouping
   synchPoint: Highcharts.Point | undefined
 }>();
 

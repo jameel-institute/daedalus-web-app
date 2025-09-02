@@ -28,14 +28,14 @@ export interface DisplayInfo {
   label: string
   description?: string
 }
-export interface TimeSeriesGroup {
+export interface TimeSeriesGrouping {
   id: string
   label: string
   time_series: {
     [key: string]: string
   }
 }
-export type ResultsMetadata = Record<string, Array<DisplayInfo> | Array<TimeSeriesGroup>>;
+export type ResultsMetadata = Record<string, Array<DisplayInfo> | Array<TimeSeriesGrouping>>;
 export interface Metadata {
   modelVersion: string
   parameters: Array<Parameter>
