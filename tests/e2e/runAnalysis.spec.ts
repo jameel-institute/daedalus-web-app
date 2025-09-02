@@ -58,10 +58,10 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
 
   // Prevalence time series chart
   await expect(page.locator(infectionsTimeSeriesContainerId)).toBeVisible();
-  await page.locator(infectionsTimeSeriesContainerId).scrollIntoViewIfNeeded();
   await expect(page.locator(`${infectionsTimeSeriesContainerId} .highcharts-xaxis-labels`)).toBeVisible();
   await expect(page.locator(`${infectionsTimeSeriesContainerId} .highcharts-yaxis-labels`)).toBeVisible();
   await expect(page.locator(`${infectionsTimeSeriesContainerId} .highcharts-plot-band`)).toHaveCount(2);
+  await expect(page.locator(`${infectionsTimeSeriesContainerId} .highcharts-plot-line`)).not.toBeInViewport();
   await expect(page.locator(infectionsTimeSeriesContainerId).getByLabel("View chart menu, Chart")).toBeVisible();
   await checkTimeSeriesDataPoints(page.locator(infectionsTimeSeriesContainerId), 33_000_000);
 
@@ -74,7 +74,6 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.getByRole("button", { name: "Prevalence" })).toBeVisible();
 
   await expect(page.locator(hospitalisationsTimeSeriesContainerId)).toBeVisible();
-  await page.locator(hospitalisationsTimeSeriesContainerId).scrollIntoViewIfNeeded();
   await expect(page.locator(`${hospitalisationsTimeSeriesContainerId} .highcharts-xaxis-labels`)).toBeVisible();
   await expect(page.locator(`${hospitalisationsTimeSeriesContainerId} .highcharts-yaxis-labels`)).toBeVisible();
   await expect(page.locator(`${hospitalisationsTimeSeriesContainerId} .highcharts-plot-band`)).toHaveCount(2);
@@ -85,12 +84,16 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await page.locator("#hospitalisationsDailySwitch").check();
   await checkTimeSeriesDataPoints(page.locator(hospitalisationsTimeSeriesContainerId), 1_000_000);
   await expect(page.getByRole("button", { name: "New hospitalisations" })).toBeVisible();
+  await expect(page.locator(`${hospitalisationsTimeSeriesContainerId} .highcharts-plot-line`)).not.toBeInViewport();
   await page.locator("#hospitalisationsDailySwitch").setChecked(false);
   await expect(page.getByRole("button", { name: "Hospital demand" })).toBeVisible();
+  await expect(page.locator(`${hospitalisationsTimeSeriesContainerId} .highcharts-plot-line`)).toBeInViewport();
 
   await expect(page.locator(deathsTimeSeriesContainerId)).toBeVisible();
   await expect(page.locator(`${deathsTimeSeriesContainerId} .highcharts-xaxis-labels`)).toBeVisible();
   await expect(page.locator(`${deathsTimeSeriesContainerId} .highcharts-yaxis-labels`)).toBeVisible();
+  await expect(page.locator(`${deathsTimeSeriesContainerId} .highcharts-plot-band`)).toHaveCount(0);
+  await expect(page.locator(`${deathsTimeSeriesContainerId} .highcharts-plot-line`)).not.toBeInViewport();
   await expect(page.locator(deathsTimeSeriesContainerId).getByLabel("View chart menu, Chart")).toBeVisible();
   await checkTimeSeriesDataPoints(page.locator(deathsTimeSeriesContainerId), 18_000_000);
   await page.locator("#deathsDailySwitch").check();
@@ -102,6 +105,8 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.locator(vaccinationsTimeSeriesContainerId)).toBeVisible();
   await expect(page.locator(`${vaccinationsTimeSeriesContainerId} .highcharts-xaxis-labels`)).toBeVisible();
   await expect(page.locator(`${vaccinationsTimeSeriesContainerId} .highcharts-yaxis-labels`)).toBeVisible();
+  await expect(page.locator(`${vaccinationsTimeSeriesContainerId} .highcharts-plot-band`)).toHaveCount(0);
+  await expect(page.locator(`${vaccinationsTimeSeriesContainerId} .highcharts-plot-line`)).not.toBeInViewport();
   await expect(page.locator(vaccinationsTimeSeriesContainerId).getByLabel("View chart menu, Chart")).toBeVisible();
   await checkTimeSeriesDataPoints(page.locator(vaccinationsTimeSeriesContainerId), 135_000_000);
   await page.locator("#vaccinationsDailySwitch").check();
