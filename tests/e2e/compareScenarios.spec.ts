@@ -5,6 +5,7 @@ import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
 import { commaSeparatedNumberMatcher, costTolerance, decimalPercentMatcher, parameterLabels, runIdMatcher, scenarioPathMatcher } from "./helpers/constants";
 import checkValueIsInRange from "./helpers/checkValueIsInRange";
 import checkBarChartDataIsDifferent from "./helpers/checkBarChartDataIsDifferent";
+import { checkMultiScenarioTimeSeriesDataPoints } from "./helpers/checkTimeSeriesDataPoints";
 
 const baselinePathogenOption = "SARS 2004";
 
@@ -12,7 +13,7 @@ test.beforeAll(async () => {
   checkRApiServer();
 });
 
-test("Can compare multiple scenarios", async ({ page, baseURL, isMobile }) => {
+test("Can compare multiple scenarios", async ({ page, baseURL, isMobile, context }) => {
   await waitForNewScenarioPage(page, baseURL);
 
   await selectParameterOption(page, "pathogen", "SARS 2004");
@@ -137,8 +138,99 @@ test("Can compare multiple scenarios", async ({ page, baseURL, isMobile }) => {
   checkBarChartDataIsDifferent(costsChartDataUsd, costsChartDataGdp);
   expect(await tableRows.nth(0).textContent()).toMatch(new RegExp(`Total losses\\s*${decimalPercentMatcher}\\s*${decimalPercentMatcher}\\s*${decimalPercentMatcher}`));
 
+  await page.getByRole("tab", { name: "Time series" }).click();
+
+  const totalTimeSeries = ["Prevalence", "Hospital demand", "Dead", "Vaccinated"];
+  const dailyTimeSeries = ["New infections", "New hospitalisations", "New deaths", "New vaccinations"];
+  totalTimeSeries.forEach(async (label) => {
+    await expect(page.getByText(label, { exact: true })).toBeVisible();
+  });
+  dailyTimeSeries.forEach(async (label) => {
+    expect(page.getByText(label, { exact: true })).not.toBeVisible();
+  });
+  const hospitalCapacityPlotLineText = "Hospital surge capacity: 305,000";
+  expect(page.getByText(hospitalCapacityPlotLineText)).not.toBeVisible();
+  await page.locator("#hospitalisationsShowCapacitiesSwitch").check();
+  await expect(page.getByText(hospitalCapacityPlotLineText)).toBeVisible();
+
+  const infectionsLocator = page.locator("#time-series-comparison-0");
+  await expect(infectionsLocator).toBeVisible();
+  await infectionsLocator.scrollIntoViewIfNeeded();
+  await expect(page.locator("#time-series-comparison-0 .highcharts-xaxis-labels")).toBeVisible();
+  await expect(page.locator("#time-series-comparison-0 .highcharts-yaxis-labels")).toBeVisible();
+  await expect(page.locator("#time-series-comparison-0 .highcharts-plot-band")).toHaveCount(2);
+  await expect(infectionsLocator.getByLabel("View chart menu, Chart")).toBeVisible();
+  await checkMultiScenarioTimeSeriesDataPoints(infectionsLocator, [33_000_000, 48_000_000, 80_000_000]);
+
+  const hospitalisationsLocator = page.locator("#time-series-comparison-1");
+  await expect(hospitalisationsLocator).toBeVisible();
+  await hospitalisationsLocator.scrollIntoViewIfNeeded();
+  await expect(page.locator("#time-series-comparison-1 .highcharts-xaxis-labels")).toBeVisible();
+  await expect(page.locator("#time-series-comparison-1 .highcharts-yaxis-labels")).toBeVisible();
+  await expect(page.locator("#time-series-comparison-1 .highcharts-plot-band")).toHaveCount(2);
+  await expect(hospitalisationsLocator.getByLabel("View chart menu, Chart")).toBeVisible();
+  await checkMultiScenarioTimeSeriesDataPoints(hospitalisationsLocator, [14_000_000, 3_400_000, 1_200_000]);
+
+  const deathsLocator = page.locator("#time-series-comparison-2");
+  await expect(deathsLocator).toBeVisible();
+  await deathsLocator.scrollIntoViewIfNeeded();
+  await expect(page.locator("#time-series-comparison-2 .highcharts-xaxis-labels")).toBeVisible();
+  await expect(page.locator("#time-series-comparison-2 .highcharts-yaxis-labels")).toBeVisible();
+  await expect(page.locator("#time-series-comparison-2 .highcharts-plot-band")).toHaveCount(0);
+  await expect(deathsLocator.getByLabel("View chart menu, Chart")).toBeVisible();
+  await checkMultiScenarioTimeSeriesDataPoints(deathsLocator, [18_000_000, 4_600_000, 2_900_000]);
+
+  const vaccinationsLocator = page.locator("#time-series-comparison-3");
+  await expect(vaccinationsLocator).toBeVisible();
+  await vaccinationsLocator.scrollIntoViewIfNeeded();
+  await expect(page.locator("#time-series-comparison-3 .highcharts-xaxis-labels")).toBeVisible();
+  await expect(page.locator("#time-series-comparison-3 .highcharts-yaxis-labels")).toBeVisible();
+  await expect(page.locator("#time-series-comparison-3 .highcharts-plot-band")).toHaveCount(0);
+  await expect(vaccinationsLocator.getByLabel("View chart menu, Chart")).toBeVisible();
+  await checkMultiScenarioTimeSeriesDataPoints(vaccinationsLocator, [135_000_000, 155_000_000, 153_000_000]);
+
+  await page.locator("#dailySwitch").check();
+  await page.waitForTimeout(1000); // Wait for charts to update
+  totalTimeSeries.forEach(async (label) => {
+    await expect(page.getByText(label, { exact: true })).not.toBeVisible();
+  });
+  dailyTimeSeries.forEach(async (label) => {
+    expect(page.getByText(label, { exact: true })).toBeVisible();
+  });
+  // {"dataLengths":[601,601,601],"maxValues":[1054928.9099,461735.5318,335539.964]}
+  // {"dataLengths":[601,601,601],"maxValues":[263723.2595,100686.8715,89968.4635]}
+  // {"dataLengths":[601,601,601],"maxValues":[1348897.0969,1404764.3513,1395169.0411]}
+  await expect(page.locator("#time-series-comparison-0 .highcharts-plot-band")).toHaveCount(2);
+  await expect(page.locator("#time-series-comparison-0 .highcharts-plot-line")).not.toBeVisible();
+  await checkMultiScenarioTimeSeriesDataPoints(infectionsLocator, [7_400_000, 19_000_000, 48_000_000]);
+
+  await expect(page.locator("#time-series-comparison-1 .highcharts-plot-band")).toHaveCount(2);
+  await expect(page.locator("#time-series-comparison-1 .highcharts-plot-line")).not.toBeVisible();
+  await expect(page.locator("#hospitalisationsShowCapacitiesSwitch")).not.toBeVisible();
+  await checkMultiScenarioTimeSeriesDataPoints(hospitalisationsLocator, [1_100_000, 460_000, 340_000]);
+
+  await expect(page.locator("#time-series-comparison-2 .highcharts-plot-band")).toHaveCount(0);
+  await expect(page.locator("#time-series-comparison-2 .highcharts-plot-line")).not.toBeVisible();
+  await checkMultiScenarioTimeSeriesDataPoints(deathsLocator, [260_000, 100_000, 90_000]);
+
+  await expect(page.locator("#time-series-comparison-3 .highcharts-plot-band")).toHaveCount(0);
+  await expect(page.locator("#time-series-comparison-3 .highcharts-plot-line")).not.toBeVisible();
+  await checkMultiScenarioTimeSeriesDataPoints(vaccinationsLocator, [1_300_000, 1_400_000, 1_400_000]);
+
   // Test we can navigate back to baseline scenario
   await page.getByRole("link", { name: "Baseline scenario" }).first().click();
   await page.waitForURL(new RegExp(`${baseURL}/${scenarioPathMatcher}`));
   expect(page.url()).toEqual(urlOfBaselineScenario);
+
+  // Create a new incognito browser context and a new page in that pristine context
+  const newContext = await context.browser()?.newContext();
+  const newPage = await context.newPage();
+
+  // Test that we can see the comparison we recently created, even without a shared browser session.
+  await newPage.goto(comparisonUrl);
+  await expect(newPage.getByText("Explore by disease")).toBeVisible();
+  const costsChartDataStr = await newPage.locator("#compareCostsChartContainer").getAttribute("data-summary");
+  const costsChartData = JSON.parse(costsChartDataStr!);
+  expect(costsChartData).toHaveLength(3);
+  newContext?.close();
 });

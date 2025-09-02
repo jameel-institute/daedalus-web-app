@@ -4,6 +4,7 @@
       <TimeSeriesHeader :series-metadata="activeSeriesMetadata" />
       <div v-if="allowShowCapacities" class="ms-auto">
         <CFormSwitch
+          :id="`${seriesGroup.id}ShowCapacitiesSwitch`"
           v-model="toggledShowCapacities"
           :label="`Show ${capacityLabel}`"
         />

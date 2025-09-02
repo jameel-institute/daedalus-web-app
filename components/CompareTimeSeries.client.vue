@@ -1,10 +1,13 @@
 <template>
-  <!-- :data-summary="JSON.stringify({ firstDataPoint: data[0], lastDataPoint: data[data.length - 1], dataLength: data.length })" -->
   <div
     :id="chartContainerId"
     ref="chartContainer"
     class="chart-container time-series"
     :style="{ zIndex, height: 'fit-content' }"
+    :data-summary="JSON.stringify({
+      dataLengths: Object.values(scenariosData).map(s => s.length),
+      maxValues: Object.values(scenariosData).map(s => Math.max(...s.map(d => d[1]))),
+    })"
     @mousemove="onMove"
     @touchmove="onMove"
     @touchstart="onMove"

@@ -2,6 +2,7 @@
   <div>
     <div class="d-flex flex-wrap align-items-center ms-1 mb-3 gap-4">
       <CFormSwitch
+        id="dailySwitch"
         v-model="isDaily"
         label="Show new events per day"
       />
