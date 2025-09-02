@@ -51,7 +51,7 @@ const { onMove } = useSynchronisableChart(
 );
 const { zIndex } = useAdjacentCharts(() => props.groupIndex, () => Number(appStore.timeSeriesGroups?.length));
 
-const chartContainerId = computed(() => `${props.timeSeriesMetadata.id}-container`);
+const chartContainerId = computed(() => `time-series-comparison-${props.groupIndex}`);
 
 const yUnits = computed(() => timeSeriesYUnits(props.timeSeriesMetadata.id));
 
@@ -101,7 +101,7 @@ const chartTimeSeries = computed(() => {
         showCapacities: showCapacities(props.timeSeriesMetadata.id),
         isBaseline,
       },
-    };
+    } as Highcharts.SeriesOptionsType;
   }).filter(s => !!s);
 });
 
@@ -157,7 +157,7 @@ const exportingChartTitle = computed(() => {
 });
 
 const exportingOptions = computed(() => ({
-  filename: props.timeSeriesMetadata.label,
+  filename: exportingChartTitle.value,
   chartOptions: {
     title: {
       text: exportingChartTitle.value,
@@ -226,25 +226,16 @@ const chartInitialOptions = () => {
   };
 };
 
-watch([() => props.timeSeriesMetadata, chartTimeSeries], () => {
-  chart.value?.update({
-    exporting: exportingOptions.value,
-  }, false);
+watch(exportingOptions, () => chart.value?.update({ exporting: exportingOptions.value }));
 
+watch(chartTimeSeries, () => {
   chartTimeSeries.value.forEach((series) => {
-    const existingSeries = chart.value?.series.find(s => s.options.custom?.scenarioId === series.custom?.scenarioId);
-    if (existingSeries) {
-      existingSeries.update(series, false);
-    } else {
-      chart.value?.addSeries(series, false);
-    }
+    chart.value
+      ?.series
+      .find(s => s.options.custom?.scenarioId === series.custom?.scenarioId)
+      ?.update(series, false);
   });
 
-  chart.value?.series.forEach((series) => {
-    if (!chartTimeSeries.value.map(s => s.custom?.scenarioId).includes(series.options.custom?.scenarioId)) {
-      series.remove(false);
-    }
-  });
   // Adding a minimal 'defer' value appears to cause the animations to have enough time to run.
   chart.value?.redraw({ defer: 1 });
 });
