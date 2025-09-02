@@ -1,11 +1,10 @@
-import { emptyScenario, mockedMetadata, mockPinia } from "@/tests/unit/mocks/mockPinia";
+import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 import TimeSeriesCard from "~/components/TimeSeriesCard.client.vue";
 import { mockResultResponseData } from "~/tests/unit/mocks/mockResponseData";
 import type { ScenarioResultData } from "~/types/apiResponseTypes";
 
-const seriesIds = mockedMetadata.results.time_series.map(series => series.id);
 const stubs = {
   CIcon: true,
 };
@@ -81,10 +80,18 @@ describe("time series", () => {
   it("should render the correct list of time series", async () => {
     const component = await mountSuspended(TimeSeriesCard, { global: { stubs, plugins } });
 
-    seriesIds.forEach((seriesId) => {
-      const container = component.find(`#${seriesId}-container`);
-      expect(container).not.toBeNull();
-    });
+    const infectionsContainer = component.find("#time-series-0");
+    expect(infectionsContainer.exists()).toBe(true);
+    const hospitalisationsContainer = component.find("#time-series-1");
+    expect(hospitalisationsContainer.exists()).toBe(true);
+    const deathsContainer = component.find("#time-series-2");
+    expect(deathsContainer.exists()).toBe(true);
+    const vaccinationsContainer = component.find("#time-series-3");
+    expect(vaccinationsContainer.exists()).toBe(true);
+    expect(component.text()).toContain("Prevalence");
+    expect(component.text()).toContain("Hospital demand");
+    expect(component.text()).toContain("Dead");
+    expect(component.text()).toContain("Vaccinated");
   });
 
   it("when an accordion's open state is toggled, it should switch state without affecting other accordions' states", async () => {
@@ -122,10 +129,10 @@ describe("time series", () => {
     const timeSeries = component.findAllComponents({ name: "TimeSeries.client" });
     const expectedNumberOfTimeSeries = 4;
     expect(timeSeries.length).toBe(expectedNumberOfTimeSeries);
-    expect(component.find("#prevalence-container").element.style._values["z-index"]).toEqual(7);
-    expect(component.find("#hospitalised-container").element.style._values["z-index"]).toEqual(6);
-    expect(component.find("#dead-container").element.style._values["z-index"]).toEqual(5);
-    expect(component.find("#vaccinated-container").element.style._values["z-index"]).toEqual(4);
+    expect(component.find("#time-series-0").element.style._values["z-index"]).toEqual(7);
+    expect(component.find("#time-series-1").element.style._values["z-index"]).toEqual(6);
+    expect(component.find("#time-series-2").element.style._values["z-index"]).toEqual(5);
+    expect(component.find("#time-series-3").element.style._values["z-index"]).toEqual(4);
 
     // Close the first time series group by toggling the accordion
     const accordionHeaderComponent = timeSeriesGroups[0].findComponent({ name: "CAccordionHeader" });
@@ -140,7 +147,7 @@ describe("time series", () => {
     // by the toggling of the accordion
     expect(mockReset).toHaveBeenCalledTimes(expectedNumberOfTimeSeries);
 
-    const prevalenceTimeSeries = component.find("#prevalence-container");
+    const prevalenceTimeSeries = component.find("#time-series-0");
 
     // Hover on the time series
     prevalenceTimeSeries.trigger("mousemove");

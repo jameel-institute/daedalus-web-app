@@ -8,7 +8,7 @@ const getProps = (isDaily: boolean) => ({
   groupIndex: 0,
   hideTooltips: false,
   isDaily,
-  seriesGroup: mockedMetadata.results.time_series_groups.find(g => g.id === "hospitalisations") as TimeSeriesGrouping,
+  seriesGroup: mockedMetadata.results.time_series_groups.find(g => g.id === "hospitalisations") as TimeSeriesGroup,
   synchPoint: { x: 1, y: 2 } as Highcharts.Point,
 });
 

@@ -1,6 +1,6 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import TimeSeriesGroup from "~/components/TimeSeriesGroup.client.vue";
-import type { DisplayInfo, ScenarioResultData } from "~/types/apiResponseTypes";
+import TimeSeriesGroupComponent from "~/components/TimeSeriesGroup.client.vue";
+import type { DisplayInfo, ScenarioResultData, TimeSeriesGroup } from "~/types/apiResponseTypes";
 import { emptyScenario, mockedMetadata, mockPinia } from "../mocks/mockPinia";
 import { mockResultResponseData } from "../mocks/mockResponseData";
 
@@ -48,18 +48,18 @@ const pinia = mockPinia({
   },
 });
 const getProps = (open = true) => ({
-  seriesGroup: mockedMetadata.results.time_series_groups[0],
+  seriesGroup: mockedMetadata.results.time_series_groups[0] as TimeSeriesGroup,
   groupIndex: 0,
   hideTooltips: false,
   open,
   chartHeight: 100,
-  synchPoint: { x: 1, y: 2 },
+  synchPoint: { x: 1, y: 2 } as Highcharts.Point,
 });
 
 describe("timeSeriesGroup component", () => {
   it("should render default total chart & toggle when when open prop is true", async () => {
     const timeSeries = mockedMetadata.results.time_series[0] as DisplayInfo;
-    const component = await mountSuspended(TimeSeriesGroup, {
+    const component = await mountSuspended(TimeSeriesGroupComponent, {
       global: {
         plugins: [pinia],
       },
@@ -72,11 +72,10 @@ describe("timeSeriesGroup component", () => {
     expect(component.find("#infectionsDailySwitch").exists()).toBe(true);
     expect(text).toContain(timeSeries.label);
     expect(text).toContain(timeSeries.description);
-    expect(component.find("#prevalence-container").isVisible()).toBe(true);
   });
 
   it("should not render toggle and chart when open is false", async () => {
-    const component = await mountSuspended(TimeSeriesGroup, {
+    const component = await mountSuspended(TimeSeriesGroupComponent, {
       global: {
         plugins: [pinia],
       },
@@ -90,7 +89,7 @@ describe("timeSeriesGroup component", () => {
   });
 
   it("should be able to toggle on new per day chart and visa versa", async () => {
-    const component = await mountSuspended(TimeSeriesGroup, {
+    const component = await mountSuspended(TimeSeriesGroupComponent, {
       global: {
         plugins: [pinia],
       },
@@ -128,7 +127,7 @@ describe("timeSeriesGroup component", () => {
   });
 
   it("should emit toggleOpen when the accordion header is clicked", async () => {
-    const component = await mountSuspended(TimeSeriesGroup, {
+    const component = await mountSuspended(TimeSeriesGroupComponent, {
       global: { plugins: [pinia] },
       props: getProps(),
     });
