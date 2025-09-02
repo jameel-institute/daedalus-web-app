@@ -54,7 +54,7 @@ const { onMove } = useSynchronisableChart(
 );
 const { zIndex } = useAdjacentCharts(() => props.groupIndex, () => Number(appStore.timeSeriesGroups?.length));
 
-const chartContainerId = computed(() => `${props.timeSeriesMetadata.id}-container`);
+const chartContainerId = computed(() => `time-series-${props.groupIndex}`);
 const yUnits = computed(() => timeSeriesYUnits(props.timeSeriesMetadata.id));
 const data = computed(() => getTimeSeriesDataPoints(appStore.currentScenario, props.timeSeriesMetadata.id));
 

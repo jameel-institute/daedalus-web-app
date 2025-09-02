@@ -51,7 +51,7 @@ const { onMove } = useSynchronisableChart(
 );
 const { zIndex } = useAdjacentCharts(() => props.groupIndex, () => Number(appStore.timeSeriesGroups?.length));
 
-const chartContainerId = computed(() => `${props.timeSeriesMetadata.id}-container`);
+const chartContainerId = computed(() => `time-series-comparison-${props.groupIndex}`);
 
 const yUnits = computed(() => timeSeriesYUnits(props.timeSeriesMetadata.id));
 

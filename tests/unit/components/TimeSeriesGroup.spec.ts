@@ -1,6 +1,6 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import TimeSeriesGroup from "~/components/TimeSeriesGroup.client.vue";
-import type { DisplayInfo, ScenarioResultData } from "~/types/apiResponseTypes";
+import type { DisplayInfo, ScenarioResultData, TimeSeriesGrouping } from "~/types/apiResponseTypes";
 import { emptyScenario, mockedMetadata, mockPinia } from "../mocks/mockPinia";
 import { mockResultResponseData } from "../mocks/mockResponseData";
 
@@ -48,12 +48,12 @@ const pinia = mockPinia({
   },
 });
 const getProps = (open = true) => ({
-  seriesGroup: mockedMetadata.results.time_series_groups[0],
+  seriesGroup: mockedMetadata.results.time_series_groups[0] as TimeSeriesGrouping,
   groupIndex: 0,
   hideTooltips: false,
   open,
   chartHeight: 100,
-  synchPoint: { x: 1, y: 2 },
+  synchPoint: { x: 1, y: 2 } as Highcharts.Point,
 });
 
 describe("timeSeriesGroup component", () => {
@@ -72,7 +72,6 @@ describe("timeSeriesGroup component", () => {
     expect(component.find("#infectionsDailySwitch").exists()).toBe(true);
     expect(text).toContain(timeSeries.label);
     expect(text).toContain(timeSeries.description);
-    expect(component.find("#prevalence-container").isVisible()).toBe(true);
   });
 
   it("should not render toggle and chart when open is false", async () => {
