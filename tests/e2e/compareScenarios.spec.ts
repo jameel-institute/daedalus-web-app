@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Locator, type Page, test } from "@playwright/test";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
 import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
@@ -8,6 +8,12 @@ import checkBarChartDataIsDifferent from "./helpers/checkBarChartDataIsDifferent
 import { checkMultiScenarioTimeSeriesDataPoints } from "./helpers/checkTimeSeriesDataPoints";
 
 const baselinePathogenOption = "SARS 2004";
+const assertTimeSeriesPresent = async (page: Page, seriesLocator: Locator) => {
+  await expect(seriesLocator).toBeVisible();
+  await seriesLocator.scrollIntoViewIfNeeded();
+  await expect(seriesLocator.locator(".highcharts-xaxis-labels")).toBeVisible();
+  await expect(seriesLocator.locator(".highcharts-yaxis-labels")).toBeVisible();
+};
 
 test.beforeAll(async () => {
   checkRApiServer();
@@ -71,7 +77,7 @@ test("Can compare multiple scenarios", async ({ page, baseURL, isMobile, context
   const costsChartDataUsdStr = await page.locator("#compareCostsChartContainer").getAttribute("data-summary");
   const costsChartDataUsd = JSON.parse(costsChartDataUsdStr!);
 
-  // There should be 3 columns (vertical, one for each scenario), and 3 series (horizontal, one for each top-level cost).
+  // There should be 3 columns in the chart (vertical, one for each scenario), and 3 series (horizontal, one for each top-level cost).
   // Each series will have 3 data points, one for each column.
   expect(costsChartDataUsd).toHaveLength(3);
   const gdpSeries = costsChartDataUsd[0];
@@ -154,37 +160,25 @@ test("Can compare multiple scenarios", async ({ page, baseURL, isMobile, context
   await expect(page.getByText(hospitalCapacityPlotLineText)).toBeVisible();
 
   const infectionsLocator = page.locator("#time-series-comparison-0");
-  await expect(infectionsLocator).toBeVisible();
-  await infectionsLocator.scrollIntoViewIfNeeded();
-  await expect(page.locator("#time-series-comparison-0 .highcharts-xaxis-labels")).toBeVisible();
-  await expect(page.locator("#time-series-comparison-0 .highcharts-yaxis-labels")).toBeVisible();
+  assertTimeSeriesPresent(page, infectionsLocator);
   await expect(page.locator("#time-series-comparison-0 .highcharts-plot-band")).toHaveCount(2);
   await expect(infectionsLocator.getByLabel("View chart menu, Chart")).toBeVisible();
   await checkMultiScenarioTimeSeriesDataPoints(infectionsLocator, [33_000_000, 48_000_000, 80_000_000]);
 
   const hospitalisationsLocator = page.locator("#time-series-comparison-1");
-  await expect(hospitalisationsLocator).toBeVisible();
-  await hospitalisationsLocator.scrollIntoViewIfNeeded();
-  await expect(page.locator("#time-series-comparison-1 .highcharts-xaxis-labels")).toBeVisible();
-  await expect(page.locator("#time-series-comparison-1 .highcharts-yaxis-labels")).toBeVisible();
+  assertTimeSeriesPresent(page, hospitalisationsLocator);
   await expect(page.locator("#time-series-comparison-1 .highcharts-plot-band")).toHaveCount(2);
   await expect(hospitalisationsLocator.getByLabel("View chart menu, Chart")).toBeVisible();
   await checkMultiScenarioTimeSeriesDataPoints(hospitalisationsLocator, [14_000_000, 3_400_000, 1_200_000]);
 
   const deathsLocator = page.locator("#time-series-comparison-2");
-  await expect(deathsLocator).toBeVisible();
-  await deathsLocator.scrollIntoViewIfNeeded();
-  await expect(page.locator("#time-series-comparison-2 .highcharts-xaxis-labels")).toBeVisible();
-  await expect(page.locator("#time-series-comparison-2 .highcharts-yaxis-labels")).toBeVisible();
+  assertTimeSeriesPresent(page, deathsLocator);
   await expect(page.locator("#time-series-comparison-2 .highcharts-plot-band")).toHaveCount(0);
   await expect(deathsLocator.getByLabel("View chart menu, Chart")).toBeVisible();
   await checkMultiScenarioTimeSeriesDataPoints(deathsLocator, [18_000_000, 4_600_000, 2_900_000]);
 
   const vaccinationsLocator = page.locator("#time-series-comparison-3");
-  await expect(vaccinationsLocator).toBeVisible();
-  await vaccinationsLocator.scrollIntoViewIfNeeded();
-  await expect(page.locator("#time-series-comparison-3 .highcharts-xaxis-labels")).toBeVisible();
-  await expect(page.locator("#time-series-comparison-3 .highcharts-yaxis-labels")).toBeVisible();
+  assertTimeSeriesPresent(page, vaccinationsLocator);
   await expect(page.locator("#time-series-comparison-3 .highcharts-plot-band")).toHaveCount(0);
   await expect(vaccinationsLocator.getByLabel("View chart menu, Chart")).toBeVisible();
   await checkMultiScenarioTimeSeriesDataPoints(vaccinationsLocator, [135_000_000, 155_000_000, 153_000_000]);
@@ -197,9 +191,7 @@ test("Can compare multiple scenarios", async ({ page, baseURL, isMobile, context
   dailyTimeSeries.forEach(async (label) => {
     expect(page.getByText(label, { exact: true })).toBeVisible();
   });
-  // {"dataLengths":[601,601,601],"maxValues":[1054928.9099,461735.5318,335539.964]}
-  // {"dataLengths":[601,601,601],"maxValues":[263723.2595,100686.8715,89968.4635]}
-  // {"dataLengths":[601,601,601],"maxValues":[1348897.0969,1404764.3513,1395169.0411]}
+
   await expect(page.locator("#time-series-comparison-0 .highcharts-plot-band")).toHaveCount(2);
   await expect(page.locator("#time-series-comparison-0 .highcharts-plot-line")).not.toBeVisible();
   await checkMultiScenarioTimeSeriesDataPoints(infectionsLocator, [7_400_000, 19_000_000, 48_000_000]);
