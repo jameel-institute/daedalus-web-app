@@ -83,18 +83,11 @@ const chartTimeSeries = computed(() => {
       name: `${appStore.axisMetadata?.label}: ${getScenarioLabel(scenarioAxisVal, appStore.axisMetadata)}`,
       color: timeSeriesColors[index % timeSeriesColors.length],
       fillOpacity: 0.4,
-      marker: {
-        symbol: "circle",
-      },
+      marker: { symbol: "circle" },
       lineWidth: isBaseline ? 3 : 1.5,
       states: {
-        hover: {
-          lineWidth: 3,
-          opacity: 1,
-        },
-        inactive: {
-          opacity: 0.5,
-        },
+        hover: { lineWidth: 3, opacity: 1 },
+        inactive: { opacity: 0.5 },
       },
       zIndex: isBaseline ? 2 : 1,
       custom: {
@@ -162,32 +155,18 @@ const exportingChartTitle = computed(() => {
 const exportingOptions = computed(() => ({
   filename: exportingChartTitle.value,
   chartOptions: {
-    title: {
-      text: exportingChartTitle.value,
-    },
-    subtitle: {
-      text: props.timeSeriesMetadata.description,
-    },
-    chart: {
-      backgroundColor: chartBackgroundColorOnExporting,
-      height: 500,
-      marginBottom: undefined,
-    },
-    legend: {
-      enabled: true,
-    },
+    title: { text: exportingChartTitle.value },
+    subtitle: { text: props.timeSeriesMetadata.description },
+    chart: { backgroundColor: chartBackgroundColorOnExporting, height: 500, marginBottom: undefined },
+    legend: { enabled: true },
   },
-  buttons: {
-    contextButton: contextButtonOptions,
-  },
+  buttons: { contextButton: contextButtonOptions },
   menuItemDefinitions: menuItemDefinitionOptions,
 }));
 
 const chartInitialOptions = () => {
   return {
-    credits: {
-      enabled: false, // Omit credits to allow us to reduce margin and save vertical space on page. We must credit Highcharts elsewhere.
-    },
+    credits: { enabled: false }, // Omit credits to allow us to reduce margin and save vertical space on page. We must credit Highcharts elsewhere.
     chart: {
       ...chartOptions,
       height: 250,
@@ -196,12 +175,8 @@ const chartInitialOptions = () => {
       marginTop: 15, // Enough space for a label to fit above the plot band
     },
     exporting: exportingOptions.value,
-    title: {
-      text: "",
-    },
-    legend: {
-      enabled: false,
-    },
+    title: { text: "" },
+    legend: { enabled: false },
     series: chartTimeSeries.value,
     tooltip: {
       formatter() {
@@ -209,9 +184,7 @@ const chartInitialOptions = () => {
       },
     },
     xAxis: {
-      title: {
-        text: "Days since outbreak",
-      },
+      title: { text: "Days since outbreak" },
       crosshair: true,
       minTickInterval: 1,
       min: 1,
@@ -219,9 +192,7 @@ const chartInitialOptions = () => {
       plotBands: initialInterventionsPlotBands,
     },
     yAxis: {
-      title: {
-        text: "",
-      },
+      title: { text: "" },
       min: 0,
       minRange: initialMinRange,
       plotLines: initialCapacitiesPlotLines,
@@ -249,11 +220,9 @@ watch([chartContainer], () => {
   }
 });
 
-onUnmounted(() => {
-  // Destroy this chart, since every time we navigate away and back to this page, another set
-  // of charts is created, burdening the browser if they aren't disposed of.
-  chart.value?.destroy();
-});
+// Destroy this chart on unmounting, since every time we navigate away and back to this page, another set
+// of charts is created, burdening the browser if they aren't disposed of.
+onUnmounted(() => chart.value?.destroy());
 </script>
 
 <style lang="scss" scoped>
