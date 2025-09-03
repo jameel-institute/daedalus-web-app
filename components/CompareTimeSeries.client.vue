@@ -97,7 +97,7 @@ const chartTimeSeries = computed(() => {
         showCapacities: showCapacities(props.timeSeriesMetadata.id),
         isBaseline,
       },
-    } as Highcharts.SeriesOptionsType;
+    } as Highcharts.SeriesLineOptions;
   }).filter(s => !!s);
 });
 
@@ -188,7 +188,7 @@ const chartInitialOptions = () => {
       crosshair: true,
       minTickInterval: 1,
       min: 1,
-      max: chartTimeSeries.value[0].data.length,
+      max: chartTimeSeries.value[0].data?.length,
       plotBands: initialInterventionsPlotBands,
     },
     yAxis: {
