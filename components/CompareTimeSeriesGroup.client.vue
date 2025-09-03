@@ -47,16 +47,10 @@ defineEmits<{
 }>();
 
 const toggledShowCapacities = ref(false);
-
 const appStore = useAppStore();
 const { activeSeriesMetadata } = useTimeSeriesGroup(() => props.seriesGroup, () => props.isDaily);
-
-const capacityLabel = computed(() => {
-  return appStore.metadata?.results.capacities?.map(c => c.label.toLocaleLowerCase()).join(", ");
-});
-const allowShowCapacities = computed(() => {
-  return showCapacities(activeSeriesMetadata.value?.id);
-});
+const capacityLabel = computed(() => appStore.metadata?.results.capacities?.map(c => c.label.toLocaleLowerCase()).join(", "));
+const allowShowCapacities = computed(() => showCapacities(activeSeriesMetadata.value?.id));
 </script>
 
 <style lang="scss" scoped>

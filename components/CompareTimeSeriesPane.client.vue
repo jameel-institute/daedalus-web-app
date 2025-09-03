@@ -36,12 +36,7 @@ const appStore = useAppStore();
 
 const isDaily = ref(false);
 
-const {
-  hoverPoint,
-  hideTooltips,
-  updateHoverPoint,
-  hideAllTooltipsAndCrosshairs,
-} = useSynchroniseCharts();
+const { hoverPoint, hideTooltips, updateHoverPoint, hideAllTooltipsAndCrosshairs } = useSynchroniseCharts();
 </script>
 
 <style lang="scss" scoped>
