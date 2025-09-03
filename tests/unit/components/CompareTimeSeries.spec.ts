@@ -29,9 +29,7 @@ const plugins = [
       baseline: "USA",
       scenarios: [{
         ...emptyScenario,
-        parameters: {
-          country: "USA",
-        },
+        parameters: { country: "USA" },
         runId: "usaRunId",
         result: {
           data: mockResultResponseData as ScenarioResultData,
@@ -40,9 +38,7 @@ const plugins = [
         },
       }, {
         ...emptyScenario,
-        parameters: {
-          country: "GBR",
-        },
+        parameters: { country: "GBR" },
         runId: "ukRunId",
         result: {
           data: dataWithHigherNumbers,
@@ -90,18 +86,10 @@ vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
         }],
         series: [{
           update: vi.fn((...args) => mockUsaSeriesUpdate(...args)),
-          options: {
-            custom: {
-              scenarioId: "usaRunId",
-            },
-          },
+          options: { custom: { scenarioId: "usaRunId" } },
         }, {
           update: vi.fn((...args) => mockUkSeriesUpdate(...args)),
-          options: {
-            custom: {
-              scenarioId: "ukRunId",
-            },
-          },
+          options: { custom: { scenarioId: "ukRunId" } },
         }],
       }),
       win: actual.default.win,
@@ -118,24 +106,17 @@ vi.mock("highcharts/esm/modules/offline-exporting", () => ({}));
 describe("time series", () => {
   it("should initialise the chart with the correct options for hospitalisations time series group", async () => {
     const chartSpy = vi.spyOn(Highcharts, "chart");
-
     await mountSuspended(CompareTimeSeries, { props, global: { plugins } });
 
     expect(chartSpy).toHaveBeenCalledWith(
       "time-series-comparison-1",
       expect.objectContaining({
-        chart: expect.objectContaining({
-          backgroundColor: "transparent",
-        }),
+        chart: expect.objectContaining({ backgroundColor: "transparent" }),
         exporting: expect.objectContaining({
           filename: "Hospital demand by country",
           chartOptions: expect.objectContaining({
-            title: {
-              text: "Hospital demand by country",
-            },
-            subtitle: {
-              text: "Infections requiring hospitalisation",
-            },
+            title: { text: "Hospital demand by country" },
+            subtitle: { text: "Infections requiring hospitalisation" },
           }),
         }),
         series: expect.arrayContaining([
@@ -144,47 +125,24 @@ describe("time series", () => {
             name: "Country: United States",
             color: colorBlindSafeLargePalette.find(c => c.name === "Purple")!.rgb,
             lineWidth: baselineLineWidth,
-            data: expect.arrayContaining([
-              [1, 0],
-              [3, 7.5818],
-            ]),
-            custom: expect.objectContaining({
-              showInterventions: true,
-              showCapacities: true,
-              isBaseline: true,
-            }),
+            data: expect.arrayContaining([[1, 0], [3, 7.5818]]),
+            custom: expect.objectContaining({ showInterventions: true, showCapacities: true, isBaseline: true }),
           }),
           expect.objectContaining({
             type: "line",
             name: "Country: United Kingdom",
             color: colorBlindSafeLargePalette.find(c => c.name === "Yellow")!.rgb,
             lineWidth: normalLineWidth,
-            data: expect.arrayContaining([
-              [1, 1000],
-              [3, 1007.5818],
-            ]),
-            custom: expect.objectContaining({
-              showInterventions: true,
-              showCapacities: true,
-              isBaseline: false,
-            }),
+            data: expect.arrayContaining([[1, 1000], [3, 1007.5818]]),
+            custom: expect.objectContaining({ showInterventions: true, showCapacities: true, isBaseline: false }),
           }),
         ]),
         xAxis: expect.objectContaining({
-          plotBands: expect.arrayContaining([
-            expect.objectContaining({
-              from: 30,
-              to: 600,
-            }),
-          ]),
+          plotBands: expect.arrayContaining([expect.objectContaining({ from: 30, to: 600 })]),
         }),
         yAxis: expect.objectContaining({
           minRange: 434700,
-          plotLines: expect.arrayContaining([
-            expect.objectContaining({
-              value: 434700,
-            }),
-          ]),
+          plotLines: expect.arrayContaining([expect.objectContaining({ value: 434700 })]),
         }),
       }),
     );
@@ -210,29 +168,17 @@ describe("time series", () => {
         exporting: expect.objectContaining({
           filename: "Vaccinated by country",
           chartOptions: expect.objectContaining({
-            title: {
-              text: "Vaccinated by country",
-            },
-            subtitle: {
-              text: "Total number of vaccinations administered",
-            },
+            title: { text: "Vaccinated by country" },
+            subtitle: { text: "Total number of vaccinations administered" },
           }),
         }),
         series: expect.arrayContaining([
           expect.objectContaining({
-            custom: expect.objectContaining({
-              showInterventions: false,
-              showCapacities: false,
-            }),
+            custom: expect.objectContaining({ showInterventions: false, showCapacities: false }),
           }),
         ]),
-        xAxis: expect.objectContaining({
-          plotBands: [],
-        }),
-        yAxis: expect.objectContaining({
-          minRange: undefined,
-          plotLines: [],
-        }),
+        xAxis: expect.objectContaining({ plotBands: [] }),
+        yAxis: expect.objectContaining({ minRange: undefined, plotLines: [] }),
       }),
     );
   });
@@ -241,12 +187,10 @@ describe("time series", () => {
     const component = await mountSuspended(CompareTimeSeries, { props, global: { plugins } });
 
     await component.setProps({ showCapacities: false });
-
     // Plot line exists only for the baseline (forgrounded) scenario:
     expect(mockRemovePlotLine).toHaveBeenCalledWith("hospital_capacity-434700-usaRunId");
 
     await component.setProps({ showCapacities: true });
-
     expect(mockAddPlotLine).toHaveBeenCalledWith(expect.objectContaining({ id: "hospital_capacity-434700-usaRunId" }));
 
     const newTimeSeriesMetadata = mockedMetadata.results.time_series.find(({ id }) => id === "new_hospitalised");
@@ -256,35 +200,22 @@ describe("time series", () => {
       exporting: expect.objectContaining({
         filename: "New hospitalisations by country",
         chartOptions: expect.objectContaining({
-          title: {
-            text: "New hospitalisations by country",
-          },
-          subtitle: {
-            text: "Number of new patients in need of hospitalisation per day",
-          },
+          title: { text: "New hospitalisations by country" },
+          subtitle: { text: "Number of new patients in need of hospitalisation per day" },
         }),
       }),
     }));
     expect(mockUsaSeriesUpdate).toHaveBeenCalledWith(expect.objectContaining({
-      data: expect.arrayContaining([
-        [1, 0],
-        [3, 3.8318],
-      ]),
+      data: expect.arrayContaining([[1, 0], [3, 3.8318]]),
     }), false);
     expect(mockUkSeriesUpdate).toHaveBeenCalledWith(expect.objectContaining({
-      data: expect.arrayContaining([
-        [1, 1000],
-        [3, 1003.8318],
-      ]),
+      data: expect.arrayContaining([[1, 1000], [3, 1003.8318]]),
     }), false);
     expect(mockRedraw).toHaveBeenCalled();
   });
 
   it("should destroy the chart when the component is unmounted", async () => {
-    const component = await mountSuspended(CompareTimeSeries, {
-      props,
-      global: { plugins },
-    });
+    const component = await mountSuspended(CompareTimeSeries, { props, global: { plugins } });
 
     component.unmount();
     expect(mockDestroy).toHaveBeenCalled();
