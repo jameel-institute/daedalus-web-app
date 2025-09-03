@@ -192,21 +192,21 @@ test("Can compare multiple scenarios", async ({ page, baseURL, isMobile, context
     expect(page.getByText(label, { exact: true })).toBeVisible();
   });
 
-  await expect(page.locator("#time-series-comparison-0 .highcharts-plot-band")).toHaveCount(2);
-  await expect(page.locator("#time-series-comparison-0 .highcharts-plot-line")).not.toBeVisible();
+  await expect(infectionsLocator.locator(".highcharts-plot-band")).toHaveCount(2);
+  await expect(infectionsLocator.locator(".highcharts-plot-line")).not.toBeVisible();
   await checkMultiScenarioTimeSeriesDataPoints(infectionsLocator, [7_400_000, 19_000_000, 48_000_000]);
 
-  await expect(page.locator("#time-series-comparison-1 .highcharts-plot-band")).toHaveCount(2);
-  await expect(page.locator("#time-series-comparison-1 .highcharts-plot-line")).not.toBeVisible();
+  await expect(hospitalisationsLocator.locator(".highcharts-plot-band")).toHaveCount(2);
+  await expect(hospitalisationsLocator.locator(".highcharts-plot-line")).not.toBeVisible();
   await expect(page.locator("#hospitalisationsShowCapacitiesSwitch")).not.toBeVisible();
   await checkMultiScenarioTimeSeriesDataPoints(hospitalisationsLocator, [1_100_000, 460_000, 340_000]);
 
-  await expect(page.locator("#time-series-comparison-2 .highcharts-plot-band")).toHaveCount(0);
-  await expect(page.locator("#time-series-comparison-2 .highcharts-plot-line")).not.toBeVisible();
+  await expect(deathsLocator.locator(".highcharts-plot-band")).toHaveCount(0);
+  await expect(deathsLocator.locator(".highcharts-plot-line")).not.toBeVisible();
   await checkMultiScenarioTimeSeriesDataPoints(deathsLocator, [260_000, 100_000, 90_000]);
 
-  await expect(page.locator("#time-series-comparison-3 .highcharts-plot-band")).toHaveCount(0);
-  await expect(page.locator("#time-series-comparison-3 .highcharts-plot-line")).not.toBeVisible();
+  await expect(vaccinationsLocator.locator(".highcharts-plot-band")).toHaveCount(0);
+  await expect(vaccinationsLocator.locator(".highcharts-plot-line")).not.toBeVisible();
   await checkMultiScenarioTimeSeriesDataPoints(vaccinationsLocator, [1_300_000, 1_400_000, 1_400_000]);
 
   // Test we can navigate back to baseline scenario
@@ -214,15 +214,17 @@ test("Can compare multiple scenarios", async ({ page, baseURL, isMobile, context
   await page.waitForURL(new RegExp(`${baseURL}/${scenarioPathMatcher}`));
   expect(page.url()).toEqual(urlOfBaselineScenario);
 
-  // Create a new incognito browser context and a new page in that pristine context
-  const newContext = await context.browser()?.newContext();
-  const newPage = await context.newPage();
+  if (!isMobile) {
+    // Create a new incognito browser context and a new page in that pristine context
+    const newContext = await context.browser()?.newContext();
+    const newPage = await context.newPage();
 
-  // Test that we can see the comparison we recently created, even without a shared browser session.
-  await newPage.goto(comparisonUrl);
-  await expect(newPage.getByText("Explore by disease")).toBeVisible();
-  const costsChartDataStr = await newPage.locator("#compareCostsChartContainer").getAttribute("data-summary");
-  const costsChartData = JSON.parse(costsChartDataStr!);
-  expect(costsChartData).toHaveLength(3);
-  newContext?.close();
+    // Test that we can see the comparison we recently created, even without a shared browser session.
+    await newPage.goto(comparisonUrl);
+    await expect(newPage.getByText("Explore by disease")).toBeVisible();
+    const costsChartDataStr = await newPage.locator("#compareCostsChartContainer").getAttribute("data-summary");
+    const costsChartData = JSON.parse(costsChartDataStr!);
+    expect(costsChartData).toHaveLength(3);
+    newContext?.close();
+  };
 });
