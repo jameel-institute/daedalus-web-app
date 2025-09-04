@@ -23,7 +23,7 @@ import "highcharts/esm/modules/offline-exporting";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import type { TimeSeriesDataPoint } from "~/types/dataTypes";
 import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions } from "./utils/charts";
-import { multiScenarioTimeSeriesChartTooltipFormatter, timeSeriesChartOptions, timeSeriesColors, timeSeriesXAxisOptions } from "./utils/timeSeriesCharts";
+import { multiScenarioTimeSeriesChartTooltipFormatter, timeSeriesChartOptions, timeSeriesColors, timeSeriesXAxisOptions, timeSeriesYAxisOptions } from "./utils/timeSeriesCharts";
 import { getTimeSeriesDataPoints, showCapacities, showInterventions, timeSeriesYUnits } from "./utils/timeSeriesData";
 import useInterventionPlotBands from "~/composables/useInterventionPlotBands";
 import type { ScenarioIntervention } from "~/types/resultTypes";
