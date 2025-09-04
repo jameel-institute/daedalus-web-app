@@ -19,7 +19,7 @@ test.beforeAll(async () => {
   checkRApiServer();
 });
 
-test("Can compare multiple scenarios", async ({ page, baseURL, isMobile, context }) => {
+test("Can compare multiple scenarios", async ({ page, baseURL, context }) => {
   await waitForNewScenarioPage(page, baseURL);
 
   await selectParameterOption(page, "pathogen", "SARS 2004");
@@ -60,9 +60,6 @@ test("Can compare multiple scenarios", async ({ page, baseURL, isMobile, context
   await expect(page.getByRole("option", { name: "Covid-19 Omicron" })).toHaveCount(0);
 
   await page.getByRole("button", { name: "Compare", exact: true }).click();
-  if (isMobile) { // For unknown reasons, in this test, mobile browsers require an extra click to start the comparison
-    await page.getByRole("button", { name: "Compare", exact: true }).click();
-  }
 
   await page.waitForURL(new RegExp(`${baseURL}/comparison\?.*`));
   const comparisonUrl = page.url();
@@ -214,17 +211,15 @@ test("Can compare multiple scenarios", async ({ page, baseURL, isMobile, context
   await page.waitForURL(new RegExp(`${baseURL}/${scenarioPathMatcher}`));
   expect(page.url()).toEqual(urlOfBaselineScenario);
 
-  if (!isMobile) {
-    // Create a new incognito browser context and a new page in that pristine context
-    const newContext = await context.browser()?.newContext();
-    const newPage = await context.newPage();
+  // Create a new incognito browser context and a new page in that pristine context
+  const newContext = await context.browser()?.newContext();
+  const newPage = await context.newPage();
 
-    // Test that we can see the comparison we recently created, even without a shared browser session.
-    await newPage.goto(comparisonUrl);
-    await expect(newPage.getByText("Explore by disease")).toBeVisible();
-    const costsChartDataStr = await newPage.locator("#compareCostsChartContainer").getAttribute("data-summary");
-    const costsChartData = JSON.parse(costsChartDataStr!);
-    expect(costsChartData).toHaveLength(3);
-    newContext?.close();
-  };
+  // Test that we can see the comparison we recently created, even without a shared browser session.
+  await newPage.goto(comparisonUrl);
+  await expect(newPage.getByText("Explore by disease")).toBeVisible();
+  const costsChartDataStr = await newPage.locator("#compareCostsChartContainer").getAttribute("data-summary");
+  const costsChartData = JSON.parse(costsChartDataStr!);
+  expect(costsChartData).toHaveLength(3);
+  newContext?.close();
 });
