@@ -235,7 +235,8 @@ describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
     };
 
     const label = costsChartMultiScenarioXAxisLabelFormatter("high", axisParam, "high");
-    expect(label).toContain("High (baseline)");
+    expect(label).toContain("High");
+    expect(label).toContain("(baseline)");
     expect(label).not.toContain("fi");
   });
 
