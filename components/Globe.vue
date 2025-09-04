@@ -128,7 +128,7 @@ const prevSelectablePolygon = ref<am5map.MapPolygon | undefined>(undefined);
 const findFeatureForCountry = (countryIso: string) => WHONationalBorders.features.find(f => f.id === countryIso);
 
 const highlightedCountrySeries = computed(() => {
-  if (!appStore.globe.highlightedCountry || !selectableCountriesSeries) {
+  if (!appStore.globe.highlightedCountry) {
     return null;
   };
   // If the corresponding feature of the countrySeries has the state 'hover', then start from the midPoint color
@@ -317,7 +317,7 @@ const highlightCountry = async () => {
   }
 };
 
-watch(highlightedCountrySeries, async (newSeries, oldSeries) => {
+watch(() => highlightedCountrySeries.value, async (newSeries, oldSeries) => {
   if (chart) {
     prevSelectablePolygon.value?.set("active", false);
     if (!appStore.globe.highlightedCountry) {
