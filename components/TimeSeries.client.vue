@@ -23,7 +23,7 @@ import "highcharts/esm/modules/offline-exporting";
 import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions } from "./utils/charts";
-import { plotBandsDefaultColor, plotLinesColor, timeSeriesColors } from "./utils/timeSeriesCharts";
+import { plotBandsDefaultColor, plotLinesColor, timeSeriesChartOptions, timeSeriesColors, timeSeriesXAxisOptions, timeSeriesYAxisOptions } from "./utils/timeSeriesCharts";
 import { getTimeSeriesDataPoints, showInterventions, timeSeriesYUnits } from "./utils/timeSeriesData";
 import useCapacitiesPlotLines from "~/composables/useCapacitiesPlotLines";
 import type { ScenarioIntervention } from "~/types/resultTypes";
@@ -136,10 +136,9 @@ const chartInitialOptions = () => {
     },
     chart: {
       ...chartOptions,
+      ...timeSeriesChartOptions,
       height: props.chartHeight,
-      marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
       marginBottom: 35,
-      marginTop: 15, // Enough space for a label to fit above the plot band
     },
     plotOptions: {
       arearange: {
@@ -159,16 +158,12 @@ const chartInitialOptions = () => {
       valueDecimals: 0,
     },
     xAxis: { // Omit title to save vertical space on page
-      crosshair: true,
-      minTickInterval: 1,
-      min: 1,
+      ...timeSeriesXAxisOptions,
+      max: chartTimeSeries.value[0].data?.length,
       plotBands: initialInterventionsPlotBands,
     },
     yAxis: {
-      title: {
-        text: "",
-      },
-      min: 0,
+      ...timeSeriesYAxisOptions,
       minRange: initialMinRange,
       plotLines: initialCapacitiesPlotLines,
     },

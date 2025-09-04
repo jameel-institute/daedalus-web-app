@@ -24,3 +24,19 @@ export const multiScenarioTimeSeriesChartTooltipFormatter = (point: TooltipPoint
   return `${point.series.name}<br/>${dayText}${yText}`
     + ` (baseline: ${humanReadableInteger(matchingPointInBaseline?.y?.toFixed(0) ?? "0")})`;
 };
+
+export const timeSeriesChartOptions = {
+  marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
+  marginTop: 15, // Enough space for a label to fit above the plot band
+};
+
+export const timeSeriesXAxisOptions = {
+  crosshair: true,
+  minTickInterval: 1,
+  min: 1,
+};
+
+export const timeSeriesYAxisOptions = {
+  title: { text: "" },
+  min: 0,
+};

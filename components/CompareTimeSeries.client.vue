@@ -23,7 +23,7 @@ import "highcharts/esm/modules/offline-exporting";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import type { TimeSeriesDataPoint } from "~/types/dataTypes";
 import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions } from "./utils/charts";
-import { multiScenarioTimeSeriesChartTooltipFormatter, timeSeriesColors } from "./utils/timeSeriesCharts";
+import { multiScenarioTimeSeriesChartTooltipFormatter, timeSeriesChartOptions, timeSeriesColors, timeSeriesXAxisOptions } from "./utils/timeSeriesCharts";
 import { getTimeSeriesDataPoints, showCapacities, showInterventions, timeSeriesYUnits } from "./utils/timeSeriesData";
 import useInterventionPlotBands from "~/composables/useInterventionPlotBands";
 import type { ScenarioIntervention } from "~/types/resultTypes";
@@ -85,10 +85,7 @@ const chartTimeSeries = computed(() => {
       fillOpacity: 0.4,
       marker: { symbol: "circle" },
       lineWidth: isBaseline ? 3 : 1.5,
-      states: {
-        hover: { lineWidth: 3, opacity: 1 },
-        inactive: { opacity: 0.5 },
-      },
+      states: { hover: { lineWidth: 3, opacity: 1 }, inactive: { opacity: 0.5 } },
       zIndex: isBaseline ? 2 : 1,
       custom: {
         synchronized: true,
@@ -135,12 +132,12 @@ const interventions = computed(() => {
     return [];
   }
   const triggerPlotBandUpdate = !!props.synchPoint && hoveredChartShowsInterventions;
-  const indexOfForegroundedSeries = appStore.currentComparison.scenarios.findIndex(s => s.runId === foregroundedScenario?.runId);
+  const indexOfForegroundedSeries = appStore.currentComparison.scenarios.findIndex(s => s.runId === foregroundedScenario.runId);
   const intvns = appStore.getScenarioResponseInterventions(foregroundedScenario);
   return intvns?.map((intvn: ScenarioIntervention) => {
     const label = triggerPlotBandUpdate ? `Intervention days ${intvn.start.toFixed(0)}–${intvn.end.toFixed(0)}` : ""; // No label if nothing is hovered
     // unique id lets Highcharts track individual plot bands for removePlotBand and addPlotBand
-    const id = `${foregroundedScenario?.runId}-${intvn.start}-${intvn.end}-${triggerPlotBandUpdate}`;
+    const id = `${foregroundedScenario.runId}-${intvn.start}-${intvn.end}-${triggerPlotBandUpdate}`;
     const color = timeSeriesColors[indexOfForegroundedSeries % timeSeriesColors.length];
     return { ...intvn, color, id, label };
   });
@@ -169,10 +166,9 @@ const chartInitialOptions = () => {
     credits: { enabled: false }, // Omit credits to allow us to reduce margin and save vertical space on page. We must credit Highcharts elsewhere.
     chart: {
       ...chartOptions,
+      ...timeSeriesChartOptions,
       height: 250,
-      marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
       marginBottom: 55,
-      marginTop: 15, // Enough space for a label to fit above the plot band
     },
     exporting: exportingOptions.value,
     title: { text: "" },
@@ -184,16 +180,13 @@ const chartInitialOptions = () => {
       },
     },
     xAxis: {
+      ...timeSeriesXAxisOptions,
       title: { text: "Days since outbreak" },
-      crosshair: true,
-      minTickInterval: 1,
-      min: 1,
       max: chartTimeSeries.value[0].data?.length,
       plotBands: initialInterventionsPlotBands,
     },
     yAxis: {
-      title: { text: "" },
-      min: 0,
+      ...timeSeriesYAxisOptions,
       minRange: initialMinRange,
       plotLines: initialCapacitiesPlotLines,
     },
