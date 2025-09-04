@@ -48,7 +48,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.getByText("305,000").first()).toBeVisible();
 
   // Check for GDP percentage headline figure
-  await expect(page.getByText(/\d{1,3}(\.\d+)?%of 2018 GDP/)).toBeVisible({ timeout: 20000 });
+  await expect(page.getByText(/\d{1,3}(\.\d+)?%of GDP/)).toBeVisible({ timeout: 20000 });
   // Check for USD$ headline figure
   await expect(page.getByText(/\$.*USD \d{1,3}\.\d[BTM]$/)).toBeVisible();
 
@@ -176,7 +176,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   });
 
   // Check that after toggling the cost basis we see different data.
-  await page.getByLabel("as % of 2018 GDP").check();
+  await page.getByLabel("as % of GDP").check();
   const costsChartDataGdpStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
   const costsChartDataGdp = JSON.parse(costsChartDataGdpStr!);
   expect(costsChartDataGdp).toHaveLength(4);
@@ -245,8 +245,8 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   checkBarChartDataIsDifferent(costsChartDataUsd, costsChart2Data);
   checkBarChartDataIsDifferent(costsChartDataGdp, costsChart2Data);
 
-  // Test that the second analysis retains the user's preference for the "as % of 2018 GDP" cost basis.
-  await expect(page.getByLabel("as % of 2018 GDP")).toBeChecked();
+  // Test that the second analysis retains the user's preference for the "as % of GDP" cost basis.
+  await expect(page.getByLabel("as % of GDP")).toBeChecked();
 
   // Test that the user can navigate to previously-run analyses, including when the page is initially rendered server-side.
   await page.goto(urlOfFirstAnalysis);

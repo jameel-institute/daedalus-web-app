@@ -21,9 +21,16 @@
           :key="scenario.runId"
         >
           <div class="d-flex flex-column">
-            <span v-if="index === 0" class="boldish">
-              {{ unitHeaderText }}
-            </span>
+            <template v-if="index === 0">
+              <span v-if="appStore.preferences.costBasis === CostBasis.PercentGDP" class="boldish">
+                % of GDP
+              </span>
+              <div v-else>
+                <span class="boldish">
+                  $, millions ({{ gdpReferenceYear }} USD)
+                </span>
+              </div>
+            </template>
             <span v-if="multiScenario" class="fw-medium">
               {{ scenarioLabel(scenario) }}
             </span>
@@ -113,11 +120,6 @@ const appStore = useAppStore();
 const vslFull = "Value of statistical life";
 
 const multiScenario = computed(() => props.scenarios.length > 1);
-const unitHeaderText = computed(() => {
-  return appStore.preferences.costBasis === CostBasis.PercentGDP
-    ? `% of ${gdpReferenceYear} GDP`
-    : "$, millions";
-});
 
 const scenarioLabel = (scenario: Scenario) => {
   const axisVal = appStore.getScenarioAxisValue(scenario);
