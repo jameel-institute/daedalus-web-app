@@ -96,6 +96,10 @@ body {
   }
 }
 
+.form-check-input {
+  border-color: var(--cui-border-color-translucent);
+}
+
 // Undoes styling for '.btn-check + .btn:hover' to (nearly) match that of '.btn:hover'
 .btn-group {
   .btn-check + .btn:hover {
