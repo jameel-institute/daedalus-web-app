@@ -109,6 +109,10 @@ const hoveredScenario = computed(() => appStore.currentComparison.scenarios.find
 const capacities = computed(() => {
   const hoveredChartShowsCapacities = props.synchPoint?.series?.options?.custom?.showCapacities === true;
   const foregroundedScenario = hoveredChartShowsCapacities ? hoveredScenario.value : appStore.baselineScenario;
+  if (!foregroundedScenario) {
+    return [];
+  }
+  const indexOfForegroundedSeries = appStore.currentComparison.scenarios.findIndex(s => s.runId === foregroundedScenario.runId);
   const caps = foregroundedScenario?.result.data?.capacities;
 
   return caps?.map((capacity) => {
@@ -116,7 +120,8 @@ const capacities = computed(() => {
       .find(({ id: capacityId }) => capacityId === capacity.id)
       ?.label || "";
     const id = `${capacity.id}-${capacity.value}-${foregroundedScenario?.runId}`; // Ensure unique id for plot line
-    return { ...capacity, id, label };
+    const color = timeSeriesColors[indexOfForegroundedSeries % timeSeriesColors.length];
+    return { ...capacity, id, label, color };
   });
 });
 const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(() => props.showCapacities, capacities, () => chart.value?.yAxis[0]);
@@ -134,6 +139,7 @@ const interventions = computed(() => {
   const triggerPlotBandUpdate = !!props.synchPoint && hoveredChartShowsInterventions;
   const indexOfForegroundedSeries = appStore.currentComparison.scenarios.findIndex(s => s.runId === foregroundedScenario.runId);
   const intvns = appStore.getScenarioResponseInterventions(foregroundedScenario);
+
   return intvns?.map((intvn: ScenarioIntervention) => {
     const label = triggerPlotBandUpdate ? `Intervention days ${intvn.start.toFixed(0)}–${intvn.end.toFixed(0)}` : ""; // No label if nothing is hovered
     // unique id lets Highcharts track individual plot bands for removePlotBand and addPlotBand

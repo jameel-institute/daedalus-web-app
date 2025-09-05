@@ -90,6 +90,7 @@ vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
         }, {
           update: vi.fn((...args) => mockUkSeriesUpdate(...args)),
           options: { custom: { scenarioId: "ukRunId" } },
+          getValidPoints: () => [],
         }],
       }),
       win: actual.default.win,
@@ -138,11 +139,18 @@ describe("time series", () => {
           }),
         ]),
         xAxis: expect.objectContaining({
-          plotBands: expect.arrayContaining([expect.objectContaining({ from: 30, to: 600 })]),
+          plotBands: expect.arrayContaining([expect.objectContaining({
+            from: 30,
+            to: 600,
+            color: "rgba(238,51,119,0.3)", // 'Purple' with alpha 0.3,
+          })]),
         }),
         yAxis: expect.objectContaining({
           minRange: 434700,
-          plotLines: expect.arrayContaining([expect.objectContaining({ value: 434700 })]),
+          plotLines: expect.arrayContaining([expect.objectContaining({
+            value: 434700,
+            color: colorBlindSafeLargePalette.find(c => c.name === "Purple")!.rgb,
+          })]),
         }),
       }),
     );
@@ -191,7 +199,25 @@ describe("time series", () => {
     expect(mockRemovePlotLine).toHaveBeenCalledWith("hospital_capacity-434700-usaRunId");
 
     await component.setProps({ showCapacities: true });
-    expect(mockAddPlotLine).toHaveBeenCalledWith(expect.objectContaining({ id: "hospital_capacity-434700-usaRunId" }));
+    expect(mockAddPlotLine).toHaveBeenCalledWith(expect.objectContaining({
+      id: "hospital_capacity-434700-usaRunId",
+      color: colorBlindSafeLargePalette.find(c => c.name === "Purple")!.rgb,
+    }));
+
+    await component.setProps({
+      synchPoint: {
+        x: 1,
+        y: 2,
+        series: {
+          options: { custom: { scenarioId: "ukRunId", showCapacities: true }, type: "line" },
+        },
+      },
+    });
+    expect(mockRemovePlotLine).toHaveBeenCalledTimes(2); // Removed the plot line a second time
+    expect(mockAddPlotLine).toHaveBeenCalledWith(expect.objectContaining({
+      id: "hospital_capacity-434700-ukRunId",
+      color: colorBlindSafeLargePalette.find(c => c.name === "Yellow")!.rgb,
+    }));
 
     const newTimeSeriesMetadata = mockedMetadata.results.time_series.find(({ id }) => id === "new_hospitalised");
     await component.setProps({ timeSeriesMetadata: newTimeSeriesMetadata });

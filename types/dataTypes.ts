@@ -8,5 +8,6 @@ export type TimeSeriesIntervention = ScenarioIntervention & {
 };
 
 export type TimeSeriesCapacity = ScenarioCapacity & {
+  color: string
   label: string
 };
