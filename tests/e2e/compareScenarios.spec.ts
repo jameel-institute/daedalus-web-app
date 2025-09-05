@@ -19,7 +19,7 @@ test.beforeAll(async () => {
   checkRApiServer();
 });
 
-test("Can compare multiple scenarios", async ({ page, baseURL, context }) => {
+test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page }) => {
   await waitForNewScenarioPage(page, baseURL);
 
   await selectParameterOption(page, "pathogen", "SARS 2004");
@@ -60,6 +60,9 @@ test("Can compare multiple scenarios", async ({ page, baseURL, context }) => {
   await expect(page.getByRole("option", { name: "Covid-19 Omicron" })).toHaveCount(0);
 
   await page.getByRole("button", { name: "Compare", exact: true }).click();
+  if (isMobile) { // For unknown reasons, in this test, mobile browsers require an extra click to start the comparison
+    await page.getByRole("button", { name: "Compare", exact: true }).click();
+  }
 
   await page.waitForURL(new RegExp(`${baseURL}/comparison\?.*`));
   const comparisonUrl = page.url();
