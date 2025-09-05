@@ -1,28 +1,22 @@
 import { humanReadableInteger } from "~/components/utils/formatters";
-import { plotLinesColor } from "~/components/utils/highCharts";
-import type { ScenarioCapacity } from "~/types/resultTypes";
+import { plotLinesColor } from "~/components/utils/timeSeriesCharts";
+import type { TimeSeriesCapacity } from "~/types/dataTypes";
 
 export default (
   showCapacities: MaybeRefOrGetter<boolean>,
-  capacities: MaybeRefOrGetter<Array<ScenarioCapacity> | undefined>,
-  chart: MaybeRefOrGetter<Highcharts.Chart | undefined>,
+  capacities: MaybeRefOrGetter<Array<TimeSeriesCapacity> | undefined>,
+  yAxis: MaybeRefOrGetter<Highcharts.Axis | undefined>,
 ) => {
-  const appStore = useAppStore();
-
   const capacitiesPlotLines = computed(() => {
     if (!toValue(showCapacities) || !toValue(capacities)?.length) {
       return [];
     }
 
-    return toValue(capacities)?.map(({ id, value }) => {
-      const capacityLabel = appStore.metadata?.results.capacities
-        .find(({ id: capacityId }) => capacityId === id)
-        ?.label;
-
+    return toValue(capacities)?.map(({ id, value, label }) => {
       return {
         color: plotLinesColor,
         label: {
-          text: `${capacityLabel}: ${humanReadableInteger(value.toString())}`,
+          text: `${label}: ${humanReadableInteger(value.toString())}`,
           style: {
             color: plotLinesColor,
           },
@@ -31,7 +25,7 @@ export default (
         width: 2,
         value,
         zIndex: 4, // Render label in front of the series line
-        id: `${id}-${value.toString()}`,
+        id,
       };
     }) as Array<Highcharts.AxisPlotLinesOptions>;
   });
@@ -47,23 +41,27 @@ export default (
   });
 
   watch(capacitiesPlotLines, (newLines, oldLines) => {
-    const yAxis = toValue(chart)?.yAxis[0];
-
     oldLines?.filter(({ id }) => {
       return !!id && !newLines?.map(n => n.id).includes(id);
     }).forEach(({ id }) => {
-      !!id && yAxis?.removePlotLine(id);
+      !!id && toValue(yAxis)?.removePlotLine(id);
     });
 
     newLines?.forEach((newLine) => {
       if (!oldLines?.map(o => o.id).includes(newLine.id)) {
-        yAxis?.addPlotLine(newLine);
+        toValue(yAxis)?.addPlotLine(newLine);
       }
     });
   });
 
+  watch(minRange, (newMinRange) => {
+    if (toValue(yAxis)?.options?.minRange !== newMinRange) {
+      toValue(yAxis)?.update({ minRange: newMinRange });
+    };
+  });
+
   return {
     initialCapacitiesPlotLines: capacitiesPlotLines.value,
-    minRange,
+    initialMinRange: minRange.value,
   };
 };

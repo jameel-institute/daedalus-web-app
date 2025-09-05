@@ -1,22 +1,8 @@
-import Highcharts from "highcharts/esm/highcharts";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import type { TimeSeriesIntervention } from "~/types/dataTypes";
 
 const mockRemovePlotBand = vi.fn();
 const mockAddPlotBand = vi.fn();
-
-vi.mock("highcharts/esm/highcharts", async () => {
-  return {
-    default: {
-      chart: () => ({
-        xAxis: [{
-          removePlotBand: vi.fn(arg => mockRemovePlotBand(arg)),
-          addPlotBand: vi.fn(arg => mockAddPlotBand(arg)),
-        }],
-      }),
-    },
-  };
-});
 
 const prevalenceTimeSeriesMetadata = {
   id: "prevalence",
@@ -73,9 +59,12 @@ describe("useInterventionsPlotBands", () => {
 
     const timeSeriesMetadata = ref<DisplayInfo>(prevalenceTimeSeriesMetadata);
     const interventions = ref<Array<TimeSeriesIntervention> | undefined>(undefined);
-    const chart = ref(Highcharts.chart("", {}));
+    const xAxis = ref({
+      removePlotBand: vi.fn(arg => mockRemovePlotBand(arg)),
+      addPlotBand: vi.fn(arg => mockAddPlotBand(arg)),
+    } as unknown as Highcharts.Axis);
 
-    const { initialInterventionsPlotBands } = useInterventionPlotBands(timeSeriesMetadata, interventions, chart);
+    const { initialInterventionsPlotBands } = useInterventionPlotBands(timeSeriesMetadata, interventions, xAxis);
 
     expect(initialInterventionsPlotBands).toEqual([]);
     expect(mockRemovePlotBand).not.toHaveBeenCalled();

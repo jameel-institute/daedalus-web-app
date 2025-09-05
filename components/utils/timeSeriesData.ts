@@ -38,3 +38,8 @@ export const responseInterventionId = "response";
 export const showInterventions = (seriesId: string): boolean => {
   return ["hospitalised", "new_hospitalised", "prevalence", "new_infected"].includes(seriesId);
 };
+
+// https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
+export const showCapacities = (seriesId: string | undefined): boolean => {
+  return seriesId === "hospitalised";
+};

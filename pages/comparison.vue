@@ -10,7 +10,7 @@
     </CAlert>
     <div class="d-flex mb-3 flex-wrap gap-2">
       <h1 class="fs-3 mb-0 pt-1 pe-5 me-auto text-nowrap flex-fill">
-        Explore by {{ appStore.axisLabel?.toLocaleLowerCase() }}
+        Explore by {{ appStore.axisMetadata?.label.toLocaleLowerCase() }}
       </h1>
       <ParameterInfoCard :scenario="appStore.baselineScenario">
         <template #header>
@@ -48,9 +48,7 @@
               <CompareCostsPane />
             </CTabPanel>
             <CTabPanel item-key="timeseries">
-              <p class="time-series-example">
-                A time series
-              </p>
+              <CompareTimeSeriesPane />
             </CTabPanel>
           </CTabContent>
         </CTabs>

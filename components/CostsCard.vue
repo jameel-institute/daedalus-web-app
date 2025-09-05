@@ -87,7 +87,8 @@ const totalCostAbbr = computed(() => {
   }
 });
 
-const scenarioDuration = computed(() => Object.values(appStore.timeSeriesData || {})[0].length - 1);
+const scenarioDuration = computed(() =>
+  Object.values(appStore.currentScenario.result.data?.time_series || {})[0].length - 1);
 </script>
 
 <style lang="scss" scoped>
