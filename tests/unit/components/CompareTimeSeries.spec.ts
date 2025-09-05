@@ -9,17 +9,20 @@ import Highcharts from "highcharts/esm/highcharts";
 import { CompareTimeSeries } from "#components";
 import type { DisplayInfo, ScenarioResultData } from "~/types/apiResponseTypes";
 import { colorBlindSafeLargePalette } from "~/components/utils/charts";
+import type { VueWrapper } from "@vue/test-utils";
 
 const baselineLineWidth = 3;
 const normalLineWidth = 1.5;
 
-const timeSeriesMetadata = mockedMetadata.results.time_series.find(({ id }) => id === "hospitalised");
 const dataWithHigherNumbers = {
   ...mockResultResponseData,
   time_series: Object.entries(mockResultResponseData.time_series).reduce(
     (acc, [k, data]) => ({ ...acc, [k]: data.map(d => d + 1000) }),
     {},
   ),
+  capacities: mockResultResponseData.capacities.map((capacity) => {
+    return { ...capacity, value: capacity.value + 1000 };
+  }),
 } as ScenarioResultData;
 
 const plugins = [
@@ -50,13 +53,6 @@ const plugins = [
     metadata: mockMetadataResponseData,
   }, false, { stubActions: false }),
 ];
-const props = {
-  groupIndex: 1,
-  hideTooltips: false,
-  showCapacities: true,
-  synchPoint: { x: 1, y: 2 } as Highcharts.Point,
-  timeSeriesMetadata: timeSeriesMetadata as DisplayInfo,
-};
 
 const mockDestroy = vi.fn();
 const mockUpdate = vi.fn();
@@ -90,6 +86,7 @@ vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
         }, {
           update: vi.fn((...args) => mockUkSeriesUpdate(...args)),
           options: { custom: { scenarioId: "ukRunId" } },
+          getValidPoints: () => [],
         }],
       }),
       win: actual.default.win,
@@ -102,6 +99,26 @@ vi.mock("highcharts/esm/modules/accessibility", () => ({}));
 vi.mock("highcharts/esm/modules/exporting", () => ({}));
 vi.mock("highcharts/esm/modules/export-data", () => ({}));
 vi.mock("highcharts/esm/modules/offline-exporting", () => ({}));
+
+const hospitalisedTimeSeriesMetadata = mockedMetadata.results.time_series.find(({ id }) => id === "hospitalised");
+const props = {
+  groupIndex: 1,
+  hideTooltips: false,
+  showCapacities: true,
+  synchPoint: { x: 1, y: 2 } as Highcharts.Point,
+  timeSeriesMetadata: hospitalisedTimeSeriesMetadata as DisplayInfo,
+};
+const hoverSeriesByScenarioId = async (component: VueWrapper, scenarioId: string) => {
+  await component.setProps({
+    synchPoint: {
+      x: 1,
+      y: 2,
+      series: {
+        options: { custom: { scenarioId, showCapacities: true }, type: "line" },
+      },
+    },
+  });
+};
 
 describe("time series", () => {
   it("should initialise the chart with the correct options for hospitalisations time series group", async () => {
@@ -138,11 +155,18 @@ describe("time series", () => {
           }),
         ]),
         xAxis: expect.objectContaining({
-          plotBands: expect.arrayContaining([expect.objectContaining({ from: 30, to: 600 })]),
+          plotBands: expect.arrayContaining([expect.objectContaining({
+            from: 30,
+            to: 600,
+            color: "rgba(238,51,119,0.3)", // 'Purple' with alpha 0.3,
+          })]),
         }),
         yAxis: expect.objectContaining({
           minRange: 434700,
-          plotLines: expect.arrayContaining([expect.objectContaining({ value: 434700 })]),
+          plotLines: expect.arrayContaining([expect.objectContaining({
+            value: 434700,
+            color: colorBlindSafeLargePalette.find(c => c.name === "Purple")!.rgb,
+          })]),
         }),
       }),
     );
@@ -151,7 +175,7 @@ describe("time series", () => {
   it("should initialise the chart with the correct options for vaccinations time series group", async () => {
     const chartSpy = vi.spyOn(Highcharts, "chart");
 
-    await mountSuspended(CompareTimeSeries, {
+    const component = await mountSuspended(CompareTimeSeries, {
       props: {
         groupIndex: 3,
         hideTooltips: true,
@@ -181,26 +205,71 @@ describe("time series", () => {
         yAxis: expect.objectContaining({ minRange: undefined, plotLines: [] }),
       }),
     );
+
+    // Switching the hovered scenario to a non-baseline scenario while the axis of comparison is 'country' should
+    // not add or remove any plot lines
+    await hoverSeriesByScenarioId(component, "ukRunId");
+    expect(mockRemovePlotLine).not.toHaveBeenCalled();
+    expect(mockAddPlotLine).not.toHaveBeenCalled();
   });
 
-  it("should update the chart when props change", async () => {
-    const component = await mountSuspended(CompareTimeSeries, { props, global: { plugins } });
+  it("should update the chart when props change (with hospital capacity as the axis of comparison)", async () => {
+    const pinia = mockPinia({
+      currentComparison: {
+        axis: "hospital_capacity",
+        baseline: "434700",
+        scenarios: [{
+          ...emptyScenario,
+          parameters: { hospital_capacity: "434700" },
+          runId: "usaRunId",
+          result: {
+            data: mockResultResponseData as ScenarioResultData,
+            fetchError: undefined,
+            fetchStatus: "success",
+          },
+        }, {
+          ...emptyScenario,
+          parameters: { hospital_capacity: "435700" },
+          runId: "ukRunId",
+          result: {
+            data: dataWithHigherNumbers as ScenarioResultData,
+            fetchError: undefined,
+            fetchStatus: "success",
+          },
+        }],
+      },
+      metadata: mockMetadataResponseData,
+    }, false, { stubActions: false });
+    const component = await mountSuspended(CompareTimeSeries, { props, global: { plugins: [pinia] } });
 
     await component.setProps({ showCapacities: false });
     // Plot line exists only for the baseline (forgrounded) scenario:
     expect(mockRemovePlotLine).toHaveBeenCalledWith("hospital_capacity-434700-usaRunId");
 
     await component.setProps({ showCapacities: true });
-    expect(mockAddPlotLine).toHaveBeenCalledWith(expect.objectContaining({ id: "hospital_capacity-434700-usaRunId" }));
+    expect(mockAddPlotLine).toHaveBeenCalledWith(expect.objectContaining({
+      id: "hospital_capacity-434700-usaRunId",
+      color: colorBlindSafeLargePalette.find(c => c.name === "Purple")!.rgb,
+      value: 434700,
+    }));
+
+    // Switching the hovered scenario to a non-baseline scenario while the axis of comparison is 'hospital_capacity' triggers a plot line update
+    await hoverSeriesByScenarioId(component, "ukRunId");
+    expect(mockRemovePlotLine).toHaveBeenCalledTimes(2); // Called once more to remove the previous plot line
+    expect(mockAddPlotLine).toHaveBeenCalledWith(expect.objectContaining({
+      id: "hospital_capacity-435700-ukRunId",
+      color: colorBlindSafeLargePalette.find(c => c.name === "Yellow")!.rgb,
+      value: 435700,
+    }));
 
     const newTimeSeriesMetadata = mockedMetadata.results.time_series.find(({ id }) => id === "new_hospitalised");
     await component.setProps({ timeSeriesMetadata: newTimeSeriesMetadata });
 
     expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({
       exporting: expect.objectContaining({
-        filename: "New hospitalisations by country",
+        filename: "New hospitalisations by hospital surge capacity",
         chartOptions: expect.objectContaining({
-          title: { text: "New hospitalisations by country" },
+          title: { text: "New hospitalisations by hospital surge capacity" },
           subtitle: { text: "Number of new patients in need of hospitalisation per day" },
         }),
       }),
