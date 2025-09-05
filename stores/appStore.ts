@@ -51,6 +51,7 @@ export const useAppStore = defineStore("app", {
     currentComparison: emptyComparison,
     preferences: {
       costBasis: CostBasis.USD, // Default cost basis for first-time visitors
+      openedTimeSeriesAccordions: [], // Default to no accordions open for first-time visitors
     },
   }),
   persist: {
