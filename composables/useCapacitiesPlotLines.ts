@@ -1,6 +1,6 @@
 import { humanReadableInteger } from "~/components/utils/formatters";
-import { plotLinesColor } from "~/components/utils/timeSeriesCharts";
 import type { Scenario } from "~/types/storeTypes";
+import { plotLinesColor, plotLinesWidthPx } from "~/components/utils/timeSeriesCharts";
 
 export default (
   showCapacities: MaybeRefOrGetter<boolean>,
@@ -30,7 +30,8 @@ export default (
           },
           align: "middle",
         },
-        width: 2,
+        dashStyle: "ShortDot",
+        width: plotLinesWidthPx,
         value,
         zIndex: 4, // Render label in front of the series line
         id: `${id}-${value}-${toValue(scenario)?.runId}`, // Ensure unique id for plot line
