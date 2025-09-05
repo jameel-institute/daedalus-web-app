@@ -130,7 +130,7 @@ test("Can compare multiple scenarios", async ({ page, baseURL, isMobile }) => {
   });
 
   // Check that after toggling the cost basis we see different data.
-  await page.getByLabel("as % of 2018 GDP").check();
+  await page.getByLabel("as % of pre-pandemic GDP").check();
   const costsChartDataGdpStr = await page.locator("#compareCostsChartContainer").getAttribute("data-summary");
   const costsChartDataGdp = JSON.parse(costsChartDataGdpStr!);
   expect(costsChartDataGdp).toHaveLength(3);

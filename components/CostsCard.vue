@@ -26,7 +26,7 @@
               <span>%</span>
             </p>
             <p id="gdpTotalCostPercentReferent" class="mt-0 mb-0">
-              <span>of {{ gdpReferenceYear }} GDP</span>
+              <span>of GDP</span>
             </p>
           </div>
         </div>
@@ -65,7 +65,7 @@
 </template>
 
 <script lang="ts" setup>
-import { costAsPercentOfGdp, gdpReferenceYear, humanReadablePercentOfGdp } from "@/components/utils/formatters";
+import { costAsPercentOfGdp, humanReadablePercentOfGdp } from "@/components/utils/formatters";
 import { abbreviateMillionsDollars } from "@/utils/money";
 import { CIcon } from "@coreui/icons-vue";
 
