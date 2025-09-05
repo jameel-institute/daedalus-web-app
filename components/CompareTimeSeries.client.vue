@@ -108,7 +108,11 @@ const hoveredScenario = computed(() => appStore.currentComparison.scenarios.find
 // for charts that do show capacities, continue to show the baseline scenario's capacities.
 const capacities = computed(() => {
   const hoveredChartShowsCapacities = props.synchPoint?.series?.options?.custom?.showCapacities === true;
-  const foregroundedScenario = hoveredChartShowsCapacities ? hoveredScenario.value : appStore.baselineScenario;
+  const axisIsHospitalCapacity = appStore.axisMetadata?.id === "hospital_capacity";
+  const foregroundedScenario = hoveredChartShowsCapacities && axisIsHospitalCapacity
+    ? hoveredScenario.value
+    : appStore.baselineScenario;
+
   if (!foregroundedScenario) {
     return [];
   }
