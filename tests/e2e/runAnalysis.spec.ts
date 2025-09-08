@@ -176,7 +176,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   });
 
   // Check that after toggling the cost basis we see different data.
-  await page.getByLabel("as % of GDP").check();
+  await page.getByLabel("as % of pre-pandemic GDP").check();
   const costsChartDataGdpStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
   const costsChartDataGdp = JSON.parse(costsChartDataGdpStr!);
   expect(costsChartDataGdp).toHaveLength(4);
@@ -246,7 +246,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   checkBarChartDataIsDifferent(costsChartDataGdp, costsChart2Data);
 
   // Test that the second analysis retains the user's preference for the "as % of GDP" cost basis.
-  await expect(page.getByLabel("as % of GDP")).toBeChecked();
+  await expect(page.getByLabel("as % of pre-pandemic GDP")).toBeChecked();
 
   // Test that the user can navigate to previously-run analyses, including when the page is initially rendered server-side.
   await page.goto(urlOfFirstAnalysis);
