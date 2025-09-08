@@ -204,7 +204,7 @@ describe("costs chart", () => {
           }),
           yAxis: expect.objectContaining({
             title: expect.objectContaining({
-              text: "Losses as % of 2018 national GDP",
+              text: "Losses as % of GDP",
             }),
           }),
           series: expectedPercentGDPSeries,
@@ -249,7 +249,7 @@ describe("costs chart", () => {
           }),
           yAxis: expect.objectContaining({
             title: expect.objectContaining({
-              text: "Losses in billions USD",
+              text: "Losses in billions 2018 USD",
             }),
           }),
           series: expectedUSDSeries,
@@ -278,7 +278,7 @@ describe("costs chart", () => {
         expect.objectContaining({
           yAxis: expect.objectContaining({
             title: expect.objectContaining({
-              text: "Losses as % of 2018 national GDP",
+              text: "Losses as % of GDP",
             }),
           }),
           series: expectedPercentGDPSeries,
@@ -307,7 +307,7 @@ describe("costs chart", () => {
         expect.objectContaining({
           yAxis: expect.objectContaining({
             title: expect.objectContaining({
-              text: "Losses in billions USD",
+              text: "Losses in billions 2018 USD",
             }),
           }),
           series: expectedUSDSeries,
