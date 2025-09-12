@@ -7,19 +7,27 @@
         v-model="appStore.preferences.costBasis"
         :inline="true"
         type="radio"
-        :label="`as % of ${gdpReferenceYear} GDP`"
+        label="as % of pre-pandemic GDP"
         :value="CostBasis.PercentGDP"
+      />
+      <CFormCheck
+        id="costBasisUsd"
+        v-model="appStore.preferences.costBasis"
+        :inline="true"
+        type="radio"
+        label="in USD"
+        :value="CostBasis.USD"
       >
         <template #label>
           <span>
-            as % of {{ gdpReferenceYear }} GDP
+            in {{ gdpReferenceYear }} USD
             <TooltipHelp
               :help-text="gdpVariesByScenario
                 ? undefined
-                : `${gdpReferenceYear} GDP: ${scenarioGdpLabel(scenarios[0])}`
+                : `USD values based on ${gdpReferenceYear} GDP of ${scenarioGdpLabel(scenarios[0])}`
               "
               :list-header="gdpVariesByScenario
-                ? `${gdpReferenceYear} GDPs:`
+                ? `USD values based on ${gdpReferenceYear} GDPs:`
                 : undefined"
               :list-items="gdpVariesByScenario
                 ? scenarios.map((s) => `${scenarioLabel(s)}: ${scenarioGdpLabel(s)}`)
@@ -30,14 +38,6 @@
           </span>
         </template>
       </CFormCheck>
-      <CFormCheck
-        id="costBasisUsd"
-        v-model="appStore.preferences.costBasis"
-        :inline="true"
-        type="radio"
-        label="in USD"
-        :value="CostBasis.USD"
-      />
     </div>
   </div>
 </template>
@@ -63,7 +63,7 @@ const scenarioGdpLabel = (scenario: Scenario) => {
     return;
   }
   const { amount, unit } = expressMillionsDollarsAsBillions(gdp, 1);
-  return `$${amount} ${unit} USD`;
+  return `$${amount} ${unit}`;
 };
 
 const scenarioLabel = (scenario: Scenario) => `${appStore.getScenarioAxisLabel(scenario)}`
