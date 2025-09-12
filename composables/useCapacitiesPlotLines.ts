@@ -1,5 +1,4 @@
 import { humanReadableInteger } from "~/components/utils/formatters";
-import { plotLinesColor } from "~/components/utils/timeSeriesCharts";
 import type { TimeSeriesCapacity } from "~/types/dataTypes";
 
 export default (
@@ -12,13 +11,13 @@ export default (
       return [];
     }
 
-    return toValue(capacities)?.map(({ id, value, label }) => {
+    return toValue(capacities)?.map(({ id, value, label, color }) => {
       return {
-        color: plotLinesColor,
+        color,
         label: {
           text: `${label}: ${humanReadableInteger(value.toString())}`,
           style: {
-            color: plotLinesColor,
+            color,
           },
           align: "middle",
         },
