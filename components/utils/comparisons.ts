@@ -7,7 +7,7 @@ export const MIN_SCENARIOS_COMPARED_TO_BASELINE = 1;
 export const MAX_SCENARIOS_COMPARED_TO_BASELINE = 5;
 
 // A short name for referring to a scenario in the context of a comparison.
-export const getScenarioLabel = (category: string, axisParam: Parameter | undefined): string => {
+export const getScenarioLabel = (category: string | undefined, axisParam: Parameter | undefined): string => {
   if (axisParam?.parameterType === TypeOfParameter.Numeric) {
     return humanReadableInteger(category);
   } else {

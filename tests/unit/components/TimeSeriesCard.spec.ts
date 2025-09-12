@@ -12,6 +12,7 @@ const stubs = {
 const plugins = [mockPinia({
   currentScenario: {
     ...emptyScenario,
+    runId: "successfulResponseRunId",
     parameters: {
       country: "USA",
     },

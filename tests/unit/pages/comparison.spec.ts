@@ -10,6 +10,7 @@ import { setActivePinia } from "pinia";
 const stubs = {
   "CIcon": true,
   "CompareCostsChart.client": true,
+  "CompareTimeSeries.client": true,
 };
 const pinia = mockPinia({
   metadata: mockMetadataResponseData as Metadata,
@@ -112,7 +113,7 @@ describe("comparison page", () => {
     await waitFor(() => {
       const tabPanes = component.findAll(".tab-pane");
       expect(tabPanes[0].text()).toContain("Show losses");
-      expect(tabPanes[1].text()).toContain("A time series");
+      expect(tabPanes[1].text()).toContain("Show new events per day");
       expect(tabPanes[0].isVisible()).toBe(true);
       expect(tabPanes[1].isVisible()).toBe(false);
     });

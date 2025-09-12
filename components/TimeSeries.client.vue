@@ -22,7 +22,8 @@ import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
-import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeLargePalette, contextButtonOptions, menuItemDefinitionOptions, plotBandsColorName, plotBandsDefaultColor, plotLinesColorName } from "./utils/highCharts";
+import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions } from "./utils/charts";
+import { plotBandsDefaultColor, plotLinesColor, timeSeriesChartOptions, timeSeriesColors, timeSeriesXAxisOptions, timeSeriesYAxisOptions } from "./utils/timeSeriesCharts";
 import { getTimeSeriesDataPoints, showInterventions, timeSeriesYUnits } from "./utils/timeSeriesData";
 import useCapacitiesPlotLines from "~/composables/useCapacitiesPlotLines";
 import type { ScenarioIntervention } from "~/types/resultTypes";
@@ -53,44 +54,42 @@ const { onMove } = useSynchronisableChart(
 );
 const { zIndex } = useAdjacentCharts(() => props.groupIndex, () => Number(appStore.timeSeriesGroups?.length));
 
-const seriesColors = colorBlindSafeLargePalette
-  .filter(c => ![plotBandsColorName, plotLinesColorName].includes(c.name))
-  .map(c => c.rgb);
-
 const chartContainerId = computed(() => `${props.timeSeriesMetadata.id}-container`);
 const yUnits = computed(() => timeSeriesYUnits(props.timeSeriesMetadata.id));
 const data = computed(() => getTimeSeriesDataPoints(appStore.currentScenario, props.timeSeriesMetadata.id));
 
 // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
 const showCapacities = computed(() => props.timeSeriesMetadata.id === "hospitalised");
-const { initialCapacitiesPlotLines, minRange } = useCapacitiesPlotLines(showCapacities, appStore.capacitiesData, chart);
+const capacities = computed(() => appStore.currentScenario.result.data?.capacities.map((capacity) => {
+  const label = appStore.metadata?.results.capacities
+    .find(({ id: capacityId }) => capacityId === capacity.id)
+    ?.label || "";
+  return { ...capacity, id: `${capacity.id}-${capacity.value}`, label, color: plotLinesColor };
+}));
+const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(showCapacities, capacities, () => chart.value?.yAxis[0]);
 
 const interventions = computed(() => {
-  const intvns = appStore.getScenarioResponseInterventions(appStore.currentScenario);
-  if (!intvns) {
-    return undefined;
-  }
-  // The chart being hovered may be one that doesn't show interventions. If so, we don't need to update this chart's plot bands.
+  // The chart being hovered may be one that doesn't show interventions. If so, we don't need to update any chart's plot bands.
   const hoveredChartShowsInterventions = props.synchPoint?.series?.options?.custom?.showInterventions === true;
   const triggerPlotBandUpdate = !!props.synchPoint && hoveredChartShowsInterventions;
-
-  return intvns.map((intvn: ScenarioIntervention) => {
-    const label = triggerPlotBandUpdate
+  const intvns = appStore.getScenarioResponseInterventions(appStore.currentScenario);
+  return intvns?.map((intvn: ScenarioIntervention) => {
+    const label = triggerPlotBandUpdate // No label if nothing is hovered
       ? `Intervention days ${intvn.start.toFixed(0)}–${intvn.end.toFixed(0)}`
-      : ""; // No label if nothing is hovered
-    // id lets Highcharts track unique plot bands for removePlotBand and addPlotBand
+      : "";
+    // unique id lets Highcharts track unique plot bands for removePlotBand and addPlotBand
     const id = `${intvn.id}-${intvn.start}-${intvn.end}-${triggerPlotBandUpdate}`;
     return { ...intvn, color: plotBandsDefaultColor, id, label };
   });
 });
 
-const { initialInterventionsPlotBands } = useInterventionPlotBands(() => props.timeSeriesMetadata, interventions, chart);
+const { initialInterventionsPlotBands } = useInterventionPlotBands(() => props.timeSeriesMetadata, interventions, () => chart.value?.xAxis[0]);
 
 const chartTimeSeries = computed((): Array<Highcharts.SeriesLineOptions | Highcharts.SeriesAreaOptions> => ([{
   type: props.seriesRole === "total" ? "area" : "line",
   data: data.value,
   name: props.timeSeriesMetadata!.label,
-  color: seriesColors[props.groupIndex % seriesColors.length],
+  color: timeSeriesColors[props.groupIndex % timeSeriesColors.length],
   fillOpacity: 0.3,
   marker: {
     enabled: false,
@@ -137,10 +136,9 @@ const chartInitialOptions = () => {
     },
     chart: {
       ...chartOptions,
+      ...timeSeriesChartOptions,
       height: props.chartHeight,
-      marginLeft: 75, // Specify the margin of the y-axis so that all charts' left edges are lined up
       marginBottom: 35,
-      marginTop: 15, // Enough space for a label to fit above the plot band
     },
     plotOptions: {
       arearange: {
@@ -160,17 +158,13 @@ const chartInitialOptions = () => {
       valueDecimals: 0,
     },
     xAxis: { // Omit title to save vertical space on page
-      crosshair: true,
-      minTickInterval: 1,
-      min: 1,
+      ...timeSeriesXAxisOptions,
+      max: chartTimeSeries.value[0].data?.length,
       plotBands: initialInterventionsPlotBands,
     },
     yAxis: {
-      title: {
-        text: "",
-      },
-      min: 0,
-      minRange: minRange.value,
+      ...timeSeriesYAxisOptions,
+      minRange: initialMinRange,
       plotLines: initialCapacitiesPlotLines,
     },
     series: chartTimeSeries.value,
@@ -178,10 +172,6 @@ const chartInitialOptions = () => {
 };
 
 watch(() => props.timeSeriesMetadata, () => {
-  if (chart.value?.yAxis?.[0]?.options?.minRange !== minRange.value) {
-    chart.value?.yAxis[0].update({ minRange: minRange.value });
-  };
-
   chart.value?.update({
     exporting: exportingOptions.value,
     series: chartTimeSeries.value,
