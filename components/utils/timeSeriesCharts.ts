@@ -3,6 +3,8 @@ import { humanReadableInteger } from "./formatters";
 
 export const plotLinesColorName = "Red";
 export const plotLinesColor = colorBlindSafeLargePalette.find(c => c.name === plotLinesColorName)!.rgb;
+export const plotLinesWidthPx = 2;
+
 export const plotBandsRgbAlpha = 0.3;
 export const plotBandsColorName = "Cyan";
 export const plotBandsDefaultColor = colorBlindSafeLargePalette.find(c => c.name === plotBandsColorName)!.rgb;

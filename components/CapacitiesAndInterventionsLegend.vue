@@ -20,7 +20,7 @@ const plotLineItems = computed(() => {
     return [];
   }
   return appStore.metadata?.results.capacities.map((capacity) => {
-    return { color: plotLinesColor, label: capacity.label, shape: LegendShape.Line };
+    return { color: plotLinesColor, label: capacity.label, shape: LegendShape.SquareDash };
   }) ?? [];
 });
 
