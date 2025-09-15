@@ -1,11 +1,47 @@
+import type { Metadata } from "~/types/apiResponseTypes";
+import { mockMetadataResponseData } from "../mocks/mockResponseData";
 import type { TimeSeriesCapacity } from "~/types/dataTypes";
+import { mockPinia } from "../mocks/mockPinia";
+import { setActivePinia } from "pinia";
 
 const mockRemovePlotLine = vi.fn();
 const mockAddPlotLine = vi.fn();
 const mockUpdate = vi.fn();
 
+const metadata = {
+  ...mockMetadataResponseData,
+  results: {
+    ...mockMetadataResponseData.results,
+    capacities: [
+      ...mockMetadataResponseData.results.capacities,
+      {
+        id: "icu_capacity",
+        label: "ICU capacity",
+        description: "Number of ICU beds",
+      },
+    ],
+  },
+} as Metadata;
+
 describe("useCapacitiesPlotLines", () => {
   it("should compute capacities plot lines and update y axis correctly", async () => {
+    setActivePinia(mockPinia({ metadata }, false, { stubActions: false }));
+    const store = useAppStore();
+    store.metadata = {
+      ...mockMetadataResponseData,
+      results: {
+        ...mockMetadataResponseData.results,
+        capacities: [
+          ...mockMetadataResponseData.results.capacities,
+          {
+            id: "icu_capacity",
+            label: "ICU capacity",
+            description: "Number of ICU beds",
+          },
+        ],
+      },
+    };
+
     let expectedCallsToAddPlotLine = 0;
     let expectedCallsToRemovePlotLine = 0;
 
@@ -32,8 +68,8 @@ describe("useCapacitiesPlotLines", () => {
     expect(mockAddPlotLine).not.toHaveBeenCalled();
 
     capacities.value = [{
-      id: "hospital_capacity-2000",
-      label: "Hospital capacity",
+      id: "hospital_capacity",
+      plotBandId: "hospital_capacity-2000",
       value: 2000,
     }];
     expectedCallsToAddPlotLine++;
@@ -44,7 +80,7 @@ describe("useCapacitiesPlotLines", () => {
     expect(mockAddPlotLine).toHaveBeenCalledTimes(expectedCallsToAddPlotLine);
     expect(mockAddPlotLine.mock.lastCall).toEqual([expect.objectContaining({
       id: "hospital_capacity-2000",
-      label: expect.objectContaining({ text: "Hospital capacity: 2,000" }),
+      label: expect.objectContaining({ text: "Hospital surge capacity: 2,000" }),
       value: 2000,
     })]);
 
@@ -64,17 +100,17 @@ describe("useCapacitiesPlotLines", () => {
     expect(mockAddPlotLine).toHaveBeenCalledTimes(expectedCallsToAddPlotLine);
     expect(mockAddPlotLine.mock.lastCall).toEqual([expect.objectContaining({
       id: "hospital_capacity-2000",
-      label: expect.objectContaining({ text: "Hospital capacity: 2,000" }),
+      label: expect.objectContaining({ text: "Hospital surge capacity: 2,000" }),
       value: 2000,
     })]);
 
     capacities.value = [{
-      id: "icu_capacity-2500",
-      label: "ICU capacity",
+      id: "icu_capacity",
+      plotBandId: "icu_capacity-2500",
       value: 2500,
     }, {
-      id: "hospital_capacity-2000",
-      label: "Hospital capacity",
+      id: "hospital_capacity",
+      plotBandId: "hospital_capacity-2000",
       value: 2000,
     }];
     expectedCallsToAddPlotLine++; // Only one _new_ plot line - we should keep the first plot line.

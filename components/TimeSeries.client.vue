@@ -58,15 +58,14 @@ const chartContainerId = computed(() => `${props.timeSeriesMetadata.id}-containe
 const yUnits = computed(() => timeSeriesYUnits(props.timeSeriesMetadata.id));
 const data = computed(() => getTimeSeriesDataPoints(appStore.currentScenario, props.timeSeriesMetadata.id));
 
-// https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
-const showCapacities = computed(() => props.timeSeriesMetadata.id === "hospitalised");
 const capacities = computed(() => appStore.currentScenario.result.data?.capacities.map((capacity) => {
-  const label = appStore.metadata?.results.capacities
-    .find(({ id: capacityId }) => capacityId === capacity.id)
-    ?.label || "";
-  return { ...capacity, id: `${capacity.id}-${capacity.value}`, label, color: plotLinesColor };
+  return { ...capacity, plotBandId: `${capacity.id}-${capacity.value}`, color: plotLinesColor };
 }));
-const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(showCapacities, capacities, () => chart.value?.yAxis[0]);
+const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(
+  () => props.timeSeriesMetadata.id === "hospitalised", // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
+  capacities,
+  () => chart.value?.yAxis[0],
+);
 
 const interventions = computed(() => {
   // The chart being hovered may be one that doesn't show interventions. If so, we don't need to update any chart's plot bands.

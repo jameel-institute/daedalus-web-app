@@ -112,14 +112,15 @@ const capacities = computed(() => {
   const caps = foregroundedScenario?.result.data?.capacities;
 
   return caps?.map((capacity) => {
-    const label = appStore.metadata?.results.capacities
-      .find(({ id: capacityId }) => capacityId === capacity.id)
-      ?.label || "";
-    const id = `${capacity.id}-${capacity.value}-${foregroundedScenario?.runId}`; // Ensure unique id for plot line
-    return { ...capacity, id, label };
+    const plotBandId = `${capacity.id}-${capacity.value}-${foregroundedScenario?.runId}`; // Ensure unique id for plot line
+    return { ...capacity, plotBandId };
   });
 });
-const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(() => props.showCapacities, capacities, () => chart.value?.yAxis[0]);
+const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(
+  () => props.showCapacities,
+  capacities,
+  () => chart.value?.yAxis[0],
+);
 
 // Plot the response interventions as plot bands for whichever scenario's series is being hovered,
 // or if none are hovered, the baseline scenario.

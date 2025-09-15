@@ -8,5 +8,5 @@ export type TimeSeriesIntervention = ScenarioIntervention & {
 };
 
 export type TimeSeriesCapacity = ScenarioCapacity & {
-  label: string
+  plotBandId: string
 };

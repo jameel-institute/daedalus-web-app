@@ -7,12 +7,18 @@ export default (
   capacities: MaybeRefOrGetter<Array<TimeSeriesCapacity> | undefined>,
   yAxis: MaybeRefOrGetter<Highcharts.Axis | undefined>,
 ) => {
+  const appStore = useAppStore();
+
   const capacitiesPlotLines = computed(() => {
     if (!toValue(showCapacities) || !toValue(capacities)?.length) {
       return [];
     }
 
-    return toValue(capacities)?.map(({ id, value, label }) => {
+    return toValue(capacities)?.map(({ id, plotBandId, value }) => {
+      const label = appStore.metadata?.results.capacities
+        .find(({ id: capacityId }) => id === capacityId)
+        ?.label || "";
+
       return {
         color: plotLinesColor,
         label: {
@@ -25,7 +31,7 @@ export default (
         width: 2,
         value,
         zIndex: 4, // Render label in front of the series line
-        id,
+        id: plotBandId,
       };
     }) as Array<Highcharts.AxisPlotLinesOptions>;
   });
