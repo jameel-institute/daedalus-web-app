@@ -23,7 +23,7 @@ describe("time series", () => {
 
     const component = await mountSuspended(CapacitiesAndInterventionsLegend, {
       global: { plugins: [pinia] },
-      props: { showPlotLines: true },
+      props: { showPlotLines: true, comparisonMode: false },
     });
 
     const squareItem = component.find(".legend-item-rectangle");
@@ -40,7 +40,7 @@ describe("time series", () => {
 
     const component = await mountSuspended(CapacitiesAndInterventionsLegend, {
       global: { plugins: [pinia] },
-      props: { showPlotLines: true },
+      props: { showPlotLines: true, comparisonMode: false },
     });
 
     const lineItem = component.find(".legend-item-line");
@@ -61,7 +61,7 @@ describe("time series", () => {
 
     const component = await mountSuspended(CapacitiesAndInterventionsLegend, {
       global: { plugins: [pinia] },
-      props: { showPlotLines: true },
+      props: { showPlotLines: true, comparisonMode: true },
     });
 
     const squareItem = component.find(".legend-item-rectangle");
@@ -84,7 +84,7 @@ describe("time series", () => {
 
     const component = await mountSuspended(CapacitiesAndInterventionsLegend, {
       global: { plugins: [pinia] },
-      props: { showPlotLines: false },
+      props: { showPlotLines: false, comparisonMode: false },
     });
 
     const lineItem = component.find(".legend-item-line");
