@@ -102,24 +102,19 @@ const hoveredScenario = computed(() => appStore.currentComparison.scenarios.find
   return runId === props.synchPoint?.series?.options?.custom?.scenarioId;
 }));
 
+const foregroundedScenario = computed(() => {
+  const hoveredChartShowsCapacities = props.synchPoint?.series?.options?.custom?.showCapacities === true;
+  return hoveredChartShowsCapacities ? hoveredScenario.value : appStore.baselineScenario;
+});
+
 // Plot the capacities as plot lines for whichever scenario's series is being hovered,
 // or if none are hovered, the baseline scenario.
 // The chart being hovered may be one that doesn't show capacities. If so,
 // for charts that do show capacities, continue to show the baseline scenario's capacities.
-const capacities = computed(() => {
-  const hoveredChartShowsCapacities = props.synchPoint?.series?.options?.custom?.showCapacities === true;
-  const foregroundedScenario = hoveredChartShowsCapacities ? hoveredScenario.value : appStore.baselineScenario;
-  const caps = foregroundedScenario?.result.data?.capacities;
-
-  return caps?.map((capacity) => {
-    const plotBandId = `${capacity.id}-${capacity.value}-${foregroundedScenario?.runId}`; // Ensure unique id for plot line
-    return { ...capacity, plotBandId };
-  });
-});
 const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(
   () => props.showCapacities,
-  capacities,
   () => chart.value?.yAxis[0],
+  foregroundedScenario,
 );
 
 // Plot the response interventions as plot bands for whichever scenario's series is being hovered,

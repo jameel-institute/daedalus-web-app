@@ -17,6 +17,7 @@ const plugins = [
   mockPinia({
     currentScenario: {
       ...emptyScenario,
+      runId: "scenario_1",
       parameters: {
         country: "USA",
       },
@@ -172,7 +173,7 @@ describe("time series", () => {
         }),
       }),
     }));
-    expect(mockRemovePlotLine).toHaveBeenCalledWith("hospital_capacity-434700");
+    expect(mockRemovePlotLine).toHaveBeenCalledWith("hospital_capacity-434700-scenario_1");
     expect(mockRemovePlotBand).not.toHaveBeenCalled();
     expect(mockAddPlotBand).not.toHaveBeenCalled();
 

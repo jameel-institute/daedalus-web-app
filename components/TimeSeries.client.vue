@@ -23,7 +23,7 @@ import "highcharts/esm/modules/offline-exporting";
 import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions } from "./utils/charts";
-import { plotBandsDefaultColor, plotLinesColor, timeSeriesChartOptions, timeSeriesColors, timeSeriesXAxisOptions, timeSeriesYAxisOptions } from "./utils/timeSeriesCharts";
+import { plotBandsDefaultColor, timeSeriesChartOptions, timeSeriesColors, timeSeriesXAxisOptions, timeSeriesYAxisOptions } from "./utils/timeSeriesCharts";
 import { getTimeSeriesDataPoints, showInterventions, timeSeriesYUnits } from "./utils/timeSeriesData";
 import useCapacitiesPlotLines from "~/composables/useCapacitiesPlotLines";
 import type { ScenarioIntervention } from "~/types/resultTypes";
@@ -58,13 +58,10 @@ const chartContainerId = computed(() => `${props.timeSeriesMetadata.id}-containe
 const yUnits = computed(() => timeSeriesYUnits(props.timeSeriesMetadata.id));
 const data = computed(() => getTimeSeriesDataPoints(appStore.currentScenario, props.timeSeriesMetadata.id));
 
-const capacities = computed(() => appStore.currentScenario.result.data?.capacities.map((capacity) => {
-  return { ...capacity, plotBandId: `${capacity.id}-${capacity.value}`, color: plotLinesColor };
-}));
 const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(
   () => props.timeSeriesMetadata.id === "hospitalised", // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
-  capacities,
   () => chart.value?.yAxis[0],
+  appStore.currentScenario,
 );
 
 const interventions = computed(() => {

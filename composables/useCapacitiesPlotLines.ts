@@ -1,20 +1,22 @@
 import { humanReadableInteger } from "~/components/utils/formatters";
 import { plotLinesColor } from "~/components/utils/timeSeriesCharts";
-import type { TimeSeriesCapacity } from "~/types/dataTypes";
+import type { Scenario } from "~/types/storeTypes";
 
 export default (
   showCapacities: MaybeRefOrGetter<boolean>,
-  capacities: MaybeRefOrGetter<Array<TimeSeriesCapacity> | undefined>,
   yAxis: MaybeRefOrGetter<Highcharts.Axis | undefined>,
+  scenario: MaybeRefOrGetter<Scenario | undefined>,
 ) => {
   const appStore = useAppStore();
 
+  const capacities = computed(() => toValue(scenario)?.result.data?.capacities);
+
   const capacitiesPlotLines = computed(() => {
-    if (!toValue(showCapacities) || !toValue(capacities)?.length) {
+    if (!toValue(showCapacities) || !capacities.value?.length) {
       return [];
     }
 
-    return toValue(capacities)?.map(({ id, plotBandId, value }) => {
+    return capacities.value?.map(({ id, value }) => {
       const label = appStore.metadata?.results.capacities
         .find(({ id: capacityId }) => id === capacityId)
         ?.label || "";
@@ -31,7 +33,7 @@ export default (
         width: 2,
         value,
         zIndex: 4, // Render label in front of the series line
-        id: plotBandId,
+        id: `${id}-${value}-${toValue(scenario)?.runId}`, // Ensure unique id for plot line
       };
     }) as Array<Highcharts.AxisPlotLinesOptions>;
   });
@@ -40,9 +42,8 @@ export default (
   // to remain visible, so we limit the y-axis' ability to rescale, by defining a minimum range. This way the
   // plotLines remain visible even when the maximum data value is less than the maximum plotLine value.
   const minRange = computed(() => {
-    const caps = toValue(capacities);
-    if (toValue(showCapacities) && caps?.length) {
-      return caps.reduce((acc, { value }) => Math.max(acc, value), 0);
+    if (toValue(showCapacities) && capacities.value?.length) {
+      return capacities.value.reduce((acc, { value }) => Math.max(acc, value), 0);
     }
   });
 
