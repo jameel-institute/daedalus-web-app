@@ -143,7 +143,20 @@ const interventions = computed(() => {
   });
 });
 
-const { initialInterventionsPlotBands } = useInterventionPlotBands(() => props.timeSeriesMetadata, interventions, () => chart.value?.xAxis[0]);
+const { initialInterventionsPlotBands } = useInterventionPlotBands(
+  () => props.timeSeriesMetadata,
+  interventions,
+  () => chart.value?.xAxis[0],
+  (on: boolean) => {
+    chart.value?.update({
+      exporting: {
+        buttons: {
+          contextButton: { enabled: on },
+        },
+      },
+    });
+  },
+);
 
 const exportingChartTitle = computed(() => {
   return `${props.timeSeriesMetadata.label} by ${appStore.axisMetadata?.label.toLocaleLowerCase()}`;

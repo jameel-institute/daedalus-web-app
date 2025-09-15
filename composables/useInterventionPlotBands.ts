@@ -7,6 +7,7 @@ export default (
   timeSeriesMetadata: MaybeRefOrGetter<DisplayInfo>,
   interventions: MaybeRefOrGetter<TimeSeriesIntervention[] | undefined>,
   xAxis: MaybeRefOrGetter<Highcharts.Axis | undefined>,
+  toggleContextMenuButton: (on: boolean) => void,
 ) => {
   const interventionsPlotBands = computed(() => {
     const intvns = toValue(interventions);
@@ -40,11 +41,18 @@ export default (
       !!id && toValue(xAxis)?.removePlotBand(id);
     });
 
-    newBands?.forEach((newBand) => {
-      if (!oldBands?.map(o => o.id).includes(newBand.id)) {
-        toValue(xAxis)?.addPlotBand(newBand);
-      }
+    newBands?.filter((newBand) => {
+      return !oldBands?.map(o => o.id).includes(newBand.id);
+    }).forEach((newBand) => {
+      toValue(xAxis)?.addPlotBand(newBand);
     });
+
+    const someLabelsExisted = oldBands.some(b => !!b.label?.text);
+    const someLabelsExistNow = newBands.some(b => !!b.label?.text);
+    // Only trigger the chart to update when necessary, since a full re-draw is expensive.
+    if (someLabelsExisted !== someLabelsExistNow) {
+      toggleContextMenuButton(!someLabelsExistNow);
+    }
   });
 
   return { initialInterventionsPlotBands: interventionsPlotBands.value };

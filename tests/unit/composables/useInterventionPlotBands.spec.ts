@@ -3,6 +3,7 @@ import type { TimeSeriesIntervention } from "~/types/dataTypes";
 
 const mockRemovePlotBand = vi.fn();
 const mockAddPlotBand = vi.fn();
+const mockToggleContextMenuButton = vi.fn();
 
 const prevalenceTimeSeriesMetadata = {
   id: "prevalence",
@@ -22,6 +23,7 @@ describe("useInterventionsPlotBands", () => {
   it("should compute interventions plot bands and update x axis correctly", async () => {
     let expectedCallsToAddPlotBand = 0;
     let expectedCallsToRemovePlotBand = 0;
+    let expectedCallsToToggleButton = 0;
     const intvn1 = {
       id: "response-111.222-444.555",
       color: red,
@@ -64,41 +66,59 @@ describe("useInterventionsPlotBands", () => {
       addPlotBand: vi.fn(arg => mockAddPlotBand(arg)),
     } as unknown as Highcharts.Axis);
 
-    const { initialInterventionsPlotBands } = useInterventionPlotBands(timeSeriesMetadata, interventions, xAxis);
+    const { initialInterventionsPlotBands } = useInterventionPlotBands(
+      timeSeriesMetadata,
+      interventions,
+      xAxis,
+      mockToggleContextMenuButton,
+    );
 
     expect(initialInterventionsPlotBands).toEqual([]);
     expect(mockRemovePlotBand).not.toHaveBeenCalled();
     expect(mockAddPlotBand).not.toHaveBeenCalled();
+    expect(mockToggleContextMenuButton).not.toHaveBeenCalled();
 
     interventions.value = [];
     await nextTick();
 
     expect(mockRemovePlotBand).not.toHaveBeenCalled();
     expect(mockAddPlotBand).not.toHaveBeenCalled();
+    expect(mockToggleContextMenuButton).not.toHaveBeenCalled();
 
     interventions.value = [intvn1];
     expectedCallsToAddPlotBand++;
+    expectedCallsToToggleButton++;
     await nextTick();
 
     expect(mockRemovePlotBand).not.toHaveBeenCalled();
     expect(mockAddPlotBand).toHaveBeenCalledTimes(expectedCallsToAddPlotBand);
     expect(mockAddPlotBand.mock.lastCall).toEqual([intvn1plotBandExpectation]);
+    expect(mockToggleContextMenuButton).toHaveBeenCalledTimes(expectedCallsToToggleButton);
+    // The context menu button is disabled now, because plot bands (with labels) are now shown.
+    expect(mockToggleContextMenuButton.mock.lastCall).toEqual([false]);
 
     timeSeriesMetadata.value = vaccinationTimeSeriesMetadata; // Configured not to show plot bands.
     expectedCallsToRemovePlotBand++;
+    expectedCallsToToggleButton++;
     await nextTick();
 
     expect(mockRemovePlotBand).toHaveBeenCalledTimes(expectedCallsToRemovePlotBand);
     expect(mockRemovePlotBand.mock.lastCall).toEqual([intvn1.id]);
     expect(mockAddPlotBand).toHaveBeenCalledTimes(expectedCallsToAddPlotBand);
+    expect(mockToggleContextMenuButton).toHaveBeenCalledTimes(expectedCallsToToggleButton);
+    // The context menu button is enabled now, because no plot bands are now shown.
+    expect(mockToggleContextMenuButton.mock.lastCall).toEqual([true]);
 
     timeSeriesMetadata.value = prevalenceTimeSeriesMetadata; // Configured to show plot bands.
     expectedCallsToAddPlotBand++;
+    expectedCallsToToggleButton++;
     await nextTick();
 
     expect(mockRemovePlotBand).toHaveBeenCalledTimes(expectedCallsToRemovePlotBand);
     expect(mockAddPlotBand).toHaveBeenCalledTimes(expectedCallsToAddPlotBand);
     expect(mockAddPlotBand.mock.lastCall).toEqual([intvn1plotBandExpectation]);
+    expect(mockToggleContextMenuButton).toHaveBeenCalledTimes(expectedCallsToToggleButton);
+    expect(mockToggleContextMenuButton.mock.lastCall).toEqual([false]);
 
     interventions.value = [intvn1, intvn2];
     expectedCallsToAddPlotBand++; // Only one _new_ plot band - we should keep the first plot band.
@@ -107,5 +127,7 @@ describe("useInterventionsPlotBands", () => {
     expect(mockRemovePlotBand).toHaveBeenCalledTimes(expectedCallsToRemovePlotBand);
     expect(mockAddPlotBand).toHaveBeenCalledTimes(expectedCallsToAddPlotBand);
     expect(mockAddPlotBand.mock.lastCall).toEqual([intvn2plotBandExpectation]);
+    // No relevant change to plot band labels, so no toggling of context menu button.
+    expect(mockToggleContextMenuButton).toHaveBeenCalledTimes(expectedCallsToToggleButton);
   });
 });
