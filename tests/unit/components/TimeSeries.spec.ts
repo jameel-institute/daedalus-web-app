@@ -8,6 +8,7 @@ import { mockResultResponseData } from "@/tests/unit/mocks/mockResponseData";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import Highcharts from "highcharts/esm/highcharts";
 import TimeSeries from "~/components/TimeSeries.client.vue";
+import { colorBlindSafeLargePalette } from "~/components/utils/charts";
 
 const timeSeriesMetadata = mockedMetadata.results.time_series.find(({ id }) => id === "hospitalised");
 const stubs = {
@@ -36,6 +37,7 @@ const props = {
   synchPoint: { x: 1, y: 2 },
   timeSeriesMetadata,
 };
+const plotBandsTranslucentColor = "rgba(51,187,238,0.3)"; // 'Cyan' with alpha 0.3,
 
 const mockSetSize = vi.fn();
 const mockDestroy = vi.fn();
@@ -119,6 +121,7 @@ describe("time series", () => {
             expect.objectContaining({
               from: 30,
               to: 600,
+              color: plotBandsTranslucentColor,
             }),
           ]),
         }),
@@ -127,6 +130,7 @@ describe("time series", () => {
           plotLines: expect.arrayContaining([
             expect.objectContaining({
               value: 434700,
+              color: colorBlindSafeLargePalette.find(c => c.name === "Red")!.rgb,
             }),
           ]),
         }),
@@ -253,10 +257,12 @@ describe("time series", () => {
             expect.objectContaining({
               from: 31,
               to: 200,
+              color: plotBandsTranslucentColor,
             }),
             expect.objectContaining({
               from: 250,
               to: 600,
+              color: plotBandsTranslucentColor,
             }),
           ]),
         }),
