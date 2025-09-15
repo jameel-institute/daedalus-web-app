@@ -87,15 +87,7 @@ const { initialInterventionsPlotBands } = useInterventionPlotBands(
   () => props.timeSeriesMetadata,
   interventions,
   () => chart.value?.xAxis[0],
-  (on: boolean) => {
-    chart.value?.update({
-      exporting: {
-        buttons: {
-          contextButton: { enabled: on },
-        },
-      },
-    });
-  },
+  (on: boolean) => chart.value?.update({ exporting: { buttons: { contextButton: { enabled: on } } } }),
 );
 
 const chartTimeSeries = computed((): Array<Highcharts.SeriesLineOptions | Highcharts.SeriesAreaOptions> => ([{
