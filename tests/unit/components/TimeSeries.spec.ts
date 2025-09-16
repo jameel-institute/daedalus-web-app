@@ -1,5 +1,6 @@
 import type { ScenarioResultData } from "~/types/apiResponseTypes";
 import {
+  emptyComparison,
   emptyScenario,
   mockedMetadata,
   mockPinia,
@@ -26,6 +27,9 @@ const plugins = [
         fetchError: undefined,
         fetchStatus: "success",
       },
+    },
+    currentComparison: {
+      ...emptyComparison,
     },
   }, true, { stubActions: false }),
 ];

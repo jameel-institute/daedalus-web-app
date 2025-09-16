@@ -6,10 +6,9 @@ import { type Parameter, type ParameterSet, TypeOfParameter } from "@/types/para
 import { debounce } from "perfect-debounce";
 import { defineStore } from "pinia";
 import { ExcelScenarioDownload } from "~/download/excelScenarioDownload";
-import type { ScenarioCost, ScenarioIntervention } from "~/types/resultTypes";
+import type { ScenarioCost } from "~/types/resultTypes";
 import { CostBasis } from "~/types/unitTypes";
 import { getRangeForDependentParam } from "~/components/utils/parameters";
-import { responseInterventionId } from "~/components/utils/timeSeriesData";
 import { getScenarioLabel } from "~/components/utils/comparisons";
 
 const emptyScenario = {
@@ -304,9 +303,6 @@ export const useAppStore = defineStore("app", {
       if (axisVal) {
         return getScenarioLabel(axisVal, this.axisMetadata);
       }
-    },
-    getScenarioResponseInterventions(scenario: Scenario): ScenarioIntervention[] | undefined {
-      return scenario.result.data?.interventions.filter(({ id }) => id === responseInterventionId);
     },
     getScenarioTotalCost(scenario: Scenario): ScenarioCost | undefined {
       return scenario.result.data?.costs?.find(cost => cost.id === "total");

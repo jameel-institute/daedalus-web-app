@@ -23,10 +23,9 @@ import "highcharts/esm/modules/offline-exporting";
 import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions } from "./utils/charts";
-import { plotBandsDefaultColor, timeSeriesChartOptions, timeSeriesColors, timeSeriesXAxisOptions, timeSeriesYAxisOptions } from "./utils/timeSeriesCharts";
+import { timeSeriesChartOptions, timeSeriesColors, timeSeriesXAxisOptions, timeSeriesYAxisOptions } from "./utils/timeSeriesCharts";
 import { getTimeSeriesDataPoints, showInterventions, timeSeriesYUnits } from "./utils/timeSeriesData";
 import useCapacitiesPlotLines from "~/composables/useCapacitiesPlotLines";
-import type { ScenarioIntervention } from "~/types/resultTypes";
 
 const props = defineProps<{
   chartHeight: number
@@ -64,26 +63,12 @@ const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(
   appStore.currentScenario,
 );
 
-const interventions = computed(() => {
-  // The chart being hovered may be one that doesn't show interventions. If so, we don't need to update any chart's plot bands.
-  const hoveredChartShowsInterventions = props.synchPoint?.series?.options?.custom?.showInterventions === true;
-  const triggerPlotBandUpdate = !!props.synchPoint && hoveredChartShowsInterventions;
-  const intvns = appStore.getScenarioResponseInterventions(appStore.currentScenario);
-  return intvns?.map((intvn: ScenarioIntervention) => {
-    const label = triggerPlotBandUpdate // No label if nothing is hovered
-      ? `Intervention days ${intvn.start.toFixed(0)}–${intvn.end.toFixed(0)}`
-      : "";
-    // unique id lets Highcharts track unique plot bands for removePlotBand and addPlotBand
-    const id = `${intvn.id}-${intvn.start}-${intvn.end}-${triggerPlotBandUpdate}`;
-    return { ...intvn, color: plotBandsDefaultColor, id, label };
-  });
-});
-
 const { initialInterventionsPlotBands } = useInterventionPlotBands(
+  () => props.synchPoint,
   () => props.timeSeriesMetadata,
-  interventions,
   () => chart.value?.xAxis[0],
   (on: boolean) => chart.value?.update({ exporting: { buttons: { contextButton: { enabled: on } } } }),
+  appStore.currentScenario,
 );
 
 const chartTimeSeries = computed((): Array<Highcharts.SeriesLineOptions | Highcharts.SeriesAreaOptions> => ([{
