@@ -12,6 +12,7 @@ const stubs = {
 const plugins = [mockPinia({
   currentScenario: {
     ...emptyScenario,
+    runId: "successfulResponseRunId",
     parameters: {
       country: "USA",
     },
@@ -63,6 +64,7 @@ vi.mock("highcharts/esm/highcharts", async (importOriginal) => {
           removePlotBand: vi.fn(arg => mockRemovePlotBand(arg)),
           addPlotBand: vi.fn(arg => mockAddPlotBand(arg)),
         }],
+        update: vi.fn(),
       }),
       win: actual.default.win,
       wrap: actual.default.wrap,

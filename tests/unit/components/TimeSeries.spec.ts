@@ -1,5 +1,6 @@
 import type { ScenarioResultData } from "~/types/apiResponseTypes";
 import {
+  emptyComparison,
   emptyScenario,
   mockedMetadata,
   mockPinia,
@@ -17,6 +18,7 @@ const plugins = [
   mockPinia({
     currentScenario: {
       ...emptyScenario,
+      runId: "scenario_1",
       parameters: {
         country: "USA",
       },
@@ -25,6 +27,9 @@ const plugins = [
         fetchError: undefined,
         fetchStatus: "success",
       },
+    },
+    currentComparison: {
+      ...emptyComparison,
     },
   }, true, { stubActions: false }),
 ];
@@ -172,7 +177,7 @@ describe("time series", () => {
         }),
       }),
     }));
-    expect(mockRemovePlotLine).toHaveBeenCalledWith("hospital_capacity-434700");
+    expect(mockRemovePlotLine).toHaveBeenCalledWith("hospital_capacity-434700-scenario_1");
     expect(mockRemovePlotBand).not.toHaveBeenCalled();
     expect(mockAddPlotBand).not.toHaveBeenCalled();
 
