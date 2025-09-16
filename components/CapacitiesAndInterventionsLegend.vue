@@ -27,8 +27,7 @@ const plotLineItems = computed(() => {
 
 let plotBandsColor = plotBandsDefaultColor;
 if (props.comparisonMode) {
-  const baselineIndex = appStore.currentComparison.scenarios.findIndex(s => s.runId === appStore.baselineScenario?.runId);
-  plotBandsColor = timeSeriesColors[baselineIndex % timeSeriesColors.length];
+  plotBandsColor = timeSeriesColors[appStore.baselineIndex % timeSeriesColors.length];
 }
 
 const items = computed((): LegendItem[] => {

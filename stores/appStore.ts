@@ -90,12 +90,7 @@ export const useAppStore = defineStore("app", {
     everyScenarioHasCosts: (state): boolean => {
       return state.currentComparison.scenarios?.map(s => s.result.data?.costs).every(c => !!c && c.length > 0);
     },
-    axisLabel(state): string | undefined {
-      if (state.currentComparison.axis) {
-        return this.parametersMetadataById[state.currentComparison.axis].label;
-      }
-    },
-    baselineScenario(state): Scenario | undefined {
+    baselineScenario: (state): Scenario | undefined => {
       return state.currentComparison.scenarios.find((scenario) => {
         if (state.currentComparison.axis && scenario.parameters) {
           return scenario.parameters[state.currentComparison.axis] === state.currentComparison.baseline;
@@ -103,6 +98,14 @@ export const useAppStore = defineStore("app", {
           return false;
         }
       });
+    },
+    baselineIndex(state): number {
+      return state.currentComparison.scenarios.findIndex(s => s.runId === this.baselineScenario?.runId);
+    },
+    axisLabel(state): string | undefined {
+      if (state.currentComparison.axis) {
+        return this.parametersMetadataById[state.currentComparison.axis].label;
+      }
     },
   },
   actions: {

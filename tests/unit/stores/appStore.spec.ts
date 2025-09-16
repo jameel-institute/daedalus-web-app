@@ -825,6 +825,25 @@ describe("app store", () => {
         store.currentComparison.baseline = "none";
         expect(store.baselineScenario).toEqual(store.currentComparison.scenarios[1]);
       });
+
+      it("can get the index of the baseline scenario in the comparison scenarios array", async () => {
+        const store = useAppStore();
+        expect(store.baselineIndex).toBe(-1);
+
+        store.currentComparison = {
+          axis: "vaccine",
+          baseline: "high",
+          scenarios: [
+            { ...emptyScenario, runId: "123", parameters: { vaccine: "high" } },
+            { ...emptyScenario, runId: "234", parameters: { vaccine: "none" } },
+            { ...emptyScenario, runId: "345", parameters: { vaccine: "low" } },
+          ],
+        };
+        expect(store.baselineIndex).toBe(0);
+
+        store.currentComparison.baseline = "low";
+        expect(store.baselineIndex).toBe(2);
+      });
     });
   });
 });
