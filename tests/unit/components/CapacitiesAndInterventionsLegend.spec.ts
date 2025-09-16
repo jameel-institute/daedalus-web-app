@@ -26,13 +26,14 @@ describe("time series", () => {
       props: { showPlotLines: true, comparisonMode: false },
     });
 
-    const squareItem = component.find(".legend-item-rectangle");
-    expect(squareItem.text()).toContain("Pandemic response");
-    expect(squareItem.element.outerHTML).toContain("background: rgba(51, 187, 238, 0.3)");
+    const legendItems = component.findAll(".legend-item");
+    const plotBandsLegendItem = legendItems[0];
+    expect(plotBandsLegendItem.text()).toContain("Pandemic response");
+    expect(plotBandsLegendItem.element.outerHTML).toContain("background: rgba(51, 187, 238, 0.3)");
 
-    const lineItem = component.find(".legend-item-line");
-    expect(lineItem.text()).toContain("Hospital surge capacity");
-    expect(lineItem.element.outerHTML).toContain("background: rgb(204, 51, 17)");
+    const plotLinesLegendItem = legendItems[1];
+    expect(plotLinesLegendItem.text()).toContain("Hospital surge capacity");
+    expect(plotLinesLegendItem.find("svg").element.outerHTML).toContain("rgb(204,51,17)");
   });
 
   it("should not render the intervention plot bands if the current scenario does not involve interventions", async () => {
@@ -43,11 +44,10 @@ describe("time series", () => {
       props: { showPlotLines: true, comparisonMode: false },
     });
 
-    const lineItem = component.find(".legend-item-line");
-    expect(lineItem.text()).toContain("Hospital surge capacity");
+    const plotLinesLegendItem = component.find(".legend-item");
+    expect(plotLinesLegendItem.text()).toContain("Hospital surge capacity");
 
-    const squareItem = component.find(".legend-item-rectangle");
-    expect(squareItem.exists()).toBe(false);
+    expect(component.findAll(".legend-item")).toHaveLength(1);
   });
 
   it("should render the correct labels for the plot lines and plot bands when dealing with multiple scenarios", async () => {
@@ -64,13 +64,14 @@ describe("time series", () => {
       props: { showPlotLines: true, comparisonMode: true },
     });
 
-    const squareItem = component.find(".legend-item-rectangle");
-    expect(squareItem.text()).toContain("Pandemic response");
-    expect(squareItem.element.outerHTML).toContain("background: rgba(238, 119, 51, 0.3)");
+    const legendItems = component.findAll(".legend-item");
+    const plotBandsLegendItem = legendItems[0];
+    expect(plotBandsLegendItem.text()).toContain("Pandemic response");
+    expect(plotBandsLegendItem.element.outerHTML).toContain("background: rgba(238, 119, 51, 0.3)");
 
-    const lineItem = component.find(".legend-item-line");
-    expect(lineItem.text()).toContain("Hospital surge capacity");
-    expect(lineItem.element.outerHTML).toContain("background: rgb(204, 51, 17)");
+    const plotLinesLegendItem = legendItems[1];
+    expect(plotLinesLegendItem.text()).toContain("Hospital surge capacity");
+    expect(plotLinesLegendItem.find("svg").element.outerHTML).toContain("rgb(204,51,17)");
   });
 
   it("should not render the plot lines label when props say not to", async () => {
@@ -87,7 +88,9 @@ describe("time series", () => {
       props: { showPlotLines: false, comparisonMode: false },
     });
 
-    const lineItem = component.find(".legend-item-line");
-    expect(lineItem.exists()).toBe(false);
+    const plotBandsLegendItem = component.find(".legend-item");
+    expect(plotBandsLegendItem.text()).toContain("Pandemic response");
+
+    expect(component.findAll(".legend-item")).toHaveLength(1);
   });
 });

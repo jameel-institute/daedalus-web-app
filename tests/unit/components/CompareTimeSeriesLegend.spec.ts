@@ -32,13 +32,13 @@ describe("time series", () => {
 
     expect(component.text()).toContain("Scenarios by response");
 
-    const lineItems = component.findAll(".legend-item-line");
+    const legendItems = component.findAll(".legend-item");
 
-    expect(lineItems[0].text()).toContain("No closures");
-    expect(lineItems[0].text()).not.toContain("baseline");
-    expect(lineItems[0].element.outerHTML).toContain("background: rgb(238, 51, 119)");
+    expect(legendItems[0].text()).toContain("No closures");
+    expect(legendItems[0].text()).not.toContain("baseline");
+    expect(legendItems[0].element.outerHTML).toContain("background: rgb(238, 51, 119)");
 
-    expect(lineItems[1].text()).toMatch(/Business closures\s+\(baseline\)/);
-    expect(lineItems[1].element.outerHTML).toContain("background: rgb(238, 119, 51)");
+    expect(legendItems[1].text()).toMatch(/Business closures\s+\(baseline\)/);
+    expect(legendItems[1].element.outerHTML).toContain("background: rgb(238, 119, 51)");
   });
 });
