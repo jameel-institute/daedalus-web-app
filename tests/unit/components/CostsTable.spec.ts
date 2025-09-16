@@ -6,7 +6,8 @@ import { CostBasis } from "~/types/unitTypes";
 import { costAsPercentOfGdp } from "~/components/utils/formatters";
 import type { ScenarioCost } from "~/types/resultTypes";
 import type { AsyncDataRequestStatus } from "#app";
-import { expectTooltipContents } from "./testUtils/tooltipUtils";
+import type { VueWrapper } from "@vue/test-utils";
+import { CModal } from "#components";
 
 const stubs = {
   CIcon: true,
@@ -35,16 +36,15 @@ const noneScenario = {
   },
 };
 
-let originalBodyInnerHTML: string;
-beforeEach(() => {
-  originalBodyInnerHTML = document.body.innerHTML;
-  vi.useFakeTimers();
-});
+const openVslModal = async (component: VueWrapper) => {
+  const modalComponent = component.findComponent(CModal);
+  expect(modalComponent.props("visible")).toBe(false);
 
-afterEach(() => {
-  document.body.innerHTML = originalBodyInnerHTML;
-  vi.useRealTimers();
-});
+  await component.find("#vslInfo").trigger("click");
+
+  expect(modalComponent.props("visible")).toBe(true);
+  return modalComponent.text();
+};
 
 describe("costs table for the current scenario", () => {
   it("should render costs table correctly, when cost basis is USD", async () => {
@@ -83,9 +83,10 @@ describe("costs table for the current scenario", () => {
 
     expectedCostsForNoneScenario.forEach(cost => expect(componentText).toContain(cost));
 
-    const tooltipTrigger = component.find("img");
-    expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
-    await expectTooltipContents(tooltipTrigger, ["Value of statistical life: 2,799,264 Int'l$"]);
+    const vslModalComponentText = await openVslModal(component);
+
+    expect(vslModalComponentText).toContain("value of statistical life");
+    expect(vslModalComponentText).toContain("2,799,264 Int'l$");
   });
 
   it("should render costs table correctly, when cost basis is percent of GDP", async () => {
@@ -117,9 +118,10 @@ describe("costs table for the current scenario", () => {
       });
     });
 
-    const tooltipTrigger = component.find("img");
-    expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
-    await expectTooltipContents(tooltipTrigger, ["Value of statistical life: 2,799,264 Int'l$"]);
+    const vslModalComponentText = await openVslModal(component);
+
+    expect(vslModalComponentText).toContain("value of statistical life");
+    expect(vslModalComponentText).toContain("2,799,264 Int'l$");
   });
 });
 
@@ -215,9 +217,10 @@ describe("costs table for all scenarios in a comparison", () => {
       expect(component.findAll("td").find(td => td.text() === cost)!.classes()).toContain(baselineTdClass);
     });
 
-    const tooltipTrigger = component.find("img");
-    expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
-    await expectTooltipContents(tooltipTrigger, ["Value of statistical life: 2,799,264 Int'l$"]);
+    const vslModalComponentText = await openVslModal(component);
+
+    expect(vslModalComponentText).toContain("value of statistical life");
+    expect(vslModalComponentText).toContain("2,799,264 Int'l$");
   });
 
   it("should render costs table correctly, when cost basis is percent of GDP", async () => {
@@ -264,9 +267,10 @@ describe("costs table for all scenarios in a comparison", () => {
       });
     });
 
-    const tooltipTrigger = component.find("img");
-    expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
-    await expectTooltipContents(tooltipTrigger, ["Value of statistical life: 2,799,264 Int'l$"]);
+    const vslModalComponentText = await openVslModal(component);
+
+    expect(vslModalComponentText).toContain("value of statistical life");
+    expect(vslModalComponentText).toContain("2,799,264 Int'l$");
   });
 
   it("should render tooltips with multiple values for VSL and GDP, when these values vary between scenarios", async () => {
@@ -307,12 +311,10 @@ describe("costs table for all scenarios in a comparison", () => {
       props: { scenarios: store.currentComparison.scenarios },
     });
 
-    const tooltipTrigger = component.find("img");
-    expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
-    expectTooltipContents(tooltipTrigger, [
-      "Value of statistical life:",
-      "United Kingdom: 2,799,264 Int'l$",
-      "United States: 123,456,789 Int'l$",
-    ]);
+    const vslModalComponentText = await openVslModal(component);
+
+    expect(vslModalComponentText).toContain("value of statistical life");
+    expect(vslModalComponentText).toContain("United Kingdom: 2,799,264 Int'l$");
+    expect(vslModalComponentText).toContain("United States: 123,456,789 Int'l$");
   });
 });

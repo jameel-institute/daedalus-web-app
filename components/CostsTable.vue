@@ -59,22 +59,7 @@
       >
         <tr>
           <td class="ps-4 text-nowrap" :class="{ 'single-scenario-td': !multiScenario }">
-            {{ appStore.getCostLabel(childCost.id) }}
-            <span v-if="childCost.id === 'life_years'">
-              <TooltipHelp
-                :help-text="vslVariesByScenario
-                  ? undefined
-                  : `${vslFull}: ${vslLabel(scenarios[0])}`"
-                :list-header="vslVariesByScenario
-                  ? `${vslFull}:`
-                  : undefined"
-                :list-items="vslVariesByScenario
-                  ? scenarios.map((s) => `${scenarioLabel(s)}: ${vslLabel(s)}`)
-                  : undefined"
-                :classes="['ms-1']"
-                :info-icon="true"
-              />
-            </span>
+            {{ appStore.getCostLabel(childCost.id) }}{{ childCost.id === 'life_years' ? '*' : '' }}
           </td>
           <td
             v-for="(scenario) in props.scenarios"
@@ -102,10 +87,62 @@
       </template>
     </tbody>
   </table>
+  <p class="fw-lighter small mt-auto">
+    *Based on an assumed value of statistical life:
+    click<CIconSvg class="icon help-icon filter-to-primary p-0 ms-1" role="button">
+      <img
+        id="vslInfo"
+        src="/icons/info.png"
+        @click="() => { modalVisible = true; }"
+      >
+    </CIconSvg> for details.
+  </p>
+  <CModal
+    :visible="modalVisible"
+    aria-labelledby="vslModalTitle"
+    @close="() => { modalVisible = false }"
+  >
+    <CModalHeader>
+      <CModalTitle id="vslModalTitle">
+        Value of life years lost
+      </CModalTitle>
+    </CModalHeader>
+    <CModalBody>
+      <p>
+        The model behind this dashboard uses the value of statistical life (VSL) approach to estimate the monetary value of lives lost.
+      </p>
+      <p v-if="vslVariesByScenario">
+        The assumed VSLs for the current scenarios are:
+        <span>
+          <ul>
+            <li v-for="s in scenarios" :key="s.runId">
+              {{ `${scenarioLabel(s)}: ${vslLabel(s)}` }}
+            </li>
+          </ul>
+        </span>
+      </p>
+      <p v-else>
+        The assumed VSL for
+        {{ scenarios.length > 1 ? 'these scenarios' : 'this scenario' }}
+        is {{ vslLabel(scenarios[0]) }}.
+      </p>
+      <p>
+        {{ scenarios.length > 1 ? 'These values' : 'This value' }}
+        can be adjusted if using the <code>DAEDALUS</code> R package directly.
+      </p>
+      <p class="mb-0">
+        The methodology can be found on the
+        <!-- eslint-disable-next-line vue/singleline-html-element-content-newline -->
+        <NuxtLink :to="generalDocUrl" target="_blank">general model description</NuxtLink> page,
+        <!-- eslint-disable-next-line vue/singleline-html-element-content-newline -->
+        and usage is documented in the <NuxtLink :to="vignetteUrl" target="_blank">'Value of life years lost'</NuxtLink> vignette.
+      </p>
+    </CModalBody>
+  </CModal>
 </template>
 
 <script lang="ts" setup>
-import { CIcon } from "@coreui/icons-vue";
+import { CIcon, CIconSvg } from "@coreui/icons-vue";
 import { costAsPercentOfGdp, gdpReferenceYear, humanReadableInteger, humanReadablePercentOfGdp } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import type { Scenario } from "~/types/storeTypes";
@@ -116,8 +153,10 @@ const props = defineProps<{
 }>();
 
 const accordioned = ref(true);
+const modalVisible = ref(false);
 const appStore = useAppStore();
-const vslFull = "Value of statistical life";
+const generalDocUrl = "https://jameel-institute.github.io/daedalus/articles/info_model_description.html#years-of-life-lost";
+const vignetteUrl = "https://jameel-institute.github.io/daedalus/articles/info_life_value.html";
 
 const multiScenario = computed(() => props.scenarios.length > 1);
 

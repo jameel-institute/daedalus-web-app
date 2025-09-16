@@ -152,7 +152,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   expect(await tableRows.nth(3).textContent()).toMatch(new RegExp(`Education\\s*${commaSeparatedNumberMatcher}`));
   expect(await tableRows.nth(4).textContent()).toMatch(new RegExp(`Closures\\s*${commaSeparatedNumberMatcher}`));
   expect(await tableRows.nth(5).textContent()).toMatch(new RegExp(`Absences\\s*${commaSeparatedNumberMatcher}`));
-  expect(await tableRows.nth(6).textContent()).toMatch(new RegExp(`Life years\\s*${commaSeparatedNumberMatcher}`));
+  expect(await tableRows.nth(6).textContent()).toMatch(new RegExp(`Life years\\*\\s*${commaSeparatedNumberMatcher}`));
   expect(await tableRows.nth(7).textContent()).toMatch(new RegExp(`Preschool-age children\\s*${commaSeparatedNumberMatcher}`));
   expect(await tableRows.nth(8).textContent()).toMatch(new RegExp(`School-age children\\s*${commaSeparatedNumberMatcher}`));
   expect(await tableRows.nth(9).textContent()).toMatch(new RegExp(`Working-age adults\\s*${commaSeparatedNumberMatcher}`));
@@ -165,7 +165,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
     "Education",
     "Closures",
     "Absences",
-    "Life years",
+    "Life years\\*",
     "Preschool-age children",
     "School-age children",
     "Working-age adults",
