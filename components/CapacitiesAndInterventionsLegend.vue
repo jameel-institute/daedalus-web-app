@@ -11,6 +11,7 @@ import { addAlphaToRgb, plotBandsDefaultColor, plotBandsRgbAlpha, plotLinesColor
 
 const props = defineProps<{
   showPlotLines: boolean
+  comparisonMode: boolean
 }>();
 
 const appStore = useAppStore();
@@ -24,21 +25,19 @@ const plotLineItems = computed(() => {
   }) ?? [];
 });
 
+let plotBandsColor = plotBandsDefaultColor;
+if (props.comparisonMode) {
+  const baselineIndex = appStore.currentComparison.scenarios.findIndex(s => s.runId === appStore.baselineScenario?.runId);
+  plotBandsColor = timeSeriesColors[baselineIndex % timeSeriesColors.length];
+}
+
 const items = computed((): LegendItem[] => {
-  if (appStore.currentScenario.parameters?.response === "none") {
+  if (!props.comparisonMode && appStore.currentScenario.parameters?.response === "none") {
     return plotLineItems.value;
   }
 
-  let color;
-  if (appStore.currentScenario.runId) {
-    color = plotBandsDefaultColor;
-  } else {
-    const baselineIndex = appStore.currentComparison.scenarios.findIndex(s => s.runId === appStore.baselineScenario?.runId);
-    color = timeSeriesColors[baselineIndex % timeSeriesColors.length];
-  }
-
   const plotBandsItem = {
-    color: addAlphaToRgb(color, plotBandsRgbAlpha),
+    color: addAlphaToRgb(plotBandsColor, plotBandsRgbAlpha),
     label: "Pandemic response",
     shape: LegendShape.Rectangle,
   };

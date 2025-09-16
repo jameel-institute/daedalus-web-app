@@ -23,7 +23,7 @@ describe("time series", () => {
 
     const component = await mountSuspended(CapacitiesAndInterventionsLegend, {
       global: { plugins: [pinia] },
-      props: { showPlotLines: true },
+      props: { showPlotLines: true, comparisonMode: false },
     });
 
     const legendItems = component.findAll(".legend-item");
@@ -41,7 +41,7 @@ describe("time series", () => {
 
     const component = await mountSuspended(CapacitiesAndInterventionsLegend, {
       global: { plugins: [pinia] },
-      props: { showPlotLines: true },
+      props: { showPlotLines: true, comparisonMode: false },
     });
 
     const plotLinesLegendItem = component.find(".legend-item");
@@ -61,7 +61,7 @@ describe("time series", () => {
 
     const component = await mountSuspended(CapacitiesAndInterventionsLegend, {
       global: { plugins: [pinia] },
-      props: { showPlotLines: true },
+      props: { showPlotLines: true, comparisonMode: true },
     });
 
     const legendItems = component.findAll(".legend-item");
@@ -85,7 +85,7 @@ describe("time series", () => {
 
     const component = await mountSuspended(CapacitiesAndInterventionsLegend, {
       global: { plugins: [pinia] },
-      props: { showPlotLines: false },
+      props: { showPlotLines: false, comparisonMode: false },
     });
 
     const plotBandsLegendItem = component.find(".legend-item");

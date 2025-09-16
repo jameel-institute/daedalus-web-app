@@ -8,7 +8,10 @@
       />
       <div class="d-flex align-items-stretch gap-2 ms-auto">
         <div class="bg-white rounded border d-flex align-items-center gap-3 shadow-sm">
-          <CapacitiesAndInterventionsLegend :show-plot-lines="!isDaily" />
+          <CapacitiesAndInterventionsLegend
+            :show-plot-lines="!isDaily"
+            :comparison-mode="true"
+          />
         </div>
         <CompareTimeSeriesLegend />
       </div>

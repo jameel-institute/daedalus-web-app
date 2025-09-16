@@ -26,7 +26,6 @@ import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, me
 import { multiScenarioTimeSeriesChartTooltipFormatter, timeSeriesChartOptions, timeSeriesColors, timeSeriesXAxisOptions, timeSeriesYAxisOptions } from "./utils/timeSeriesCharts";
 import { getTimeSeriesDataPoints, showCapacities, showInterventions, timeSeriesYUnits } from "./utils/timeSeriesData";
 import useInterventionPlotBands from "~/composables/useInterventionPlotBands";
-import type { ScenarioIntervention } from "~/types/resultTypes";
 import { getScenarioLabel } from "./utils/comparisons";
 
 const props = defineProps<{
@@ -102,48 +101,37 @@ const hoveredScenario = computed(() => appStore.currentComparison.scenarios.find
   return runId === props.synchPoint?.series?.options?.custom?.scenarioId;
 }));
 
+const capacitiesForegroundedScenario = computed(() => {
+  const hoveredChartShowsCapacities = props.synchPoint?.series?.options?.custom?.showCapacities === true;
+  return hoveredChartShowsCapacities ? hoveredScenario.value : appStore.baselineScenario;
+});
+
 // Plot the capacities as plot lines for whichever scenario's series is being hovered,
 // or if none are hovered, the baseline scenario.
 // The chart being hovered may be one that doesn't show capacities. If so,
 // for charts that do show capacities, continue to show the baseline scenario's capacities.
-const capacities = computed(() => {
-  const hoveredChartShowsCapacities = props.synchPoint?.series?.options?.custom?.showCapacities === true;
-  const foregroundedScenario = hoveredChartShowsCapacities ? hoveredScenario.value : appStore.baselineScenario;
-  const caps = foregroundedScenario?.result.data?.capacities;
+const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(
+  () => props.showCapacities,
+  () => chart.value?.yAxis[0],
+  capacitiesForegroundedScenario,
+);
 
-  return caps?.map((capacity) => {
-    const label = appStore.metadata?.results.capacities
-      .find(({ id: capacityId }) => capacityId === capacity.id)
-      ?.label || "";
-    const id = `${capacity.id}-${capacity.value}-${foregroundedScenario?.runId}`; // Ensure unique id for plot line
-    return { ...capacity, id, label };
-  });
+const interventionsForegroundedScenario = computed(() => {
+  const hoveredChartShowsInterventions = props.synchPoint?.series?.options?.custom?.showInterventions === true;
+  return hoveredChartShowsInterventions ? hoveredScenario.value : appStore.baselineScenario;
 });
-const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(() => props.showCapacities, capacities, () => chart.value?.yAxis[0]);
 
 // Plot the response interventions as plot bands for whichever scenario's series is being hovered,
 // or if none are hovered, the baseline scenario.
 // The chart being hovered may be one that doesn't show interventions. If so,
 // for charts that do show interventions, continue to show the baseline scenario's interventions (unlabelled).
-const interventions = computed(() => {
-  const hoveredChartShowsInterventions = props.synchPoint?.series?.options?.custom?.showInterventions === true;
-  const foregroundedScenario = hoveredChartShowsInterventions ? hoveredScenario.value : appStore.baselineScenario;
-  if (!foregroundedScenario) {
-    return [];
-  }
-  const triggerPlotBandUpdate = !!props.synchPoint && hoveredChartShowsInterventions;
-  const indexOfForegroundedSeries = appStore.currentComparison.scenarios.findIndex(s => s.runId === foregroundedScenario.runId);
-  const intvns = appStore.getScenarioResponseInterventions(foregroundedScenario);
-  return intvns?.map((intvn: ScenarioIntervention) => {
-    const label = triggerPlotBandUpdate ? `Intervention days ${intvn.start.toFixed(0)}–${intvn.end.toFixed(0)}` : ""; // No label if nothing is hovered
-    // unique id lets Highcharts track individual plot bands for removePlotBand and addPlotBand
-    const id = `${foregroundedScenario.runId}-${intvn.start}-${intvn.end}-${triggerPlotBandUpdate}`;
-    const color = timeSeriesColors[indexOfForegroundedSeries % timeSeriesColors.length];
-    return { ...intvn, color, id, label };
-  });
-});
-
-const { initialInterventionsPlotBands } = useInterventionPlotBands(() => props.timeSeriesMetadata, interventions, () => chart.value?.xAxis[0]);
+const { initialInterventionsPlotBands } = useInterventionPlotBands(
+  () => props.synchPoint,
+  () => props.timeSeriesMetadata,
+  () => chart.value?.xAxis[0],
+  (on: boolean) => chart.value?.update({ exporting: { buttons: { contextButton: { enabled: on } } } }),
+  interventionsForegroundedScenario,
+);
 
 const exportingChartTitle = computed(() => {
   return `${props.timeSeriesMetadata.label} by ${appStore.axisMetadata?.label.toLocaleLowerCase()}`;

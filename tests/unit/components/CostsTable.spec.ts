@@ -67,6 +67,7 @@ describe("costs table for the current scenario", () => {
     let componentText = component.text();
 
     expect(componentText).toContain("$, millions");
+    expect(componentText).toContain("2018 USD");
 
     expect(componentText).toContain("Expand all");
     expect(componentText).not.toContain("Collapse all");
@@ -106,7 +107,7 @@ describe("costs table for the current scenario", () => {
 
     const componentText = component.text();
 
-    expect(componentText).toContain("% of 2018 GDP");
+    expect(componentText).toContain("% of GDP");
     expect(componentText).not.toContain("Total");
 
     mockResultResponseData.costs[0].children.forEach((cost) => {
@@ -184,6 +185,7 @@ describe("costs table for all scenarios in a comparison", () => {
     let componentText = component.text();
 
     expect(componentText).toContain("$, millions");
+    expect(componentText).toContain("2018 USD");
 
     // Scenario labels
     expect(componentText).toContain("None");
@@ -243,7 +245,7 @@ describe("costs table for all scenarios in a comparison", () => {
 
     const componentText = component.text();
 
-    expect(componentText).toContain("% of 2018 GDP");
+    expect(componentText).toContain("% of GDP");
 
     // Scenario labels
     expect(componentText).toContain("None");

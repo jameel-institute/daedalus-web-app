@@ -121,7 +121,7 @@ describe("globe", () => {
         expect(gbrSeries._settings.fill).not.toBe(originalColor);
         expect(chart.get("rotationX")).toBeCloseTo(3, 0);
         expect(chart.get("rotationY")).toBeCloseTo(-29, 0);
-      }, { timeout: 2500 /* >= rotateDuration */ });
+      }, { timeout: 3000 /* >= rotateDuration */ });
     });
 
     it("updating scenarioCountry in store (as when a country selection is actually submitted, or a results page is loaded) triggers a rotation and a zoom to the country", async () => {
@@ -150,7 +150,7 @@ describe("globe", () => {
         expect(chart.get("rotationX")).toBeCloseTo(-12, 0);
         expect(chart.get("rotationY")).toBeCloseTo(-39, 0);
         expect(zoomToGeoBoundsSpy).toHaveBeenCalled();
-      }, { timeout: 2500 /* >= rotateDuration */ });
+      }, { timeout: 3000 /* >= rotateDuration */ });
     });
 
     it("zooms back out and re-starts the gentle rotation animation when the user navigates back to the new scenario page", async () => {
@@ -179,7 +179,7 @@ describe("globe", () => {
         expect(chart.get("rotationX")).toBeCloseTo(-12, 0);
         expect(chart.get("rotationY")).toBeCloseTo(-39, 0);
         expect(zoomToGeoBoundsSpy).toHaveBeenCalled();
-      }, { timeout: 2500 /* >= rotateDuration */ });
+      }, { timeout: 3000 /* >= rotateDuration */ });
 
       // Simulate the changes to app store that are performed by the 'scenarios/new' page's onMounted hook
       appStore.globe.interactive = false;

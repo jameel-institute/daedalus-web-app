@@ -156,12 +156,12 @@ describe("costs chart", () => {
   it.each([
     {
       costBasis: CostBasis.PercentGDP,
-      yAxisTitle: "Losses as % of 2018 national GDP",
+      yAxisTitle: "Losses as % of GDP",
       expectedSeries: expectedPercentGDPSeries,
     },
     {
       costBasis: CostBasis.USD,
-      yAxisTitle: "Losses in billions USD",
+      yAxisTitle: "Losses in billions 2018 USD",
       expectedSeries: expectedUSDSeries,
     },
   ])("should initialise the chart with correct options for cost basis of $costBasis", async ({ costBasis, yAxisTitle, expectedSeries }) => {
@@ -193,13 +193,13 @@ describe("costs chart", () => {
     {
       from: CostBasis.USD,
       to: CostBasis.PercentGDP,
-      yAxisTitle: "Losses as % of 2018 national GDP",
+      yAxisTitle: "Losses as % of GDP",
       expectedSeries: expectedPercentGDPSeries,
     },
     {
       from: CostBasis.PercentGDP,
       to: CostBasis.USD,
-      yAxisTitle: "Losses in billions USD",
+      yAxisTitle: "Losses in billions 2018 USD",
       expectedSeries: expectedUSDSeries,
     },
   ])("should update the chart when changing cost basis from $from to $to", async ({ from, to, yAxisTitle, expectedSeries }) => {

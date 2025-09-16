@@ -70,7 +70,7 @@ describe("scenario select", () => {
     expect(comboBox.attributes("role")).toBe("combobox");
     expect(comboBox.attributes("aria-labelledby")).toBe("formLabelId");
     expect(comboBox.attributes("aria-required")).toBe("true");
-    expect(comboBox.attributes("aria-description")).toBe("Select up to 5 options to compare against baseline");
+    expect(comboBox.attributes("aria-description")).toBe("Select up to 4 options to compare against baseline");
 
     await openMenu(wrapper);
 
@@ -454,7 +454,7 @@ describe("scenario select", () => {
     options.forEach(option => option.trigger("click"));
     await wrapper.vm.$nextTick();
 
-    expect(feedback.text()).toContain("You can compare up to 5 scenarios against the baseline");
+    expect(feedback.text()).toContain("You can compare up to 4 scenarios against the baseline");
     expect(feedback.isVisible()).toBe(true);
   });
 

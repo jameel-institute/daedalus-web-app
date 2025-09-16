@@ -638,17 +638,6 @@ describe("app store", () => {
       expect(store.getScenarioAxisLabel(scenario)).toEqual("High");
     });
 
-    it("getScenarioResponseInterventions returns the response interventions for a given scenario", async () => {
-      const store = useAppStore();
-
-      const intvn = { id: "response", start: 1, end: 2 };
-      const irrelevantIntvn = { id: "irrelevant", start: 1, end: 2 };
-      const scenario = structuredClone(unloadedScenario);
-      scenario.result.data = { ...mockResultData, interventions: [intvn, irrelevantIntvn] };
-
-      expect(store.getScenarioResponseInterventions(scenario)).toEqual([intvn]);
-    });
-
     it("can get the 'total' cost data for a given scenario", async () => {
       const store = useAppStore();
       store.currentScenario = structuredClone(unloadedScenario);
