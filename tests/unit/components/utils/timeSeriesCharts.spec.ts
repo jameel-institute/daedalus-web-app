@@ -1,4 +1,5 @@
-import { addAlphaToRgb, multiScenarioTimeSeriesChartTooltipFormatter, plotBandsDefaultColor, plotLinesColor } from "~/components/utils/timeSeriesCharts";
+import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
+import { addAlphaToRgb, multiScenarioTimeSeriesChartTooltipFormatter, plotBandsDefaultColor, plotLinesColor, timeSeriesColors } from "~/components/utils/timeSeriesCharts";
 
 const rgbFormat = /^rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)$/;
 
@@ -11,6 +12,12 @@ describe("plotBandsDefaultColor", () => {
 describe("plotLinesColor", () => {
   it("should be in the correct rgb format", () => {
     expect(plotLinesColor).toMatch(rgbFormat);
+  });
+});
+
+describe("timeSeriesColors", () => {
+  it("should be MAX_SCENARIOS_COMPARED_TO_BASELINE + 1 colors long", () => {
+    expect(timeSeriesColors).toHaveLength(MAX_SCENARIOS_COMPARED_TO_BASELINE + 1);
   });
 });
 

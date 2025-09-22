@@ -10,7 +10,7 @@ export const addAlphaToRgb = (colorRgb: string, alpha: number): string => {
   return colorRgb.replace("rgb", "rgba").replace(")", `,${alpha})`);
 };
 export const timeSeriesColors = colorBlindSafeLargePalette
-  .filter(c => ![plotBandsColorName, plotLinesColorName].includes(c.name))
+  .filter(c => c.name !== plotLinesColorName)
   .map(c => c.rgb);
 
 export const multiScenarioTimeSeriesChartTooltipFormatter = (point: TooltipPointInstance, yUnits: string) => {

@@ -62,7 +62,7 @@ export class ExcelScenarioDownload {
     if (this._scenario.result.data!.interventions.length > 0) {
       this._addJsonAsSheet(this._scenario.result.data!.interventions, sheetName);
     } else {
-      // There will be no interventions  in scenario if response is none - in this case, we output
+      // There will be no interventions in scenario if response is none - in this case, we output
       // intervention type headers only
       const headers = ["id", "level", "start", "end"];
       this._addAoaAsSheet([headers], sheetName);
