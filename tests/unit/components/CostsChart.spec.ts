@@ -318,11 +318,13 @@ describe("costs chart", () => {
 
   it("should destroy the chart when the component is unmounted", async () => {
     const component = await mountSuspended(CostsChart, {
-      global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithCostData })] },
+      global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithCostData }, true, { stubActions: false })] },
     });
 
     component.unmount();
-    expect(mockDestroy).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockDestroy).toHaveBeenCalled();
+    });
   });
 
   it("adds a resize event listener on mount and removes it on unmount", async () => {

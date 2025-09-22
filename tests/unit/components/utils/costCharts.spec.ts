@@ -1,35 +1,11 @@
-import type { HSL } from "color-convert";
-import { addAlphaToRgb, colorBlindSafeLargePalette, costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, getColorVariants, plotBandsDefaultColor, plotLinesColor } from "~/components/utils/highCharts";
+import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter } from "~/components/utils/costCharts";
 import { CostBasis } from "~/types/unitTypes";
 import { mockMetadataResponseData } from "../../mocks/mockResponseData";
 import { TypeOfParameter } from "~/types/parameterTypes";
 
-const rgbFormat = /^rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)$/;
-
-describe("plotBandsDefaultColor", () => {
-  it("should be in the correct rgb format", () => {
-    expect(plotBandsDefaultColor).toMatch(rgbFormat);
-  });
-});
-
-describe("plotLinesColor", () => {
-  it("should be in the correct rgb format", () => {
-    expect(plotLinesColor).toMatch(rgbFormat);
-  });
-});
-
-describe("colorBlindSafeLargePalette", () => {
-  it("should be 7 colors long", () => {
-    expect(colorBlindSafeLargePalette).toHaveLength(7);
-  });
-});
-
-describe("addAlphaToRgb", () => {
-  it("should convert rgb to rgba", () => {
-    const rgb = "rgb(255,0,0)";
-    const alpha = 0.5;
-    const rgba = addAlphaToRgb(rgb, alpha);
-    expect(rgba).toBe("rgba(255,0,0,0.5)");
+describe("costsChartPalette", () => {
+  it("should be 3 colors long", () => {
+    expect(costsChartPalette).toHaveLength(3);
   });
 });
 
@@ -259,7 +235,8 @@ describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
     };
 
     const label = costsChartMultiScenarioXAxisLabelFormatter("high", axisParam, "high");
-    expect(label).toContain("High (baseline)");
+    expect(label).toContain("High");
+    expect(label).toContain("(baseline)");
     expect(label).not.toContain("fi");
   });
 
@@ -295,19 +272,7 @@ describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
 
     const label = costsChartMultiScenarioXAxisLabelFormatter("USA", axisParam, "USA");
     expect(label).toContain("fi-us");
-    expect(label).toContain("United States (baseline)");
-  });
-});
-
-describe("getColorVariants", () => {
-  it("creates a range of N colors from a base color", () => {
-    const baseColor = { name: "Red", rgb: "not used by util", hsl: [0, 100, 50] as HSL };
-    const variants = getColorVariants(baseColor, 5);
-    expect(variants).toHaveLength(5);
-    expect(variants[0].replace(/\s/g, "")).toBe("rgba(255,64,64,1)");
-    expect(variants[1].replace(/\s/g, "")).toBe("rgba(255,32,32,1)");
-    expect(variants[2].replace(/\s/g, "")).toBe("rgba(255,0,0,1)");
-    expect(variants[3].replace(/\s/g, "")).toBe("rgba(223,0,0,1)");
-    expect(variants[4].replace(/\s/g, "")).toBe("rgba(191,0,0,1)");
+    expect(label).toContain("United States");
+    expect(label).toContain("(baseline)");
   });
 });

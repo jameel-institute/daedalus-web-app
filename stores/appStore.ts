@@ -6,10 +6,10 @@ import { type Parameter, type ParameterSet, TypeOfParameter } from "@/types/para
 import { debounce } from "perfect-debounce";
 import { defineStore } from "pinia";
 import { ExcelScenarioDownload } from "~/download/excelScenarioDownload";
-import type { ScenarioCapacity, ScenarioCost, ScenarioIntervention } from "~/types/resultTypes";
+import type { ScenarioCost } from "~/types/resultTypes";
 import { CostBasis } from "~/types/unitTypes";
 import { getRangeForDependentParam } from "~/components/utils/parameters";
-import { responseInterventionId } from "~/components/utils/timeSeriesData";
+import { getScenarioLabel } from "~/components/utils/comparisons";
 
 const emptyScenario = {
   runId: undefined,
@@ -64,10 +64,6 @@ export const useAppStore = defineStore("app", {
       return state.metadata?.parameters.find(param => param.id === state.currentComparison.axis);
     },
     globeParameter: (state): Parameter | undefined => state.metadata?.parameters.find(param => param.parameterType === TypeOfParameter.GlobeSelect),
-    timeSeriesData: (state): Record<string, number[]> | undefined => state.currentScenario.result.data?.time_series,
-    capacitiesData: (state): Array<ScenarioCapacity> | undefined => state.currentScenario.result.data?.capacities,
-    interventionsData: (state): Array<ScenarioIntervention> | undefined => state.currentScenario.result.data?.interventions,
-    costsData: (state): Array<ScenarioCost> | undefined => state.currentScenario.result.data?.costs,
     scenarioCountry(state): string | undefined {
       if (!this.globeParameter?.id) {
         return;
@@ -94,12 +90,7 @@ export const useAppStore = defineStore("app", {
     everyScenarioHasCosts: (state): boolean => {
       return state.currentComparison.scenarios?.map(s => s.result.data?.costs).every(c => !!c && c.length > 0);
     },
-    axisLabel(state): string | undefined {
-      if (state.currentComparison.axis) {
-        return this.parametersMetadataById[state.currentComparison.axis].label;
-      }
-    },
-    baselineScenario(state): Scenario | undefined {
+    baselineScenario: (state): Scenario | undefined => {
       return state.currentComparison.scenarios.find((scenario) => {
         if (state.currentComparison.axis && scenario.parameters) {
           return scenario.parameters[state.currentComparison.axis] === state.currentComparison.baseline;
@@ -107,6 +98,14 @@ export const useAppStore = defineStore("app", {
           return false;
         }
       });
+    },
+    baselineIndex(state): number {
+      return state.currentComparison.scenarios.findIndex(s => s.runId === this.baselineScenario?.runId);
+    },
+    axisLabel(state): string | undefined {
+      if (state.currentComparison.axis) {
+        return this.parametersMetadataById[state.currentComparison.axis].label;
+      }
     },
   },
   actions: {
@@ -302,8 +301,11 @@ export const useAppStore = defineStore("app", {
     getScenarioAxisValue(scenario: Scenario): string | undefined {
       return this.currentComparison.axis ? scenario.parameters?.[this.currentComparison.axis] : undefined;
     },
-    getScenarioResponseInterventions(scenario: Scenario): ScenarioIntervention[] | undefined {
-      return scenario.result.data?.interventions.filter(({ id }) => id === responseInterventionId);
+    getScenarioAxisLabel(scenario: Scenario): string | undefined {
+      const axisVal = this.getScenarioAxisValue(scenario);
+      if (axisVal) {
+        return getScenarioLabel(axisVal, this.axisMetadata);
+      }
     },
     getScenarioTotalCost(scenario: Scenario): ScenarioCost | undefined {
       return scenario.result.data?.costs?.find(cost => cost.id === "total");

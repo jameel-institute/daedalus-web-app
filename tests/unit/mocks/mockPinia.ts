@@ -192,10 +192,10 @@ export const emptyScenario = {
 };
 deepFreeze(emptyScenario);
 
-const emptyComparison = {
+export const emptyComparison = {
   axis: undefined,
   baseline: undefined,
-  scenarios: undefined,
+  scenarios: [],
 };
 deepFreeze(emptyComparison);
 

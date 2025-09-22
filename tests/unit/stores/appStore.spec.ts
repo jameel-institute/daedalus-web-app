@@ -625,15 +625,17 @@ describe("app store", () => {
       expect(store.getScenarioAxisValue(scenario)).toEqual("high");
     });
 
-    it("getScenarioResponseInterventions returns the response interventions for a given scenario", async () => {
+    it("getScenarioAxisLabel returns the label for the axis parameter for a given scenario", async () => {
       const store = useAppStore();
+      store.metadata = mockMetadataResponseData;
 
-      const intvn = { id: "response", start: 1, end: 2 };
-      const irrelevantIntvn = { id: "irrelevant", start: 1, end: 2 };
       const scenario = structuredClone(unloadedScenario);
-      scenario.result.data = { ...mockResultData, interventions: [intvn, irrelevantIntvn] };
+      store.currentComparison = { axis: "country", baseline: "ARG", scenarios: [] };
 
-      expect(store.getScenarioResponseInterventions(scenario)).toEqual([intvn]);
+      expect(store.getScenarioAxisLabel(scenario)).toEqual("United States");
+
+      store.currentComparison = { axis: "vaccine", baseline: "high", scenarios: [] };
+      expect(store.getScenarioAxisLabel(scenario)).toEqual("High");
     });
 
     it("can get the 'total' cost data for a given scenario", async () => {
@@ -644,7 +646,7 @@ describe("app store", () => {
       await store.loadScenarioResult(store.currentScenario);
 
       await waitFor(() => {
-        expect(store.costsData).toEqual(mockResultData.costs);
+        expect(store.currentScenario.result.data?.costs).toEqual(mockResultData.costs);
       });
 
       const totalCost = store.getScenarioTotalCost(store.currentScenario);
@@ -663,7 +665,7 @@ describe("app store", () => {
       await store.loadScenarioResult(store.currentScenario);
 
       await waitFor(() => {
-        expect(store.costsData).toEqual(mockResultData.costs);
+        expect(store.currentScenario.result.data?.costs).toEqual(mockResultData.costs);
       });
 
       expect(store.getScenarioLifeValue(store.currentScenario)).toEqual("2799264");
@@ -703,54 +705,6 @@ describe("app store", () => {
 
         await waitFor(() => {
           expect(store.globeParameter!.id).toEqual("country");
-        });
-      });
-
-      it("can get the time series data", async () => {
-        const store = useAppStore();
-        store.currentScenario = structuredClone(unloadedScenario);
-
-        expect(store.timeSeriesData).toEqual(undefined);
-        await store.loadScenarioResult(store.currentScenario);
-
-        await waitFor(() => {
-          expect(store.timeSeriesData).toEqual(mockResultData.time_series);
-        });
-      });
-
-      it("can get the capacities data", async () => {
-        const store = useAppStore();
-        store.currentScenario = structuredClone(unloadedScenario);
-
-        expect(store.capacitiesData).toEqual(undefined);
-        await store.loadScenarioResult(store.currentScenario);
-
-        await waitFor(() => {
-          expect(store.capacitiesData).toEqual(mockResultData.capacities);
-        });
-      });
-
-      it("can get the interventions data", async () => {
-        const store = useAppStore();
-        store.currentScenario = structuredClone(unloadedScenario);
-
-        expect(store.interventionsData).toEqual(undefined);
-        await store.loadScenarioResult(store.currentScenario);
-
-        await waitFor(() => {
-          expect(store.interventionsData).toEqual(mockResultData.interventions);
-        });
-      });
-
-      it("can get the costs data", async () => {
-        const store = useAppStore();
-        store.currentScenario = structuredClone(unloadedScenario);
-
-        expect(store.costsData).toEqual(undefined);
-        await store.loadScenarioResult(store.currentScenario);
-
-        await waitFor(() => {
-          expect(store.costsData).toEqual(mockResultData.costs);
         });
       });
 
@@ -854,17 +808,6 @@ describe("app store", () => {
         expect(store.everyScenarioHasCosts).toBe(true);
       });
 
-      it("can get the label for the axis of a comparison", async () => {
-        const store = useAppStore();
-        await store.loadMetadata();
-
-        store.currentComparison = { axis: "vaccine", baseline: "high", scenarios: [] };
-        expect(store.axisLabel).toEqual("Global vaccine investment");
-
-        store.currentComparison.axis = "country";
-        expect(store.axisLabel).toEqual("Country");
-      });
-
       it("can get the baseline scenario for a comparison", async () => {
         const store = useAppStore();
         expect(store.baselineScenario).toBeUndefined();
@@ -881,6 +824,25 @@ describe("app store", () => {
 
         store.currentComparison.baseline = "none";
         expect(store.baselineScenario).toEqual(store.currentComparison.scenarios[1]);
+      });
+
+      it("can get the index of the baseline scenario in the comparison scenarios array", async () => {
+        const store = useAppStore();
+        expect(store.baselineIndex).toBe(-1);
+
+        store.currentComparison = {
+          axis: "vaccine",
+          baseline: "high",
+          scenarios: [
+            { ...emptyScenario, runId: "123", parameters: { vaccine: "high" } },
+            { ...emptyScenario, runId: "234", parameters: { vaccine: "none" } },
+            { ...emptyScenario, runId: "345", parameters: { vaccine: "low" } },
+          ],
+        };
+        expect(store.baselineIndex).toBe(0);
+
+        store.currentComparison.baseline = "low";
+        expect(store.baselineIndex).toBe(2);
       });
     });
   });

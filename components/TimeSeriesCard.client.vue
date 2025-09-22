@@ -7,7 +7,10 @@
           Time series
         </h2>
       </div>
-      <CapacitiesAndInterventionsLegend :show-plot-lines="true" />
+      <CapacitiesAndInterventionsLegend
+        :show-plot-lines="true"
+        :comparison-mode="false"
+      />
     </div>
     <div class="card-body p-0">
       <TimeSeriesGroup

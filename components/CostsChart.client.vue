@@ -13,7 +13,8 @@ import "highcharts/esm/modules/exporting";
 import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
-import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, costsPalette, getColorVariants, menuItemDefinitionOptions, yAxisTitle } from "@/components/utils/highCharts";
+import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, getColorVariants, menuItemDefinitionOptions } from "~/components/utils/charts";
+import { costsChartPalette, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, costsChartYAxisTitle } from "./utils/costCharts";
 import { costAsPercentOfGdp } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import { debounce } from "perfect-debounce";
@@ -30,7 +31,7 @@ const totalCost = computed(() => appStore.getScenarioTotalCost(appStore.currentS
 const columnColors = computed((): string[][] => {
   return totalCost.value?.children?.map((cost, i) => {
     const numberOfColorVariants = Math.max(cost.children?.length || 1);
-    return getColorVariants(costsPalette[i], numberOfColorVariants);
+    return getColorVariants(costsChartPalette[i], numberOfColorVariants);
   }) || [[]];
 });
 
@@ -131,7 +132,7 @@ const chartInitialOptions = () => {
       gridLineColor: "lightgrey",
       min: 0,
       title: {
-        text: yAxisTitle(appStore.preferences.costBasis),
+        text: costsChartYAxisTitle(appStore.preferences.costBasis),
       },
       stackLabels: {
         enabled: true,
@@ -165,8 +166,8 @@ const chartInitialOptions = () => {
   } as Highcharts.Options;
 };
 
-watch(() => chartContainer.value, () => {
-  if (appStore.costsData && !chart && chartContainer.value) {
+watch([chartContainer, totalCost], () => {
+  if (totalCost.value && !chart && chartContainer.value) {
     chart = Highcharts.chart("costsChartContainer", chartInitialOptions());
   }
 });
@@ -176,7 +177,7 @@ watch(() => appStore.preferences.costBasis, () => {
     chart.update({
       yAxis: {
         title: {
-          text: yAxisTitle(appStore.preferences.costBasis),
+          text: costsChartYAxisTitle(appStore.preferences.costBasis),
         },
       },
       series: getSeries(),

@@ -109,7 +109,6 @@ import { CIcon } from "@coreui/icons-vue";
 import { costAsPercentOfGdp, gdpReferenceYear, humanReadableInteger, humanReadablePercentOfGdp } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import type { Scenario } from "~/types/storeTypes";
-import { getScenarioLabel } from "./utils/comparisons";
 
 const props = defineProps<{
   scenarios: Scenario[]
@@ -121,13 +120,8 @@ const vslFull = "Value of statistical life";
 
 const multiScenario = computed(() => props.scenarios.length > 1);
 
-const scenarioLabel = (scenario: Scenario) => {
-  const axisVal = appStore.getScenarioAxisValue(scenario);
-  if (axisVal) {
-    const label = getScenarioLabel(axisVal, appStore.axisMetadata);
-    return `${label}${scenario === appStore.baselineScenario ? " (baseline)" : ""}`;
-  }
-};
+const scenarioLabel = (scenario: Scenario) => `${appStore.getScenarioAxisLabel(scenario)}`
+  + `${scenario === appStore.baselineScenario ? " (baseline)" : ""}`;
 
 const vslVariesByScenario = computed(() => {
   return props.scenarios.some(scenario => appStore.getScenarioLifeValue(scenario) !== appStore.getScenarioLifeValue(props.scenarios[0]));

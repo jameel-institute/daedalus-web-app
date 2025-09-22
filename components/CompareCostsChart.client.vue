@@ -15,7 +15,8 @@ import "highcharts/esm/modules/exporting";
 import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
-import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, costsPalette, menuItemDefinitionOptions, yAxisTitle } from "./utils/highCharts";
+import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions } from "@/components/utils/charts";
+import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, costsChartYAxisTitle } from "@/components/utils/costCharts";
 import { costAsPercentOfGdp } from "@/components/utils/formatters";
 import { CostBasis } from "@/types/unitTypes";
 import { debounce } from "perfect-debounce";
@@ -32,7 +33,6 @@ const chartTitle = computed(() => {
   const scenarioDuration = Object.values(firstScenarioTimeSeries || {})[0].length - 1;
   return `Losses after ${scenarioDuration} days`;
 });
-const rgbPalette = costsPalette.map(color => color.rgb);
 
 // There are 3 levels of data breakdown for costs:
 // 1) the top-level total for the scenario,
@@ -49,7 +49,7 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
     type: "column",
     name: appStore.getCostLabel(costId),
     borderWidth: 1,
-    borderColor: rgbPalette[index % rgbPalette.length],
+    borderColor: costsChartPalette[index].rgb,
     zIndex: secondLevelCostIds.length - index, // Ensure that stack segments are in front of each other from top to bottom.
     data: scenarios.value.map((scenario) => {
       const subCost = scenario.result.data?.costs[0].children?.find(c => c.id === costId);
@@ -78,7 +78,7 @@ const targetWidth = () => {
 const chartInitialOptions = () => {
   return {
     credits: { text: "Highcharts" },
-    colors: rgbPalette,
+    colors: costsChartPalette.map(color => color.rgb),
     chart: { ...chartOptions, height: chartHeightPx, width: targetWidth() },
     exporting: {
       filename: chartTitle.value,
@@ -102,7 +102,7 @@ const chartInitialOptions = () => {
     },
     xAxis: {
       categories: scenarios.value?.map(s => appStore.getScenarioAxisValue(s)) || [],
-      title: { text: appStore.axisLabel },
+      title: { text: appStore.axisMetadata?.label },
       labels: {
         style: {
           fontSize: appStore.currentComparison.axis === appStore.globeParameter?.id ? "0.8rem" : "1rem",
@@ -116,7 +116,7 @@ const chartInitialOptions = () => {
     yAxis: {
       gridLineColor: "lightgrey",
       min: 0,
-      title: { text: yAxisTitle(costBasis.value) },
+      title: { text: costsChartYAxisTitle(costBasis.value) },
       stackLabels: {
         enabled: true,
         formatter() {
@@ -156,7 +156,7 @@ watch(() => [chartContainer.value, appStore.everyScenarioHasCosts], () => {
 
 watch(() => costBasis.value, () => {
   if (chart) {
-    chart.update({ yAxis: { title: { text: yAxisTitle(costBasis.value) } }, series: getSeries() });
+    chart.update({ yAxis: { title: { text: costsChartYAxisTitle(costBasis.value) } }, series: getSeries() });
   }
 });
 
