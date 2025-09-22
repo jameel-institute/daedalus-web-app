@@ -54,7 +54,10 @@ const toggleOpen = (seriesGroupId: string) => {
 };
 
 const initializeAccordions = () => {
-  openedAccordions.value = appStore.timeSeriesGroups?.map(({ id }) => id) || [];
+  // Only initialize to all open if no persisted state exists
+  if (openedAccordions.value.length === 0 && appStore.timeSeriesGroups?.length) {
+    openedAccordions.value = appStore.timeSeriesGroups.map(({ id }) => id);
+  }
 };
 
 onMounted(() => {

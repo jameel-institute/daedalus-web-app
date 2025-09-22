@@ -93,6 +93,7 @@ describe("app store", () => {
     expect(store.metadata).toBeUndefined();
     expect(store.largeScreen).toBe(true);
     expect(store.preferences.costBasis).toBe(CostBasis.USD);
+    expect(store.preferences.openedTimeSeriesAccordions).toEqual([]);
   });
 
   describe("actions", () => {
