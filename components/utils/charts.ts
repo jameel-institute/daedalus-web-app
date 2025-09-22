@@ -78,6 +78,7 @@ export enum LegendShape {
   Rectangle = "rectangle",
   Line = "line",
   Circle = "circle",
+  SquareDash = "squareDash",
 }
 
 export const contextButtonOptions = {
