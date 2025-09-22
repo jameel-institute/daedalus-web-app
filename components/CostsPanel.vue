@@ -1,3 +1,4 @@
+<!-- TODO: take another look at rounding in the chart and table. -->
 <template>
   <div class="card costs-card">
     <!-- Todo: Make height dynamic. Matching header of time series. -->

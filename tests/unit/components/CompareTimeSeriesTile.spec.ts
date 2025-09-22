@@ -1,7 +1,7 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import { mockedMetadata, mockPinia } from "../mocks/mockPinia";
-import { CompareTimeSeriesGroup } from "#components";
+import { CompareTimeSeriesTile } from "#components";
 
 const pinia = mockPinia();
 const getProps = (isDaily: boolean) => ({
@@ -14,7 +14,7 @@ const getProps = (isDaily: boolean) => ({
 
 describe("timeSeriesGroup component", () => {
   it("should render correct header and time series with correct props, and the show capacities switch when relevant", async () => {
-    const component = await mountSuspended(CompareTimeSeriesGroup, {
+    const component = await mountSuspended(CompareTimeSeriesTile, {
       global: { plugins: [pinia], stubs: ["CompareTimeSeries.client"] },
       props: getProps(false),
     });
@@ -43,7 +43,7 @@ describe("timeSeriesGroup component", () => {
   });
 
   it("should render correct header and time series, but not the show capacities switch when not relevant", async () => {
-    const component = await mountSuspended(CompareTimeSeriesGroup, {
+    const component = await mountSuspended(CompareTimeSeriesTile, {
       global: { plugins: [pinia], stubs: ["CompareTimeSeries.client"] },
 
       props: getProps(true),

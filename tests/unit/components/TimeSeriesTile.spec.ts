@@ -1,5 +1,5 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import TimeSeriesGroupComponent from "~/components/TimeSeriesGroup.client.vue";
+import TimeSeriesTile from "~/components/TimeSeriesTile.client.vue";
 import type { DisplayInfo, ScenarioResultData, TimeSeriesGroup } from "~/types/apiResponseTypes";
 import { emptyScenario, mockedMetadata, mockPinia } from "../mocks/mockPinia";
 import { mockResultResponseData } from "../mocks/mockResponseData";
@@ -59,7 +59,7 @@ const getProps = (open = true) => ({
 describe("timeSeriesGroup component", () => {
   it("should render default total chart & toggle when when open prop is true", async () => {
     const timeSeries = mockedMetadata.results.time_series[0] as DisplayInfo;
-    const component = await mountSuspended(TimeSeriesGroupComponent, {
+    const component = await mountSuspended(TimeSeriesTile, {
       global: {
         plugins: [pinia],
       },
@@ -75,7 +75,7 @@ describe("timeSeriesGroup component", () => {
   });
 
   it("should not render toggle and chart when open is false", async () => {
-    const component = await mountSuspended(TimeSeriesGroupComponent, {
+    const component = await mountSuspended(TimeSeriesTile, {
       global: {
         plugins: [pinia],
       },
@@ -89,7 +89,7 @@ describe("timeSeriesGroup component", () => {
   });
 
   it("should be able to toggle on new per day chart and visa versa", async () => {
-    const component = await mountSuspended(TimeSeriesGroupComponent, {
+    const component = await mountSuspended(TimeSeriesTile, {
       global: {
         plugins: [pinia],
       },
@@ -127,7 +127,7 @@ describe("timeSeriesGroup component", () => {
   });
 
   it("should emit toggleOpen when the accordion header is clicked", async () => {
-    const component = await mountSuspended(TimeSeriesGroupComponent, {
+    const component = await mountSuspended(TimeSeriesTile, {
       global: { plugins: [pinia] },
       props: getProps(),
     });

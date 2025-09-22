@@ -13,7 +13,7 @@
       />
     </div>
     <div class="card-body p-0">
-      <TimeSeriesGroup
+      <TimeSeriesTile
         v-for="(seriesGroup, index) in appStore.timeSeriesGroups"
         :key="seriesGroup.id"
         :series-group="seriesGroup"

@@ -1,10 +1,10 @@
-import { CapacitiesAndInterventionsLegend, CompareTimeSeriesPane } from "#components";
+import { CapacitiesAndInterventionsLegend, CompareTimeSeriesTab } from "#components";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { mockPinia } from "../mocks/mockPinia";
 
 describe("time series comparison pane", () => {
   it("should only render the plot lines in the capacities and interventions legend when not in daily mode", async () => {
-    const component = await mountSuspended(CompareTimeSeriesPane, {
+    const component = await mountSuspended(CompareTimeSeriesTab, {
       global: {
         stubs: ["CapacitiesAndInterventionsLegend", "CompareTimeSeriesLegend", "CompareTimeSeries.client"],
         plugins: [mockPinia()],
