@@ -3,9 +3,23 @@
     <div
       v-for="item in items"
       :key="item.label"
-      :class="`legend-item legend-item-${item.shape}`"
+      class="legend-item"
     >
-      <i :style="iStyle(item)" />
+      <!-- The svg is modelled after the plot-line graphic used in the Highcharts chart -->
+      <svg
+        v-if="item.shape === LegendShape.SquareDash"
+        :width="iWidthPx"
+        :height="plotLinesWidthPx"
+        :style="{ marginTop: lineMarginTop }"
+      >
+        <path
+          :stroke="item.color"
+          :stroke-width="plotLinesWidthPx * 2"
+          :stroke-dasharray="`${plotLinesWidthPx},${plotLinesWidthPx}`"
+          :d="`M 0 0 L ${iWidthPx} 0`"
+        />
+      </svg>
+      <i v-else :style="iStyle(item)" />
       <span
         :style="{ lineHeight: `${props.rowHeightRem}rem` }"
       >
@@ -16,31 +30,38 @@
 </template>
 
 <script setup lang="ts">
-import { type LegendItem, LegendShape } from "./utils/highCharts";
+import { type LegendItem, LegendShape } from "./utils/charts";
+import { plotLinesWidthPx } from "./utils/timeSeriesCharts";
 
 const props = defineProps<{
   items: LegendItem[]
   rowHeightRem: number
 }>();
 
+// Width of the i element should be an odd-numbered multiple of plotLinesWidthPx to ensure dotted svg paths start and finish
+// with dots rather than gap, aligning them visually with non-dotted legend items.
+const iWidthPx = 19 * plotLinesWidthPx;
 const lineHeightRem = 0.15;
+const lineMarginTop = `${(props.rowHeightRem / 2) - (lineHeightRem / 2)}rem`;
 
 const iStyle = (item: LegendItem) => {
   const style = {
     background: item.color,
+    width: `${iWidthPx}px`,
   };
   if (item.shape === LegendShape.Line) {
     return {
       ...style,
       height: `${lineHeightRem}rem`,
-      marginTop: `${(props.rowHeightRem / 2) - lineHeightRem}rem`,
+      marginTop: lineMarginTop,
     };
   } else if (item.shape === LegendShape.Circle) {
+    const circleDiameter = "11px";
     return {
       ...style,
       borderRadius: "50%",
-      height: `${props.rowHeightRem / 1.3}rem`,
-      width: `${props.rowHeightRem / 1.3}rem`,
+      height: circleDiameter,
+      width: circleDiameter,
     };
   } else if (item.shape === LegendShape.Rectangle) {
     return {
@@ -67,7 +88,6 @@ const iStyle = (item: LegendItem) => {
   }
 
   i {
-    width: 2.5rem;
     float: left;
   }
 }
