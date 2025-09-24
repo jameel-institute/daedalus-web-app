@@ -8,7 +8,7 @@ import type { Metadata } from "~/types/apiResponseTypes";
 const stubs = {
   "CIcon": true,
   "TimeSeries.client": true,
-  "CostsCard": true,
+  "CostsPanel": true,
 };
 
 const longRunningRunId = "123";

@@ -45,10 +45,10 @@
           </CTabList>
           <CTabContent class="">
             <CTabPanel class="pt-3" item-key="costs">
-              <CompareCostsPane />
+              <CompareCostsTab />
             </CTabPanel>
             <CTabPanel item-key="timeseries">
-              <CompareTimeSeriesPane />
+              <CompareTimeSeriesTab />
             </CTabPanel>
           </CTabContent>
         </CTabs>

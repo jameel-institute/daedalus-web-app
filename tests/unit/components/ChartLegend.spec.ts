@@ -18,8 +18,6 @@ describe("chart legend", () => {
     expect(legendItems.length).toBe(items.length);
 
     items.forEach((item, index) => {
-      console.error(item.shape);
-
       const legendItem = legendItems.at(index);
       expect(legendItem!.text()).toContain(item.label);
       expect(legendItem!.classes()).toContain(`legend-item`);
