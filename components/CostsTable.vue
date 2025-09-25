@@ -112,7 +112,7 @@
         The model behind this dashboard uses the value of statistical life (VSL) approach to estimate the monetary value of lives lost.
       </p>
       <p v-if="vslVariesByScenario">
-        The assumed VSLs for the current scenarios are:
+        The assumed VSLs for the current countries are:
         <span>
           <ul>
             <li v-for="s in scenarios" :key="s.runId">
@@ -122,9 +122,7 @@
         </span>
       </p>
       <p v-else>
-        The assumed VSL for
-        {{ scenarios.length > 1 ? 'these scenarios' : 'this scenario' }}
-        is {{ vslLabel(scenarios[0]) }}.
+        The assumed VSL for this country is {{ vslLabel(scenarios[0]) }}.
       </p>
       <p>
         {{ scenarios.length > 1 ? 'These values' : 'This value' }}
