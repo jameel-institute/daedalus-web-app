@@ -161,7 +161,7 @@ describe("costs chart", () => {
     },
     {
       costBasis: CostBasis.USD,
-      yAxisTitle: "Losses in billions 2018 USD",
+      yAxisTitle: "Losses in billions USD",
       expectedSeries: expectedUSDSeries,
     },
   ])("should initialise the chart with correct options for cost basis of $costBasis", async ({ costBasis, yAxisTitle, expectedSeries }) => {
@@ -199,7 +199,7 @@ describe("costs chart", () => {
     {
       from: CostBasis.PercentGDP,
       to: CostBasis.USD,
-      yAxisTitle: "Losses in billions 2018 USD",
+      yAxisTitle: "Losses in billions USD",
       expectedSeries: expectedUSDSeries,
     },
   ])("should update the chart when changing cost basis from $from to $to", async ({ from, to, yAxisTitle, expectedSeries }) => {
