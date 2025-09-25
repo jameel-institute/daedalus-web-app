@@ -56,10 +56,10 @@
     </CAlert>
     <CRow v-else-if="appStore.currentScenario.result.data" class="results-cards-container">
       <div class="col-12 col-xl-6">
-        <CostsCard />
+        <CostsPanel />
       </div>
       <div class="col-12 col-xl-6">
-        <TimeSeriesCard />
+        <TimeSeriesPanel />
       </div>
     </CRow>
   </div>

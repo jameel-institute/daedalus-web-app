@@ -1,5 +1,5 @@
 import type { ScenarioResultData } from "~/types/apiResponseTypes";
-import CostsCard from "@/components/CostsCard.vue";
+import CostsPanel from "~/components/CostsPanel.vue";
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { mockResultResponseData } from "../mocks/mockResponseData";
@@ -54,7 +54,7 @@ describe("costs card", () => {
   });
 
   it("should render the costs chart container, the total cost, costs table, vsl and total cost in terms of % of GDP", async () => {
-    const component = await mountSuspended(CostsCard, { global: { stubs, plugins: [pinia] } });
+    const component = await mountSuspended(CostsPanel, { global: { stubs, plugins: [pinia] } });
     expect(component.text()).toContain("Losses after 599 days");
     expect(component.find(`#gdpContainer`).text()).toContain("44.9%");
 

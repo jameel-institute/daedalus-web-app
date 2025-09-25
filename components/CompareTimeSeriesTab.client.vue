@@ -17,7 +17,7 @@
       </div>
     </div>
     <div class="time-series-container">
-      <CompareTimeSeriesGroup
+      <CompareTimeSeriesTile
         v-for="(seriesGroup, index) in appStore.timeSeriesGroups"
         :key="seriesGroup.id"
         :series-group="seriesGroup"
