@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
+  expectMockAppendSheet,
   mockAoaToSheet,
-  mockBookAppendSheet,
   mockBookNew,
   mockImplementations,
   mockJsonToSheet,
@@ -58,12 +58,6 @@ describe("excelScenarioDownload", () => {
   beforeEach(() => {
     mockImplementations();
   });
-
-  const expectMockAppendSheet = (callIndex: number, data: any, sheetName: string) => {
-    expect(mockBookAppendSheet.mock.calls[callIndex][0]).toBe(mockWorkbook);
-    expect(mockBookAppendSheet.mock.calls[callIndex][1]).toStrictEqual(data);
-    expect(mockBookAppendSheet.mock.calls[callIndex][2]).toBe(sheetName);
-  };
 
   it("writes expected data to excel file", () => {
     const sut = new ExcelScenarioDownload(scenario);

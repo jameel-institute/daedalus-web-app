@@ -69,6 +69,10 @@ export class ExcelComparisonDownload extends ExcelDownload {
   }
 
   public download() {
+    if (this._scenarios.some(s => !s.parameters || !s.result.data)) {
+      throw new Error("Cannot download scenarios with no data.");
+    }
+
     this._addCosts();
     this._addTimeSeries();
     this._downloadWorkbook(`daedalus_${this._comparisonParameter}_comparison.xlsx`);
