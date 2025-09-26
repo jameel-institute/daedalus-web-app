@@ -153,17 +153,6 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   const expandCostsTableButton = page.getByTestId("toggle-costs-table");
   await expandCostsTableButton.click();
   const tableRows = page.locator("#costs-table-body tr");
-  expect(await tableRows.nth(0).textContent()).toMatch(new RegExp(`GDP\\s*${commaSeparatedNumberMatcher}`));
-  expect(await tableRows.nth(1).textContent()).toMatch(new RegExp(`Closures\\s*${commaSeparatedNumberMatcher}`));
-  expect(await tableRows.nth(2).textContent()).toMatch(new RegExp(`Absences\\s*${commaSeparatedNumberMatcher}`));
-  expect(await tableRows.nth(3).textContent()).toMatch(new RegExp(`Education\\s*${commaSeparatedNumberMatcher}`));
-  expect(await tableRows.nth(4).textContent()).toMatch(new RegExp(`Closures\\s*${commaSeparatedNumberMatcher}`));
-  expect(await tableRows.nth(5).textContent()).toMatch(new RegExp(`Absences\\s*${commaSeparatedNumberMatcher}`));
-  expect(await tableRows.nth(6).textContent()).toMatch(new RegExp(`Life years\\*\\s*${commaSeparatedNumberMatcher}`));
-  expect(await tableRows.nth(7).textContent()).toMatch(new RegExp(`Preschool-age children\\s*${commaSeparatedNumberMatcher}`));
-  expect(await tableRows.nth(8).textContent()).toMatch(new RegExp(`School-age children\\s*${commaSeparatedNumberMatcher}`));
-  expect(await tableRows.nth(9).textContent()).toMatch(new RegExp(`Working-age adults\\s*${commaSeparatedNumberMatcher}`));
-  expect(await tableRows.nth(10).textContent()).toMatch(new RegExp(`Retirement-age adults\\s*${commaSeparatedNumberMatcher}`));
 
   [
     "GDP",
