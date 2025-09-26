@@ -1,11 +1,5 @@
-import type { ScenarioCost } from "~/types/resultTypes";
 import type { Scenario } from "~/types/storeTypes";
-import { ExcelDownload } from "~/download/excelDownload";
-
-interface FlatCost {
-  id: string
-  value: number
-}
+import { ExcelDownload, type FlatCost } from "~/download/excelDownload";
 
 export class ExcelScenarioDownload extends ExcelDownload {
   private readonly _scenario: Scenario;
@@ -24,19 +18,10 @@ export class ExcelScenarioDownload extends ExcelDownload {
     this._addJsonAsSheet(paramData, "Parameters");
   }
 
-  private static _flattenCosts(costs: Array<ScenarioCost>, flattened: Array<FlatCost>) {
-    costs.forEach((cost: ScenarioCost) => {
-      flattened.push({ id: cost.id, value: cost.value });
-      if (cost.children) {
-        this._flattenCosts(cost.children, flattened);
-      }
-    });
-  }
-
   private _addCosts() {
     const costs = this._scenario.result.data!.costs;
     const flattenedCosts: Array<FlatCost> = [];
-    ExcelScenarioDownload._flattenCosts(costs, flattenedCosts);
+    ExcelDownload._flattenCosts(costs, flattenedCosts);
     this._addJsonAsSheet(flattenedCosts, "Costs");
   }
 
