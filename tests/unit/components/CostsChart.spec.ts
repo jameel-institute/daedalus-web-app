@@ -249,7 +249,7 @@ describe("costs chart", () => {
           }),
           yAxis: expect.objectContaining({
             title: expect.objectContaining({
-              text: "Losses in billions 2018 USD",
+              text: "Losses in billions USD",
             }),
           }),
           series: expectedUSDSeries,
@@ -307,7 +307,7 @@ describe("costs chart", () => {
         expect.objectContaining({
           yAxis: expect.objectContaining({
             title: expect.objectContaining({
-              text: "Losses in billions 2018 USD",
+              text: "Losses in billions USD",
             }),
           }),
           series: expectedUSDSeries,

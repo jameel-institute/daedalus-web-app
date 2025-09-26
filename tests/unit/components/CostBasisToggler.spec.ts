@@ -91,7 +91,7 @@ describe("cost basis toggler", () => {
 
     const tooltipTrigger = component.find("img");
     expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
-    await expectTooltipContents(tooltipTrigger, ["2018 GDP of $19,863.0 billion"]);
+    await expectTooltipContents(tooltipTrigger, ["pre-pandemic GDP of $19,863.0 billion"]);
   });
 
   it("should show the correct tooltip content when the scenarios each have a different national GDP", async () => {
@@ -105,7 +105,7 @@ describe("cost basis toggler", () => {
     const tooltipTrigger = component.find("img");
     expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
     await expectTooltipContents(tooltipTrigger, [
-      "2018 GDPs:",
+      "the following pre-pandemic GDPs",
       "United Kingdom (baseline): $19,863.0 billion",
       "United States: $123.5 billion",
     ]);
