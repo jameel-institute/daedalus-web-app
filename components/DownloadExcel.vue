@@ -1,6 +1,6 @@
 <template>
   <div class="d-inline-block">
-    <div v-if="appStore.currentScenario.parameters && appStore.currentScenario.result.data">
+    <div v-if="showButton">
       <CTooltip content="Download as Excel file" placement="top">
         <template #toggler="{ togglerId, on }">
           <CButton
@@ -27,14 +27,21 @@
 <script setup lang="ts">
 import { CIcon } from "@coreui/icons-vue";
 
+const props = defineProps<{
+  comparison: boolean
+}>();
+
 const appStore = useAppStore();
 
+const showButton = computed(() => props.comparison ? appStore.everyScenarioHasRunSuccessfully : (appStore.currentScenario.parameters && appStore.currentScenario.result.data));
+
 const download = () => {
-  appStore.downloadExcel();
+  appStore.downloadExcel(props.comparison);
 };
 
 // We want to undismiss on new download, so can't use default dismissed prop
 const alertDismissed = ref(false);
+
 watch(() => appStore.downloading, () => {
   alertDismissed.value = false;
 });

@@ -1,31 +1,12 @@
-import * as XLSX from "xlsx";
-import type { ScenarioCost } from "~/types/resultTypes";
 import type { Scenario } from "~/types/storeTypes";
+import { ExcelDownload, type FlatCost } from "~/download/excelDownload";
 
-interface FlatCost {
-  id: string
-  value: number
-}
-
-export class ExcelScenarioDownload {
+export class ExcelScenarioDownload extends ExcelDownload {
   private readonly _scenario: Scenario;
-  private readonly _workbook: XLSX.WorkBook;
 
   constructor(scenario: Scenario) {
+    super();
     this._scenario = scenario;
-    this._workbook = XLSX.utils.book_new();
-  }
-
-  private _addJsonAsSheet(data: Array<object>, sheetName: string) {
-    // adds a worksheet with array-of-object data
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    XLSX.utils.book_append_sheet(this._workbook, worksheet, sheetName);
-  }
-
-  private _addAoaAsSheet(data: Array<any[]>, sheetName: string) {
-    // adds a worksheet with array-of-array data
-    const worksheet = XLSX.utils.aoa_to_sheet(data);
-    XLSX.utils.book_append_sheet(this._workbook, worksheet, sheetName);
   }
 
   private _addParameters() {
@@ -37,19 +18,10 @@ export class ExcelScenarioDownload {
     this._addJsonAsSheet(paramData, "Parameters");
   }
 
-  private static _flattenCosts(costs: Array<ScenarioCost>, flattened: Array<FlatCost>) {
-    costs.forEach((cost: ScenarioCost) => {
-      flattened.push({ id: cost.id, value: cost.value });
-      if (cost.children) {
-        this._flattenCosts(cost.children, flattened);
-      }
-    });
-  }
-
   private _addCosts() {
     const costs = this._scenario.result.data!.costs;
     const flattenedCosts: Array<FlatCost> = [];
-    ExcelScenarioDownload._flattenCosts(costs, flattenedCosts);
+    ExcelDownload._flattenCosts(costs, flattenedCosts);
     this._addJsonAsSheet(flattenedCosts, "Costs");
   }
 
@@ -98,6 +70,6 @@ export class ExcelScenarioDownload {
     }
     this._buildWorkbook();
     const paramValues = Object.values(this._scenario.parameters!).join("_");
-    XLSX.writeFile(this._workbook, `daedalus_${paramValues}.xlsx`);
+    this._downloadWorkbook(`daedalus_${paramValues}.xlsx`);
   }
 }
