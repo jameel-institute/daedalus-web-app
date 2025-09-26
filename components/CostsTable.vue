@@ -27,7 +27,7 @@
               </span>
               <div v-else>
                 <span class="boldish">
-                  $, millions ({{ gdpReferenceYear }} USD)
+                  $, millions (USD)
                 </span>
               </div>
             </template>
@@ -141,7 +141,7 @@
 
 <script lang="ts" setup>
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
-import { costAsPercentOfGdp, gdpReferenceYear, humanReadableInteger, humanReadablePercentOfGdp } from "./utils/formatters";
+import { costAsPercentOfGdp, humanReadableInteger, humanReadablePercentOfGdp } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import type { Scenario } from "~/types/storeTypes";
 

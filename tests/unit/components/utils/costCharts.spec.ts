@@ -46,7 +46,7 @@ describe("single-scenario costs chart tooltip text for stacked column", () => {
   it("should return the correct text for the stack's tooltip, when cost basis is USD", () => {
     const tooltipText = costsChartSingleScenarioTooltip(tooltipPointInstance, CostBasis.USD, 4000);
     expect(tooltipText).toMatch(
-      /Life years losses.*\$2.0 billion.*2018 USD.*50.0% of pre-pandemic GDP.*#FF0000.*Working-age adults.*\$999 M.*#00FF00.*Children.*\$0 M/,
+      /Life years losses.*\$2.0 billion.*USD.*50.0% of pre-pandemic GDP.*#FF0000.*Working-age adults.*\$999 M.*#00FF00.*Children.*\$0 M/,
     );
     expect(tooltipText).not.toMatch(/Do not include in tooltips/i);
   });
@@ -99,7 +99,7 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
       context.point.total = 1885507.7183;
       const tooltipText = costsChartMultiScenarioStackedTooltip(context, CostBasis.USD, vaccineParam);
       expect(tooltipText).toMatch(
-        /Global vaccine investment:.*High.*Total losses:.*\$1.9 trillion.*2018 USD.*74.0% of pre-pandemic GDP.*#FF0000.*GDP.*\$97.4 B.*#00FF00.*Education.*\$2.7 B.*#0000FF.*\$1.8 T/,
+        /Global vaccine investment:.*High.*Total losses:.*\$1.9 trillion.*USD.*74.0% of pre-pandemic GDP.*#FF0000.*GDP.*\$97.4 B.*#00FF00.*Education.*\$2.7 B.*#0000FF.*\$1.8 T/,
       );
     });
 
@@ -125,7 +125,7 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
       context.point.total = 1885507.7183;
       const tooltipText = costsChartMultiScenarioStackedTooltip(context, CostBasis.USD, hospitalCapacityParam);
       expect(tooltipText).toMatch(
-        /Hospital surge capacity:.*12,345.*Total losses:.*\$1.9 trillion.*2018 USD.*74.0% of pre-pandemic GDP.*#FF0000.*GDP.*\$97.4 B.*#00FF00.*Education.*\$2.7 B.*#0000FF.*\$1.8 T/,
+        /Hospital surge capacity:.*12,345.*Total losses:.*\$1.9 trillion.*USD.*74.0% of pre-pandemic GDP.*#FF0000.*GDP.*\$97.4 B.*#00FF00.*Education.*\$2.7 B.*#0000FF.*\$1.8 T/,
       );
     });
 

@@ -67,7 +67,6 @@ describe("costs table for the current scenario", () => {
     let componentText = component.text();
 
     expect(componentText).toContain("$, millions");
-    expect(componentText).toContain("2018 USD");
 
     expect(componentText).toContain("Expand all");
     expect(componentText).not.toContain("Collapse all");
@@ -187,7 +186,6 @@ describe("costs table for all scenarios in a comparison", () => {
     let componentText = component.text();
 
     expect(componentText).toContain("$, millions");
-    expect(componentText).toContain("2018 USD");
 
     // Scenario labels
     expect(componentText).toContain("None");

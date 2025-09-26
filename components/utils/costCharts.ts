@@ -1,5 +1,5 @@
 import { abbreviateMillionsDollars } from "~/utils/money";
-import { costAsPercentOfGdp, gdpReferenceYear, humanReadablePercentOfGdp } from "~/components/utils/formatters";
+import { costAsPercentOfGdp, humanReadablePercentOfGdp } from "~/components/utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 import { countryFlagClass } from "./countryFlag";
@@ -11,7 +11,7 @@ export const costsChartPalette = colorBlindSafeSmallPalette;
 export const costsChartYAxisTitle = (costBasis: CostBasis) => {
   return costBasis === CostBasis.PercentGDP
     ? `Losses as % of GDP`
-    : `Losses in billions ${gdpReferenceYear} USD`;
+    : `Losses in billions USD`;
 };
 
 const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis: CostBasis) => {
@@ -39,7 +39,7 @@ export const costsChartSingleScenarioTooltip = (context: unknown, costBasis: Cos
     headerText = `${headerText}<b>${percentOfGdp.percent}%</b> ${percentOfGdp.reference}`;
   } else {
     const abbreviatedTotal = abbreviateMillionsDollars(tooltipPointInstance.total);
-    headerText = `${headerText}<b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b> ${gdpReferenceYear} USD`;
+    headerText = `${headerText}<b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b> USD`;
     if (tooltipPointInstance.total > 0) {
       const percentOfGdp = humanReadablePercentOfGdp(costAsPercentOfGdp(tooltipPointInstance.total, nationalGdp));
       headerText = `${headerText}</br>(${percentOfGdp.percent}% ${percentOfGdp.reference})`;
@@ -71,7 +71,7 @@ export const costsChartMultiScenarioStackedTooltip = (context: unknown, costBasi
     headerText = `${headerText}</br></br>Total losses: <b>${percentOfGdp.percent}%</b> ${percentOfGdp.reference}`;
   } else {
     const abbreviatedTotal = abbreviateMillionsDollars(point.total);
-    headerText = `${headerText}<br/></br>Total losses: <b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b> ${gdpReferenceYear} USD`;
+    headerText = `${headerText}<br/></br>Total losses: <b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b> USD`;
     if (point.total > 0) {
       const totalCostAsGdpPercent = point.points?.map(p => p.custom.costAsGdpPercent).reduce((sum, a) => sum + a, 0);
       if (totalCostAsGdpPercent) {

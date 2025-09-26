@@ -20,14 +20,14 @@
       >
         <template #label>
           <span>
-            in {{ gdpReferenceYear }} USD
+            in USD
             <TooltipHelp
               :help-text="gdpVariesByScenario
                 ? undefined
-                : `USD values based on ${gdpReferenceYear} GDP of ${scenarioGdpLabel(scenarios[0])}`
+                : `These USD values assume a pre-pandemic GDP of ${scenarioGdpLabel(scenarios[0])}, based on ${gdpReferenceYear} data.`
               "
               :list-header="gdpVariesByScenario
-                ? `USD values based on ${gdpReferenceYear} GDPs:`
+                ? `These USD values assume the following pre-pandemic GDPs, which are based on ${gdpReferenceYear} data:`
                 : undefined"
               :list-items="gdpVariesByScenario
                 ? scenarios.map((s) => `${scenarioLabel(s)}: ${scenarioGdpLabel(s)}`)
