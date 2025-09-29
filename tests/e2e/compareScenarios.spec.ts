@@ -6,6 +6,8 @@ import { commaSeparatedNumberMatcher, costTolerance, decimalPercentMatcher, para
 import checkValueIsInRange from "./helpers/checkValueIsInRange";
 import checkBarChartDataIsDifferent from "./helpers/checkBarChartDataIsDifferent";
 import { checkMultiScenarioTimeSeriesDataPoints } from "./helpers/checkTimeSeriesDataPoints";
+import startComparison from "~/tests/e2e/helpers/startComparison";
+import runComparison from "~/tests/e2e/helpers/runComparison";
 
 const baselinePathogenOption = "SARS 2004";
 const assertTimeSeriesPresent = async (page: Page, seriesLocator: Locator) => {
@@ -32,10 +34,8 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
 
   await page.waitForURL(new RegExp(`${baseURL}/${scenarioPathMatcher}`));
   const urlOfBaselineScenario = page.url();
-  await expect(page.getByText("Simulate a new scenario")).not.toBeVisible();
 
-  await page.getByRole("button", { name: "Compare against other scenarios" }).first().click();
-  await expect(page.getByRole("heading", { name: "Start a comparison against this baseline" })).toBeVisible();
+  await startComparison(page);
 
   await page.getByRole("button", { name: "Disease" }).first().click();
 
@@ -59,12 +59,8 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
   await expect(page.getByRole("option", { name: "Covid-19 wild-type" })).toHaveCount(0);
   await expect(page.getByRole("option", { name: "Covid-19 Omicron" })).toHaveCount(0);
 
-  await page.getByRole("button", { name: "Compare", exact: true }).click();
-  if (isMobile) { // For unknown reasons, in this test, mobile browsers require an extra click to start the comparison
-    await page.getByRole("button", { name: "Compare", exact: true }).click();
-  }
+  await runComparison(page, baseURL, isMobile);
 
-  await page.waitForURL(new RegExp(`${baseURL}/comparison\?.*`));
   const comparisonUrl = page.url();
   expect(comparisonUrl).toContain("axis=pathogen");
   expect(comparisonUrl).toContain("baseline=sars_cov_1");
