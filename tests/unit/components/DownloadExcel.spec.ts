@@ -117,21 +117,6 @@ describe("download Excel", () => {
     expect(store.downloadExcel).toHaveBeenCalledWith(true);
   });
 
-  it("does", async () => {
-    const component = render({
-      currentComparison: {
-        scenarios: [
-          { runId: "abc", status: { data: { runSuccess: true } } },
-          { runID: "def", status: { data: { runSuccess: true } } },
-        ],
-      } as any,
-    } as any, true);
-    const downloadButton = component.findComponent(CTooltip).findComponent(CButton);
-    await downloadButton.trigger("click");
-    const store = (component.vm as any).appStore;
-    expect(store.downloadExcel).toHaveBeenCalledWith(true);
-  });
-
   it("shows alert when there is a download error", () => {
     const component = render({
       currentScenario: minimalScenario,
