@@ -33,7 +33,9 @@ const props = defineProps<{
 
 const appStore = useAppStore();
 
-const showButton = computed(() => props.comparison ? appStore.everyScenarioHasRunSuccessfully : (appStore.currentScenario.parameters && appStore.currentScenario.result.data));
+const showButton = computed(() => props.comparison
+  ? appStore.everyScenarioHasRunSuccessfully
+  : (appStore.currentScenario.parameters && appStore.currentScenario.result.data));
 
 const download = () => {
   appStore.downloadExcel(props.comparison);

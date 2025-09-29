@@ -16,8 +16,9 @@ const minimalScenario = {
 } as any;
 
 describe("download Excel", () => {
-  const render = (appState: Partial<AppState>) => {
+  const render = (appState: Partial<AppState>, comparison = false) => {
     return mount(DownloadExcel, {
+      props: { comparison },
       global: {
         stubs,
         plugins: [mockPinia({
@@ -27,7 +28,7 @@ describe("download Excel", () => {
     });
   };
 
-  it("renders nothing if no scenario parameters", () => {
+  it("renders nothing if not comparison and no scenario parameters", () => {
     const component = render(
       {
         currentScenario: {
@@ -42,7 +43,7 @@ describe("download Excel", () => {
     expect(component.findComponent(CAlert).exists()).toBe(false);
   });
 
-  it("renders nothing if no result data", () => {
+  it("renders nothing if not comparison and no result data", () => {
     const component = render({
       currentScenario: {
         parameters: {},
@@ -51,6 +52,13 @@ describe("download Excel", () => {
         },
       } as any,
     });
+    expect(component.findComponent(CTooltip).exists()).toBe(false);
+    expect(component.findComponent(CButton).exists()).toBe(false);
+    expect(component.findComponent(CAlert).exists()).toBe(false);
+  });
+
+  it("renders nothing if comparison and not every scenario has run successfully", () => {
+    const component = render({}, true);
     expect(component.findComponent(CTooltip).exists()).toBe(false);
     expect(component.findComponent(CButton).exists()).toBe(false);
     expect(component.findComponent(CAlert).exists()).toBe(false);
@@ -84,7 +92,17 @@ describe("download Excel", () => {
     const downloadButton = component.findComponent(CTooltip).findComponent(CButton);
     await downloadButton.trigger("click");
     const store = (component.vm as any).appStore;
-    expect(store.downloadExcel).toHaveBeenCalledTimes(1);
+    expect(store.downloadExcel).toHaveBeenCalledWith(false);
+  });
+
+  it("click download button passes true comparison prop to download action", async () => {
+    const component = render({
+      everyScenarioHasRunSuccessfully: true,
+    } as any, true);
+    const downloadButton = component.findComponent(CTooltip).findComponent(CButton);
+    await downloadButton.trigger("click");
+    const store = (component.vm as any).appStore;
+    expect(store.downloadExcel).toHaveBeenCalledWith(true);
   });
 
   it("shows alert when there is a download error", () => {
