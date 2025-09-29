@@ -58,7 +58,14 @@ describe("download Excel", () => {
   });
 
   it("renders nothing if comparison and not every scenario has run successfully", () => {
-    const component = render({}, true);
+    const component = render({
+      currentComparison: {
+        scenarios: [
+          { runId: "abc", status: { data: { runSuccess: false } } },
+          { runID: "def", status: { data: { runSuccess: true } } },
+        ],
+      } as any,
+    }, true);
     expect(component.findComponent(CTooltip).exists()).toBe(false);
     expect(component.findComponent(CButton).exists()).toBe(false);
     expect(component.findComponent(CAlert).exists()).toBe(false);
@@ -97,7 +104,27 @@ describe("download Excel", () => {
 
   it("click download button passes true comparison prop to download action", async () => {
     const component = render({
-      everyScenarioHasRunSuccessfully: true,
+      currentComparison: {
+        scenarios: [
+          { runId: "abc", status: { data: { runSuccess: true } } },
+          { runID: "def", status: { data: { runSuccess: true } } },
+        ],
+      } as any,
+    } as any, true);
+    const downloadButton = component.findComponent(CTooltip).findComponent(CButton);
+    await downloadButton.trigger("click");
+    const store = (component.vm as any).appStore;
+    expect(store.downloadExcel).toHaveBeenCalledWith(true);
+  });
+
+  it("does", async () => {
+    const component = render({
+      currentComparison: {
+        scenarios: [
+          { runId: "abc", status: { data: { runSuccess: true } } },
+          { runID: "def", status: { data: { runSuccess: true } } },
+        ],
+      } as any,
     } as any, true);
     const downloadButton = component.findComponent(CTooltip).findComponent(CButton);
     await downloadButton.trigger("click");
