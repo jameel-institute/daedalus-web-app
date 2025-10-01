@@ -1,12 +1,12 @@
 <template>
-  <ChartLegend
+  <Legend
     :items="items"
     :row-height-rem="1"
   />
 </template>
 
 <script setup lang="ts">
-import { type LegendItem, LegendShape } from "./utils/charts";
+import { type LegendItem, LegendShape } from "../utils/charts";
 import { addAlphaToRgb, plotBandsDefaultColor, plotBandsRgbAlpha, plotLinesColor, timeSeriesColors } from "./utils/timeSeriesCharts";
 
 const props = defineProps<{

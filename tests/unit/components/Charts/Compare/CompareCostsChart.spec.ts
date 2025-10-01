@@ -1,10 +1,10 @@
 import type { ScenarioResultData } from "~/types/apiResponseTypes";
-import CompareCostsChart from "~/components/CompareCostsChart.client.vue";
+import CompareCostsChart from "~/components/Charts/Compare/CompareCostsChart.client.vue";
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
 import Highcharts from "highcharts/esm/highcharts";
-import { mockMetadataResponseData, mockResultResponseData } from "../mocks/mockResponseData";
+import { mockMetadataResponseData, mockResultResponseData } from "../../../mocks/mockResponseData";
 import { CostBasis } from "~/types/unitTypes";
 import { setActivePinia } from "pinia";
 

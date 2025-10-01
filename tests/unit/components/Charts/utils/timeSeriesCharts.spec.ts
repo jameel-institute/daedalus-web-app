@@ -1,5 +1,5 @@
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
-import { addAlphaToRgb, multiScenarioTimeSeriesChartTooltipFormatter, plotBandsDefaultColor, plotLinesColor, timeSeriesColors } from "~/components/utils/timeSeriesCharts";
+import { addAlphaToRgb, multiScenarioTimeSeriesChartTooltipFormatter, plotBandsDefaultColor, plotLinesColor, timeSeriesColors } from "~/components/Charts/utils/timeSeriesCharts";
 
 const rgbFormat = /^rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)$/;
 

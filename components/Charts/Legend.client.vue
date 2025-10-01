@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { type LegendItem, LegendShape } from "./utils/charts";
+import { type LegendItem, LegendShape } from "../utils/charts";
 import { plotLinesWidthPx } from "./utils/timeSeriesCharts";
 
 const props = defineProps<{

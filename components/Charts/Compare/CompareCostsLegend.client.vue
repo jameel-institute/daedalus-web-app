@@ -1,5 +1,5 @@
 <template>
-  <ChartLegend
+  <Legend
     :items="items"
     :row-height-rem="0.9"
     class="bg-white mb-3 shadow-sm border rounded p-2 w-fit"
@@ -8,8 +8,8 @@
 
 <script setup lang="ts">
 import type { ScenarioCost } from "~/types/resultTypes";
-import { type LegendItem, LegendShape } from "./utils/charts";
-import { costsChartPalette } from "./utils/costCharts";
+import { type LegendItem, LegendShape } from "../../utils/charts";
+import { costsChartPalette } from "../utils/costCharts";
 
 const appStore = useAppStore();
 

@@ -3,7 +3,7 @@
     <p class="m-0 small">
       Scenarios by {{ appStore.axisMetadata?.label.toLocaleLowerCase() }}:
     </p>
-    <ChartLegend
+    <Legend
       v-for="itemColumn in itemsInColumns"
       :key="itemColumn[0].label"
       :items="itemColumn"
@@ -15,8 +15,8 @@
 
 <script setup lang="ts">
 import type { Scenario } from "~/types/storeTypes";
-import { type LegendItem, LegendShape } from "./utils/charts";
-import { timeSeriesColors } from "./utils/timeSeriesCharts";
+import { type LegendItem, LegendShape } from "../../utils/charts";
+import { timeSeriesColors } from "../utils/timeSeriesCharts";
 
 const appStore = useAppStore();
 

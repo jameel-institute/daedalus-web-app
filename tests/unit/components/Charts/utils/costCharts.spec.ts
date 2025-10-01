@@ -1,6 +1,6 @@
-import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter } from "~/components/utils/costCharts";
+import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter } from "~/components/Charts/utils/costCharts";
 import { CostBasis } from "~/types/unitTypes";
-import { mockMetadataResponseData } from "../../mocks/mockResponseData";
+import { mockMetadataResponseData } from "../../../mocks/mockResponseData";
 import { TypeOfParameter } from "~/types/parameterTypes";
 
 describe("costsChartPalette", () => {

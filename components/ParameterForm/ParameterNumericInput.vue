@@ -52,9 +52,9 @@ import { CIcon } from "@coreui/icons-vue";
 
 import { type Parameter, type ParameterSet, TypeOfParameter } from "@/types/parameterTypes";
 // TODO: I'd like to refactor those utils into composables, to reduce the amount of data that needs to be passed around into the utils
-import { numericValueInvalid, numericValueIsOutOfRange } from "./utils/validations";
+import { numericValueInvalid, numericValueIsOutOfRange } from "../utils/validations";
 import { debounce } from "perfect-debounce";
-import { getRangeForDependentParam } from "./utils/parameters";
+import { getRangeForDependentParam } from "../utils/parameters";
 
 const props = defineProps<{
   parameter: Parameter

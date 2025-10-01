@@ -1,8 +1,8 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import TimeSeriesTile from "~/components/TimeSeriesTile.client.vue";
+import TimeSeriesTile from "~/components/Charts/TimeSeriesTile.client.vue";
 import type { DisplayInfo, ScenarioResultData, TimeSeriesGroup } from "~/types/apiResponseTypes";
-import { emptyScenario, mockedMetadata, mockPinia } from "../mocks/mockPinia";
-import { mockResultResponseData } from "../mocks/mockResponseData";
+import { emptyScenario, mockedMetadata, mockPinia } from "../../mocks/mockPinia";
+import { mockResultResponseData } from "../../mocks/mockResponseData";
 
 const mockUpdate = vi.fn();
 
