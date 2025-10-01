@@ -31,7 +31,7 @@
 <script lang="ts" setup>
 import type { TimeSeriesGroup } from "~/types/apiResponseTypes";
 import useTimeSeriesGroup from "~/composables/useTimeSeriesGroup";
-import { showCapacities } from "./utils/timeSeriesData";
+import { showCapacities } from "../utils/timeSeriesData";
 
 const props = defineProps<{
   groupIndex: number

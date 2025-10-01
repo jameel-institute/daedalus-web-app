@@ -1,7 +1,7 @@
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import { emptyScenario, mockPinia } from "../mocks/mockPinia";
 import { setActivePinia } from "pinia";
-import { plotBandsDefaultColor } from "~/components/utils/timeSeriesCharts";
+import { plotBandsDefaultColor } from "~/components/Charts/utils/timeSeriesCharts";
 
 const mockRemovePlotBand = vi.fn();
 const mockAddPlotBand = vi.fn();

@@ -13,6 +13,14 @@ export default defineNuxtConfig({
     transpile: ["tslib"], // https://github.com/nuxt/nuxt/discussions/21533
   },
 
+  // `pathPrefix: false` prevents the subfolder being used as part of the components' name,
+  // e.g. Charts/CostsChart.client.vue will be referred to as CostsChart rather than ChartsCostsChart.
+  components: [
+    { path: "~/components/Charts", pathPrefix: false },
+    { path: "~/components/ParameterForm", pathPrefix: false },
+    "~/components",
+  ],
+
   devtools: {
     enabled: true,
 

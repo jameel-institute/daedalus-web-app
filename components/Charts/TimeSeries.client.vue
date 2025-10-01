@@ -22,7 +22,7 @@ import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
-import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions } from "./utils/charts";
+import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions } from "../utils/charts";
 import { timeSeriesChartOptions, timeSeriesColors, timeSeriesXAxisOptions, timeSeriesYAxisOptions } from "./utils/timeSeriesCharts";
 import { getTimeSeriesDataPoints, showInterventions, timeSeriesYUnits } from "./utils/timeSeriesData";
 import useCapacitiesPlotLines from "~/composables/useCapacitiesPlotLines";

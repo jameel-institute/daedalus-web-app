@@ -1,7 +1,7 @@
 import { CompareTimeSeriesLegend } from "#components";
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { mockMetadataResponseData } from "../mocks/mockResponseData";
+import { mockMetadataResponseData } from "../../../mocks/mockResponseData";
 
 describe("time series", () => {
   it("should render the correct labels for the scenarios", async () => {

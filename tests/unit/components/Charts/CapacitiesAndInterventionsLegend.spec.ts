@@ -1,4 +1,4 @@
-import CapacitiesAndInterventionsLegend from "~/components/CapacitiesAndInterventionsLegend.vue";
+import CapacitiesAndInterventionsLegend from "~/components/Charts/CapacitiesAndInterventionsLegend.vue";
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 

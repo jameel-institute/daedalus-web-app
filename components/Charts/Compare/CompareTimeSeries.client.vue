@@ -22,11 +22,11 @@ import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import type { TimeSeriesDataPoint } from "~/types/dataTypes";
-import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions } from "./utils/charts";
-import { multiScenarioTimeSeriesChartTooltipFormatter, timeSeriesChartOptions, timeSeriesColors, timeSeriesXAxisOptions, timeSeriesYAxisOptions } from "./utils/timeSeriesCharts";
-import { getTimeSeriesDataPoints, showCapacities, showInterventions, timeSeriesYUnits } from "./utils/timeSeriesData";
+import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions } from "../../utils/charts";
+import { multiScenarioTimeSeriesChartTooltipFormatter, timeSeriesChartOptions, timeSeriesColors, timeSeriesXAxisOptions, timeSeriesYAxisOptions } from "../utils/timeSeriesCharts";
+import { getTimeSeriesDataPoints, showCapacities, showInterventions, timeSeriesYUnits } from "../utils/timeSeriesData";
 import useInterventionPlotBands from "~/composables/useInterventionPlotBands";
-import { getScenarioLabel } from "./utils/comparisons";
+import { getScenarioLabel } from "../../utils/comparisons";
 
 const props = defineProps<{
   groupIndex: number // Probably 0 to about 4

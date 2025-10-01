@@ -1,5 +1,5 @@
-import { addAlphaToRgb, plotBandsDefaultColor, plotBandsRgbAlpha, timeSeriesColors } from "~/components/utils/timeSeriesCharts";
-import { responseInterventionId, showInterventions } from "~/components/utils/timeSeriesData";
+import { addAlphaToRgb, plotBandsDefaultColor, plotBandsRgbAlpha, timeSeriesColors } from "~/components/Charts/utils/timeSeriesCharts";
+import { responseInterventionId, showInterventions } from "~/components/Charts/utils/timeSeriesData";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import type { Scenario } from "~/types/storeTypes";
 

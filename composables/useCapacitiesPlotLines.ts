@@ -1,5 +1,5 @@
 import { humanReadableInteger } from "~/components/utils/formatters";
-import { plotLinesColor, plotLinesWidthPx } from "~/components/utils/timeSeriesCharts";
+import { plotLinesColor, plotLinesWidthPx } from "~/components/Charts/utils/timeSeriesCharts";
 import type { Scenario } from "~/types/storeTypes";
 
 export default (

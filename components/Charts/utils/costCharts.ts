@@ -2,9 +2,9 @@ import { abbreviateMillionsDollars } from "~/utils/money";
 import { costAsPercentOfGdp, humanReadablePercentOfGdp } from "~/components/utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
-import { countryFlagClass } from "./countryFlag";
-import { getScenarioLabel } from "./comparisons";
-import { colorBlindSafeSmallPalette, type TooltipPointInstance } from "./charts";
+import { countryFlagClass } from "../../utils/countryFlag";
+import { getScenarioLabel } from "../../utils/comparisons";
+import { colorBlindSafeSmallPalette, type TooltipPointInstance } from "../../utils/charts";
 
 export const costsChartPalette = colorBlindSafeSmallPalette;
 

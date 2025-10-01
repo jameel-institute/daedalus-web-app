@@ -1,6 +1,6 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import type { DisplayInfo } from "~/types/apiResponseTypes";
-import { mockedMetadata, mockPinia } from "../mocks/mockPinia";
+import type { DisplayInfo, TimeSeriesGroup } from "~/types/apiResponseTypes";
+import { mockedMetadata, mockPinia } from "../../../mocks/mockPinia";
 import { CompareTimeSeriesTile } from "#components";
 
 const pinia = mockPinia();

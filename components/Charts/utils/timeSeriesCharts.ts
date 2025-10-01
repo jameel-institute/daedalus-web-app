@@ -1,5 +1,5 @@
-import { colorBlindSafeLargePalette, type TooltipPointInstance } from "./charts";
-import { humanReadableInteger } from "./formatters";
+import { colorBlindSafeLargePalette, type TooltipPointInstance } from "../../utils/charts";
+import { humanReadableInteger } from "../../utils/formatters";
 
 export const plotLinesColorName = "Red";
 export const plotLinesColor = colorBlindSafeLargePalette.find(c => c.name === plotLinesColorName)!.rgb;
