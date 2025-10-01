@@ -89,13 +89,15 @@
   </table>
   <p class="fw-lighter small mt-auto">
     *Based on an assumed value of statistical life:
-    click<CIconSvg class="icon help-icon filter-to-primary p-0 ms-1" role="button">
-      <img
-        id="vslInfo"
-        src="/icons/info.png"
-        @click="() => { modalVisible = true; }"
-      >
-    </CIconSvg> for details.
+    click
+    <img
+      id="vslInfo"
+      role="button"
+      class="icon help-icon filter-to-primary p-0"
+      src="/icons/info.png"
+      @click="() => { modalVisible = true; }"
+    >
+    for details.
   </p>
   <CModal
     :visible="modalVisible"
@@ -140,7 +142,7 @@
 </template>
 
 <script lang="ts" setup>
-import { CIcon, CIconSvg } from "@coreui/icons-vue";
+import { CIcon } from "@coreui/icons-vue";
 import { costAsPercentOfGdp, humanReadableInteger, humanReadablePercentOfGdp } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import type { Scenario } from "~/types/storeTypes";
