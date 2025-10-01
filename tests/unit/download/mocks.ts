@@ -25,3 +25,9 @@ export const mockImplementations = () => {
     (workbook as any).sheets.push({ ...worksheet, name });
   });
 };
+
+export const expectMockAppendSheet = (callIndex: number, data: any, sheetName: string) => {
+  expect(mockBookAppendSheet.mock.calls[callIndex][0]).toBe(mockWorkbook);
+  expect(mockBookAppendSheet.mock.calls[callIndex][1]).toStrictEqual(data);
+  expect(mockBookAppendSheet.mock.calls[callIndex][2]).toBe(sheetName);
+};

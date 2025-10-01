@@ -10,6 +10,7 @@ import type { ScenarioCost } from "~/types/resultTypes";
 import { CostBasis } from "~/types/unitTypes";
 import { getRangeForDependentParam } from "~/components/utils/parameters";
 import { getScenarioLabel } from "~/components/utils/comparisons";
+import { ExcelComparisonDownload } from "~/download/excelComparisonDownload";
 
 const emptyScenario = {
   runId: undefined,
@@ -273,12 +274,16 @@ export const useAppStore = defineStore("app", {
         await this.loadScenarioResult(scenario);
       }) || []);
     },
-    async downloadExcel() {
+    async downloadExcel(comparison: boolean) {
       this.downloadError = undefined;
       this.downloading = true;
       await debounce(async () => {
         try {
-          new ExcelScenarioDownload(this.currentScenario).download();
+          if (comparison) {
+            new ExcelComparisonDownload(this.currentComparison.scenarios, this.currentComparison.axis!).download();
+          } else {
+            new ExcelScenarioDownload(this.currentScenario).download();
+          }
         } catch (e) {
           let downloadError = "Unexpected download error";
           if (typeof e === "string") {

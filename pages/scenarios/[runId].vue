@@ -5,7 +5,7 @@
         Results
       </h1>
       <CreateComparison @show-r-code="handleShowRCode" />
-      <DownloadExcel />
+      <DownloadExcel :comparison="false" />
       <CodeSnippet ref="codeSnippet" />
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
         <CIconSvg size="xxl">
