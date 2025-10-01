@@ -122,7 +122,7 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
     "Education",
     "Closures",
     "Absences",
-    "Life years",
+    "Life years\\*",
     "Preschool-age children",
     "School-age children",
     "Working-age adults",
