@@ -2,7 +2,7 @@ import * as XLSX from "xlsx";
 import type { ScenarioCost } from "~/types/resultTypes";
 
 export interface FlatCost {
-  id: string
+  costId: string
   value: number
 }
 
@@ -18,8 +18,9 @@ export abstract class ExcelDownload {
   }
 
   protected static _flattenCosts(costs: Array<ScenarioCost>, flattened: Array<FlatCost>) {
+    // As well as flattening the costs, we rename "id" to "costId"
     costs.forEach((cost: ScenarioCost) => {
-      flattened.push({ id: cost.id, value: cost.value });
+      flattened.push({ costId: cost.id, value: cost.value });
       if (cost.children) {
         this._flattenCosts(cost.children, flattened);
       }

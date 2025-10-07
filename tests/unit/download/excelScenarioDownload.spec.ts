@@ -75,13 +75,13 @@ describe("excelScenarioDownload", () => {
 
     // costs
     const expectedFlatCosts = [
-      { id: "total", value: 1000000 },
-      { id: "gdp", value: 400000 },
-      { id: "gdp_closures", value: 100000 },
-      { id: "gdp_absences", value: 300000 },
-      { id: "life_years", value: 600000 },
-      { id: "life_years_children", value: 200000 },
-      { id: "life_years_adults", value: 400000 },
+      { costId: "total", value: 1000000 },
+      { costId: "gdp", value: 400000 },
+      { costId: "gdp_closures", value: 100000 },
+      { costId: "gdp_absences", value: 300000 },
+      { costId: "life_years", value: 600000 },
+      { costId: "life_years_children", value: 200000 },
+      { costId: "life_years_adults", value: 400000 },
     ];
     expect(mockJsonToSheet.mock.calls[1]).toStrictEqual([expectedFlatCosts]);
     expectMockAppendSheet(1, { data: expectedFlatCosts, type: "json" }, "Costs");

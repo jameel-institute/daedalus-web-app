@@ -1,6 +1,5 @@
 import type { Scenario } from "~/types/storeTypes";
-import { ExcelDownload, HEADER_DAY } from "~/download/excelDownload";
-import type { ScenarioCost } from "~/types/resultTypes";
+import { ExcelDownload, type FlatCost, HEADER_DAY } from "~/download/excelDownload";
 
 export class ExcelComparisonDownload extends ExcelDownload {
   private readonly _scenarios: Scenario[];
@@ -24,19 +23,19 @@ export class ExcelComparisonDownload extends ExcelDownload {
     rowData.push(["runId", ...this._parameterIds, "costId", "unit", "value"]);
 
     // get all cost ids
-    const exampleFlatCosts: ScenarioCost[] = [];
+    const exampleFlatCosts: FlatCost[] = [];
     ExcelDownload._flattenCosts(this._exampleScenario.result.data!.costs, exampleFlatCosts);
-    const costIds = exampleFlatCosts.map(cost => cost.id);
+    const costIds = exampleFlatCosts.map(cost => cost.costId);
 
     const costUnit = "millions USD"; // We will add natural units in a later ticket
 
     this._scenarios.forEach((scenario) => {
       const { runId } = scenario;
       const parameterValues = this._parameterIds.map(pid => scenario.parameters[pid]);
-      const flatCosts: ScenarioCost[] = [];
+      const flatCosts: FlatCost[] = [];
       ExcelDownload._flattenCosts(scenario.result.data!.costs, flatCosts);
       costIds.forEach((costId) => {
-        const costValue = flatCosts.find(cost => cost.id === costId)!.value;
+        const costValue = flatCosts.find(cost => cost.costId === costId)!.value;
         rowData.push([runId, ...parameterValues, costId, costUnit, costValue]);
       });
     });
