@@ -6,8 +6,12 @@ export interface FlatCost {
   value: number
 }
 
+export const HEADER_DAY = "day";
+
 export abstract class ExcelDownload {
   private readonly _workbook: XLSX.WorkBook;
+
+  protected static HEADER_DAY = "day";
 
   constructor() {
     this._workbook = XLSX.utils.book_new();

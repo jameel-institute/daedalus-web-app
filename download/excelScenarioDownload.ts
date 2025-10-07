@@ -1,5 +1,5 @@
 import type { Scenario } from "~/types/storeTypes";
-import { ExcelDownload, type FlatCost } from "~/download/excelDownload";
+import { ExcelDownload, type FlatCost, HEADER_DAY } from "~/download/excelDownload";
 
 export class ExcelScenarioDownload extends ExcelDownload {
   private readonly _scenario: Scenario;
@@ -44,14 +44,15 @@ export class ExcelScenarioDownload extends ExcelDownload {
   private _addTimeSeries() {
     // Reshape wide time series data to long, and add rows to sheet
     const timeSeries = this._scenario.result.data!.time_series;
-    const headers = Object.keys(timeSeries);
+    const timeSeriesIds = Object.keys(timeSeries);
     // We rely on there being the same number of time points for each time series!
-    const numberOfTimePoints = timeSeries[headers[0]].length;
+    const numberOfTimePoints = timeSeries[timeSeriesIds[0]].length;
     const sheetData = [];
-    sheetData.push(headers);
+    sheetData.push([HEADER_DAY, ...timeSeriesIds]);
     for (let timePoint = 0; timePoint < numberOfTimePoints; timePoint++) {
-      const row = headers.map((header: string) => timeSeries[header][timePoint]);
-      sheetData.push(row);
+      const day = timePoint + 1;
+      const values = timeSeriesIds.map((id: string) => timeSeries[id][timePoint]);
+      sheetData.push([day, ...values]);
     }
     this._addAoaAsSheet(sheetData, "Time series");
   }

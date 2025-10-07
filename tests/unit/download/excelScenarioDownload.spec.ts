@@ -97,10 +97,10 @@ describe("excelScenarioDownload", () => {
 
     // time series
     const expectedTimeSeries = [
-      ["prevalence", "deaths"],
-      [10, 0],
-      [20, 1],
-      [30, 2],
+      ["day", "prevalence", "deaths"],
+      [1, 10, 0],
+      [2, 20, 1],
+      [3, 30, 2],
     ];
     expect(mockAoaToSheet.mock.calls[0]).toStrictEqual([expectedTimeSeries]);
     expectMockAppendSheet(4, { data: expectedTimeSeries, type: "aoa" }, "Time series");

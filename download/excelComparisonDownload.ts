@@ -1,5 +1,5 @@
 import type { Scenario } from "~/types/storeTypes";
-import { ExcelDownload } from "~/download/excelDownload";
+import { ExcelDownload, HEADER_DAY } from "~/download/excelDownload";
 import type { ScenarioCost } from "~/types/resultTypes";
 
 export class ExcelComparisonDownload extends ExcelDownload {
@@ -49,7 +49,7 @@ export class ExcelComparisonDownload extends ExcelDownload {
     const numberOfTimePoints = exampleTimeSeries[outcomes[0]].length;
     const rowData = [];
     // headers
-    rowData.push(["day", "runId", ...this._parameterIds, ...outcomes]);
+    rowData.push([HEADER_DAY, "runId", ...this._parameterIds, ...outcomes]);
     this._scenarios.forEach((scenario) => {
       const { runId } = scenario;
       const parameterValues = this._parameterIds.map(pid => scenario.parameters[pid]);
