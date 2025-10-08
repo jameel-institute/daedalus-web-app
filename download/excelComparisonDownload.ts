@@ -1,5 +1,13 @@
 import type { Scenario } from "~/types/storeTypes";
-import { ExcelDownload, type FlatCost, HEADER_DAY } from "~/download/excelDownload";
+import {
+  ExcelDownload,
+  type FlatCost,
+  HEADER_COST_ID,
+  HEADER_DAY,
+  HEADER_UNIT,
+  HEADER_VALUE,
+  UNIT_USD_MILLIONS,
+} from "~/download/excelDownload";
 
 export class ExcelComparisonDownload extends ExcelDownload {
   private readonly _scenarios: Scenario[];
@@ -20,14 +28,12 @@ export class ExcelComparisonDownload extends ExcelDownload {
   private _addCosts() {
     const rowData = [];
     // headers
-    rowData.push(["runId", ...this._parameterIds, "costId", "unit", "value"]);
+    rowData.push(["runId", ...this._parameterIds, HEADER_COST_ID, HEADER_UNIT, HEADER_VALUE]);
 
     // get all cost ids
     const exampleFlatCosts: FlatCost[] = [];
     ExcelDownload._flattenCosts(this._exampleScenario.result.data!.costs, exampleFlatCosts);
-    const costIds = exampleFlatCosts.map(cost => cost.costId);
-
-    const costUnit = "millions USD"; // We will add natural units in a later ticket
+    const costIds = exampleFlatCosts.map(cost => cost.id);
 
     this._scenarios.forEach((scenario) => {
       const { runId } = scenario;
@@ -35,8 +41,8 @@ export class ExcelComparisonDownload extends ExcelDownload {
       const flatCosts: FlatCost[] = [];
       ExcelDownload._flattenCosts(scenario.result.data!.costs, flatCosts);
       costIds.forEach((costId) => {
-        const costValue = flatCosts.find(cost => cost.costId === costId)!.value;
-        rowData.push([runId, ...parameterValues, costId, costUnit, costValue]);
+        const costValue = flatCosts.find(cost => cost.id === costId)!.value;
+        rowData.push([runId, ...parameterValues, costId, UNIT_USD_MILLIONS, costValue]);
       });
     });
     this._addAoaAsSheet(rowData, "Costs");

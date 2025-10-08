@@ -1,5 +1,13 @@
 import type { Scenario } from "~/types/storeTypes";
-import { ExcelDownload, type FlatCost, HEADER_DAY } from "~/download/excelDownload";
+import {
+  ExcelDownload,
+  type FlatCost,
+  HEADER_COST_ID,
+  HEADER_DAY,
+  HEADER_UNIT,
+  HEADER_VALUE,
+  UNIT_USD_MILLIONS,
+} from "~/download/excelDownload";
 
 export class ExcelScenarioDownload extends ExcelDownload {
   private readonly _scenario: Scenario;
@@ -22,7 +30,13 @@ export class ExcelScenarioDownload extends ExcelDownload {
     const costs = this._scenario.result.data!.costs;
     const flattenedCosts: Array<FlatCost> = [];
     ExcelDownload._flattenCosts(costs, flattenedCosts);
-    this._addJsonAsSheet(flattenedCosts, "Costs");
+    const sheetData = [];
+    // headers
+    sheetData.push([HEADER_COST_ID, HEADER_UNIT, HEADER_VALUE]);
+    flattenedCosts.forEach((cost) => {
+      sheetData.push([cost.id, UNIT_USD_MILLIONS, cost.value]);
+    });
+    this._addAoaAsSheet(sheetData, "Costs");
   }
 
   private _addCapacities() {

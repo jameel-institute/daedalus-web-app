@@ -2,16 +2,19 @@ import * as XLSX from "xlsx";
 import type { ScenarioCost } from "~/types/resultTypes";
 
 export interface FlatCost {
-  costId: string
+  id: string
   value: number
 }
 
 export const HEADER_DAY = "day";
+export const HEADER_COST_ID = "costId";
+export const HEADER_UNIT = "unit";
+export const HEADER_VALUE = "value";
+
+export const UNIT_USD_MILLIONS = "millions USD";
 
 export abstract class ExcelDownload {
   private readonly _workbook: XLSX.WorkBook;
-
-  protected static HEADER_DAY = "day";
 
   constructor() {
     this._workbook = XLSX.utils.book_new();
@@ -20,7 +23,7 @@ export abstract class ExcelDownload {
   protected static _flattenCosts(costs: Array<ScenarioCost>, flattened: Array<FlatCost>) {
     // As well as flattening the costs, we rename "id" to "costId"
     costs.forEach((cost: ScenarioCost) => {
-      flattened.push({ costId: cost.id, value: cost.value });
+      flattened.push({ id: cost.id, value: cost.value });
       if (cost.children) {
         this._flattenCosts(cost.children, flattened);
       }
