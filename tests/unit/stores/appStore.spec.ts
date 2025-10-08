@@ -461,7 +461,7 @@ describe("app store", () => {
       const mockDownloadObj = mockExcelScenarioDownload();
 
       const store = useAppStore();
-      const downloadPromise = store.downloadExcel();
+      const downloadPromise = store.downloadExcel(false);
       // Should immediately set to downloading, then reset when download finishes
       expect(store.downloading).toBe(true);
       // wait for the promise to resolve
@@ -477,7 +477,7 @@ describe("app store", () => {
         throw "test error string";
       });
       const store = useAppStore();
-      await store.downloadExcel();
+      await store.downloadExcel(false);
       expect(store.downloadError).toBe("test error string");
       expect(store.downloading).toBe(false);
     });
@@ -487,7 +487,7 @@ describe("app store", () => {
         throw new Error("test error message");
       });
       const store = useAppStore();
-      await store.downloadExcel();
+      await store.downloadExcel(false);
       expect(store.downloadError).toBe("test error message");
       expect(store.downloading).toBe(false);
     });

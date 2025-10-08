@@ -56,5 +56,5 @@ test("can download Excel file for comparison results", async ({ page, baseURL, i
   // wait for results
   await expect(page.locator("#compareCostsChartContainer text.highcharts-credits").first()).toBeVisible();
 
-  await doDownload(page, "daedalus_pathogen_comparison.xlsx");
+  await doDownload(page, "daedalus_comparison_pathogen_sars_cov_1_sars_cov_2_pre_alpha_sars_cov_2_omicron.xlsx");
 });
