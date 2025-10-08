@@ -93,7 +93,7 @@ describe("excelComparisonDownload", () => {
   });
 
   it("writes expected data to excel file", () => {
-    const sut = new ExcelComparisonDownload(scenarios, "testParam");
+    const sut = new ExcelComparisonDownload(scenarios, "param1");
     sut.download();
 
     const s1Common = ["abcd", "value1", "value2"];
@@ -135,7 +135,7 @@ describe("excelComparisonDownload", () => {
     expect(mockAoaToSheet.mock.calls[1]).toStrictEqual([expectedTimeSeriesData]);
     expectMockAppendSheet(1, { data: expectedTimeSeriesData, type: "aoa" }, "Time series");
 
-    const expectedFileName = "daedalus_testParam_comparison.xlsx";
+    const expectedFileName = "daedalus_comparison_param1_value1_value10.xlsx";
     expect(mockWriteFile).toHaveBeenCalledWith(mockWorkbook, expectedFileName);
   });
 

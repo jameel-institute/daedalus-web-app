@@ -73,6 +73,12 @@ export class ExcelComparisonDownload extends ExcelDownload {
     this._addAoaAsSheet(rowData, "Time series");
   }
 
+  private _getFilename() {
+    const comparisonParamValues = this._scenarios.map(scenario => scenario.parameters[this._comparisonParameter]);
+    const paramValuesString = comparisonParamValues.join("_");
+    return `daedalus_comparison_${this._comparisonParameter}_${paramValuesString}.xlsx`;
+  }
+
   public download() {
     if (this._scenarios.some(s => !s.parameters || !s.result.data)) {
       throw new Error("Cannot download scenarios with no data.");
@@ -80,6 +86,6 @@ export class ExcelComparisonDownload extends ExcelDownload {
 
     this._addCosts();
     this._addTimeSeries();
-    this._downloadWorkbook(`daedalus_${this._comparisonParameter}_comparison.xlsx`);
+    this._downloadWorkbook(this._getFilename());
   }
 }
