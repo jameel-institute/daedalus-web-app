@@ -27,6 +27,8 @@ const iconDetails = computed((): { icon: string, custom: boolean } | undefined =
       return { icon: "pictogrammersMaterialBacteria", custom: true }; // License is detailed here: https://www.iconarchive.com/show/material-icons-by-pictogrammers/bacteria-outline-icon.html
     case "hospital_capacity":
       return { icon: "cilMedicalCross", custom: false };
+    case "behaviour":
+      return { icon: "cilSignLanguage", custom: false };
     default:
       return undefined;
   }
