@@ -76,13 +76,15 @@ const totalCost = computed(() => appStore.getScenarioTotalCost(appStore.currentS
 
 // Display the 'headline' total cost in terms of a percentage of annual national GDP
 const gdpTotalCostPercent = computed(() => {
-  const totalAsPercentOfGdp = costAsPercentOfGdp(totalCost.value?.value, appStore.currentScenario.result.data?.gdp);
+  const dollarValue = totalCost.value?.values.find(c => c.metric === "usd")?.value;
+  const totalAsPercentOfGdp = costAsPercentOfGdp(dollarValue, appStore.currentScenario.result.data?.gdp);
   return humanReadablePercentOfGdp(totalAsPercentOfGdp).percent;
 });
 
 const totalCostAbbr = computed(() => {
-  if (totalCost.value) {
-    return abbreviateMillionsDollars(totalCost.value?.value, true);
+  const dollarValue = totalCost.value?.values.find(c => c.metric === "usd")?.value;
+  if (dollarValue !== undefined) {
+    return abbreviateMillionsDollars(dollarValue, true);
   } else {
     return undefined;
   }

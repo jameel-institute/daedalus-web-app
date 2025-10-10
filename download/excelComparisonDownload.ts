@@ -4,9 +4,9 @@ import {
   type FlatCost,
   HEADER_COST_ID,
   HEADER_DAY,
-  HEADER_UNIT,
+  HEADER_METRIC,
+  HEADER_METRIC_DESCRIPTION,
   HEADER_VALUE,
-  UNIT_USD_MILLIONS,
 } from "~/download/excelDownload";
 
 export class ExcelComparisonDownload extends ExcelDownload {
@@ -28,7 +28,7 @@ export class ExcelComparisonDownload extends ExcelDownload {
   private _addCosts() {
     const rowData = [];
     // headers
-    rowData.push(["runId", ...this._parameterIds, HEADER_COST_ID, HEADER_UNIT, HEADER_VALUE]);
+    rowData.push(["runId", ...this._parameterIds, HEADER_COST_ID, HEADER_METRIC, HEADER_METRIC_DESCRIPTION, HEADER_VALUE]);
 
     // get all cost ids
     const exampleFlatCosts: FlatCost[] = [];
@@ -41,8 +41,8 @@ export class ExcelComparisonDownload extends ExcelDownload {
       const flatCosts: FlatCost[] = [];
       ExcelDownload._flattenCosts(scenario.result.data!.costs, flatCosts);
       costIds.forEach((costId) => {
-        const costValue = flatCosts.find(cost => cost.id === costId)!.value;
-        rowData.push([runId, ...parameterValues, costId, UNIT_USD_MILLIONS, costValue]);
+        const cost = flatCosts.find(cost => cost.id === costId)!;
+        rowData.push([runId, ...parameterValues, costId, cost.metric, cost.metricDescription, cost.value]);
       });
     });
     this._addAoaAsSheet(rowData, "Costs");

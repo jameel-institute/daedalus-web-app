@@ -172,7 +172,13 @@ export const mockResultData = {
     dead: [0, 0.0244, 0.0878, 0.1825],
   },
   gdp: 19863038.6,
-  average_vsl: 2799263.5585,
+  vsl: {
+    average: 779555.8638,
+    pre_school: 1372480.725,
+    retirement_age: 226847.39,
+    school_age: 1213577.75,
+    working_age: 724063.5111,
+  },
 } as ScenarioResultData;
 deepFreeze(mockResultData);
 
