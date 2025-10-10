@@ -7,9 +7,19 @@ export interface FlatCost {
 }
 
 export const HEADER_DAY = "day";
+export const HEADER_CAPACITY_ID = "capacityId";
 export const HEADER_COST_ID = "costId";
+export const HEADER_END = "end";
+export const HEADER_INTERVENTION_ID = "interventionId";
+export const HEADER_RUN_ID = "runId";
+export const HEADER_START = "start";
 export const HEADER_UNIT = "unit";
 export const HEADER_VALUE = "value";
+
+export const SHEET_CAPACITIES = "Capacities;";
+export const SHEET_COSTS = "Costs";
+export const SHEET_INTERVENTIONS = "Interventions";
+export const SHEET_TIME_SERIES = "Time series";
 
 export const UNIT_USD_MILLIONS = "millions USD";
 
