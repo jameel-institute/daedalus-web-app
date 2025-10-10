@@ -4,9 +4,9 @@ import {
   type FlatCost,
   HEADER_COST_ID,
   HEADER_DAY,
-  HEADER_UNIT,
+  HEADER_METRIC,
+  HEADER_METRIC_DESCRIPTION,
   HEADER_VALUE,
-  UNIT_USD_MILLIONS,
 } from "~/download/excelDownload";
 
 export class ExcelScenarioDownload extends ExcelDownload {
@@ -32,9 +32,9 @@ export class ExcelScenarioDownload extends ExcelDownload {
     ExcelDownload._flattenCosts(costs, flattenedCosts);
     const sheetData = [];
     // headers
-    sheetData.push([HEADER_COST_ID, HEADER_UNIT, HEADER_VALUE]);
-    flattenedCosts.forEach((cost) => {
-      sheetData.push([cost.id, UNIT_USD_MILLIONS, cost.value]);
+    sheetData.push([HEADER_COST_ID, HEADER_METRIC, HEADER_METRIC_DESCRIPTION, HEADER_VALUE]);
+    flattenedCosts.forEach(({ id, metric, metricDescription: metric_description, value }) => {
+      sheetData.push([id, metric, metric_description, value]);
     });
     this._addAoaAsSheet(sheetData, "Costs");
   }
