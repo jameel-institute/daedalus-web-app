@@ -2,10 +2,18 @@ import type { Scenario } from "~/types/storeTypes";
 import {
   ExcelDownload,
   type FlatCost,
+  HEADER_CAPACITY_ID,
   HEADER_COST_ID,
   HEADER_DAY,
+  HEADER_END,
+  HEADER_INTERVENTION_ID,
+  HEADER_START,
   HEADER_UNIT,
   HEADER_VALUE,
+  SHEET_CAPACITIES,
+  SHEET_COSTS,
+  SHEET_INTERVENTIONS,
+  SHEET_TIME_SERIES,
   UNIT_USD_MILLIONS,
 } from "~/download/excelDownload";
 
@@ -36,23 +44,25 @@ export class ExcelScenarioDownload extends ExcelDownload {
     flattenedCosts.forEach((cost) => {
       sheetData.push([cost.id, UNIT_USD_MILLIONS, cost.value]);
     });
-    this._addAoaAsSheet(sheetData, "Costs");
+    this._addAoaAsSheet(sheetData, SHEET_COSTS);
   }
 
   private _addCapacities() {
-    this._addJsonAsSheet(this._scenario.result.data!.capacities, "Capacities");
+    const sheetData = [];
+    sheetData.push([HEADER_CAPACITY_ID, HEADER_VALUE]);
+    this._scenario.result.data!.capacities.forEach((capacity) => {
+      sheetData.push([capacity.id, capacity.value]);
+    });
+    this._addAoaAsSheet(sheetData, SHEET_CAPACITIES);
   }
 
   private _addInterventions() {
-    const sheetName = "Interventions";
-    if (this._scenario.result.data!.interventions.length > 0) {
-      this._addJsonAsSheet(this._scenario.result.data!.interventions, sheetName);
-    } else {
-      // There will be no interventions in scenario if response is none - in this case, we output
-      // intervention type headers only
-      const headers = ["id", "level", "start", "end"];
-      this._addAoaAsSheet([headers], sheetName);
-    }
+    const sheetData = [];
+    sheetData.push([HEADER_INTERVENTION_ID, HEADER_START, HEADER_END]);
+    this._scenario.result.data!.interventions.forEach((intervention) => {
+      sheetData.push([intervention.id, intervention.start, intervention.end]);
+    });
+    this._addAoaAsSheet(sheetData, SHEET_INTERVENTIONS);
   }
 
   private _addTimeSeries() {
@@ -68,7 +78,7 @@ export class ExcelScenarioDownload extends ExcelDownload {
       const values = timeSeriesIds.map((id: string) => timeSeries[id][timePoint]);
       sheetData.push([day, ...values]);
     }
-    this._addAoaAsSheet(sheetData, "Time series");
+    this._addAoaAsSheet(sheetData, SHEET_TIME_SERIES);
   }
 
   private _buildWorkbook() {
