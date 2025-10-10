@@ -179,7 +179,7 @@ const displayValue = (scenario: Scenario, costId: string): string | undefined =>
       return !!grandChild && grandChild.id === costId;
     });
   }
-  const valueInDollarTerms = cost?.values.find(c => c.metric === "usd")?.value;
+  const valueInDollarTerms = cost?.values.find(c => c.metric === USD_METRIC)?.value;
   if (valueInDollarTerms === undefined) {
     return;
   }

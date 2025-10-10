@@ -8,12 +8,9 @@ export interface FlatCost {
 }
 
 export const HEADER_DAY = "day";
-export const HEADER_COST_ID = "costId";
-export const HEADER_UNIT = "unit";
+export const HEADER_COST_ID = "cost_id";
+export const HEADER_METRIC = "metric";
 export const HEADER_VALUE = "value";
-
-export const UNIT_USD_MILLIONS = "millions USD";
-
 export abstract class ExcelDownload {
   private readonly _workbook: XLSX.WorkBook;
 
@@ -22,7 +19,7 @@ export abstract class ExcelDownload {
   }
 
   protected static _flattenCosts(costs: Array<ScenarioCost>, flattened: Array<FlatCost>) {
-    // As well as flattening the costs, we rename "id" to "costId"
+    // As well as flattening the costs, we rename "id" to "cost_id"
     costs.forEach((cost: ScenarioCost) => {
       cost.values.forEach((val) => {
         flattened.push({
