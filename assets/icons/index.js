@@ -16,6 +16,7 @@ import {
   cilPencil,
   cilPlus,
   cilShieldAlt,
+  cilSignLanguage,
   cilX,
 } from "@coreui/icons";
 
@@ -36,6 +37,7 @@ export const iconsSet = {
   cilPencil,
   cilPlus,
   cilShieldAlt,
+  cilSignLanguage,
   cilInfo,
   cilX,
 };
