@@ -49,11 +49,3 @@ defineProps<{
 // Bear in mind that this means the image will be cached by the browser, so to update the image, you must also change
 // the file name.
 </script>
-
-<style lang="scss" scoped>
-.icon:not(.icon-c-s):not(.icon-custom-size).help-icon {
-  width: 0.8rem;
-  height: 0.8rem;
-  margin-bottom: 0.1rem;
-}
-</style>

@@ -1,32 +1,20 @@
-import * as XLSX from "xlsx";
-import type { ScenarioCost } from "~/types/resultTypes";
 import type { Scenario } from "~/types/storeTypes";
+import {
+  ExcelDownload,
+  type FlatCost,
+  HEADER_COST_ID,
+  HEADER_DAY,
+  HEADER_UNIT,
+  HEADER_VALUE,
+  UNIT_USD_MILLIONS,
+} from "~/download/excelDownload";
 
-interface FlatCost {
-  id: string
-  metric: string
-  value: number
-}
-
-export class ExcelScenarioDownload {
+export class ExcelScenarioDownload extends ExcelDownload {
   private readonly _scenario: Scenario;
-  private readonly _workbook: XLSX.WorkBook;
 
   constructor(scenario: Scenario) {
+    super();
     this._scenario = scenario;
-    this._workbook = XLSX.utils.book_new();
-  }
-
-  private _addJsonAsSheet(data: Array<object>, sheetName: string) {
-    // adds a worksheet with array-of-object data
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    XLSX.utils.book_append_sheet(this._workbook, worksheet, sheetName);
-  }
-
-  private _addAoaAsSheet(data: Array<any[]>, sheetName: string) {
-    // adds a worksheet with array-of-array data
-    const worksheet = XLSX.utils.aoa_to_sheet(data);
-    XLSX.utils.book_append_sheet(this._workbook, worksheet, sheetName);
   }
 
   private _addParameters() {
@@ -38,26 +26,17 @@ export class ExcelScenarioDownload {
     this._addJsonAsSheet(paramData, "Parameters");
   }
 
-  private static _flattenCosts(costs: Array<ScenarioCost>, flattened: Array<FlatCost>) {
-    costs.forEach((cost: ScenarioCost) => {
-      cost.values.forEach((val) => {
-        flattened.push({
-          id: cost.id,
-          metric: val.metric,
-          value: val.value,
-        });
-      });
-      if (cost.children) {
-        this._flattenCosts(cost.children, flattened);
-      }
-    });
-  }
-
   private _addCosts() {
     const costs = this._scenario.result.data!.costs;
     const flattenedCosts: Array<FlatCost> = [];
-    ExcelScenarioDownload._flattenCosts(costs, flattenedCosts);
-    this._addJsonAsSheet(flattenedCosts, "Costs");
+    ExcelDownload._flattenCosts(costs, flattenedCosts);
+    const sheetData = [];
+    // headers
+    sheetData.push([HEADER_COST_ID, HEADER_UNIT, HEADER_VALUE]);
+    flattenedCosts.forEach((cost) => {
+      sheetData.push([cost.id, UNIT_USD_MILLIONS, cost.value]);
+    });
+    this._addAoaAsSheet(sheetData, "Costs");
   }
 
   private _addCapacities() {
@@ -79,14 +58,15 @@ export class ExcelScenarioDownload {
   private _addTimeSeries() {
     // Reshape wide time series data to long, and add rows to sheet
     const timeSeries = this._scenario.result.data!.time_series;
-    const headers = Object.keys(timeSeries);
+    const timeSeriesIds = Object.keys(timeSeries);
     // We rely on there being the same number of time points for each time series!
-    const numberOfTimePoints = timeSeries[headers[0]].length;
+    const numberOfTimePoints = timeSeries[timeSeriesIds[0]].length;
     const sheetData = [];
-    sheetData.push(headers);
+    sheetData.push([HEADER_DAY, ...timeSeriesIds]);
     for (let timePoint = 0; timePoint < numberOfTimePoints; timePoint++) {
-      const row = headers.map((header: string) => timeSeries[header][timePoint]);
-      sheetData.push(row);
+      const day = timePoint + 1;
+      const values = timeSeriesIds.map((id: string) => timeSeries[id][timePoint]);
+      sheetData.push([day, ...values]);
     }
     this._addAoaAsSheet(sheetData, "Time series");
   }
@@ -105,6 +85,6 @@ export class ExcelScenarioDownload {
     }
     this._buildWorkbook();
     const paramValues = Object.values(this._scenario.parameters!).join("_");
-    XLSX.writeFile(this._workbook, `daedalus_${paramValues}.xlsx`);
+    this._downloadWorkbook(`daedalus_${paramValues}.xlsx`);
   }
 }
