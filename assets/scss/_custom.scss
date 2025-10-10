@@ -133,3 +133,14 @@
 .text-xs {
   font-size: $font-size-xs;
 }
+
+.icon:not(.icon-c-s):not(.icon-custom-size).help-icon {
+  width: 0.8rem;
+  height: 0.8rem;
+  margin-bottom: 0.1rem;
+}
+
+// Use filter to recolor black images to Imperial Blue
+.filter-to-primary {
+  filter: invert(8%) sepia(100%) saturate(7044%) hue-rotate(248deg) brightness(96%) contrast(144%);
+}
