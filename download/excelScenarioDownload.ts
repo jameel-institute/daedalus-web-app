@@ -4,6 +4,7 @@ import type { Scenario } from "~/types/storeTypes";
 
 interface FlatCost {
   id: string
+  metric: string
   value: number
 }
 
@@ -39,7 +40,13 @@ export class ExcelScenarioDownload {
 
   private static _flattenCosts(costs: Array<ScenarioCost>, flattened: Array<FlatCost>) {
     costs.forEach((cost: ScenarioCost) => {
-      flattened.push({ id: cost.id, value: cost.value });
+      cost.values.forEach((val) => {
+        flattened.push({
+          id: cost.id,
+          metric: val.metric,
+          value: val.value,
+        });
+      });
       if (cost.children) {
         this._flattenCosts(cost.children, flattened);
       }

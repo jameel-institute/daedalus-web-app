@@ -140,7 +140,7 @@ const displayValue = (scenario: Scenario, costId: string): string | undefined =>
       return !!grandChild && grandChild.id === costId;
     });
   }
-  const valueInDollarTerms = cost?.value;
+  const valueInDollarTerms = cost?.values.find(c => c.metric === "usd")?.value;
   if (valueInDollarTerms === undefined) {
     return;
   }
