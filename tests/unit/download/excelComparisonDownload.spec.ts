@@ -43,7 +43,10 @@ const scenario1 = {
         { id: "hospital_capacity", value: 10000 },
         { id: "ic_capacity", value: 100 },
       ],
-      interventions: [],
+      interventions: [
+        { id: "school_closure", start: 1, end: 101 },
+        { id: "business_closure", start: 2, end: 201 },
+      ],
       time_series: {
         prevalence: [10, 20, 30],
         deaths: [0, 1, 2],
@@ -146,6 +149,8 @@ describe("excelComparisonDownload", () => {
 
     const expectedInterventions = [
       ["runId", "param1", "param2", "interventionId", "start", "end"],
+      [...s1Common, "school_closure", 1, 101],
+      [...s1Common, "business_closure", 2, 201],
       [...s2Common, "response", 10, 100],
       [...s2Common, "response", 20, 200],
     ];

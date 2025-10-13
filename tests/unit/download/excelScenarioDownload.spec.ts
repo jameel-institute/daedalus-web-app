@@ -40,8 +40,8 @@ const scenario = {
         ],
       }],
       interventions: [
-        { id: "school_closures", start: 10, end: 100, level: "light" },
-        { id: "business_closures", start: 5, end: 50, level: "heavy" },
+        { id: "response", start: 10, end: 100 },
+        { id: "response", start: 5, end: 50 },
       ],
       capacities: [
         { id: "hospital_capacities", value: 25000 },
@@ -98,8 +98,8 @@ describe("excelScenarioDownload", () => {
     // interventions
     const expectedInterventions = [
       ["interventionId", "start", "end"],
-      ["school_closures", 10, 100],
-      ["business_closures", 5, 50],
+      ["response", 10, 100],
+      ["response", 5, 50],
     ];
     expect(mockAoaToSheet.mock.calls[2]).toStrictEqual([expectedInterventions]);
     expectMockAppendSheet(3, { data: expectedInterventions, type: "aoa" }, "Interventions");
