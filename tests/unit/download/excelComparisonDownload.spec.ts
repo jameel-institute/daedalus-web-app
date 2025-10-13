@@ -86,8 +86,8 @@ const scenario2 = {
         { id: "hospital_capacity", value: 20000 },
       ],
       interventions: [
-        { id: "school_closure", start: 10, end: 100 },
-        { id: "business_closure", start: 20, end: 200 },
+        { id: "response", start: 10, end: 100 },
+        { id: "response", start: 20, end: 200 },
       ],
       time_series: {
         prevalence: [101, 201, 301],
@@ -146,8 +146,8 @@ describe("excelComparisonDownload", () => {
 
     const expectedInterventions = [
       ["runId", "param1", "param2", "interventionId", "start", "end"],
-      [...s2Common, "school_closure", 10, 100],
-      [...s2Common, "business_closure", 20, 200],
+      [...s2Common, "response", 10, 100],
+      [...s2Common, "response", 20, 200],
     ];
     expect(mockAoaToSheet.mock.calls[2]).toStrictEqual([expectedInterventions]);
     expectMockAppendSheet(2, { data: expectedInterventions, type: "aoa" }, "Interventions");
