@@ -2,19 +2,8 @@ import type { Scenario } from "~/types/storeTypes";
 import {
   ExcelDownload,
   type FlatCost,
-  HEADER_CAPACITY_ID,
-  HEADER_COST_ID,
-  HEADER_DAY,
-  HEADER_END,
-  HEADER_INTERVENTION_ID,
-  HEADER_RUN_ID,
-  HEADER_START,
-  HEADER_UNIT,
-  HEADER_VALUE,
-  SHEET_CAPACITIES,
-  SHEET_COSTS,
-  SHEET_INTERVENTIONS,
-  SHEET_TIME_SERIES,
+  HEADERS,
+  SHEETS,
   UNIT_USD_MILLIONS,
 } from "~/download/excelDownload";
 
@@ -41,7 +30,7 @@ export class ExcelComparisonDownload extends ExcelDownload {
   private _addCosts() {
     const rowData = [];
     // headers
-    rowData.push([HEADER_RUN_ID, ...this._parameterIds, HEADER_COST_ID, HEADER_UNIT, HEADER_VALUE]);
+    rowData.push([HEADERS.RUN_ID, ...this._parameterIds, HEADERS.COST_ID, HEADERS.UNIT, HEADERS.VALUE]);
 
     // get all cost ids
     const exampleFlatCosts: FlatCost[] = [];
@@ -58,12 +47,12 @@ export class ExcelComparisonDownload extends ExcelDownload {
         rowData.push([runId, ...parameterValues, costId, UNIT_USD_MILLIONS, costValue]);
       });
     });
-    this._addAoaAsSheet(rowData, SHEET_COSTS);
+    this._addAoaAsSheet(rowData, SHEETS.COSTS);
   }
 
   private _addCapacities() {
     const sheetData = [];
-    sheetData.push([HEADER_RUN_ID, ...this._parameterIds, HEADER_CAPACITY_ID, HEADER_VALUE]);
+    sheetData.push([HEADERS.RUN_ID, ...this._parameterIds, HEADERS.CAPACITY_ID, HEADERS.VALUE]);
     this._scenarios.forEach((scenario) => {
       const { runId } = scenario;
       const parameterValues = this._getParameterValues(scenario);
@@ -71,12 +60,12 @@ export class ExcelComparisonDownload extends ExcelDownload {
         sheetData.push([runId, ...parameterValues, capacity.id, capacity.value]);
       });
     });
-    this._addAoaAsSheet(sheetData, SHEET_CAPACITIES);
+    this._addAoaAsSheet(sheetData, SHEETS.CAPACITIES);
   }
 
   private _addInterventions() {
     const sheetData = [];
-    sheetData.push([HEADER_RUN_ID, ...this._parameterIds, HEADER_INTERVENTION_ID, HEADER_START, HEADER_END]);
+    sheetData.push([HEADERS.RUN_ID, ...this._parameterIds, HEADERS.INTERVENTION_ID, HEADERS.START, HEADERS.END]);
     this._scenarios.forEach((scenario) => {
       const { runId } = scenario;
       const parameterValues = this._getParameterValues(scenario);
@@ -84,7 +73,7 @@ export class ExcelComparisonDownload extends ExcelDownload {
         sheetData.push([runId, ...parameterValues, intervention.id, intervention.start, intervention.end]);
       });
     });
-    this._addAoaAsSheet(sheetData, SHEET_INTERVENTIONS);
+    this._addAoaAsSheet(sheetData, SHEETS.INTERVENTIONS);
   }
 
   private _addTimeSeries() {
@@ -93,7 +82,7 @@ export class ExcelComparisonDownload extends ExcelDownload {
     const numberOfTimePoints = exampleTimeSeries[outcomes[0]].length;
     const rowData = [];
     // headers
-    rowData.push([HEADER_DAY, HEADER_RUN_ID, ...this._parameterIds, ...outcomes]);
+    rowData.push([HEADERS.DAY, HEADERS.RUN_ID, ...this._parameterIds, ...outcomes]);
     this._scenarios.forEach((scenario) => {
       const { runId } = scenario;
       const parameterValues = this._parameterIds.map(pid => scenario.parameters[pid]);
@@ -109,7 +98,7 @@ export class ExcelComparisonDownload extends ExcelDownload {
         ]);
       }
     });
-    this._addAoaAsSheet(rowData, SHEET_TIME_SERIES);
+    this._addAoaAsSheet(rowData, SHEETS.TIME_SERIES);
   }
 
   private _getFilename() {

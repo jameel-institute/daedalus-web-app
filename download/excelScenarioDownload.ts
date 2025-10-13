@@ -2,18 +2,8 @@ import type { Scenario } from "~/types/storeTypes";
 import {
   ExcelDownload,
   type FlatCost,
-  HEADER_CAPACITY_ID,
-  HEADER_COST_ID,
-  HEADER_DAY,
-  HEADER_END,
-  HEADER_INTERVENTION_ID,
-  HEADER_START,
-  HEADER_UNIT,
-  HEADER_VALUE,
-  SHEET_CAPACITIES,
-  SHEET_COSTS,
-  SHEET_INTERVENTIONS,
-  SHEET_TIME_SERIES,
+  HEADERS,
+  SHEETS,
   UNIT_USD_MILLIONS,
 } from "~/download/excelDownload";
 
@@ -40,29 +30,29 @@ export class ExcelScenarioDownload extends ExcelDownload {
     ExcelDownload._flattenCosts(costs, flattenedCosts);
     const sheetData = [];
     // headers
-    sheetData.push([HEADER_COST_ID, HEADER_UNIT, HEADER_VALUE]);
+    sheetData.push([HEADERS.COST_ID, HEADERS.UNIT, HEADERS.VALUE]);
     flattenedCosts.forEach((cost) => {
       sheetData.push([cost.id, UNIT_USD_MILLIONS, cost.value]);
     });
-    this._addAoaAsSheet(sheetData, SHEET_COSTS);
+    this._addAoaAsSheet(sheetData, SHEETS.COSTS);
   }
 
   private _addCapacities() {
     const sheetData = [];
-    sheetData.push([HEADER_CAPACITY_ID, HEADER_VALUE]);
+    sheetData.push([HEADERS.CAPACITY_ID, HEADERS.VALUE]);
     this._scenario.result.data!.capacities.forEach((capacity) => {
       sheetData.push([capacity.id, capacity.value]);
     });
-    this._addAoaAsSheet(sheetData, SHEET_CAPACITIES);
+    this._addAoaAsSheet(sheetData, SHEETS.CAPACITIES);
   }
 
   private _addInterventions() {
     const sheetData = [];
-    sheetData.push([HEADER_INTERVENTION_ID, HEADER_START, HEADER_END]);
+    sheetData.push([HEADERS.INTERVENTION_ID, HEADERS.START, HEADERS.END]);
     this._scenario.result.data!.interventions.forEach((intervention) => {
       sheetData.push([intervention.id, intervention.start, intervention.end]);
     });
-    this._addAoaAsSheet(sheetData, SHEET_INTERVENTIONS);
+    this._addAoaAsSheet(sheetData, SHEETS.INTERVENTIONS);
   }
 
   private _addTimeSeries() {
@@ -72,13 +62,13 @@ export class ExcelScenarioDownload extends ExcelDownload {
     // We rely on there being the same number of time points for each time series!
     const numberOfTimePoints = timeSeries[timeSeriesIds[0]].length;
     const sheetData = [];
-    sheetData.push([HEADER_DAY, ...timeSeriesIds]);
+    sheetData.push([HEADERS.DAY, ...timeSeriesIds]);
     for (let timePoint = 0; timePoint < numberOfTimePoints; timePoint++) {
       const day = timePoint + 1;
       const values = timeSeriesIds.map((id: string) => timeSeries[id][timePoint]);
       sheetData.push([day, ...values]);
     }
-    this._addAoaAsSheet(sheetData, SHEET_TIME_SERIES);
+    this._addAoaAsSheet(sheetData, SHEETS.TIME_SERIES);
   }
 
   private _buildWorkbook() {
