@@ -21,12 +21,20 @@ import { costAsPercentOfGdp } from "@/components/utils/formatters";
 import { CostBasis } from "@/types/unitTypes";
 import { debounce } from "perfect-debounce";
 
+const props = defineProps<{
+  diffing: boolean
+}>();
+
 const appStore = useAppStore();
 let chart: Highcharts.Chart;
 const seriesData = ref<Highcharts.SeriesColumnOptions[]>([]); // This only exists for testing purposes
 const chartContainer = ref<HTMLElement | null>(null);
 const chartParentEl = computed(() => chartContainer.value?.parentElement);
-const scenarios = computed(() => appStore.currentComparison.scenarios);
+const scenarios = computed(() => {
+  return props.diffing
+    ? appStore.currentComparison.scenarios.filter(s => s.runId !== appStore.baselineScenario?.runId)
+    : appStore.currentComparison.scenarios;
+});
 const costBasis = computed(() => appStore.preferences.costBasis);
 const chartTitle = computed(() => {
   const firstScenarioTimeSeries = appStore.currentComparison.scenarios[0].result?.data?.time_series;
@@ -53,7 +61,10 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
     zIndex: secondLevelCostIds.length - index, // Ensure that stack segments are in front of each other from top to bottom.
     data: scenarios.value.map((scenario) => {
       const subCost = scenario.result.data?.costs[0].children?.find(c => c.id === costId);
-      const dollarValue = subCost?.value;
+      const matchingBaselineCost = appStore.baselineScenario?.result.data?.costs[0].children?.find(c => c.id === costId);
+      const dollarValue = props.diffing && subCost?.value && matchingBaselineCost?.value
+        ? subCost?.value - matchingBaselineCost?.value
+        : subCost?.value;
       // costAsGdpPercent is calculated here since the national GDP may vary by scenario if the axis is 'country'.
       const costAsGdpPercent = costAsPercentOfGdp(dollarValue, scenario.result.data?.gdp);
       const y = costBasis.value === CostBasis.PercentGDP ? costAsGdpPercent : dollarValue;
@@ -101,7 +112,7 @@ const chartInitialOptions = () => {
       },
     },
     xAxis: {
-      categories: scenarios.value?.map(s => appStore.getScenarioAxisValue(s)) || [],
+      categories: scenarios.value.map(s => appStore.getScenarioAxisValue(s)),
       title: { text: appStore.axisMetadata?.label },
       labels: {
         style: {
@@ -115,8 +126,8 @@ const chartInitialOptions = () => {
     },
     yAxis: {
       gridLineColor: "lightgrey",
-      min: 0,
-      title: { text: costsChartYAxisTitle(costBasis.value) },
+      min: props.diffing ? undefined : 0,
+      title: { text: costsChartYAxisTitle(costBasis.value, props.diffing) },
       stackLabels: {
         enabled: true,
         formatter() {
@@ -154,9 +165,19 @@ watch(() => [chartContainer.value, appStore.everyScenarioHasCosts], () => {
   }
 });
 
-watch(() => costBasis.value, () => {
+watch(() => [costBasis.value, props.diffing], () => {
   if (chart) {
-    chart.update({ yAxis: { title: { text: costsChartYAxisTitle(costBasis.value) } }, series: getSeries() });
+    chart.update({
+      xAxis: {
+        categories: scenarios.value.map(s => appStore.getScenarioAxisValue(s) || ""),
+      },
+      yAxis: {
+        title: {
+          text: costsChartYAxisTitle(costBasis.value, props.diffing),
+        },
+      },
+      series: getSeries(),
+    });
   }
 });
 

@@ -8,10 +8,11 @@ import { colorBlindSafeSmallPalette, type TooltipPointInstance } from "../../uti
 
 export const costsChartPalette = colorBlindSafeSmallPalette;
 
-export const costsChartYAxisTitle = (costBasis: CostBasis) => {
-  return costBasis === CostBasis.PercentGDP
+export const costsChartYAxisTitle = (costBasis: CostBasis, diffing?: boolean) => {
+  const baseText = costBasis === CostBasis.PercentGDP
     ? `Losses as % of GDP`
     : `Losses in billions USD`;
+  return diffing ? `${baseText} relative to baseline` : baseText;
 };
 
 const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis: CostBasis) => {
