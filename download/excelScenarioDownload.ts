@@ -2,10 +2,8 @@ import type { Scenario } from "~/types/storeTypes";
 import {
   ExcelDownload,
   type FlatCost,
-  HEADER_COST_ID,
-  HEADER_DAY,
-  HEADER_METRIC,
-  HEADER_VALUE,
+  HEADERS,
+  SHEETS,
 } from "~/download/excelDownload";
 
 export class ExcelScenarioDownload extends ExcelDownload {
@@ -31,27 +29,29 @@ export class ExcelScenarioDownload extends ExcelDownload {
     ExcelDownload._flattenCosts(costs, flattenedCosts);
     const sheetData = [];
     // headers
-    sheetData.push([HEADER_COST_ID, HEADER_METRIC, HEADER_VALUE]);
-    flattenedCosts.forEach(({ id, metric, value }) => {
-      sheetData.push([id, metric, value]);
+    sheetData.push([HEADERS.COST_ID, HEADERS.METRIC, HEADERS.VALUE]);
+    flattenedCosts.forEach((cost) => {
+      sheetData.push([cost.id, cost.metric, cost.value]);
     });
-    this._addAoaAsSheet(sheetData, "Costs");
+    this._addAoaAsSheet(sheetData, SHEETS.COSTS);
   }
 
   private _addCapacities() {
-    this._addJsonAsSheet(this._scenario.result.data!.capacities, "Capacities");
+    const sheetData = [];
+    sheetData.push([HEADERS.CAPACITY_ID, HEADERS.VALUE]);
+    this._scenario.result.data!.capacities.forEach((capacity) => {
+      sheetData.push([capacity.id, capacity.value]);
+    });
+    this._addAoaAsSheet(sheetData, SHEETS.CAPACITIES);
   }
 
   private _addInterventions() {
-    const sheetName = "Interventions";
-    if (this._scenario.result.data!.interventions.length > 0) {
-      this._addJsonAsSheet(this._scenario.result.data!.interventions, sheetName);
-    } else {
-      // There will be no interventions in scenario if response is none - in this case, we output
-      // intervention type headers only
-      const headers = ["id", "level", "start", "end"];
-      this._addAoaAsSheet([headers], sheetName);
-    }
+    const sheetData = [];
+    sheetData.push([HEADERS.INTERVENTION_ID, HEADERS.START, HEADERS.END]);
+    this._scenario.result.data!.interventions.forEach((intervention) => {
+      sheetData.push([intervention.id, intervention.start, intervention.end]);
+    });
+    this._addAoaAsSheet(sheetData, SHEETS.INTERVENTIONS);
   }
 
   private _addTimeSeries() {
@@ -61,13 +61,13 @@ export class ExcelScenarioDownload extends ExcelDownload {
     // We rely on there being the same number of time points for each time series!
     const numberOfTimePoints = timeSeries[timeSeriesIds[0]].length;
     const sheetData = [];
-    sheetData.push([HEADER_DAY, ...timeSeriesIds]);
+    sheetData.push([HEADERS.DAY, ...timeSeriesIds]);
     for (let timePoint = 0; timePoint < numberOfTimePoints; timePoint++) {
       const day = timePoint + 1;
       const values = timeSeriesIds.map((id: string) => timeSeries[id][timePoint]);
       sheetData.push([day, ...values]);
     }
-    this._addAoaAsSheet(sheetData, "Time series");
+    this._addAoaAsSheet(sheetData, SHEETS.TIME_SERIES);
   }
 
   private _buildWorkbook() {

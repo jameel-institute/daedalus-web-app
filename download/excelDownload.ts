@@ -7,10 +7,26 @@ export interface FlatCost {
   value: number
 }
 
-export const HEADER_DAY = "day";
-export const HEADER_COST_ID = "costId";
-export const HEADER_METRIC = "metric";
-export const HEADER_VALUE = "value";
+export const HEADERS = {
+  DAY: "day",
+  CAPACITY_ID: "capacityId",
+  COST_ID: "costId",
+  END: "end",
+  INTERVENTION_ID: "interventionId",
+  METRIC: "metric",
+  RUN_ID: "runId",
+  START: "start",
+  UNIT: "unit",
+  VALUE: "value",
+};
+
+export const SHEETS = {
+  CAPACITIES: "Capacities",
+  COSTS: "Costs",
+  INTERVENTIONS: "Interventions",
+  TIME_SERIES: "Time series",
+};
+
 export abstract class ExcelDownload {
   private readonly _workbook: XLSX.WorkBook;
 

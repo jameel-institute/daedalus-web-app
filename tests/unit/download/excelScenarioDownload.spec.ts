@@ -40,8 +40,8 @@ const scenario = {
         ],
       }],
       interventions: [
-        { id: "school_closures", start: 10, end: 100, level: "light" },
-        { id: "business_closures", start: 5, end: 50, level: "heavy" },
+        { id: "response", start: 10, end: 100 },
+        { id: "response", start: 5, end: 50 },
       ],
       capacities: [
         { id: "hospital_capacities", value: 25000 },
@@ -88,13 +88,21 @@ describe("excelScenarioDownload", () => {
     expectMockAppendSheet(1, { data: expectedCosts, type: "aoa" }, "Costs");
 
     // capacities
-    expect(mockJsonToSheet.mock.calls[1]).toStrictEqual([scenario.result.data.capacities]);
-    expectMockAppendSheet(2, { data: scenario.result.data.capacities, type: "json" }, "Capacities");
+    const expectedCapacities = [
+      ["capacityId", "value"],
+      ["hospital_capacities", 25000],
+    ];
+    expect(mockAoaToSheet.mock.calls[1]).toStrictEqual([expectedCapacities]);
+    expectMockAppendSheet(2, { data: expectedCapacities, type: "aoa" }, "Capacities");
 
     // interventions
-    const expectedInterventions = scenario.result.data.interventions;
-    expect(mockJsonToSheet.mock.calls[2]).toStrictEqual([expectedInterventions]);
-    expectMockAppendSheet(3, { data: expectedInterventions, type: "json" }, "Interventions");
+    const expectedInterventions = [
+      ["interventionId", "start", "end"],
+      ["response", 10, 100],
+      ["response", 5, 50],
+    ];
+    expect(mockAoaToSheet.mock.calls[2]).toStrictEqual([expectedInterventions]);
+    expectMockAppendSheet(3, { data: expectedInterventions, type: "aoa" }, "Interventions");
 
     // time series
     const expectedTimeSeries = [
@@ -103,7 +111,7 @@ describe("excelScenarioDownload", () => {
       [2, 20, 1],
       [3, 30, 2],
     ];
-    expect(mockAoaToSheet.mock.calls[1]).toStrictEqual([expectedTimeSeries]);
+    expect(mockAoaToSheet.mock.calls[3]).toStrictEqual([expectedTimeSeries]);
     expectMockAppendSheet(4, { data: expectedTimeSeries, type: "aoa" }, "Time series");
 
     const expectedFileName = "daedalus_value1_value2.xlsx";
@@ -124,10 +132,10 @@ describe("excelScenarioDownload", () => {
     const sut = new ExcelScenarioDownload(noInterventions);
     sut.download();
 
-    expect(mockJsonToSheet).toHaveBeenCalledTimes(2);
-    expect(mockAoaToSheet).toHaveBeenCalledTimes(3);
-    const expectedEmptyInterventionData = [["id", "level", "start", "end"]];
-    expect(mockAoaToSheet.mock.calls[1][0]).toStrictEqual(expectedEmptyInterventionData);
+    expect(mockJsonToSheet).toHaveBeenCalledTimes(1);
+    expect(mockAoaToSheet).toHaveBeenCalledTimes(4);
+    const expectedEmptyInterventionData = [["interventionId", "start", "end"]];
+    expect(mockAoaToSheet.mock.calls[2][0]).toStrictEqual(expectedEmptyInterventionData);
     expectMockAppendSheet(3, { data: expectedEmptyInterventionData, type: "aoa" }, "Interventions");
   });
 
