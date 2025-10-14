@@ -89,55 +89,70 @@ export const mockResultData = {
   costs: [
     {
       id: "total",
-      value: 1086625.0137,
+      values: [{ metric: "usd_millions", value: 1086625.0137 }],
       children: [
         {
           id: "gdp",
-          value: 52886.8372,
+          values: [{ metric: "usd_millions", value: 52886.8372 }],
           children: [
             {
               id: "gdp_closures",
-              value: 0,
+              values: [{ metric: "usd_millions", value: 0 }],
             },
             {
               id: "gdp_absences",
-              value: 52886.8372,
+              values: [{ metric: "usd_millions", value: 52886.8372 }],
             },
           ],
         },
         {
           id: "education",
-          value: 4154.9456,
+          values: [{ metric: "usd_millions", value: 4154.9456 }],
           children: [
             {
               id: "education_closures",
-              value: 0,
+              values: [{ metric: "usd_millions", value: 0 }],
             },
             {
               id: "education_absences",
-              value: 4154.9456,
+              values: [{ metric: "usd_millions", value: 4154.9456 }],
             },
           ],
         },
         {
           id: "life_years",
-          value: 1029583.2309,
+          values: [
+            { metric: "usd_millions", value: 1029583.2309 },
+            { metric: "life_years", value: 1000.1 },
+          ],
           children: [
             {
               id: "life_years_pre_school",
-              value: 882.054,
+              values: [
+                { metric: "usd_millions", value: 882.054 },
+                { metric: "life_years", value: 3.21 },
+              ],
             },
             {
               id: "life_years_school_age",
-              value: 33273.6856,
+              values: [
+                { metric: "usd_millions", value: 33273.6856 },
+                { metric: "life_years", value: 45.6 },
+              ],
             },
             {
               id: "life_years_working_age",
-              value: 993899.3885,
+              values: [
+                { metric: "usd_millions", value: 993899.3885 },
+                { metric: "life_years", value: 123.4 },
+              ],
             },
             {
               id: "life_years_retirement_age",
-              value: 1528.1028,
+              values: [
+                { metric: "usd_millions", value: 1528.1028 },
+                { metric: "life_years", value: 999 },
+              ],
             },
           ],
         },

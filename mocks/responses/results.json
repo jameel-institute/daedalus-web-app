@@ -12,64 +12,93 @@
     },
     "gdp": 19863038.6,
     "vsl": {
-      "average": 779555.8638,
-      "pre_school": 1372480.725,
-      "retirement_age": 226847.39,
-      "school_age": 1213577.75,
-      "working_age": 724063.5111
+      "average": 2032235.5505,
+      "pre_school": 3717534.15,
+      "school_age": 3292166.35,
+      "working_age": 1956126.15,
+      "retirement_age": 577273.95
     },
     "costs": [
       {
         "id": "total",
-        "value": 8924791.0069,
+        "values": [
+          { "metric": "usd_millions", "value": 8924791.0069 }
+        ],
         "children": [
           {
             "id": "gdp",
-            "value": 6530831.2856,
+            "values": [
+              { "metric": "usd_millions", "value": 6530831.2856 }
+            ],
             "children": [
               {
                 "id": "gdp_closures",
-                "value": 6329062.9268
+                "values": [
+                  { "metric": "usd_millions", "value": 6329062.9268 }
+                ]
               },
               {
                 "id": "gdp_absences",
-                "value": 201768.3587
+                "values": [
+                  { "metric": "usd_millions", "value": 201768.3587 }
+                ]
               }
             ]
           },
           {
             "id": "education",
-            "value": 1538724.4678,
+            "values": [
+              { "metric": "usd_millions", "value": 1538724.4678 }
+            ],
             "children": [
               {
                 "id": "education_closures",
-                "value": 1535578.3603
+                "values": [
+                  { "metric": "usd_millions", "value": 1535578.3603 }
+                ]
               },
               {
                 "id": "education_absences",
-                "value": 3146.1076
+                "values": [
+                  { "metric": "usd_millions", "value": 3146.1076 }
+                ]
               }
             ]
           },
           {
             "id": "life_years",
-            "value": 855235.2535,
+            "values": [
+              { "metric": "usd_millions", "value": 855235.2535 },
+              { "metric": "life_years", "value": 158095123.8199 }
+            ],
             "children": [
               {
                 "id": "life_years_pre_school",
-                "value": 333.825
+                "values": [
+                  { "metric": "usd_millions", "value": 333.825 },
+                  { "metric": "life_years", "value": 9944537.6006 }
+                ]
               },
               {
                 "id": "life_years_school_age",
-                "value": 648858.7066
+                "values": [
+                  { "metric": "usd_millions", "value": 648858.7066 },
+                  { "metric": "life_years", "value": 85875479.7768 }
+                ]
               },
               {
                 "id": "life_years_working_age",
-                "value": 30637.374
+                "values": [
+                  { "metric": "usd_millions", "value": 30637.374 },
+                  { "metric": "life_years", "value": 38423793.3826 }
+                ]
               },
               {
                 "id": "life_years_retirement_age",
-                "value": 175405.3478
+                "values": [
+                  { "metric": "usd_millions", "value": 175405.3478 },
+                  { "metric": "life_years", "value": 23851313.06 }
+                ]
               }
             ]
           }

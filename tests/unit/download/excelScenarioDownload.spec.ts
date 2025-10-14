@@ -19,22 +19,43 @@ const scenario = {
     data: {
       costs: [{
         id: "total",
-        value: 1000000,
+        values: [{ metric: "usd_millions", value: 1000000 }],
         children: [
           {
             id: "gdp",
-            value: 400000,
+            values: [{ metric: "usd_millions", value: 400000 }],
             children: [
-              { id: "gdp_closures", value: 100000, children: null },
-              { id: "gdp_absences", value: 300000, children: null },
+              {
+                id: "gdp_closures",
+                values: [{ metric: "usd_millions", value: 100000 }],
+              },
+              {
+                id: "gdp_absences",
+                values: [{ metric: "usd_millions", value: 300000 }],
+              },
             ],
           },
           {
             id: "life_years",
-            value: 600000,
+            values: [
+              { metric: "usd_millions", value: 600000 },
+              { metric: "life_years", value: 60000 },
+            ],
             children: [
-              { id: "life_years_children", value: 200000, children: null },
-              { id: "life_years_adults", value: 400000, children: null },
+              {
+                id: "life_years_children",
+                values: [
+                  { metric: "usd_millions", value: 200000 },
+                  { metric: "life_years", value: 20000 },
+                ],
+              },
+              {
+                id: "life_years_adults",
+                values: [
+                  { metric: "usd_millions", value: 400000 },
+                  { metric: "life_years", value: 40000 },
+                ],
+              },
             ],
           },
         ],
@@ -49,6 +70,13 @@ const scenario = {
       time_series: {
         prevalence: [10, 20, 30],
         deaths: [0, 1, 2],
+      },
+      vsl: {
+        average: 5000000,
+        pre_school: 1000000,
+        school_age: 2000000,
+        working_age: 3000000,
+        retirement_age: 4000000,
       },
     },
   },
@@ -75,14 +103,17 @@ describe("excelScenarioDownload", () => {
 
     // costs
     const expectedCosts = [
-      ["costId", "unit", "value"],
-      ["total", "millions USD", 1000000],
-      ["gdp", "millions USD", 400000],
-      ["gdp_closures", "millions USD", 100000],
-      ["gdp_absences", "millions USD", 300000],
-      ["life_years", "millions USD", 600000],
-      ["life_years_children", "millions USD", 200000],
-      ["life_years_adults", "millions USD", 400000],
+      ["costId", "metric", "value"],
+      ["total", "usd_millions", 1000000],
+      ["gdp", "usd_millions", 400000],
+      ["gdp_closures", "usd_millions", 100000],
+      ["gdp_absences", "usd_millions", 300000],
+      ["life_years", "usd_millions", 600000],
+      ["life_years", "life_years", 60000],
+      ["life_years_children", "usd_millions", 200000],
+      ["life_years_children", "life_years", 20000],
+      ["life_years_adults", "usd_millions", 400000],
+      ["life_years_adults", "life_years", 40000],
     ];
     expect(mockAoaToSheet.mock.calls[0]).toStrictEqual([expectedCosts]);
     expectMockAppendSheet(1, { data: expectedCosts, type: "aoa" }, "Costs");
@@ -114,6 +145,17 @@ describe("excelScenarioDownload", () => {
     expect(mockAoaToSheet.mock.calls[3]).toStrictEqual([expectedTimeSeries]);
     expectMockAppendSheet(4, { data: expectedTimeSeries, type: "aoa" }, "Time series");
 
+    // VSLs
+    const expectedVSLs = [
+      { id: "average", value: 5000000 },
+      { id: "pre_school", value: 1000000 },
+      { id: "school_age", value: 2000000 },
+      { id: "working_age", value: 3000000 },
+      { id: "retirement_age", value: 4000000 },
+    ];
+    expect(mockJsonToSheet.mock.calls[1]).toStrictEqual([expectedVSLs]);
+    expectMockAppendSheet(5, { data: expectedVSLs, type: "json" }, "Value of Statistical Life");
+
     const expectedFileName = "daedalus_value1_value2.xlsx";
     expect(mockWriteFile).toHaveBeenCalledWith(mockWorkbook, expectedFileName);
   });
@@ -132,7 +174,7 @@ describe("excelScenarioDownload", () => {
     const sut = new ExcelScenarioDownload(noInterventions);
     sut.download();
 
-    expect(mockJsonToSheet).toHaveBeenCalledTimes(1);
+    expect(mockJsonToSheet).toHaveBeenCalledTimes(2);
     expect(mockAoaToSheet).toHaveBeenCalledTimes(4);
     const expectedEmptyInterventionData = [["interventionId", "start", "end"]];
     expect(mockAoaToSheet.mock.calls[2][0]).toStrictEqual(expectedEmptyInterventionData);
