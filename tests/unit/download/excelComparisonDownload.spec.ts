@@ -39,6 +39,14 @@ const scenario1 = {
           },
         ],
       }],
+      capacities: [
+        { id: "hospital_capacity", value: 10000 },
+        { id: "ic_capacity", value: 100 },
+      ],
+      interventions: [
+        { id: "school_closure", start: 1, end: 101 },
+        { id: "business_closure", start: 2, end: 201 },
+      ],
       time_series: {
         prevalence: [10, 20, 30],
         deaths: [0, 1, 2],
@@ -77,6 +85,13 @@ const scenario2 = {
           },
         ],
       }],
+      capacities: [
+        { id: "hospital_capacity", value: 20000 },
+      ],
+      interventions: [
+        { id: "response", start: 10, end: 100 },
+        { id: "response", start: 20, end: 200 },
+      ],
       time_series: {
         prevalence: [101, 201, 301],
         deaths: [1, 11, 21],
@@ -123,6 +138,25 @@ describe("excelComparisonDownload", () => {
     expect(mockAoaToSheet.mock.calls[0]).toStrictEqual([expectedCostsData]);
     expectMockAppendSheet(0, { data: expectedCostsData, type: "aoa" }, "Costs");
 
+    const expectedCapacities = [
+      ["runId", "param1", "param2", "capacityId", "value"],
+      [...s1Common, "hospital_capacity", 10000],
+      [...s1Common, "ic_capacity", 100],
+      [...s2Common, "hospital_capacity", 20000],
+    ];
+    expect(mockAoaToSheet.mock.calls[1]).toStrictEqual([expectedCapacities]);
+    expectMockAppendSheet(1, { data: expectedCapacities, type: "aoa" }, "Capacities");
+
+    const expectedInterventions = [
+      ["runId", "param1", "param2", "interventionId", "start", "end"],
+      [...s1Common, "school_closure", 1, 101],
+      [...s1Common, "business_closure", 2, 201],
+      [...s2Common, "response", 10, 100],
+      [...s2Common, "response", 20, 200],
+    ];
+    expect(mockAoaToSheet.mock.calls[2]).toStrictEqual([expectedInterventions]);
+    expectMockAppendSheet(2, { data: expectedInterventions, type: "aoa" }, "Interventions");
+
     const expectedTimeSeriesData = [
       ["day", "runId", "param1", "param2", "prevalence", "deaths"],
       [1, ...s1Common, 10, 0],
@@ -132,8 +166,8 @@ describe("excelComparisonDownload", () => {
       [2, ...s2Common, 201, 11],
       [3, ...s2Common, 301, 21],
     ];
-    expect(mockAoaToSheet.mock.calls[1]).toStrictEqual([expectedTimeSeriesData]);
-    expectMockAppendSheet(1, { data: expectedTimeSeriesData, type: "aoa" }, "Time series");
+    expect(mockAoaToSheet.mock.calls[3]).toStrictEqual([expectedTimeSeriesData]);
+    expectMockAppendSheet(3, { data: expectedTimeSeriesData, type: "aoa" }, "Time series");
 
     const expectedFileName = "daedalus_comparison_param1_value1_value10.xlsx";
     expect(mockWriteFile).toHaveBeenCalledWith(mockWorkbook, expectedFileName);
