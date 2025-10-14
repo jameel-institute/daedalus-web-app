@@ -14,20 +14,20 @@ export const costsChartYAxisTitle = (costBasis: CostBasis) => {
     : `Losses in billions USD`;
 };
 
-const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis: CostBasis) => {
-  let valueDisplay;
+const costsChartTooltipPointValueDisplay = (point: TooltipPointInstance, costBasis: CostBasis) => {
   if (costBasis === CostBasis.PercentGDP) {
-    valueDisplay = `${humanReadablePercentOfGdp(point.y).percent}%`;
-  } else {
-    const abbr = abbreviateMillionsDollars(point.y || 0, true);
-    valueDisplay = `$${abbr.amount} ${abbr.unit}`;
+    return `${humanReadablePercentOfGdp(point.y).percent}%`;
   }
-
-  return `<span style="font-size: 0.8rem;">`
-    + `<span style="color:${point.color}; font-size: 1.3rem;">●</span> `
-    + `<span style="font-size: 0.8rem;">${point.key}<span style="font-size: 0.9rem;">: <b>${valueDisplay}</b>`
-    + `</span></span><br/>`;
+  const abbr = abbreviateMillionsDollars(point.y || 0, true);
+  return `$${abbr.amount} ${abbr.unit}`;
 };
+
+const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis: CostBasis) =>
+  `<span style="font-size: 0.8rem;">`
+  + `<span style="color:${point.color}; font-size: 1.3rem;">●</span> `
+  + `<span style="font-size: 0.8rem;">${point.key}<span style="font-size: 0.9rem;">: `
+  + `<b>${costsChartTooltipPointValueDisplay(point, costBasis)}</b>`
+  + `</span></span><br/>`;
 
 // Tooltip text for a stacked column in a single-scenario costs chart (shared tooltip for all points in the stack)
 export const costsChartSingleScenarioTooltip = (context: unknown, costBasis: CostBasis, nationalGdp: number) => {
@@ -84,6 +84,23 @@ export const costsChartMultiScenarioStackedTooltip = (context: unknown, costBasi
   const pointsText = point.points?.map(p => costsChartTooltipPointFormatter(p, costBasis))?.join("");
 
   return `<span style="font-size: 0.8rem;">${headerText}<br/><br/>${pointsText}</span>`;
+};
+
+// Tooltip text for an unstacked column in a multi-scenario costs chart
+export const costsChartMultiScenarioUnstackedTooltip = (context: unknown, costBasis: CostBasis, axisParam: Parameter | undefined) => {
+  const point = context as TooltipPointInstance;
+  if (!point || !axisParam) {
+    return;
+  }
+
+  const pointText = point.series.name === "Total"
+    ? `<span style="color:${point.color}; font-size: 1.3rem;">●</span> Total: <b>${costsChartTooltipPointValueDisplay(point, costBasis)}</b>`
+    : costsChartTooltipPointFormatter(point, costBasis);
+
+  const headerText = `${axisParam.label}: ${getScenarioLabel(point.category as string, axisParam)}`;
+  return `<span style="font-size: 0.8rem;">`
+    + `${headerText} <br/>${pointText}`
+    + `</span>`;
 };
 
 // Labels for (stacked) columns

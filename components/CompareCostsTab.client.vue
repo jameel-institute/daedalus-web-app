@@ -3,9 +3,14 @@
     <div class="col-12 col-xl-6 d-flex flex-column">
       <div class="d-flex align-items-start justify-content-between">
         <CostBasisToggler :scenarios="appStore.currentComparison.scenarios" />
+        <CFormSwitch
+          id="stackCostsChartSwitch"
+          v-model="stackCosts"
+          label="Stack costs"
+        />
         <CompareCostsLegend />
       </div>
-      <CompareCostsChart />
+      <CompareCostsChart :stacked="stackCosts" />
     </div>
     <div class="col-12 col-xl-6 d-flex flex-column">
       <CostsTable
@@ -18,4 +23,6 @@
 
 <script setup lang="ts">
 const appStore = useAppStore();
+
+const stackCosts = ref(true);
 </script>
