@@ -10,7 +10,7 @@ export const parameterLabels = {
 };
 Object.freeze(parameterLabels);
 
-export const costTolerance = 0.25;
+export const costTolerance = 0.3;
 
 export const commaSeparatedNumberMatcher = "\\d{1,3}(,\\d{3})*";
 export const decimalPercentMatcher = "\\d{1,4}(\\.\\d)?%";
