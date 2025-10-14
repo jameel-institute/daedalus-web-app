@@ -58,12 +58,13 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
       type: "column",
       data: totalCost.value?.children?.map((cost, columnIndex) => {
         const subCost = cost.children?.[rowIndex];
+        const dollarCost = subCost?.values.find(c => c.metric === USD_METRIC);
         // If there is no Nth child for some cost, we still need to create a breakdown for the stack with a y-value of 0,
         // to ensure that any subsequent data points will belong to the correct column.
-        const dollarValue = subCost?.values.find(c => c.metric === USD_METRIC)?.value || 0;
+        const dollarAmount = dollarCost?.value || 0;
         const yValue = appStore.preferences.costBasis === CostBasis.PercentGDP
-          ? costAsPercentOfGdp(dollarValue, appStore.currentScenario.result.data?.gdp)
-          : dollarValue;
+          ? costAsPercentOfGdp(dollarAmount, appStore.currentScenario.result.data?.gdp)
+          : dollarAmount;
 
         return {
           y: yValue,
