@@ -84,9 +84,8 @@ const gdpTotalCostPercent = computed(() => {
 });
 
 const totalCostAbbr = computed(() => {
-  const dollarValue = totalCostUSD.value;
-  if (dollarValue !== undefined) {
-    return abbreviateMillionsDollars(dollarValue, true);
+  if (totalCostUSD.value !== undefined) {
+    return abbreviateMillionsDollars(totalCostUSD.value, true);
   } else {
     return undefined;
   }
