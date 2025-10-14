@@ -31,20 +31,12 @@ export class ExcelComparisonDownload extends ExcelDownload {
     // headers
     rowData.push([HEADERS.RUN_ID, ...this._parameterIds, HEADERS.COST_ID, HEADERS.METRIC, HEADERS.VALUE]);
 
-    // get all cost ids
-    const exampleFlatCosts: FlatCost[] = [];
-    ExcelDownload._flattenCosts(this._exampleScenario.result.data!.costs, exampleFlatCosts);
-    const costIds = exampleFlatCosts.map(cost => cost.id);
-
     this._scenarios.forEach((scenario) => {
       const { runId } = scenario;
       const parameterValues = this._getParameterValues(scenario);
       const flatCosts: FlatCost[] = [];
       ExcelDownload._flattenCosts(scenario.result.data!.costs, flatCosts);
-      costIds.forEach((costId) => {
-        const costs = flatCosts.filter(cost => cost.id === costId)!;
-        costs.forEach(cost => rowData.push([runId, ...parameterValues, costId, cost.metric, cost.value]));
-      });
+      flatCosts.forEach(cost => rowData.push([runId, ...parameterValues, cost.id, cost.metric, cost.value]));
     });
     this._addAoaAsSheet(rowData, SHEETS.COSTS);
   }
@@ -100,6 +92,20 @@ export class ExcelComparisonDownload extends ExcelDownload {
     this._addAoaAsSheet(rowData, SHEETS.TIME_SERIES);
   }
 
+  private _addVSLs() {
+    const sheetData = [];
+    sheetData.push([HEADERS.RUN_ID, ...this._parameterIds, HEADERS.VSL_ID, HEADERS.VALUE]);
+    this._scenarios.forEach((scenario) => {
+      const { runId } = scenario;
+      const parameterValues = this._getParameterValues(scenario);
+      const VSLs = scenario.result.data!.vsl;
+      Object.keys(VSLs).forEach((key) => {
+        sheetData.push([runId, ...parameterValues, key, VSLs[key]]);
+      });
+    });
+    this._addAoaAsSheet(sheetData, SHEETS.VSL);
+  }
+
   private _getFilename() {
     const comparisonParamValues = this._scenarios.map(scenario => scenario.parameters[this._comparisonParameter]);
     const paramValuesString = comparisonParamValues.join("_");
@@ -115,6 +121,7 @@ export class ExcelComparisonDownload extends ExcelDownload {
     this._addCapacities();
     this._addInterventions();
     this._addTimeSeries();
+    this._addVSLs();
     this._downloadWorkbook(this._getFilename());
   }
 }

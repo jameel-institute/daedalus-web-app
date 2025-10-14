@@ -18,6 +18,7 @@ export const HEADERS = {
   START: "start",
   UNIT: "unit",
   VALUE: "value",
+  VSL_ID: "vslId",
 };
 
 export const SHEETS = {
@@ -25,6 +26,7 @@ export const SHEETS = {
   COSTS: "Costs",
   INTERVENTIONS: "Interventions",
   TIME_SERIES: "Time series",
+  VSL: "Value of Statistical Life",
 };
 
 export abstract class ExcelDownload {

@@ -70,12 +70,22 @@ export class ExcelScenarioDownload extends ExcelDownload {
     this._addAoaAsSheet(sheetData, SHEETS.TIME_SERIES);
   }
 
+  private _addVSLs() {
+    const VSLs = this._scenario.result.data!.vsl;
+    const VSLData = Object.keys(VSLs).map((key: string) => ({
+      id: key,
+      value: VSLs[key],
+    }));
+    this._addJsonAsSheet(VSLData, SHEETS.VSL);
+  }
+
   private _buildWorkbook() {
     this._addParameters();
     this._addCosts();
     this._addCapacities();
     this._addInterventions();
     this._addTimeSeries();
+    this._addVSLs();
   }
 
   public download() {
