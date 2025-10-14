@@ -127,6 +127,12 @@ const chartInitialOptions = () => {
     yAxis: {
       gridLineColor: "lightgrey",
       min: props.diffing ? undefined : 0,
+      plotLines: props.diffing
+        ? [{
+            value: 0,
+            width: 2,
+          }]
+        : [],
       title: { text: costsChartYAxisTitle(costBasis.value, props.diffing) },
       stackLabels: {
         enabled: true,
@@ -146,7 +152,7 @@ const chartInitialOptions = () => {
     tooltip: {
       shared: true,
       formatter() {
-        return costsChartMultiScenarioStackedTooltip(this, costBasis.value, appStore.axisMetadata);
+        return costsChartMultiScenarioStackedTooltip(this, costBasis.value, appStore.axisMetadata, props.diffing);
       },
     },
     plotOptions: {
@@ -172,6 +178,13 @@ watch(() => [costBasis.value, props.diffing], () => {
         categories: scenarios.value.map(s => appStore.getScenarioAxisValue(s) || ""),
       },
       yAxis: {
+        min: props.diffing ? undefined : 0,
+        plotLines: props.diffing
+          ? [{
+              value: 0,
+              width: 2,
+            }]
+          : [],
         title: {
           text: costsChartYAxisTitle(costBasis.value, props.diffing),
         },

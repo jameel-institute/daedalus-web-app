@@ -16,7 +16,10 @@
               v-on="on"
             >
               <ParameterIcon :parameter="parameter" />
-              <span class="ms-1">
+              <span
+                class="ms-1"
+                :class="{ 'text-primary-emphasis boldish': (parameter.id === appStore.currentComparison.axis) }"
+              >
                 {{ paramDisplayText(parameter) }}
               </span>
               <span

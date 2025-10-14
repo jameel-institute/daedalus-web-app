@@ -12,10 +12,10 @@ export const abbreviateMillionsDollars = (
 } => {
   let shortAmount: string;
   let unit: string;
-  if (amount >= 1e6) {
+  if (Math.abs(amount) >= 1e6) {
     shortAmount = (amount / 1e6).toFixed(precision ?? 1);
     unit = abbreviateUnits ? "T" : "trillion";
-  } else if (amount >= 1e3) {
+  } else if (Math.abs(amount) >= 1e3) {
     shortAmount = (amount / 1e3).toFixed(precision ?? 1);
     unit = abbreviateUnits ? "B" : "billion";
   } else {

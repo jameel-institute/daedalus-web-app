@@ -9,13 +9,18 @@ import { colorBlindSafeSmallPalette, type TooltipPointInstance } from "../../uti
 export const costsChartPalette = colorBlindSafeSmallPalette;
 
 export const costsChartYAxisTitle = (costBasis: CostBasis, diffing?: boolean) => {
-  const baseText = costBasis === CostBasis.PercentGDP
-    ? `Losses as % of GDP`
-    : `Losses in billions USD`;
-  return diffing ? `${baseText} relative to baseline` : baseText;
+  const lossesText = diffing ? "Relative losses" : "Losses";
+  return `${lossesText} ${costBasis === CostBasis.PercentGDP ? "as % of GDP" : "in billions USD"}`;
 };
 
-const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis: CostBasis) => {
+const valueColor = (value: number, diffing: boolean) => {
+  if (!diffing) {
+    return "inherit";
+  }
+  return value > 0 ? "darkred" : "darkgreen";
+};
+
+const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis: CostBasis, diffing: boolean) => {
   let valueDisplay;
   if (costBasis === CostBasis.PercentGDP) {
     valueDisplay = `${humanReadablePercentOfGdp(point.y).percent}%`;
@@ -26,8 +31,9 @@ const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis:
 
   return `<span style="font-size: 0.8rem;">`
     + `<span style="color:${point.color}; font-size: 1.3rem;">●</span> `
-    + `<span style="font-size: 0.8rem;">${point.key}<span style="font-size: 0.9rem;">: <b>${valueDisplay}</b>`
-    + `</span></span><br/>`;
+    + `<span style="font-size: 0.8rem;">${point.key}`
+    + `<span style="font-size: 0.9rem; color: ${valueColor(point.y, diffing)}">: <b>${valueDisplay}</b></span>`
+    + `</span><br/>`;
 };
 
 // Tooltip text for a stacked column in a single-scenario costs chart (shared tooltip for all points in the stack)
@@ -58,7 +64,12 @@ export const costsChartSingleScenarioTooltip = (context: unknown, costBasis: Cos
 };
 
 // Tooltip text for a stacked column in a multi-scenario costs chart (shared tooltip for all points in the stack)
-export const costsChartMultiScenarioStackedTooltip = (context: unknown, costBasis: CostBasis, axisParam: Parameter | undefined) => {
+export const costsChartMultiScenarioStackedTooltip = (
+  context: unknown,
+  costBasis: CostBasis,
+  axisParam: Parameter | undefined,
+  diffing: boolean,
+) => {
   const contextInstance = context as TooltipPointInstance;
   const point = contextInstance.point;
   if (!point || !axisParam) {
@@ -66,13 +77,19 @@ export const costsChartMultiScenarioStackedTooltip = (context: unknown, costBasi
   }
 
   let headerText = `${axisParam.label}: <b>${getScenarioLabel(point.category as string, axisParam)}</b>`;
+  const totalLossesText = diffing ? "Total losses relative to baseline:</br>" : "Total losses: ";
+  const totalColor = valueColor(point.total, diffing);
 
   if (costBasis === CostBasis.PercentGDP) {
     const percentOfGdp = humanReadablePercentOfGdp(point.total);
-    headerText = `${headerText}</br></br>Total losses: <b>${percentOfGdp.percent}%</b> ${percentOfGdp.reference}`;
+    headerText = `${headerText}</br></br>${totalLossesText}<b>`
+      + `<span style="color: ${totalColor}">${percentOfGdp.percent}%</span>`
+      + `</b> ${percentOfGdp.reference}`;
   } else {
     const abbreviatedTotal = abbreviateMillionsDollars(point.total);
-    headerText = `${headerText}<br/></br>Total losses: <b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b> USD`;
+    headerText = `${headerText}<br/></br>${totalLossesText}<b>`
+      + `<span style="color: ${totalColor}">$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</span>`
+      + `</b> USD`;
     if (point.total > 0) {
       const totalCostAsGdpPercent = point.points?.map(p => p.custom.costAsGdpPercent).reduce((sum, a) => sum + a, 0);
       if (totalCostAsGdpPercent) {
@@ -82,7 +99,7 @@ export const costsChartMultiScenarioStackedTooltip = (context: unknown, costBasi
     }
   }
 
-  const pointsText = point.points?.map(p => costsChartTooltipPointFormatter(p, costBasis))?.join("");
+  const pointsText = point.points?.map(p => costsChartTooltipPointFormatter(p, costBasis, diffing))?.join("");
 
   return `<span style="font-size: 0.8rem;">${headerText}<br/><br/>${pointsText}</span>`;
 };
@@ -114,7 +131,7 @@ export const costsChartMultiScenarioXAxisLabelFormatter = (
   const paramIsCountry = axisParam?.parameterType === TypeOfParameter.GlobeSelect;
   const marginForFlag = paramIsCountry ? "mt-1" : "";
   const scenarioLabelSpan = baseline && category === baseline
-    ? `<span class="fw-medium text-primary-emphasis ${marginForFlag}">${scenarioLabel}</br>(baseline)</span>`
+    ? `<span class="boldish text-primary-emphasis ${marginForFlag}">${scenarioLabel}</span>`
     : `<span class="${marginForFlag}">${scenarioLabel}</span>`;
 
   if (paramIsCountry) {

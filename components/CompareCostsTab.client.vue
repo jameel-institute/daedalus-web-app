@@ -1,10 +1,13 @@
 <template>
   <CRow class="mx-2">
-    <div class="col-12 col-xl-6 d-flex flex-column">
+    <div
+      class="col-12 d-flex flex-column"
+      :class="{ 'col-xl-6': allowVerticalSplit }"
+    >
       <CFormSwitch
         id="costsChartDiffSwitch"
         v-model="diffCostsChart"
-        label="Display differences relative to baseline scenario"
+        label="Display as difference from baseline"
         class="mb-3"
       />
       <div class="d-flex align-items-start justify-content-between">
@@ -13,7 +16,10 @@
       </div>
       <CompareCostsChart :diffing="diffCostsChart" />
     </div>
-    <div class="col-12 col-xl-6 d-flex flex-column">
+    <div
+      class="col-12 d-flex flex-column"
+      :class="{ 'col-xl-6': allowVerticalSplit }"
+    >
       <CostsTable
         :scenarios="appStore.currentComparison.scenarios"
         class="w-full mt-5"
@@ -26,4 +32,6 @@
 const appStore = useAppStore();
 
 const diffCostsChart = ref(false);
+
+const allowVerticalSplit = computed(() => appStore.currentComparison.scenarios.length < 5);
 </script>
