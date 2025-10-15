@@ -14,7 +14,7 @@ export const costsChartYAxisTitle = (costBasis: CostBasis, diffing?: boolean) =>
 };
 
 const valueColor = (value: number, diffing: boolean) => {
-  if (!diffing) {
+  if (!diffing || value === 0) {
     return "inherit";
   }
   return value > 0 ? "darkred" : "darkgreen";
@@ -56,7 +56,7 @@ export const costsChartSingleScenarioTooltip = (context: unknown, costBasis: Cos
   const pointsText = tooltipPointInstance.points
     ?.filter(point => point.point?.custom.includeInTooltips)
     .map((point) => {
-      return costsChartTooltipPointFormatter(point, costBasis);
+      return costsChartTooltipPointFormatter(point, costBasis, false);
     })
     ?.join("");
 
@@ -90,7 +90,7 @@ export const costsChartMultiScenarioStackedTooltip = (
     headerText = `${headerText}<br/></br>${totalLossesText}<b>`
       + `<span style="color: ${totalColor}">$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</span>`
       + `</b> USD`;
-    if (point.total > 0) {
+    if (point.total !== 0) {
       const totalCostAsGdpPercent = point.points?.map(p => p.custom.costAsGdpPercent).reduce((sum, a) => sum + a, 0);
       if (totalCostAsGdpPercent) {
         const percentOfGdp = humanReadablePercentOfGdp(totalCostAsGdpPercent);

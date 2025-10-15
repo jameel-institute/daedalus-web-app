@@ -39,7 +39,7 @@ const costBasis = computed(() => appStore.preferences.costBasis);
 const chartTitle = computed(() => {
   const firstScenarioTimeSeries = appStore.currentComparison.scenarios[0].result?.data?.time_series;
   const scenarioDuration = Object.values(firstScenarioTimeSeries || {})[0].length - 1;
-  return `Losses after ${scenarioDuration} days`;
+  return `Losses ${props.diffing ? "relative to baseline" : ""} after ${scenarioDuration} days`;
 });
 
 // There are 3 levels of data breakdown for costs:
@@ -171,32 +171,45 @@ watch(() => [chartContainer.value, appStore.everyScenarioHasCosts], () => {
   }
 });
 
-watch(() => [costBasis.value, props.diffing], () => {
-  if (chart) {
-    chart.update({
-      xAxis: {
-        categories: scenarios.value.map(s => appStore.getScenarioAxisValue(s) || ""),
+watch(() => costBasis.value, () => {
+  chart?.update({
+    yAxis: {
+      title: {
+        text: costsChartYAxisTitle(costBasis.value, props.diffing),
       },
-      yAxis: {
-        min: props.diffing ? undefined : 0,
-        plotLines: props.diffing
-          ? [{
-              value: 0,
-              width: 2,
-            }]
-          : [],
-        title: {
-          text: costsChartYAxisTitle(costBasis.value, props.diffing),
-        },
+    },
+    series: getSeries(),
+  });
+});
+
+watch(() => props.diffing, () => {
+  chart?.update({
+    exporting: {
+      filename: chartTitle.value,
+    },
+    title: { text: chartTitle.value },
+    xAxis: {
+      categories: scenarios.value.map(s => appStore.getScenarioAxisValue(s) || ""),
+    },
+    yAxis: {
+      min: props.diffing ? undefined : 0,
+      title: {
+        text: costsChartYAxisTitle(costBasis.value, props.diffing),
       },
-      series: getSeries(),
-    });
-  }
+      plotLines: props.diffing
+        ? [{
+            value: 0,
+            width: 2,
+          }]
+        : [],
+    },
+    series: getSeries(),
+  });
 });
 
 const setChartDimensions = debounce(() => {
-  if (chart && chartParentEl.value) {
-    chart.setSize(targetWidth(), chartHeightPx, { duration: 250 });
+  if (chartParentEl.value) {
+    chart?.setSize(targetWidth(), chartHeightPx, { duration: 250 });
   }
 });
 
