@@ -147,14 +147,15 @@ describe("excelScenarioDownload", () => {
 
     // VSLs
     const expectedVSLs = [
-      { id: "average", value: 5000000 },
-      { id: "pre_school", value: 1000000 },
-      { id: "school_age", value: 2000000 },
-      { id: "working_age", value: 3000000 },
-      { id: "retirement_age", value: 4000000 },
+      ["vslId", "value"],
+      ["average", 5000000],
+      ["pre_school", 1000000],
+      ["school_age", 2000000],
+      ["working_age", 3000000],
+      ["retirement_age", 4000000],
     ];
-    expect(mockJsonToSheet.mock.calls[1]).toStrictEqual([expectedVSLs]);
-    expectMockAppendSheet(5, { data: expectedVSLs, type: "json" }, "Value of Statistical Life");
+    expect(mockAoaToSheet.mock.calls[4]).toStrictEqual([expectedVSLs]);
+    expectMockAppendSheet(5, { data: expectedVSLs, type: "aoa" }, "Value of Statistical Life");
 
     const expectedFileName = "daedalus_value1_value2.xlsx";
     expect(mockWriteFile).toHaveBeenCalledWith(mockWorkbook, expectedFileName);
@@ -174,8 +175,8 @@ describe("excelScenarioDownload", () => {
     const sut = new ExcelScenarioDownload(noInterventions);
     sut.download();
 
-    expect(mockJsonToSheet).toHaveBeenCalledTimes(2);
-    expect(mockAoaToSheet).toHaveBeenCalledTimes(4);
+    expect(mockJsonToSheet).toHaveBeenCalledTimes(1);
+    expect(mockAoaToSheet).toHaveBeenCalledTimes(5);
     const expectedEmptyInterventionData = [["interventionId", "start", "end"]];
     expect(mockAoaToSheet.mock.calls[2][0]).toStrictEqual(expectedEmptyInterventionData);
     expectMockAppendSheet(3, { data: expectedEmptyInterventionData, type: "aoa" }, "Interventions");
