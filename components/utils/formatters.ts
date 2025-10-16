@@ -5,17 +5,22 @@ export const stringIsInteger = (num: string): boolean => {
   return !Number.isNaN(parsed) && parsed.toString() === num;
 };
 
-// Convert strings to human readable format (i.e. with comma-separated thousands).
+// Convert number strings to comma-separated thousands format.
 // TODO: Localize number formatting.
-export const humanReadableInteger = (num: string | undefined): string => {
+export const commaSeparatedNumber = (num: string | undefined): string => {
   if (num === undefined) {
     return "";
   }
-  return stringIsInteger(num) ? new Intl.NumberFormat().format(Number.parseInt(num)) : num;
+  if (num[0] === "-") {
+    return `-${commaSeparatedNumber(num.slice(1))}`;
+  }
+  return stringIsInteger(num)
+    ? new Intl.NumberFormat().format(Number.parseInt(num))
+    : `${commaSeparatedNumber(num.split(".")[0])}.${num.split(".")[1]}`;
 };
 
 export const formatOptionLabel = (parameter: Parameter, label: string) => {
-  return parameter.parameterType === TypeOfParameter.Numeric ? humanReadableInteger(label) : label;
+  return parameter.parameterType === TypeOfParameter.Numeric ? commaSeparatedNumber(label) : label;
 };
 
 export const gdpReferenceYear = "2018";

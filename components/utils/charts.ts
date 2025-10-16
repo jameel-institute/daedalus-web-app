@@ -1,4 +1,5 @@
 import convert, { type HSL } from "color-convert";
+import type { PointOptionsObject } from "highcharts";
 
 export interface colorRgbHsl {
   name: string
@@ -119,6 +120,17 @@ export const chartOptions = {
   },
 } as Highcharts.ChartOptions;
 
+export interface CustomPointOptions {
+  includeInTooltips: boolean
+  costAsGdpPercent?: number
+  scenarioId?: string
+  stackNetTotal?: number
+}
+
+export interface CustomPointOptionsObject extends PointOptionsObject {
+  custom: CustomPointOptions
+}
+
 // The TS declarations for the context object aren't correct, so we declare our own interface:
 // https://github.com/highcharts/highcharts/issues/22281#issuecomment-2516994341
 // The interface appears to be the same as the now defunct Highcharts.TooltipFormatterContextObject class.
@@ -128,8 +140,5 @@ export interface TooltipPointInstance extends Highcharts.Point {
   total: number
   x: number
   y: number
-  custom: {
-    includeInTooltips: boolean
-    costAsGdpPercent: number
-  }
+  custom: CustomPointOptions
 }

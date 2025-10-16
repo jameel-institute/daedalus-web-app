@@ -20,13 +20,24 @@ const valueColor = (value: number, diffing: boolean) => {
   return value > 0 ? "darkred" : "darkgreen";
 };
 
+// A wrapper for abbreviateMillionsDollars that ensures the correct order of negative sign and dollar sign.
+const displayMillionsDollars = (value: number, abbreviateUnits?: boolean, precision?: number) => {
+  const abbr = abbreviateMillionsDollars(value, abbreviateUnits, precision);
+  if (value >= 0) {
+    return `$${abbr.amount} ${abbr.unit}`;
+  } else {
+    const abbrEls = abbr.amount.split("-");
+    return `-$${abbrEls[abbrEls.length - 1]} ${abbr.unit}`;
+  }
+};
+
 const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis: CostBasis, diffing: boolean) => {
+  const val = point.y || 0;
   let valueDisplay;
   if (costBasis === CostBasis.PercentGDP) {
-    valueDisplay = `${humanReadablePercentOfGdp(point.y).percent}%`;
+    valueDisplay = `${humanReadablePercentOfGdp(val).percent}%`;
   } else {
-    const abbr = abbreviateMillionsDollars(point.y || 0, true);
-    valueDisplay = `$${abbr.amount} ${abbr.unit}`;
+    valueDisplay = displayMillionsDollars(val, true);
   }
 
   return `<span style="font-size: 0.8rem;">`
@@ -72,26 +83,28 @@ export const costsChartMultiScenarioStackedTooltip = (
 ) => {
   const contextInstance = context as TooltipPointInstance;
   const point = contextInstance.point;
-  if (!point || !axisParam) {
+  // NB: when some sub-stacks are negative, the `point.total` is the sum of only the positive
+  // sub-stacks, not the actual net total. So we have to calculate that total ourselves.
+  const totalStackValue = point?.custom.stackNetTotal;
+  if (!point || !axisParam || totalStackValue === undefined) {
     return;
   }
 
   let headerText = `${axisParam.label}: <b>${getScenarioLabel(point.category as string, axisParam)}</b>`;
-  const totalLossesText = diffing ? "Total losses relative to baseline:</br>" : "Total losses: ";
-  const totalColor = valueColor(point.total, diffing);
+  const totalLossesText = diffing ? "Net losses relative to baseline:</br>" : "Total losses: ";
+  const totalColor = valueColor(totalStackValue, diffing);
 
   if (costBasis === CostBasis.PercentGDP) {
-    const percentOfGdp = humanReadablePercentOfGdp(point.total);
+    const percentOfGdp = humanReadablePercentOfGdp(totalStackValue);
     headerText = `${headerText}</br></br>${totalLossesText}<b>`
       + `<span style="color: ${totalColor}">${percentOfGdp.percent}%</span>`
       + `</b> ${percentOfGdp.reference}`;
   } else {
-    const abbreviatedTotal = abbreviateMillionsDollars(point.total);
     headerText = `${headerText}<br/></br>${totalLossesText}<b>`
-      + `<span style="color: ${totalColor}">$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</span>`
+      + `<span style="color: ${totalColor}">${displayMillionsDollars(totalStackValue)}</span>`
       + `</b> USD`;
-    if (point.total !== 0) {
-      const totalCostAsGdpPercent = point.points?.map(p => p.custom.costAsGdpPercent).reduce((sum, a) => sum + a, 0);
+    if (totalStackValue !== 0) {
+      const totalCostAsGdpPercent = point.points?.map(p => p.custom.costAsGdpPercent!).reduce((sum, a) => sum + a, 0);
       if (totalCostAsGdpPercent) {
         const percentOfGdp = humanReadablePercentOfGdp(totalCostAsGdpPercent);
         headerText = `${headerText}</br>(${percentOfGdp.percent}% ${percentOfGdp.reference})`;
@@ -125,7 +138,7 @@ interface StackLabelItem extends Highcharts.StackItemObject {
 }
 
 // Labels for (stacked) columns for multi-scenario cost charts
-export const multiScenarioCostsChartStackLabelFormatter = (stackLabelItem: unknown, costBasis: CostBasis) => {
+export const costsChartMultiScenarioStackLabelFormatter = (stackLabelItem: unknown, costBasis: CostBasis, diffing: boolean) => {
   const stackLabel = stackLabelItem as StackLabelItem;
   // If the stack extends both positively and negatively, Highcharts will create two labels for each stack:
   // (A) the total of the positive values, at the top, and (B) the total of the negative values, at the bottom.
@@ -141,7 +154,7 @@ export const multiScenarioCostsChartStackLabelFormatter = (stackLabelItem: unkno
   const xPositionIndex = stackLabel.x;
   // All series expose a dynamically generated stack-key, under 'stackKey'. This appears to always be "column,,," for all series.
   // If there are negative sub-stacks, the key "-column,,," (NB prefaced with "-") is also used.
-  // (Archaeology: this stack-key is generated here: https://github.com/highcharts/highcharts/blob/0892407957a6e6254667dc3abb5c36469780f63d/ts/Core/Axis/Stacking/StackingAxis.ts#L220 )
+  // (Incidentally, this stack-key is generated here: https://github.com/highcharts/highcharts/blob/0892407957a6e6254667dc3abb5c36469780f63d/ts/Core/Axis/Stacking/StackingAxis.ts#L220 )
   const stackKey = stackLabel.axis?.series?.[0]?.stackKey;
   const positiveStacks = stackLabel.axis?.stacking?.stacks?.[stackKey];
   const negativeStacks = stackLabel.axis?.stacking?.stacks?.[`-${stackKey}`];
@@ -160,12 +173,11 @@ export const multiScenarioCostsChartStackLabelFormatter = (stackLabelItem: unkno
   }
 
   const netTotal = positiveTotal + negativeTotal;
-  if (costBasis === CostBasis.PercentGDP) {
-    return `${humanReadablePercentOfGdp(netTotal).percent}% of GDP`;
-  } else if (costBasis === CostBasis.USD) {
-    const abbr = abbreviateMillionsDollars(netTotal, false);
-    return `$${abbr.amount} ${abbr.unit}`;
-  }
+  const totalColor = valueColor(netTotal, diffing);
+
+  return `<span style="color: ${totalColor}">`
+    + `${costBasis === CostBasis.PercentGDP ? `${humanReadablePercentOfGdp(netTotal).percent}%` : displayMillionsDollars(netTotal, true)}`
+    + `${hasBothStackLabels ? " (net)" : ""}</span>`;
 };
 
 export const costsChartYAxisTickFormatter = (value: string | number, costBasis: CostBasis) => {

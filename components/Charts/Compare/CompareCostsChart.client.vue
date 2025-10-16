@@ -3,7 +3,7 @@
     <div
       id="compareCostsChartContainer"
       ref="chartContainer"
-      :data-summary="JSON.stringify(seriesData)"
+      :data-summary="JSON.stringify(seriesSummary)"
     />
   </div>
 </template>
@@ -15,8 +15,8 @@ import "highcharts/esm/modules/exporting";
 import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
-import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions } from "@/components/utils/charts";
-import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartYAxisTickFormatter, costsChartYAxisTitle, multiScenarioCostsChartStackLabelFormatter } from "~/components/Charts/utils/costCharts";
+import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, type CustomPointOptionsObject, menuItemDefinitionOptions } from "@/components/utils/charts";
+import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioStackLabelFormatter, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartYAxisTickFormatter, costsChartYAxisTitle } from "~/components/Charts/utils/costCharts";
 import { costAsPercentOfGdp } from "@/components/utils/formatters";
 import { CostBasis } from "@/types/unitTypes";
 import { debounce } from "perfect-debounce";
@@ -27,7 +27,7 @@ const props = defineProps<{
 
 const appStore = useAppStore();
 let chart: Highcharts.Chart;
-const seriesData = ref<Highcharts.SeriesColumnOptions[]>([]); // This only exists for testing purposes
+const seriesSummary = ref<Highcharts.SeriesColumnOptions[]>([]); // This only exists for testing purposes
 const chartContainer = ref<HTMLElement | null>(null);
 const chartParentEl = computed(() => chartContainer.value?.parentElement);
 const scenarios = computed(() => {
@@ -53,31 +53,56 @@ const chartTitle = computed(() => {
 const getSeries = (): Highcharts.SeriesColumnOptions[] => {
   // Take the first scenario's costs as an example to find out what the second-level breakdowns are.
   const secondLevelCostIds = scenarios.value[0].result.data?.costs[0].children?.map(c => c.id) || [];
-  seriesData.value = secondLevelCostIds?.map((costId, index) => ({
-    type: "column",
-    name: appStore.getCostLabel(costId),
-    borderWidth: 1,
-    borderColor: costsChartPalette[index].rgb,
-    zIndex: secondLevelCostIds.length - index, // Ensure that stack segments are in front of each other from top to bottom.
-    data: scenarios.value.map((scenario) => {
-      const subCost = scenario.result.data?.costs[0].children?.find(c => c.id === costId);
-      const matchingBaselineCost = appStore.baselineScenario?.result.data?.costs[0].children?.find(c => c.id === costId);
-      const dollarValue = props.diffing && subCost?.value && matchingBaselineCost?.value
-        ? subCost?.value - matchingBaselineCost?.value
-        : subCost?.value;
-      // costAsGdpPercent is calculated here since the national GDP may vary by scenario if the axis is 'country'.
-      const costAsGdpPercent = costAsPercentOfGdp(dollarValue, scenario.result.data?.gdp);
-      const y = costBasis.value === CostBasis.PercentGDP ? costAsGdpPercent : dollarValue;
-      const name = appStore.getCostLabel(subCost?.id || "");
-      return {
-        y,
-        name,
-        custom: { costAsGdpPercent },
-      };
-    }),
-  } as Highcharts.SeriesColumnOptions)) || [];
+  const allSeries = secondLevelCostIds?.map((costId, index) => {
+    return {
+      type: "column" as Highcharts.SeriesColumnOptions["type"],
+      name: appStore.getCostLabel(costId),
+      borderWidth: 1,
+      borderColor: costsChartPalette[index].rgb,
+      zIndex: secondLevelCostIds.length - index, // Ensure that stack segments are in front of each other from top to bottom.
+      data: scenarios.value.map((scenario) => {
+        const subCost = scenario.result.data?.costs[0].children?.find(c => c.id === costId);
+        const matchingBaselineCost = appStore.baselineScenario?.result.data?.costs[0].children?.find(c => c.id === costId);
+        const dollarValue = props.diffing && subCost?.value && matchingBaselineCost?.value
+          ? subCost?.value - matchingBaselineCost?.value
+          : subCost?.value;
+        // costAsGdpPercent is calculated here since the national GDP may vary by scenario if the axis is 'country'.
+        const costAsGdpPercent = costAsPercentOfGdp(dollarValue, scenario.result.data?.gdp);
+        const y = costBasis.value === CostBasis.PercentGDP ? costAsGdpPercent : dollarValue;
+        const name = appStore.getCostLabel(subCost?.id || "");
+        return {
+          y,
+          name,
+          custom: {
+            costAsGdpPercent,
+            scenarioId: scenario.runId,
+          },
+        } as CustomPointOptionsObject;
+      }),
+    };
+  }) || [];
 
-  return seriesData.value;
+  // NB: when some sub-stacks are negative, the stack total produced by Highcharts is the sum of only the positive
+  // sub-stacks, not the actual net total. So we have to calculate that total ourselves.
+  const flatData = allSeries.flatMap(s => s.data as CustomPointOptionsObject[]);
+  allSeries.forEach((ser) => {
+    const newData = ser.data?.map((dataPoint) => {
+      const stackNetTotal = flatData
+        .filter(({ custom }) => custom.scenarioId === dataPoint.custom.scenarioId)
+        .reduce((acc, { y }) => acc + y!, 0);
+      return {
+        ...dataPoint,
+        custom: {
+          ...dataPoint.custom,
+          stackNetTotal,
+        },
+      };
+    });
+    ser.data = newData;
+  });
+
+  seriesSummary.value = allSeries;
+  return seriesSummary.value;
 };
 
 const chartHeightPx = 500;
@@ -136,8 +161,11 @@ const chartInitialOptions = () => {
       title: { text: costsChartYAxisTitle(costBasis.value, props.diffing) },
       stackLabels: {
         enabled: true,
+        style: {
+          fontWeight: 500,
+        },
         formatter() {
-          return multiScenarioCostsChartStackLabelFormatter(this, costBasis.value);
+          return costsChartMultiScenarioStackLabelFormatter(this, costBasis.value, props.diffing);
         },
       },
       labels: {
