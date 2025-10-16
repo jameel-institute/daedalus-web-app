@@ -16,7 +16,7 @@ import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
 import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions } from "@/components/utils/charts";
-import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, costsChartYAxisTitle } from "~/components/Charts/utils/costCharts";
+import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartYAxisTickFormatter, costsChartYAxisTitle, multiScenarioCostsChartStackLabelFormatter } from "~/components/Charts/utils/costCharts";
 import { costAsPercentOfGdp } from "@/components/utils/formatters";
 import { CostBasis } from "@/types/unitTypes";
 import { debounce } from "perfect-debounce";
@@ -137,7 +137,7 @@ const chartInitialOptions = () => {
       stackLabels: {
         enabled: true,
         formatter() {
-          return costsChartStackLabelFormatter(this.total, costBasis.value);
+          return multiScenarioCostsChartStackLabelFormatter(this, costBasis.value);
         },
       },
       labels: {

@@ -104,12 +104,66 @@ export const costsChartMultiScenarioStackedTooltip = (
   return `<span style="font-size: 0.8rem;">${headerText}<br/><br/>${pointsText}</span>`;
 };
 
-// Labels for (stacked) columns
+// Labels for (stacked) columns for single scenario cost charts
 export const costsChartStackLabelFormatter = (value: number, costBasis: CostBasis) => {
   if (costBasis === CostBasis.PercentGDP) {
-    return `${value.toFixed(1)}% of GDP`;
+    return `${humanReadablePercentOfGdp(value).percent}% of GDP`;
   } else if (costBasis === CostBasis.USD) {
     const abbr = abbreviateMillionsDollars(value, false);
+    return `$${abbr.amount} ${abbr.unit}`;
+  }
+};
+
+// The TS declarations for the stack item object aren't correct, so we declare our own interface:
+interface StackLabelItem extends Highcharts.StackItemObject {
+  axis: Highcharts.StackItemObject["axis"] & {
+    series: Array<Highcharts.Series & { stackKey: string }>
+    stacking: {
+      stacks: Record<string, Record<string, Highcharts.StackItemObject>>
+    }
+  }
+}
+
+// Labels for (stacked) columns for multi-scenario cost charts
+export const multiScenarioCostsChartStackLabelFormatter = (stackLabelItem: unknown, costBasis: CostBasis) => {
+  const stackLabel = stackLabelItem as StackLabelItem;
+  // If the stack extends both positively and negatively, Highcharts will create two labels for each stack:
+  // (A) the total of the positive values, at the top, and (B) the total of the negative values, at the bottom.
+  // We only want to show one stack label in each stack, with the label showing instead a *net* total for the whole stack.
+
+  // To identify how many stack labels belong to the current stack:
+  // 1) Check stackLabelItem.axis.stacking.stacks to get all of the stack labels, which are keyed by their x-positional index,
+  // nested under a dynamically generated key (the 'stack-key').
+  // 2) If the current x-positional index exists at both, we can then tell which of the pos and neg stack labels we are dealing with
+  // here by checking if the current stack total is negative.
+
+  // xPositionIndex identifies stack labels by the index of the column they belong to.
+  const xPositionIndex = stackLabel.x;
+  // All series expose a dynamically generated stack-key, under 'stackKey'. This appears to always be "column,,," for all series.
+  // If there are negative sub-stacks, the key "-column,,," (NB prefaced with "-") is also used.
+  // (Archaeology: this stack-key is generated here: https://github.com/highcharts/highcharts/blob/0892407957a6e6254667dc3abb5c36469780f63d/ts/Core/Axis/Stacking/StackingAxis.ts#L220 )
+  const stackKey = stackLabel.axis?.series?.[0]?.stackKey;
+  const positiveStacks = stackLabel.axis?.stacking?.stacks?.[stackKey];
+  const negativeStacks = stackLabel.axis?.stacking?.stacks?.[`-${stackKey}`];
+  const hasBothStackLabels = positiveStacks?.[xPositionIndex] && negativeStacks?.[xPositionIndex];
+  const positiveTotal = positiveStacks?.[xPositionIndex]?.total || 0;
+  const negativeTotal = negativeStacks?.[xPositionIndex]?.total || 0;
+  if (hasBothStackLabels) {
+    // Omit the least significant stack label if two labels exist for the current stack.
+    // Note that there are three possibilities: we could have a positive label, a negative label, or both.
+    const thisStackIsBigger = stackLabel.isNegative
+      ? Math.abs(negativeTotal) >= Math.abs(positiveTotal)
+      : Math.abs(positiveTotal) >= Math.abs(negativeTotal);
+    if (!thisStackIsBigger) {
+      return "";
+    }
+  }
+
+  const netTotal = positiveTotal + negativeTotal;
+  if (costBasis === CostBasis.PercentGDP) {
+    return `${humanReadablePercentOfGdp(netTotal).percent}% of GDP`;
+  } else if (costBasis === CostBasis.USD) {
+    const abbr = abbreviateMillionsDollars(netTotal, false);
     return `$${abbr.amount} ${abbr.unit}`;
   }
 };
