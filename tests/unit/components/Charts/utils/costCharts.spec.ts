@@ -1,7 +1,7 @@
 import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter } from "~/components/Charts/utils/costCharts";
 import { CostBasis } from "~/types/unitTypes";
 import { mockMetadataResponseData } from "../../../mocks/mockResponseData";
-import { TypeOfParameter } from "~/types/parameterTypes";
+import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 
 describe("costsChartPalette", () => {
   it("should be 3 colors long", () => {
@@ -54,7 +54,7 @@ describe("single-scenario costs chart tooltip text for stacked column", () => {
   it("should return the correct text for the stack's tooltip, when cost basis is percent of GDP", () => {
     const tooltipText = costsChartSingleScenarioTooltip(tooltipPointInstance, CostBasis.PercentGDP, 2_222_222);
     expect(tooltipText).toMatch(
-      /Life years losses.*2000%.* of pre-pandemic GDP.*#FF0000.*Working-age adults.*999%.*#00FF00.*Children.*0%/,
+      /Life years losses.*2,000%.* of pre-pandemic GDP.*#FF0000.*Working-age adults.*999%.*#00FF00.*Children.*0%/,
     );
     expect(tooltipText).not.toMatch(/Do not include in tooltips/i);
   });
@@ -64,7 +64,7 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
   const contextInstance = {
     point: {
       category: undefined,
-      total: undefined,
+      custom: { },
       points: [{
         color: "#FF0000",
         custom: {
@@ -92,27 +92,61 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
 
   describe("when the axis parameter is not numeric", () => {
     const context = structuredClone(contextInstance);
-    const vaccineParam = mockMetadataResponseData.parameters.find(p => p.id === "vaccine");
+    const vaccineParam = mockMetadataResponseData.parameters.find(p => p.id === "vaccine") as Parameter;
+    context.point.category = "high";
+    const notDiffingHeader = "Total losses";
+    const diffingHeader = "Net losses relative to baseline";
 
-    it("should return the correct text for the stack's tooltip, when cost basis is USD", () => {
-      context.point.category = "high";
-      context.point.total = 1885507.7183;
-      const tooltipText = costsChartMultiScenarioStackedTooltip(context, CostBasis.USD, vaccineParam);
-      expect(tooltipText).toMatch(
-        /Global vaccine investment:.*High.*Total losses:.*\$1.9 trillion.*USD.*74.0% of pre-pandemic GDP.*#FF0000.*GDP.*\$97.4 B.*#00FF00.*Education.*\$2.7 B.*#0000FF.*\$1.8 T/,
-      );
+    describe("when cost basis is USD", () => {
+      const nonNumericUSDMatcher = (param: Parameter, header: string, total: string, firstSubtotal: string) => {
+        return new RegExp(`${param?.label}:.*High.*${header}:.*${total}.*74.0% of pre-pandemic GDP.*#FF0000.*GDP.*${firstSubtotal}.*#00FF00.*Education.*\\$2.7 B.*#0000FF.*\\$1.8 T`);
+      };
+
+      it("should return the correct text for the stack's tooltip, when chart is NOT diffing", () => {
+        context.point.custom = { stackNetTotal: 1885507.7183 };
+        const tooltipText = costsChartMultiScenarioStackedTooltip(context, CostBasis.USD, vaccineParam, false);
+        const expectedTooltipTotalText = "\\$1.9 trillion.*USD";
+        const expectedSubtotalTextForFirstPoint = "\\$97.4 B";
+        expect(tooltipText).toMatch(nonNumericUSDMatcher(vaccineParam, notDiffingHeader, expectedTooltipTotalText, expectedSubtotalTextForFirstPoint));
+      });
+
+      it("should return the correct text for the stack's tooltip, when chart IS diffing", () => {
+        context.point.custom = { stackNetTotal: -1885507.7183 };
+        context.point.points[0].y = -97364.2025;
+        const tooltipText = costsChartMultiScenarioStackedTooltip(context, CostBasis.USD, vaccineParam, true);
+        // Testing display of negative values
+        const expectedTooltipTotalText = "-\\$1.9 trillion.*USD";
+        const expectedSubtotalTextForFirstPoint = "-\\$97.4 B";
+        expect(tooltipText).toMatch(nonNumericUSDMatcher(vaccineParam, diffingHeader, expectedTooltipTotalText, expectedSubtotalTextForFirstPoint));
+      });
     });
 
-    it("should return the correct text for the stack's tooltip, when cost basis is percent of GDP", () => {
-      context.point.category = "high";
-      context.point.total = 73.982491560811;
-      context.point.points[0].y = 3.820321826248465;
-      context.point.points[1].y = 0.10534318554003114;
-      context.point.points[2].y = 70.05682654902341;
-      const tooltipText = costsChartMultiScenarioStackedTooltip(context, CostBasis.PercentGDP, vaccineParam);
-      expect(tooltipText).toMatch(
-        /Global vaccine investment:.*High.*Total losses:.*74.0%.* of pre-pandemic GDP.*#FF0000.*GDP.*3.8%.*#00FF00.*Education.*0.1%.*#0000FF.*70.1%/,
-      );
+    describe("when cost basis is percent of GDP", () => {
+      const nonNumericGDPMatcher = (param: Parameter, header: string, total: string, firstSubtotal: string) => {
+        return new RegExp(`${param?.label}:.*High.*${header}:.*${total}.*#FF0000.*GDP.*${firstSubtotal}.*#00FF00.*Education.*0.1%.*#0000FF.*70.1%`);
+      };
+
+      it("should return the correct text for the stack's tooltip, when chart is NOT diffing", () => {
+        context.point.custom = { stackNetTotal: 73.982491560811 };
+        context.point.points[0].y = 3.820321826248465;
+        context.point.points[1].y = 0.10534318554003114;
+        context.point.points[2].y = 70.05682654902341;
+        const expectedTooltipTotalText = "74.0%.* of pre-pandemic GDP";
+        const expectedSubtotalTextForFirstPoint = "3.8%";
+        const tooltipText = costsChartMultiScenarioStackedTooltip(context, CostBasis.PercentGDP, vaccineParam, false);
+        expect(tooltipText).toMatch(nonNumericGDPMatcher(vaccineParam, notDiffingHeader, expectedTooltipTotalText, expectedSubtotalTextForFirstPoint));
+      });
+
+      it("should return the correct text for the stack's tooltip, when chart IS diffing", () => {
+        context.point.custom = { stackNetTotal: -73.982491560811 };
+        context.point.points[0].y = -3.820321826248465;
+        context.point.points[1].y = 0.10534318554003114;
+        context.point.points[2].y = 70.05682654902341;
+        const expectedTooltipTotalText = "-74.0%.* of pre-pandemic GDP";
+        const expectedSubtotalTextForFirstPoint = "-3.8%";
+        const tooltipText = costsChartMultiScenarioStackedTooltip(context, CostBasis.PercentGDP, vaccineParam, true);
+        expect(tooltipText).toMatch(nonNumericGDPMatcher(vaccineParam, diffingHeader, expectedTooltipTotalText, expectedSubtotalTextForFirstPoint));
+      });
     });
   });
 
@@ -122,7 +156,7 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
 
     it("should return the correct text for the stack's tooltip, when cost basis is USD", () => {
       context.point.category = "12345";
-      context.point.total = 1885507.7183;
+      context.point.stackNetTotal = 1885507.7183;
       const tooltipText = costsChartMultiScenarioStackedTooltip(context, CostBasis.USD, hospitalCapacityParam);
       expect(tooltipText).toMatch(
         /Hospital surge capacity:.*12,345.*Total losses:.*\$1.9 trillion.*USD.*74.0% of pre-pandemic GDP.*#FF0000.*GDP.*\$97.4 B.*#00FF00.*Education.*\$2.7 B.*#0000FF.*\$1.8 T/,
@@ -131,7 +165,7 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
 
     it("should return the correct text for the stack's tooltip, when cost basis is percent of GDP", () => {
       context.point.category = "12345";
-      context.point.total = 73.982491560811;
+      context.point.stackNetTotal = 73.982491560811;
       context.point.points[0].y = 3.820321826248465;
       context.point.points[1].y = 0.10534318554003114;
       context.point.points[2].y = 70.05682654902341;
