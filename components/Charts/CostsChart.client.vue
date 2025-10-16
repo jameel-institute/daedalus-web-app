@@ -14,7 +14,8 @@ import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
 import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, getColorVariants, menuItemDefinitionOptions } from "~/components/utils/charts";
-import { costsChartPalette, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, costsChartYAxisTitle } from "./utils/costCharts";
+import { costsChartPalette, costsChartYAxisTickFormatter, costsChartYAxisTitle } from "./utils/costCharts";
+import { costsChartSingleScenarioStackLabelFormatter, costsChartSingleScenarioTooltip } from "./utils/singleScenarioCostCharts";
 import { costAsPercentOfGdp } from "../utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import { debounce } from "perfect-debounce";
@@ -137,7 +138,7 @@ const chartInitialOptions = () => {
       stackLabels: {
         enabled: true,
         formatter() {
-          return costsChartStackLabelFormatter(this.total, appStore.preferences.costBasis);
+          return costsChartSingleScenarioStackLabelFormatter(this.total, appStore.preferences.costBasis);
         },
       },
       labels: {
