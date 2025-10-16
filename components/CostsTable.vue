@@ -143,7 +143,7 @@
 
 <script lang="ts" setup>
 import { CIcon } from "@coreui/icons-vue";
-import { costAsPercentOfGdp, humanReadableInteger, humanReadablePercentOfGdp } from "./utils/formatters";
+import { commaSeparatedNumber, costAsPercentOfGdp, humanReadablePercentOfGdp } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import type { Scenario } from "~/types/storeTypes";
 
@@ -168,7 +168,7 @@ const vslVariesByScenario = computed(() => {
 
 const vslLabel = (scenario: Scenario) => {
   const vsl = appStore.getScenarioLifeValue(scenario);
-  return `${humanReadableInteger(vsl)} Int'l$`;
+  return `${commaSeparatedNumber(vsl)} Int'l$`;
 };
 
 const displayValue = (scenario: Scenario, costId: string): string | undefined => {

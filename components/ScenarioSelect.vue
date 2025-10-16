@@ -97,7 +97,7 @@
     </div>
     <div v-else-if="showWarning" class="invalid-tooltip bg-warning">
       {{ valuesOutOfRange.length === 1 ? 'One' : 'Some' }} of the values
-      ({{ valuesOutOfRange.map(humanReadableInteger).join(", ") }})
+      ({{ valuesOutOfRange.map(commaSeparatedNumber).join(", ") }})
       {{ valuesOutOfRange.length === 1 ? 'lies' : 'lie' }} outside of the estimated range for {{ rangeText }}.
       Proceed with caution.
     </div>
@@ -110,7 +110,7 @@ import VueSelect from "vue3-select-component";
 import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE, MIN_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
 import type { ParameterSelectOption } from "./utils/parameters";
-import { formatOptionLabel, humanReadableInteger, stringIsInteger } from "./utils/formatters";
+import { commaSeparatedNumber, formatOptionLabel, stringIsInteger } from "./utils/formatters";
 import { getRangeForDependentParam, sortOptions } from "./utils/parameters";
 import { numericValueIsOutOfRange } from "~/components/utils/validations";
 import { countryFlagClass } from "~/components/utils/countryFlag";
