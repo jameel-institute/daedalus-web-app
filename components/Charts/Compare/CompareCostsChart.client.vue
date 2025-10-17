@@ -16,7 +16,7 @@ import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
 import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, type CustomPointOptionsObject, menuItemDefinitionOptions } from "@/components/utils/charts";
-import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioStackLabelFormatter, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartYAxisTickFormatter, costsChartYAxisTitle } from "~/components/Charts/utils/costCharts";
+import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioStackLabelFormatter, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartYAxisTickFormatter, costsChartYAxisTitle, thickPlotLineForDiffedChart } from "~/components/Charts/utils/costCharts";
 import { costAsPercentOfGdp } from "@/components/utils/formatters";
 import { CostBasis } from "@/types/unitTypes";
 import { debounce } from "perfect-debounce";
@@ -39,7 +39,7 @@ const costBasis = computed(() => appStore.preferences.costBasis);
 const chartTitle = computed(() => {
   const firstScenarioTimeSeries = appStore.currentComparison.scenarios[0].result?.data?.time_series;
   const scenarioDuration = Object.values(firstScenarioTimeSeries || {})[0].length - 1;
-  return `Losses${props.diffing ? " relative to baseline" : " "}after ${scenarioDuration} days`;
+  return `Losses ${props.diffing ? "relative to baseline " : ""}after ${scenarioDuration} days`;
 });
 
 // There are 3 levels of data breakdown for costs:
@@ -154,12 +154,7 @@ const chartInitialOptions = () => {
     yAxis: {
       gridLineColor: "lightgrey",
       min: props.diffing ? undefined : 0,
-      plotLines: props.diffing
-        ? [{
-            value: 0,
-            width: 2,
-          }]
-        : [],
+      plotLines: props.diffing ? [thickPlotLineForDiffedChart] : [],
       title: { text: costsChartYAxisTitle(costBasis.value, props.diffing) },
       stackLabels: {
         enabled: true,
@@ -226,12 +221,7 @@ watch(() => props.diffing, () => {
       title: {
         text: costsChartYAxisTitle(costBasis.value, props.diffing),
       },
-      plotLines: props.diffing
-        ? [{
-            value: 0,
-            width: 2,
-          }]
-        : [],
+      plotLines: props.diffing ? [thickPlotLineForDiffedChart] : [],
     },
     series: getSeries(),
   });

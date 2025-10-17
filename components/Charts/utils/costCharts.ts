@@ -8,6 +8,8 @@ import { colorBlindSafeSmallPalette, type TooltipPointInstance } from "../../uti
 
 export const costsChartPalette = colorBlindSafeSmallPalette;
 
+export const thickPlotLineForDiffedChart = { value: 0, color: "black", zIndex: 1 };
+
 export const costsChartYAxisTitle = (costBasis: CostBasis, diffing?: boolean) => {
   const lossesText = diffing ? "Relative losses" : "Losses";
   return `${lossesText} ${costBasis === CostBasis.PercentGDP ? "as % of GDP" : "in billions USD"}`;
