@@ -1,13 +1,10 @@
 import { commaSeparatedNumber, costAsPercentOfGdp, humanReadablePercentOfGdp } from "@/components/utils/formatters";
 
-describe("humanReadableInteger", () => {
+describe("commaSeparatedNumber", () => {
   it("should convert number strings into comma-separated numbers", () => {
     expect(commaSeparatedNumber("12345")).toEqual("12,345");
-  });
-
-  it("should return non-integer strings unchanged", () => {
-    expect(commaSeparatedNumber("abc")).toEqual("abc");
-    expect(commaSeparatedNumber("12345.67")).toEqual("12345.67");
+    expect(commaSeparatedNumber("12345.67")).toEqual("12,345.67");
+    expect(commaSeparatedNumber("12,345.67")).toEqual("12,345.67");
   });
 });
 

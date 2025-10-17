@@ -14,6 +14,7 @@ export const commaSeparatedNumber = (num: string | undefined): string => {
   if (num[0] === "-") {
     return `-${commaSeparatedNumber(num.slice(1))}`;
   }
+  num = num.replace(/,/g, "");
   return stringIsInteger(num)
     ? new Intl.NumberFormat().format(Number.parseInt(num))
     : `${commaSeparatedNumber(num.split(".")[0])}.${num.split(".")[1]}`;
