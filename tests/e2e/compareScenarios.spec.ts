@@ -82,19 +82,19 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
   expect(gdpSeries.data.length).toBe(3);
   expect(gdpSeries.data.map((dataPoint: any) => dataPoint.name)).toEqual(["GDP", "GDP", "GDP"]);
   checkValueIsInRange(gdpSeries.data[0].y, 6_700_000, costTolerance);
-  checkValueIsInRange(gdpSeries.data[1].y, 5_500_000, costTolerance);
+  checkValueIsInRange(gdpSeries.data[1].y, 7_300_000, costTolerance);
   checkValueIsInRange(gdpSeries.data[2].y, 5_300_000, costTolerance);
   checkValueIsInRange(gdpSeries.data[0].custom.costAsGdpPercent, 34, costTolerance);
-  checkValueIsInRange(gdpSeries.data[1].custom.costAsGdpPercent, 28, costTolerance);
+  checkValueIsInRange(gdpSeries.data[1].custom.costAsGdpPercent, 37, costTolerance);
   checkValueIsInRange(gdpSeries.data[2].custom.costAsGdpPercent, 27, costTolerance);
 
   expect(educationSeries.data.length).toBe(3);
   expect(educationSeries.data.map((dataPoint: any) => dataPoint.name)).toEqual(["Education", "Education", "Education"]); // Not you, Tony!
   checkValueIsInRange(educationSeries.data[0].y, 4_700_000, costTolerance);
-  checkValueIsInRange(educationSeries.data[1].y, 3_900_000, costTolerance);
+  checkValueIsInRange(educationSeries.data[1].y, 5_400_000, costTolerance);
   checkValueIsInRange(educationSeries.data[2].y, 3_800_000, costTolerance);
   checkValueIsInRange(educationSeries.data[0].custom.costAsGdpPercent, 23, costTolerance);
-  checkValueIsInRange(educationSeries.data[1].custom.costAsGdpPercent, 20, costTolerance);
+  checkValueIsInRange(educationSeries.data[1].custom.costAsGdpPercent, 27, costTolerance);
   checkValueIsInRange(educationSeries.data[2].custom.costAsGdpPercent, 19, costTolerance);
 
   expect(lifeYearsSeries.data.length).toBe(3);

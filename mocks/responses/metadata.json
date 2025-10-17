@@ -780,6 +780,10 @@
           "label": "Retirement-age adults"
         }
       ],
+      "metrics": [
+        { "id": "usd_millions", "label": "USD" },
+        { "id": "life_years", "label": "life years" }
+      ],
       "capacities": [
         {
           "id": "hospital_capacity",

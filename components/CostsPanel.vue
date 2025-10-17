@@ -72,17 +72,20 @@ import { CIcon } from "@coreui/icons-vue";
 
 const appStore = useAppStore();
 
-const totalCost = computed(() => appStore.getScenarioTotalCost(appStore.currentScenario));
+const totalCostUSD = computed(() => {
+  const totalCost = appStore.getScenarioTotalCost(appStore.currentScenario);
+  return totalCost?.values.find(c => c.metric === USD_METRIC)?.value;
+});
 
 // Display the 'headline' total cost in terms of a percentage of annual national GDP
 const gdpTotalCostPercent = computed(() => {
-  const totalAsPercentOfGdp = costAsPercentOfGdp(totalCost.value?.value, appStore.currentScenario.result.data?.gdp);
+  const totalAsPercentOfGdp = costAsPercentOfGdp(totalCostUSD.value, appStore.currentScenario.result.data?.gdp);
   return humanReadablePercentOfGdp(totalAsPercentOfGdp).percent;
 });
 
 const totalCostAbbr = computed(() => {
-  if (totalCost.value) {
-    return abbreviateMillionsDollars(totalCost.value?.value, true);
+  if (totalCostUSD.value !== undefined) {
+    return abbreviateMillionsDollars(totalCostUSD.value, true);
   } else {
     return undefined;
   }

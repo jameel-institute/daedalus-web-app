@@ -62,10 +62,12 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
       zIndex: secondLevelCostIds.length - index, // Ensure that stack segments are in front of each other from top to bottom.
       data: scenarios.value.map((scenario) => {
         const subCost = scenario.result.data?.costs[0].children?.find(c => c.id === costId);
+        const subCostDollarAmount = getDollarValueFromCost(subCost);
         const matchingBaselineCost = appStore.baselineScenario?.result.data?.costs[0].children?.find(c => c.id === costId);
-        const dollarValue = props.diffing && subCost?.value && matchingBaselineCost?.value
-          ? subCost?.value - matchingBaselineCost?.value
-          : subCost?.value;
+        const baselineCostDollarAmount = getDollarValueFromCost(matchingBaselineCost);
+        const dollarValue = props.diffing && subCostDollarAmount && baselineCostDollarAmount
+          ? subCostDollarAmount - baselineCostDollarAmount
+          : subCostDollarAmount;
         // costAsGdpPercent is calculated here since the national GDP may vary by scenario if the axis is 'country'.
         const costAsGdpPercent = costAsPercentOfGdp(dollarValue, scenario.result.data?.gdp);
         const y = costBasis.value === CostBasis.PercentGDP ? costAsGdpPercent : dollarValue;

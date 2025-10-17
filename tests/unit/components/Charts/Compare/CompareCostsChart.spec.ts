@@ -22,9 +22,9 @@ lowVaccineScenario.result.data.costs = [
     id: "total",
     value: 60000,
     children: [
-      { id: "gdp", value: 10000 },
-      { id: "education", value: 20000 },
-      { id: "life_years", value: 30000 },
+      { id: "gdp", values: [{ metric: "usd_millions", value: 10000 }] },
+      { id: "education", values: [{ metric: "usd_millions", value: 20000 }] },
+      { id: "life_years", values: [{ metric: "usd_millions", value: 30000 }] },
     ],
   },
 ];

@@ -19,22 +19,43 @@ const scenario1 = {
     data: {
       costs: [{
         id: "total",
-        value: 1000000,
+        values: [{ metric: "usd_millions", value: 1000000 }],
         children: [
           {
             id: "gdp",
-            value: 400000,
+            values: [{ metric: "usd_millions", value: 400000 }],
             children: [
-              { id: "gdp_closures", value: 100000, children: null },
-              { id: "gdp_absences", value: 300000, children: null },
+              {
+                id: "gdp_closures",
+                values: [{ metric: "usd_millions", value: 100000 }],
+              },
+              {
+                id: "gdp_absences",
+                values: [{ metric: "usd_millions", value: 300000 }],
+              },
             ],
           },
           {
             id: "life_years",
-            value: 600000,
+            values: [
+              { metric: "usd_millions", value: 600000 },
+              { metric: "life_years", value: 60000 },
+            ],
             children: [
-              { id: "life_years_children", value: 200000, children: null },
-              { id: "life_years_adults", value: 400000, children: null },
+              {
+                id: "life_years_children",
+                values: [
+                  { metric: "usd_millions", value: 200000 },
+                  { metric: "life_years", value: 20000 },
+                ],
+              },
+              {
+                id: "life_years_adults",
+                values: [
+                  { metric: "usd_millions", value: 400000 },
+                  { metric: "life_years", value: 40000 },
+                ],
+              },
             ],
           },
         ],
@@ -51,6 +72,13 @@ const scenario1 = {
         prevalence: [10, 20, 30],
         deaths: [0, 1, 2],
       },
+      vsl: {
+        average: 5000000,
+        pre_school: 1000000,
+        school_age: 2000000,
+        working_age: 3000000,
+        retirement_age: 4000000,
+      },
     },
   },
 } as any;
@@ -65,22 +93,43 @@ const scenario2 = {
     data: {
       costs: [{
         id: "total",
-        value: 1000001,
+        values: [{ metric: "usd_millions", value: 1000001 }],
         children: [
           {
             id: "gdp",
-            value: 400001,
+            values: [{ metric: "usd_millions", value: 400001 }],
             children: [
-              { id: "gdp_closures", value: 100001, children: null },
-              { id: "gdp_absences", value: 300001, children: null },
+              {
+                id: "gdp_closures",
+                values: [{ metric: "usd_millions", value: 100001 }],
+              },
+              {
+                id: "gdp_absences",
+                values: [{ metric: "usd_millions", value: 300001 }],
+              },
             ],
           },
           {
             id: "life_years",
-            value: 600001,
+            values: [
+              { metric: "usd_millions", value: 600001 },
+              { metric: "life_years", value: 60001 },
+            ],
             children: [
-              { id: "life_years_children", value: 200001, children: null },
-              { id: "life_years_adults", value: 400001, children: null },
+              {
+                id: "life_years_children",
+                values: [
+                  { metric: "usd_millions", value: 200001 },
+                  { metric: "life_years", value: 20001 },
+                ],
+              },
+              {
+                id: "life_years_adults",
+                values: [
+                  { metric: "usd_millions", value: 400001 },
+                  { metric: "life_years", value: 40001 },
+                ],
+              },
             ],
           },
         ],
@@ -95,6 +144,13 @@ const scenario2 = {
       time_series: {
         prevalence: [101, 201, 301],
         deaths: [1, 11, 21],
+      },
+      vsl: {
+        average: 5000000.1,
+        pre_school: 1000000.2,
+        school_age: 2000000.3,
+        working_age: 3000000.4,
+        retirement_age: 4000000.5,
       },
     },
   },
@@ -113,27 +169,34 @@ describe("excelComparisonDownload", () => {
 
     const s1Common = ["abcd", "value1", "value2"];
     const s2Common = ["fghi", "value10", "value20"];
-    const costUnit = "millions USD";
+    const usdMetric = "usd_millions";
+    const lifeYearsMetric = "life_years";
 
     expect(mockBookNew).toHaveBeenCalled();
 
     const expectedCostsData = [
-      ["runId", "param1", "param2", "costId", "unit", "value"],
-      [...s1Common, "total", costUnit, 1000000],
-      [...s1Common, "gdp", costUnit, 400000],
-      [...s1Common, "gdp_closures", costUnit, 100000],
-      [...s1Common, "gdp_absences", costUnit, 300000],
-      [...s1Common, "life_years", costUnit, 600000],
-      [...s1Common, "life_years_children", costUnit, 200000],
-      [...s1Common, "life_years_adults", costUnit, 400000],
+      ["runId", "param1", "param2", "costId", "metric", "value"],
+      [...s1Common, "total", usdMetric, 1000000],
+      [...s1Common, "gdp", usdMetric, 400000],
+      [...s1Common, "gdp_closures", usdMetric, 100000],
+      [...s1Common, "gdp_absences", usdMetric, 300000],
+      [...s1Common, "life_years", usdMetric, 600000],
+      [...s1Common, "life_years", lifeYearsMetric, 60000],
+      [...s1Common, "life_years_children", usdMetric, 200000],
+      [...s1Common, "life_years_children", lifeYearsMetric, 20000],
+      [...s1Common, "life_years_adults", usdMetric, 400000],
+      [...s1Common, "life_years_adults", lifeYearsMetric, 40000],
 
-      [...s2Common, "total", costUnit, 1000001],
-      [...s2Common, "gdp", costUnit, 400001],
-      [...s2Common, "gdp_closures", costUnit, 100001],
-      [...s2Common, "gdp_absences", costUnit, 300001],
-      [...s2Common, "life_years", costUnit, 600001],
-      [...s2Common, "life_years_children", costUnit, 200001],
-      [...s2Common, "life_years_adults", costUnit, 400001],
+      [...s2Common, "total", usdMetric, 1000001],
+      [...s2Common, "gdp", usdMetric, 400001],
+      [...s2Common, "gdp_closures", usdMetric, 100001],
+      [...s2Common, "gdp_absences", usdMetric, 300001],
+      [...s2Common, "life_years", usdMetric, 600001],
+      [...s2Common, "life_years", lifeYearsMetric, 60001],
+      [...s2Common, "life_years_children", usdMetric, 200001],
+      [...s2Common, "life_years_children", lifeYearsMetric, 20001],
+      [...s2Common, "life_years_adults", usdMetric, 400001],
+      [...s2Common, "life_years_adults", lifeYearsMetric, 40001],
     ];
     expect(mockAoaToSheet.mock.calls[0]).toStrictEqual([expectedCostsData]);
     expectMockAppendSheet(0, { data: expectedCostsData, type: "aoa" }, "Costs");
@@ -168,6 +231,22 @@ describe("excelComparisonDownload", () => {
     ];
     expect(mockAoaToSheet.mock.calls[3]).toStrictEqual([expectedTimeSeriesData]);
     expectMockAppendSheet(3, { data: expectedTimeSeriesData, type: "aoa" }, "Time series");
+
+    const expectedVSLData = [
+      ["runId", "param1", "param2", "vslId", "value"],
+      [...s1Common, "average", 5000000],
+      [...s1Common, "pre_school", 1000000],
+      [...s1Common, "school_age", 2000000],
+      [...s1Common, "working_age", 3000000],
+      [...s1Common, "retirement_age", 4000000],
+      [...s2Common, "average", 5000000.1],
+      [...s2Common, "pre_school", 1000000.2],
+      [...s2Common, "school_age", 2000000.3],
+      [...s2Common, "working_age", 3000000.4],
+      [...s2Common, "retirement_age", 4000000.5],
+    ];
+    expect(mockAoaToSheet.mock.calls[4]).toStrictEqual([expectedVSLData]);
+    expectMockAppendSheet(4, { data: expectedVSLData, type: "aoa" }, "Value of Statistical Life");
 
     const expectedFileName = "daedalus_comparison_param1_value1_value10.xlsx";
     expect(mockWriteFile).toHaveBeenCalledWith(mockWorkbook, expectedFileName);
