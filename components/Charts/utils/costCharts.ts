@@ -42,8 +42,8 @@ const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis:
 
   return `<span style="font-size: 0.8rem;">`
     + `<span style="color:${point.color}; font-size: 1.3rem;">●</span> `
-    + `<span style="font-size: 0.8rem;">${point.key}`
-    + `<span style="font-size: 0.9rem; color: ${valueColor(point.y, diffing)}">: <b>${valueDisplay}</b></span>`
+    + `<span style="font-size: 0.8rem;">${point.key}: `
+    + `<span style="font-weight: bold; color: ${valueColor(point.y, diffing)}">${valueDisplay}</span>`
     + `</span><br/>`;
 };
 
