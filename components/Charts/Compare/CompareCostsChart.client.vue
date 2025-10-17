@@ -65,7 +65,7 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
         const subCostDollarAmount = getDollarValueFromCost(subCost);
         const matchingBaselineCost = appStore.baselineScenario?.result.data?.costs[0].children?.find(c => c.id === costId);
         const baselineCostDollarAmount = getDollarValueFromCost(matchingBaselineCost);
-        const dollarValue = props.diffing && subCostDollarAmount && baselineCostDollarAmount
+        const dollarValue = props.diffing && subCostDollarAmount !== undefined && baselineCostDollarAmount !== undefined
           ? subCostDollarAmount - baselineCostDollarAmount
           : subCostDollarAmount;
         // costAsGdpPercent is calculated here since the national GDP may vary by scenario if the axis is 'country'.
