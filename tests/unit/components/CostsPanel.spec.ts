@@ -72,6 +72,6 @@ describe("costs card", () => {
     expect(vslModalComponent.props("visible")).toBe(true);
     expect(vslModalComponent.find("a").attributes("href")).toContain("https://jameel-institute.github.io/daedalus/");
     expect(vslModalComponent.text()).toContain("value of statistical life");
-    expect(vslModalComponent.text()).toContain("2,799,264 Int'l$");
+    expect(vslModalComponent.text()).toContain("2,032,236 Int'l$");
   });
 });

@@ -322,7 +322,7 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
 
       const json = await response.json();
       expect(json.runId).toBe("successfulResponseRunId");
-      ["runId", "time_series", "parameters", "costs", "capacities", "interventions"].forEach((key) => {
+      ["runId", "time_series", "parameters", "costs", "capacities", "interventions", "vsl"].forEach((key) => {
         expect(json).toHaveProperty(key);
       });
       expect(json.time_series.prevalence[0]).toBe(331.0026);

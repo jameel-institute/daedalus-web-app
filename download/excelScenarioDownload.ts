@@ -4,7 +4,6 @@ import {
   type FlatCost,
   HEADERS,
   SHEETS,
-  UNIT_USD_MILLIONS,
 } from "~/download/excelDownload";
 
 export class ExcelScenarioDownload extends ExcelDownload {
@@ -30,9 +29,9 @@ export class ExcelScenarioDownload extends ExcelDownload {
     ExcelDownload._flattenCosts(costs, flattenedCosts);
     const sheetData = [];
     // headers
-    sheetData.push([HEADERS.COST_ID, HEADERS.UNIT, HEADERS.VALUE]);
+    sheetData.push([HEADERS.COST_ID, HEADERS.METRIC, HEADERS.VALUE]);
     flattenedCosts.forEach((cost) => {
-      sheetData.push([cost.id, UNIT_USD_MILLIONS, cost.value]);
+      sheetData.push([cost.id, cost.metric, cost.value]);
     });
     this._addAoaAsSheet(sheetData, SHEETS.COSTS);
   }
@@ -71,12 +70,23 @@ export class ExcelScenarioDownload extends ExcelDownload {
     this._addAoaAsSheet(sheetData, SHEETS.TIME_SERIES);
   }
 
+  private _addVSLs() {
+    const VSLs = this._scenario.result.data!.vsl;
+    const sheetData = [];
+    sheetData.push([HEADERS.VSL_ID, HEADERS.VALUE]);
+    Object.keys(VSLs).forEach((key: string) => {
+      sheetData.push([key, VSLs[key]]);
+    });
+    this._addAoaAsSheet(sheetData, SHEETS.VSL);
+  }
+
   private _buildWorkbook() {
     this._addParameters();
     this._addCosts();
     this._addCapacities();
     this._addInterventions();
     this._addTimeSeries();
+    this._addVSLs();
   }
 
   public download() {

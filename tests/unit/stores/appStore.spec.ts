@@ -395,7 +395,7 @@ describe("app store", () => {
           expect(scenario!.result.fetchError).toEqual(undefined);
           expect(scenario!.result.fetchStatus).toEqual("success");
           expect(scenario!.result.data?.runId).toBeNull();
-          expect(scenario!.result.data?.costs[0].value).toEqual(mockResultData.costs[0].value);
+          expect(scenario!.result.data?.costs[0].values[0].value).toEqual(mockResultData.costs[0].values[0].value);
           expect(scenario!.result.data?.parameters.vaccine).toEqual(expectedVaccineParameter);
         });
       });
@@ -652,8 +652,9 @@ describe("app store", () => {
       const totalCost = store.getScenarioTotalCost(store.currentScenario);
 
       expect(totalCost?.id).toEqual("total");
-      expect(totalCost?.value).toEqual(1086625.0137);
-      expect(totalCost?.children?.length).toEqual(3);
+      expect(totalCost?.values).toHaveLength(1);
+      expect(totalCost?.values[0].value).toEqual(1086625.0137);
+      expect(totalCost?.children).toHaveLength(3);
     });
 
     it("can get the 'value of statistical life' for a given scenario", async () => {
@@ -668,7 +669,7 @@ describe("app store", () => {
         expect(store.currentScenario.result.data?.costs).toEqual(mockResultData.costs);
       });
 
-      expect(store.getScenarioLifeValue(store.currentScenario)).toEqual("2799264");
+      expect(store.getScenarioLifeValue(store.currentScenario)).toEqual("779556");
     });
 
     describe("getters", () => {

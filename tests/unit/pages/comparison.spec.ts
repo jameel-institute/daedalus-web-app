@@ -56,7 +56,7 @@ Object.entries(scenarioRunIds).forEach(([pathogenValue, runId], index) => {
       ...mockResultData,
       costs: [{
         id: "total",
-        value: (index + 1) * 1000,
+        values: [{ metric: "usd_millions", value: (index + 1) * 1000 }],
         children: [],
       }],
       runId,

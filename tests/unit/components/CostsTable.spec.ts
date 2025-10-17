@@ -26,6 +26,7 @@ const expectedCostsForNoneScenario = [
   "31,000",
   "175,000",
 ];
+const expectedUKAverageVslText = "2,032,236 Int'l$";
 const noneScenario = {
   ...emptyScenario,
   parameters: { vaccine: "none" },
@@ -85,7 +86,7 @@ describe("costs table for the current scenario", () => {
     const vslModalComponentText = await openVslModal(component);
 
     expect(vslModalComponentText).toContain("value of statistical life");
-    expect(vslModalComponentText).toContain("2,799,264 Int'l$");
+    expect(vslModalComponentText).toContain(expectedUKAverageVslText);
   });
 
   it("should render costs table correctly, when cost basis is percent of GDP", async () => {
@@ -111,16 +112,18 @@ describe("costs table for the current scenario", () => {
     expect(componentText).not.toContain("Total");
 
     mockResultResponseData.costs[0].children.forEach((cost) => {
-      expect(componentText).toContain(costAsPercentOfGdp(cost.value, mockResultResponseData.gdp).toFixed(1));
+      const costUSD = cost.values.find(v => v.metric === USD_METRIC)?.value;
+      expect(componentText).toContain(costAsPercentOfGdp(costUSD, mockResultResponseData.gdp).toFixed(1));
       cost.children.forEach((subCost) => {
-        expect(componentText).toContain(costAsPercentOfGdp(subCost.value, mockResultResponseData.gdp).toFixed(1));
+        const subCostUSD = subCost.values.find(v => v.metric === USD_METRIC)?.value;
+        expect(componentText).toContain(costAsPercentOfGdp(subCostUSD, mockResultResponseData.gdp).toFixed(1));
       });
     });
 
     const vslModalComponentText = await openVslModal(component);
 
     expect(vslModalComponentText).toContain("value of statistical life");
-    expect(vslModalComponentText).toContain("2,799,264 Int'l$");
+    expect(vslModalComponentText).toContain(expectedUKAverageVslText);
   });
 });
 
@@ -128,7 +131,7 @@ describe("costs table for all scenarios in a comparison", () => {
   const recursivelyAddValue = (costs: ScenarioCost[], valueToAdd: number): ScenarioCost[] => {
     return costs.map(cost => ({
       ...cost,
-      value: cost.value + valueToAdd,
+      values: cost.values.map(v => ({ ...v, value: v.value + valueToAdd })),
       children: cost.children ? recursivelyAddValue(cost.children, valueToAdd) : undefined,
     }));
   };
@@ -218,7 +221,7 @@ describe("costs table for all scenarios in a comparison", () => {
     const vslModalComponentText = await openVslModal(component);
 
     expect(vslModalComponentText).toContain("value of statistical life");
-    expect(vslModalComponentText).toContain("2,799,264 Int'l$");
+    expect(vslModalComponentText).toContain(expectedUKAverageVslText);
   });
 
   it("should render costs table correctly, when cost basis is percent of GDP", async () => {
@@ -254,13 +257,16 @@ describe("costs table for all scenarios in a comparison", () => {
 
     expect(componentText).toContain("Total");
     mockResultResponseData.costs.forEach((totalCost) => {
-      expect(componentText).toContain(costAsPercentOfGdp(totalCost.value, mockResultResponseData.gdp).toFixed(1));
-      expect(componentText).toContain(costAsPercentOfGdp(totalCost.value + 2000, mockResultResponseData.gdp).toFixed(1));
+      const totalCostUSD = totalCost.values.find(v => v.metric === USD_METRIC)!.value;
+      expect(componentText).toContain(costAsPercentOfGdp(totalCostUSD, mockResultResponseData.gdp).toFixed(1));
+      expect(componentText).toContain(costAsPercentOfGdp(totalCostUSD + 2000, mockResultResponseData.gdp).toFixed(1));
       totalCost.children.forEach((cost) => {
-        expect(componentText).toContain(costAsPercentOfGdp(cost.value, mockResultResponseData.gdp).toFixed(1));
-        expect(componentText).toContain(costAsPercentOfGdp(cost.value + 2000, mockResultResponseData.gdp).toFixed(1));
+        const costUSD = cost.values.find(v => v.metric === USD_METRIC)!.value;
+        expect(componentText).toContain(costAsPercentOfGdp(costUSD, mockResultResponseData.gdp).toFixed(1));
+        expect(componentText).toContain(costAsPercentOfGdp(costUSD + 2000, mockResultResponseData.gdp).toFixed(1));
         cost.children.forEach((subCost) => {
-          expect(componentText).toContain(costAsPercentOfGdp(subCost.value + 2000, mockResultResponseData.gdp).toFixed(1));
+          const subCostUSD = subCost.values.find(v => v.metric === USD_METRIC)!.value;
+          expect(componentText).toContain(costAsPercentOfGdp(subCostUSD + 2000, mockResultResponseData.gdp).toFixed(1));
         });
       });
     });
@@ -268,7 +274,7 @@ describe("costs table for all scenarios in a comparison", () => {
     const vslModalComponentText = await openVslModal(component);
 
     expect(vslModalComponentText).toContain("value of statistical life");
-    expect(vslModalComponentText).toContain("2,799,264 Int'l$");
+    expect(vslModalComponentText).toContain(expectedUKAverageVslText);
   });
 
   it("should render tooltips with multiple values for VSL and GDP, when these values vary between scenarios", async () => {
@@ -289,7 +295,11 @@ describe("costs table for all scenarios in a comparison", () => {
               ...structuredClone(mockResultResponseData),
               parameters: { country: "USA" },
               gdp: 987654321,
-              average_vsl: 123456789,
+              vsl: {
+                average: 123456789,
+                young: 999999999,
+                old: 1,
+              },
             },
           },
         }],
@@ -312,7 +322,7 @@ describe("costs table for all scenarios in a comparison", () => {
     const vslModalComponentText = await openVslModal(component);
 
     expect(vslModalComponentText).toContain("value of statistical life");
-    expect(vslModalComponentText).toContain("United Kingdom: 2,799,264 Int'l$");
+    expect(vslModalComponentText).toContain(`United Kingdom: ${expectedUKAverageVslText}`);
     expect(vslModalComponentText).toContain("United States: 123,456,789 Int'l$");
   });
 });
