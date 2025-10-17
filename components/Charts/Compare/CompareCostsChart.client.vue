@@ -39,7 +39,7 @@ const costBasis = computed(() => appStore.preferences.costBasis);
 const chartTitle = computed(() => {
   const firstScenarioTimeSeries = appStore.currentComparison.scenarios[0].result?.data?.time_series;
   const scenarioDuration = Object.values(firstScenarioTimeSeries || {})[0].length - 1;
-  return `Losses ${props.diffing ? "relative to baseline" : ""} after ${scenarioDuration} days`;
+  return `Losses${props.diffing ? " relative to baseline" : " "}after ${scenarioDuration} days`;
 });
 
 // There are 3 levels of data breakdown for costs:
