@@ -145,16 +145,17 @@ export const costsChartMultiScenarioStackLabelFormatter = (stackLabelItem: unkno
   // If the stack extends both positively and negatively, Highcharts will create two labels for each stack:
   // (A) the total of the positive values, at the top, and (B) the total of the negative values, at the bottom.
   // We only want to show one stack label in each stack, with the label showing instead a *net* total for the whole stack.
+  // If the stack only extends positively or negatively, Highcharts creates only one label, which is what we want.
 
   // To identify how many stack labels belong to the current stack:
-  // 1) Check stackLabelItem.axis.stacking.stacks to get all of the stack labels, which are keyed by their x-positional index,
+  // 1) Check stackLabelItem.axis.stacking.stacks to get all of the stack labels for all stacks: these are keyed by their x-positional index,
   // nested under a dynamically generated key (the 'stack-key').
-  // 2) If the current x-positional index exists at both, we can then tell which of the pos and neg stack labels we are dealing with
-  // here by checking if the current stack total is negative.
+  // 2) If the current x-positional index exists at both, we need to know which of the pos and neg stack labels we are dealing with here.
+  // We can do so by checking if the current stack total is negative.
 
   // xPositionIndex identifies stack labels by the index of the column they belong to.
   const xPositionIndex = stackLabel.x;
-  // All series expose a dynamically generated stack-key, under 'stackKey'. This appears to always be "column,,," for all series.
+  // All series expose a dynamically generated stack-key, under 'stackKey', which appears to always be "column,,," for all series.
   // If there are negative sub-stacks, the key "-column,,," (NB prefaced with "-") is also used.
   // (Incidentally, this stack-key is generated here: https://github.com/highcharts/highcharts/blob/0892407957a6e6254667dc3abb5c36469780f63d/ts/Core/Axis/Stacking/StackingAxis.ts#L220 )
   const stackKey = stackLabel.axis?.series?.[0]?.stackKey;

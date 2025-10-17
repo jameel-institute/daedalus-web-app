@@ -140,6 +140,12 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
   checkBarChartDataIsDifferent(costsChartDataUsd, costsChartDataGdp);
   expect(await tableRows.nth(0).textContent()).toMatch(new RegExp(`Total losses\\s*${decimalPercentMatcher}\\s*${decimalPercentMatcher}\\s*${decimalPercentMatcher}`));
 
+  // Check that after switching on the diffing mode, we see different data in the costs chart.
+  await page.getByLabel("Display as difference from baseline").check();
+  const costsChartDataDiffStr = await page.locator("#compareCostsChartContainer").getAttribute("data-summary");
+  const costsChartDataDiff = JSON.parse(costsChartDataDiffStr!);
+  checkBarChartDataIsDifferent(costsChartDataGdp, costsChartDataDiff);
+
   await page.getByRole("tab", { name: "Time series" }).click();
 
   const totalTimeSeries = ["Prevalence", "Hospital demand", "Dead", "Vaccinated"];
