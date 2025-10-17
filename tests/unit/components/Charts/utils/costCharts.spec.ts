@@ -1,4 +1,4 @@
-import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter } from "~/components/Charts/utils/costCharts";
+import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioStackLabelFormatter, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter } from "~/components/Charts/utils/costCharts";
 import { CostBasis } from "~/types/unitTypes";
 import { mockMetadataResponseData } from "../../../mocks/mockResponseData";
 import { type Parameter, type ParameterOption, TypeOfParameter } from "~/types/parameterTypes";
@@ -422,5 +422,121 @@ describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
     expect(label).toContain("fi-us");
     expect(label).toContain("United States");
     expect(label).toContain("bold");
+  });
+});
+
+describe("costsChartMultiScenarioStackLabelFormatter", () => {
+  const stackKey = "column,,,";
+  const createTestStackItem = (xPositionIndex: number, isNegative: boolean, posTotal?: number, negTotal?: number) => {
+    const item = {
+      x: xPositionIndex,
+      isNegative,
+      axis: {
+        series: [{ stackKey }],
+        stacking: {
+          stacks: {},
+        },
+      },
+    };
+    if (negTotal !== undefined) {
+      item.axis.stacking.stacks[`-${stackKey}`] = { [xPositionIndex]: { total: negTotal } };
+    }
+    if (posTotal !== undefined) {
+      item.axis.stacking.stacks[stackKey] = { [xPositionIndex]: { total: posTotal } };
+    }
+    return item;
+  };
+
+  describe("when cost basis is USD", () => {
+    describe("when chart is NOT diffing", () => {
+      it("should return the correct label", () => {
+        const label = costsChartMultiScenarioStackLabelFormatter(createTestStackItem(1, false, 2000), CostBasis.USD, false);
+        expect(label).toContain("$2.0 B");
+        expect(label).toContain("color: inherit");
+      });
+    });
+
+    describe("when chart IS diffing", () => {
+      it("should return the correct labels when both positive and negative stack labels exist, and positive is larger", () => {
+        const stackLabelItem = createTestStackItem(2, false, 1500, -500);
+        const positiveLabel = costsChartMultiScenarioStackLabelFormatter(stackLabelItem, CostBasis.USD, true);
+        expect(positiveLabel).toContain("$1.0 B (net)");
+        expect(positiveLabel).toContain("color: darkred");
+
+        const negStackLabelItem = { ...stackLabelItem, isNegative: true };
+        const negativeLabel = costsChartMultiScenarioStackLabelFormatter(negStackLabelItem, CostBasis.USD, true);
+        expect(negativeLabel).toBeFalsy();
+      });
+
+      it("should return the correct label when both positive and negative stack labels exist, and negative is larger", () => {
+        const stackLabelItem = createTestStackItem(3, false, 500, -1500);
+        const positiveLabel = costsChartMultiScenarioStackLabelFormatter(stackLabelItem, CostBasis.USD, true);
+        expect(positiveLabel).toBeFalsy();
+
+        const negStackLabelItem = { ...stackLabelItem, isNegative: true };
+        const negativeLabel = costsChartMultiScenarioStackLabelFormatter(negStackLabelItem, CostBasis.USD, true);
+        expect(negativeLabel).toContain("-$1.0 B (net)");
+        expect(negativeLabel).toContain("color: darkgreen");
+      });
+
+      it("should return the correct label when only positive stack label exists", () => {
+        const label = costsChartMultiScenarioStackLabelFormatter(createTestStackItem(4, false, 2000), CostBasis.USD, true);
+        expect(label).toContain("$2.0 B");
+        expect(label).toContain("color: darkred");
+      });
+
+      it("should return the correct label when only negative stack label exists", () => {
+        const label = costsChartMultiScenarioStackLabelFormatter(createTestStackItem(5, true, undefined, -3000), CostBasis.USD, true);
+        expect(label).toContain("-$3.0 B");
+        expect(label).toContain("color: darkgreen");
+      });
+    });
+  });
+
+  describe("when cost basis is percent of GDP", () => {
+    describe("when chart is NOT diffing", () => {
+      it("should return the correct label", () => {
+        const label = costsChartMultiScenarioStackLabelFormatter(createTestStackItem(1, false, 20.8123), CostBasis.PercentGDP, false);
+        expect(label).toContain("20.8%");
+        expect(label).not.toContain("0%");
+        expect(label).toContain("inherit");
+      });
+    });
+
+    describe("when chart IS diffing", () => {
+      it("should return the correct label when both positive and negative stack labels exist, and positive is larger", () => {
+        const stackLabelItem = createTestStackItem(2, false, 15.5123, -5.2234);
+        const positiveLabel = costsChartMultiScenarioStackLabelFormatter(stackLabelItem, CostBasis.PercentGDP, true);
+        expect(positiveLabel).toContain("10.3% (net)");
+        expect(positiveLabel).toContain("color: darkred");
+
+        const negStackLabelItem = { ...stackLabelItem, isNegative: true };
+        const negativeLabel = costsChartMultiScenarioStackLabelFormatter(negStackLabelItem, CostBasis.PercentGDP, true);
+        expect(negativeLabel).toBeFalsy();
+      });
+
+      it("should return the correct label when both positive and negative stack labels exist, and negative is larger", () => {
+        const stackLabelItem = createTestStackItem(3, false, 5.2234, -15.5123);
+        const positiveLabel = costsChartMultiScenarioStackLabelFormatter(stackLabelItem, CostBasis.PercentGDP, true);
+        expect(positiveLabel).toBeFalsy();
+
+        const negStackLabelItem = { ...stackLabelItem, isNegative: true };
+        const negativeLabel = costsChartMultiScenarioStackLabelFormatter(negStackLabelItem, CostBasis.PercentGDP, true);
+        expect(negativeLabel).toContain("-10.3% (net)");
+        expect(negativeLabel).toContain("color: darkgreen");
+      });
+
+      it("should return the correct label when only positive stack label exists", () => {
+        const label = costsChartMultiScenarioStackLabelFormatter(createTestStackItem(4, false, 20.89), CostBasis.PercentGDP, true);
+        expect(label).toContain("20.9%");
+        expect(label).toContain("color: darkred");
+      });
+
+      it("should return the correct label when only negative stack label exists", () => {
+        const label = costsChartMultiScenarioStackLabelFormatter(createTestStackItem(5, true, undefined, -30.29), CostBasis.PercentGDP, true);
+        expect(label).toContain("-30.3%");
+        expect(label).toContain("color: darkgreen");
+      });
+    });
   });
 });

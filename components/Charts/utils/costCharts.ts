@@ -162,7 +162,7 @@ export const costsChartMultiScenarioStackLabelFormatter = (stackLabelItem: unkno
   const positiveTotal = positiveStacks?.[xPositionIndex]?.total || 0;
   const negativeTotal = negativeStacks?.[xPositionIndex]?.total || 0;
   if (hasBothStackLabels) {
-    // Omit the least significant stack label if two labels exist for the current stack.
+    // Omit the label of the least significant extent (pos/neg) of the stack if two labels exist for the current stack.
     // Note that there are three possibilities: we could have a positive label, a negative label, or both.
     const thisStackIsBigger = stackLabel.isNegative
       ? Math.abs(negativeTotal) >= Math.abs(positiveTotal)
