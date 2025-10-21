@@ -3,6 +3,7 @@ import type { ScenarioCost } from "~/types/resultTypes";
 
 export interface FlatCost {
   id: string
+  metric: string
   value: number
 }
 
@@ -12,10 +13,12 @@ export const HEADERS = {
   COST_ID: "costId",
   END: "end",
   INTERVENTION_ID: "interventionId",
+  METRIC: "metric",
   RUN_ID: "runId",
   START: "start",
   UNIT: "unit",
   VALUE: "value",
+  VSL_ID: "vslId",
 };
 
 export const SHEETS = {
@@ -23,9 +26,8 @@ export const SHEETS = {
   COSTS: "Costs",
   INTERVENTIONS: "Interventions",
   TIME_SERIES: "Time series",
+  VSL: "Value of Statistical Life",
 };
-
-export const UNIT_USD_MILLIONS = "millions USD";
 
 export abstract class ExcelDownload {
   private readonly _workbook: XLSX.WorkBook;
@@ -37,7 +39,13 @@ export abstract class ExcelDownload {
   protected static _flattenCosts(costs: Array<ScenarioCost>, flattened: Array<FlatCost>) {
     // As well as flattening the costs, we rename "id" to "costId"
     costs.forEach((cost: ScenarioCost) => {
-      flattened.push({ id: cost.id, value: cost.value });
+      cost.values.forEach((val) => {
+        flattened.push({
+          id: cost.id,
+          metric: val.metric,
+          value: val.value,
+        });
+      });
       if (cost.children) {
         this._flattenCosts(cost.children, flattened);
       }

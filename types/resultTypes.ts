@@ -1,6 +1,6 @@
 export interface ScenarioCost {
   id: string
-  value: number
+  values: Array<{ metric: string, value: number }>
   children?: Array<ScenarioCost>
 }
 
