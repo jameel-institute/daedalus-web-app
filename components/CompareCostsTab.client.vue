@@ -10,12 +10,12 @@
             label="Stack top-level costs"
             @change="() => { if (!stackCosts) allowGrandchildCosts = false }"
           />
-          <CFormSwitch
+          <!-- <CFormSwitch
             id="allowGrandchildCostsSwitch"
             v-model="allowGrandchildCosts"
             :disabled="stackCosts"
             label="Show sub-costs"
-          />
+          /> -->
         </div>
         <CompareCostsLegend />
       </div>
