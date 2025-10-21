@@ -15,15 +15,21 @@ import "highcharts/esm/modules/exporting";
 import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
-import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions } from "@/components/utils/charts";
-import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, costsChartYAxisTitle } from "~/components/Charts/utils/costCharts";
+import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, getColorVariants, menuItemDefinitionOptions } from "@/components/utils/charts";
+import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioUnstackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, costsChartYAxisTitle } from "~/components/Charts/utils/costCharts";
 import { costAsPercentOfGdp } from "@/components/utils/formatters";
 import { CostBasis } from "@/types/unitTypes";
 import { debounce } from "perfect-debounce";
 
+const props = defineProps<{
+  stacked: boolean
+  allowGrandchildCosts: boolean
+}>();
+
 const appStore = useAppStore();
 let chart: Highcharts.Chart;
-const seriesData = ref<Highcharts.SeriesColumnOptions[]>([]); // This only exists for testing purposes
+const showGrandchildCosts = computed(() => !props.stacked && props.allowGrandchildCosts);
+const seriesData = ref<Array<Highcharts.SeriesColumnOptions | Highcharts.SeriesScatterOptions>>([]); // This only exists for testing purposes
 const chartContainer = ref<HTMLElement | null>(null);
 const chartParentEl = computed(() => chartContainer.value?.parentElement);
 const scenarios = computed(() => appStore.currentComparison.scenarios);
@@ -34,18 +40,33 @@ const chartTitle = computed(() => {
   return `Losses after ${scenarioDuration} days`;
 });
 
+// A scatter series to be shown when costs are not stacked to indicate the total cost for each scenario.
+const totalSeries = (): Highcharts.SeriesScatterOptions => ({
+  type: "scatter",
+  name: "Total",
+  color: "black",
+  marker: {
+    symbol: "circle",
+  },
+  data: scenarios.value.map((scenario) => {
+    const totalCost = getDollarValueFromCost(scenario.result.data?.costs[0]);
+    const totalAsGdpPercent = costAsPercentOfGdp(totalCost, scenario.result.data?.gdp);
+    const y = costBasis.value === CostBasis.PercentGDP ? totalAsGdpPercent : totalCost;
+    return { y };
+  }),
+});
+
 // There are 3 levels of data breakdown for costs:
 // 1) the top-level total for the scenario,
 // 2) the second level, GDP/life-years/education,
 // 3) and a further breakdown, e.g. absences/closures in the cases of GDP and education.
-// At the moment, only the second level is displayed in the chart.
 // Series are orthogonal to columns, and here correspond to the second-level breakdowns.
 // Each series' data is an array of each scenario's cost for that breakdown.
 // For example, one series should comprise each scenario's GDP.
-const getSeries = (): Highcharts.SeriesColumnOptions[] => {
+const columnSeries = (): Array<Highcharts.SeriesColumnOptions> => {
   // Take the first scenario's costs as an example to find out what the second-level breakdowns are.
-  const secondLevelCostIds = scenarios.value[0].result.data?.costs[0].children?.map(c => c.id) || [];
-  seriesData.value = secondLevelCostIds?.map((costId, index) => ({
+  const secondLevelCostIds = appStore.getScenarioTotalCost(scenarios.value[0])?.children?.map(c => c.id);
+  return secondLevelCostIds?.map((costId, index) => ({
     type: "column",
     name: appStore.getCostLabel(costId),
     borderWidth: 1,
@@ -65,7 +86,66 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
       };
     }),
   } as Highcharts.SeriesColumnOptions)) || [];
+};
 
+// There are 3 levels of data breakdown for costs:
+// 1) the top-level total for the scenario,
+// 2) the second level, GDP/life-years/education,
+// 3) and a further breakdown, e.g. absences/closures in the cases of GDP and education.
+// Series are orthogonal to columns, and here correspond to the third-level breakdowns.
+// Each series' data is an array of each scenario's cost for that breakdown.
+// For example, one series should comprise each scenario's GDP.
+const columnSeriesForGrandchildCosts = (): Array<Highcharts.SeriesColumnOptions> => {
+  // Take the first scenario's costs as an example to find out what the third-level breakdowns are.
+  // Then, create a dictionary where the keys are the third-level breakdown ids,
+  // and the values contain (1) the mapping to the second-level so that we can tell the
+  // third-level costs which stacks they belong to, and (2) the color to use for that third-level cost.
+  const exampleTotalCost = appStore.getScenarioTotalCost(scenarios.value[0]);
+  const grandchildDetails = exampleTotalCost?.children!.reduce((acc, child, index) => {
+    const childColors = getColorVariants(costsChartPalette[index], exampleTotalCost.children!.length);
+    child.children?.forEach((grandchild, index) => {
+      acc[grandchild.id] = {
+        parent: child.id,
+        color: childColors[index],
+      };
+    });
+    return acc;
+  }, {} as Record<string, { parent: string, color: string }>) || {};
+  return Object.entries(grandchildDetails).map(([grandchildId, { parent, color }]) => {
+    const siblingsAndSelf = Object.entries(grandchildDetails).filter(([_k, details]) => details.parent === parent);
+    const indexInStack = siblingsAndSelf.findIndex(([k]) => k === grandchildId);
+    return {
+      type: "column",
+      name: appStore.getCostLabel(grandchildId),
+      // borderWidth: 1,
+      // borderColor: color,
+      stack: parent, // Stack by the second-level cost.
+      zIndex: siblingsAndSelf.length - indexInStack, // Ensure that stack segments are in front of each other from top to bottom.
+      data: scenarios.value.map((scenario) => {
+        const totalCost = appStore.getScenarioTotalCost(scenario);
+        const flatCosts = totalCost!.children?.flatMap(c => c.children || []) || [];
+        const grandchildCost = flatCosts.find(c => c.id === grandchildId);
+        const dollarValue = grandchildCost?.value;
+        // costAsGdpPercent is calculated here since the national GDP may vary by scenario if the axis is 'country'.
+        const costAsGdpPercent = costAsPercentOfGdp(dollarValue, scenario.result.data?.gdp);
+        const y = costBasis.value === CostBasis.PercentGDP ? costAsGdpPercent : dollarValue;
+        const name = appStore.getCostLabel(grandchildCost?.id || "");
+        return {
+          y,
+          color,
+          name,
+          custom: { costAsGdpPercent },
+        };
+      }),
+    } as Highcharts.SeriesColumnOptions;
+  });
+};
+
+// When stacked is enabled, only the second level is displayed in the chart.
+const getSeries = (): Array<Highcharts.SeriesColumnOptions | Highcharts.SeriesScatterOptions> => {
+  const columns = showGrandchildCosts.value ? columnSeriesForGrandchildCosts() : columnSeries();
+  console.log("columns", columns);
+  seriesData.value = props.stacked ? columns : [...columns, totalSeries()];
   return seriesData.value;
 };
 
@@ -74,6 +154,8 @@ const rowPadding = 12;
 const targetWidth = () => {
   return chartParentEl.value ? chartParentEl.value.clientWidth - (2 * rowPadding) : 0;
 };
+
+const stackingOption = computed(() => (props.stacked || showGrandchildCosts.value ? "normal" : undefined));
 
 const chartInitialOptions = () => {
   return {
@@ -118,7 +200,7 @@ const chartInitialOptions = () => {
       min: 0,
       title: { text: costsChartYAxisTitle(costBasis.value) },
       stackLabels: {
-        enabled: true,
+        enabled: props.stacked,
         formatter() {
           return costsChartStackLabelFormatter(this.total, costBasis.value);
         },
@@ -133,14 +215,18 @@ const chartInitialOptions = () => {
     series: getSeries(),
     legend: { enabled: false },
     tooltip: {
-      shared: true,
+      shared: props.stacked,
       formatter() {
-        return costsChartMultiScenarioStackedTooltip(this, costBasis.value, appStore.axisMetadata);
+        if (props.stacked) {
+          return costsChartMultiScenarioStackedTooltip(this, costBasis.value, appStore.axisMetadata);
+        } else {
+          return costsChartMultiScenarioUnstackedTooltip(this, costBasis.value, appStore.axisMetadata);
+        }
       },
     },
     plotOptions: {
       column: {
-        stacking: "normal",
+        stacking: stackingOption.value,
         groupPadding: 0.3,
         borderRadius: 0, // Border radius mucks up very small stack elements.
       },
@@ -155,9 +241,34 @@ watch(() => [chartContainer.value, appStore.everyScenarioHasCosts], () => {
 });
 
 watch(() => costBasis.value, () => {
-  if (chart) {
-    chart.update({ yAxis: { title: { text: costsChartYAxisTitle(costBasis.value) } }, series: getSeries() });
-  }
+  chart?.update({
+    yAxis: { title: { text: costsChartYAxisTitle(costBasis.value) } },
+    series: getSeries(),
+  });
+});
+
+watch(() => [props.stacked, showGrandchildCosts.value, stackingOption.value], () => {
+  const newSeries = getSeries();
+
+  // Since the number of series will change, we have to manually remove and add series.
+  chart?.series.forEach((oldSeries) => {
+    if (!newSeries.map(newS => newS.name).includes(oldSeries.name)) {
+      oldSeries.remove(false);
+    }
+  });
+  newSeries.forEach((newS) => {
+    if (!chart?.series.map(oldS => oldS.name).includes(newS.name!)) {
+      chart?.addSeries(newS, false);
+    }
+  });
+
+  chart.yAxis[0].update({
+    stackLabels: { enabled: props.stacked },
+  }, false);
+
+  chart?.update({
+    plotOptions: { column: { stacking: stackingOption.value } },
+  });
 });
 
 const setChartDimensions = debounce(() => {
