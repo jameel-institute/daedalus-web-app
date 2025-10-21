@@ -22,6 +22,7 @@
     >
       <CostsTable
         :scenarios="appStore.currentComparison.scenarios"
+        :diffing="diffCostsChart"
         class="w-full mt-5"
       />
     </div>

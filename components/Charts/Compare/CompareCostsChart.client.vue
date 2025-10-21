@@ -21,6 +21,7 @@ import { costsChartPalette, costsChartYAxisTickFormatter, costsChartYAxisTitle, 
 import { costAsPercentOfGdp } from "@/components/utils/formatters";
 import { CostBasis } from "@/types/unitTypes";
 import { debounce } from "perfect-debounce";
+import { diffAgainstBaseline } from "~/components/utils/comparisons";
 
 const props = defineProps<{
   diffing: boolean
@@ -62,22 +63,17 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
       borderColor: costsChartPalette[index].rgb,
       zIndex: secondLevelCostIds.length - index, // Ensure that stack segments are in front of each other from top to bottom.
       data: scenarios.value.map((scenario) => {
-        const subCost = scenario.result.data?.costs[0].children?.find(c => c.id === costId);
-        const subCostDollarAmount = getDollarValueFromCost(subCost);
-        const matchingBaselineCost = appStore.baselineScenario?.result.data?.costs[0].children?.find(c => c.id === costId);
-        const baselineCostDollarAmount = getDollarValueFromCost(matchingBaselineCost);
-        const dollarValue = props.diffing && subCostDollarAmount !== undefined && baselineCostDollarAmount !== undefined
-          ? subCostDollarAmount - baselineCostDollarAmount
-          : subCostDollarAmount;
-        // costAsGdpPercent is calculated here since the national GDP may vary by scenario if the axis is 'country'.
-        const costAsGdpPercent = costAsPercentOfGdp(dollarValue, scenario.result.data?.gdp);
-        const y = costBasis.value === CostBasis.PercentGDP ? costAsGdpPercent : dollarValue;
-        const name = appStore.getCostLabel(subCost?.id || "");
+        const subCost = appStore.getScenarioCostById(scenario, costId)!;
+        const yUSD = props.diffing ? diffAgainstBaseline(subCost) : getDollarValueFromCost(subCost);
+        // yGdpPercent is calculated here since the national GDP may vary by scenario if the axis is 'country'.
+        const yGdpPercent = costAsPercentOfGdp(yUSD, scenario.result.data?.gdp);
+        const y = costBasis.value === CostBasis.PercentGDP ? yGdpPercent : yUSD;
+        const name = appStore.getCostLabel(subCost.id);
         return {
           y,
           name,
           custom: {
-            costAsGdpPercent,
+            costAsGdpPercent: yGdpPercent,
             scenarioId: scenario.runId,
           },
         } as CustomPointOptionsObject;

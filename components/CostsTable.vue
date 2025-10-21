@@ -17,7 +17,7 @@
           </CButton>
         </th>
         <th
-          v-for="(scenario, index) in props.scenarios"
+          v-for="(scenario, index) in scenariosToDisplay"
           :key="scenario.runId"
         >
           <div class="d-flex flex-column">
@@ -42,10 +42,10 @@
       <template v-if="multiScenario">
         <tr class="bg-white fw-medium">
           <td class="ps-2">
-            Total losses
+            Total losses {{ props.diffing ? "relative to baseline" : "" }}
           </td>
           <td
-            v-for="(scenario) in props.scenarios"
+            v-for="(scenario) in scenariosToDisplay"
             :key="scenario.runId"
             :class="scenarioClass(scenario)"
           >
@@ -62,7 +62,7 @@
             {{ appStore.getCostLabel(childCost.id) }}{{ childCost.id === 'life_years' ? '*' : '' }}
           </td>
           <td
-            v-for="(scenario) in props.scenarios"
+            v-for="(scenario) in scenariosToDisplay"
             :key="scenario.runId"
             :class="scenarioClass(scenario)"
           >
@@ -77,7 +77,7 @@
         >
           <td>{{ appStore.getCostLabel(grandChildCost.id) }}</td>
           <td
-            v-for="(scenario) in props.scenarios"
+            v-for="(scenario) in scenariosToDisplay"
             :key="scenario.runId"
             :class="scenarioClass(scenario)"
           >
@@ -146,9 +146,11 @@ import { CIcon } from "@coreui/icons-vue";
 import { commaSeparatedNumber, costAsPercentOfGdp, humanReadablePercentOfGdp } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import type { Scenario } from "~/types/storeTypes";
+import { diffAgainstBaseline } from "./utils/comparisons";
 
 const props = defineProps<{
   scenarios: Scenario[]
+  diffing: boolean
 }>();
 
 const accordioned = ref(true);
@@ -158,6 +160,12 @@ const generalDocUrl = "https://jameel-institute.github.io/daedalus/articles/info
 const vignetteUrl = "https://jameel-institute.github.io/daedalus/articles/info_life_value.html";
 
 const multiScenario = computed(() => props.scenarios.length > 1);
+
+const scenariosToDisplay = computed(() => {
+  return props.diffing
+    ? props.scenarios.filter(s => s.runId !== appStore.baselineScenario?.runId)
+    : props.scenarios;
+});
 
 const scenarioLabel = (scenario: Scenario) => `${appStore.getScenarioAxisLabel(scenario)}`
   + `${scenario === appStore.baselineScenario ? " (baseline)" : ""}`;
@@ -172,14 +180,8 @@ const vslLabel = (scenario: Scenario) => {
 };
 
 const displayValue = (scenario: Scenario, costId: string): string | undefined => {
-  const totalCost = appStore.getScenarioTotalCost(scenario);
-  let cost = costId === "total" ? totalCost : totalCost?.children?.find(c => c.id === costId);
-  if (!cost) {
-    cost = totalCost?.children?.map(c => c.children).flat().find((grandChild) => {
-      return !!grandChild && grandChild.id === costId;
-    });
-  }
-  const valueInDollarTerms = getDollarValueFromCost(cost);
+  const cost = appStore.getScenarioCostById(scenario, costId)!;
+  const valueInDollarTerms = props.diffing ? diffAgainstBaseline(cost) : getDollarValueFromCost(cost);
   if (valueInDollarTerms === undefined) {
     return;
   }
@@ -191,7 +193,7 @@ const displayValue = (scenario: Scenario, costId: string): string | undefined =>
     }
     case CostBasis.USD:
     {
-      return valueInDollarTerms > 10_000
+      return Math.abs(valueInDollarTerms) > 10_000
         ? (Math.round(valueInDollarTerms / 1000) * 1000).toLocaleString()
         : new Intl.NumberFormat("en-US", {
             maximumSignificantDigits: 1,
