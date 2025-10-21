@@ -2,6 +2,7 @@
   <table class="table rounded table-hover table-sm" aria-label="Costs table">
     <thead class="border-bottom-2 border-black">
       <tr>
+        <!-- TODO: set width of first column constant, or animate any width changes? -->
         <th>
           <CButton
             class="btn p-0 text-decoration-none text-muted"
@@ -46,7 +47,7 @@
       <template v-if="multiScenario">
         <tr class="bg-white fw-medium">
           <td class="ps-2">
-            Total losses {{ props.diffing ? "relative to baseline" : "" }}
+            {{ props.diffing ? "Net losses relative to baseline" : "Total losses" }}
           </td>
           <td
             v-for="(scenario) in scenariosToDisplay"

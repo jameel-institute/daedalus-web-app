@@ -1,3 +1,5 @@
+<!-- Q: Should positive and negative be reversed when diffing? A downwards/negative representing something good is counterintuitive? -->
+
 <template>
   <div>
     <div
