@@ -31,7 +31,11 @@
                 </span>
               </div>
             </template>
-            <span v-if="multiScenario" class="fw-medium">
+            <span
+              v-if="multiScenario"
+              class="fw-medium"
+              :class="{ 'text-primary-emphasis': scenario === appStore.baselineScenario }"
+            >
               {{ scenarioLabel(scenario) }}
             </span>
           </div>
@@ -167,8 +171,7 @@ const scenariosToDisplay = computed(() => {
     : props.scenarios;
 });
 
-const scenarioLabel = (scenario: Scenario) => `${appStore.getScenarioAxisLabel(scenario)}`
-  + `${scenario === appStore.baselineScenario ? " (baseline)" : ""}`;
+const scenarioLabel = (scenario: Scenario) => appStore.getScenarioAxisLabel(scenario);
 
 const vslVariesByScenario = computed(() => {
   return props.scenarios.some(scenario => appStore.getScenarioLifeValue(scenario) !== appStore.getScenarioLifeValue(props.scenarios[0]));
