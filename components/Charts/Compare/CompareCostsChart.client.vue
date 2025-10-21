@@ -49,7 +49,7 @@ const totalSeries = (): Highcharts.SeriesScatterOptions => ({
     symbol: "circle",
   },
   data: scenarios.value.map((scenario) => {
-    const totalCost = scenario.result.data?.costs[0].value || 0;
+    const totalCost = getDollarValueFromCost(scenario.result.data?.costs[0]);
     const totalAsGdpPercent = costAsPercentOfGdp(totalCost, scenario.result.data?.gdp);
     const y = costBasis.value === CostBasis.PercentGDP ? totalAsGdpPercent : totalCost;
     return { y };
