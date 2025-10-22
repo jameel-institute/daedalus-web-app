@@ -1,7 +1,9 @@
-import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioStackLabelFormatter, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartSingleScenarioTooltip, costsChartStackLabelFormatter, costsChartYAxisTickFormatter } from "~/components/Charts/utils/costCharts";
 import { CostBasis } from "~/types/unitTypes";
 import { mockMetadataResponseData } from "../../../mocks/mockResponseData";
 import { type Parameter, type ParameterOption, TypeOfParameter } from "~/types/parameterTypes";
+import { costsChartPalette, costsChartYAxisTickFormatter } from "~/components/Charts/utils/costCharts";
+import { costsChartSingleScenarioStackLabelFormatter, costsChartSingleScenarioTooltip } from "~/components/Charts/utils/singleScenarioCostCharts";
+import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioStackLabelFormatter, costsChartMultiScenarioXAxisLabelFormatter } from "~/components/Charts/Compare/utils/multiScenarioCostCharts";
 
 describe("costsChartPalette", () => {
   it("should be 3 colors long", () => {
@@ -291,17 +293,17 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
   });
 });
 
-describe("costsChartStackLabelFormatter", () => {
+describe("costsChartSingleScenarioStackLabelFormatter", () => {
   it("should return the correct stack label for USD cost basis", () => {
-    const label = costsChartStackLabelFormatter(200, CostBasis.USD);
+    const label = costsChartSingleScenarioStackLabelFormatter(200, CostBasis.USD);
     expect(label).toBe("$200 million");
 
-    const label2 = costsChartStackLabelFormatter(20000000, CostBasis.USD);
+    const label2 = costsChartSingleScenarioStackLabelFormatter(20000000, CostBasis.USD);
     expect(label2).toBe("$20.0 trillion");
   });
 
   it("should return the correct stack label for percent of GDP cost basis", () => {
-    const label = costsChartStackLabelFormatter(20, CostBasis.PercentGDP);
+    const label = costsChartSingleScenarioStackLabelFormatter(20, CostBasis.PercentGDP);
     expect(label).toBe("20.0% of GDP");
   });
 });
