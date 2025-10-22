@@ -5,7 +5,7 @@ const expectedCodeSnippet = `model_result <- daedalus::daedalus(
   "GBR",
   "sars_cov_1",
   response_strategy = "none",
-  response_threshold = 22000,
+  response_threshold = 26200,
   vaccine_investment = "none"
 )`;
 
