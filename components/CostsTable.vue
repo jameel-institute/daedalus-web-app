@@ -34,8 +34,8 @@
             </template>
             <span
               v-if="multiScenario"
-              class="fw-medium"
-              :class="{ 'text-primary-emphasis': scenario === appStore.baselineScenario }"
+              class="fw-light"
+              :class="{ 'text-primary-emphasis fw-medium': scenario === appStore.baselineScenario }"
             >
               {{ scenarioLabel(scenario) }}
             </span>
