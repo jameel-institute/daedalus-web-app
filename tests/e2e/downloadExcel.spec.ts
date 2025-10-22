@@ -37,7 +37,7 @@ const doDownload = async (page, expectedFileName) => {
 
 test("can download Excel file for scenario results", async ({ page, baseURL }) => {
   await runScenario(page, baseURL);
-  await doDownload(page, "daedalus_THA_none_sars_cov_1_none_22000.xlsx");
+  await doDownload(page, "daedalus_GBR_none_sars_cov_1_none_22000.xlsx");
 });
 
 test("can download Excel file for comparison results", async ({ page, baseURL, isMobile }) => {
