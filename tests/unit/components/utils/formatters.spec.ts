@@ -5,6 +5,9 @@ describe("commaSeparatedNumber", () => {
     expect(commaSeparatedNumber("12345")).toEqual("12,345");
     expect(commaSeparatedNumber("12345.67")).toEqual("12,345.67");
     expect(commaSeparatedNumber("12,345.67")).toEqual("12,345.67");
+    expect(commaSeparatedNumber("-12345")).toEqual("-12,345");
+    expect(commaSeparatedNumber("-12345.67")).toEqual("-12,345.67");
+    expect(commaSeparatedNumber("-12,345.67")).toEqual("-12,345.67");
   });
 });
 
