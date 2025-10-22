@@ -657,6 +657,24 @@ describe("app store", () => {
       expect(totalCost?.children).toHaveLength(3);
     });
 
+    it("can get a specific cost by id for a given scenario", async () => {
+      const store = useAppStore();
+      store.currentScenario = structuredClone(unloadedScenario);
+
+      expect(store.getScenarioCostById(store.currentScenario, "gdp_closures")).toEqual(undefined);
+
+      await store.loadScenarioResult(store.currentScenario);
+
+      await waitFor(() => {
+        expect(store.currentScenario.result.data?.costs).toEqual(mockResultData.costs);
+      });
+
+      const cost = store.getScenarioCostById(store.currentScenario, "gdp_closures");
+
+      expect(cost?.id).toEqual("gdp_closures");
+      expect(cost?.values).toHaveLength(1);
+    });
+
     it("can get the 'value of statistical life' for a given scenario", async () => {
       const store = useAppStore();
       store.currentScenario = structuredClone(unloadedScenario);

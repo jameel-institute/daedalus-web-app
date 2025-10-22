@@ -122,7 +122,7 @@
         The assumed VSLs for the current countries are:
         <span>
           <ul>
-            <li v-for="s in scenarios" :key="s.runId">
+            <li v-for="s in props.scenarios" :key="s.runId">
               {{ `${scenarioLabel(s)}: ${vslLabel(s)}` }}
             </li>
           </ul>
@@ -132,7 +132,7 @@
         The assumed VSL for this country is {{ vslLabel(scenarios[0]) }}.
       </p>
       <p>
-        {{ scenarios.length > 1 ? 'These values' : 'This value' }}
+        {{ props.scenarios.length > 1 ? 'These values' : 'This value' }}
         can be adjusted if using the <code>DAEDALUS</code> R package directly.
       </p>
       <p class="mb-0">
@@ -155,7 +155,7 @@ import { diffAgainstBaseline } from "./utils/comparisons";
 
 const props = defineProps<{
   scenarios: Scenario[]
-  diffing: boolean
+  diffing?: boolean
 }>();
 
 const accordioned = ref(true);
