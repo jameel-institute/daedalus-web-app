@@ -80,40 +80,40 @@
           </td>
         </tr>
       </template>
-      <tr
-        class="boldish no-hover"
-        :class="{ 'border-bottom-2 border-black': !multiScenario }"
-      >
+      <tr class="boldish no-hover border-bottom-2 border-black">
         <td class="border-0" />
         <td class="border-0 pt-3" colspan="100%">
-          Life lost (years)
+          Loss of life
         </td>
       </tr>
-      <tr v-if="multiScenario" class="border-bottom-2 border-black no-hover">
-        <td />
-        <td
-          v-for="scenario in scenariosToDisplay"
-          :key="scenario.runId"
-          class="pt-0"
-        >
-          <span
-            class="fw-light"
-            :class="{ 'text-primary-emphasis fw-medium': scenario === appStore.baselineScenario }"
-          >
-            {{ scenarioLabel(scenario) }}
-          </span>
-        </td>
-      </tr>
-      <tr class="bg-white fw-medium">
+      <tr
+        class="bg-white"
+        :class="{ 'fw-medium': !accordioned }"
+      >
         <td class="ps-2">
-          All age sectors
+          Total deaths
         </td>
         <td
           v-for="(scenario) in scenariosToDisplay"
           :key="scenario.runId"
           :class="scenarioClass(scenario)"
         >
-          {{ displayValue(scenario, 'life_years', LIFE_YEARS_METRIC) }}
+          {{ `${displayDeaths(scenario)} ${multiScenario ? "" : "deaths"}` }}
+        </td>
+      </tr>
+      <tr
+        class="bg-white"
+        :class="{ 'fw-medium': !accordioned }"
+      >
+        <td class="ps-2">
+          All age sectors (life years)
+        </td>
+        <td
+          v-for="(scenario) in scenariosToDisplay"
+          :key="scenario.runId"
+          :class="scenarioClass(scenario)"
+        >
+          {{ `${displayValue(scenario, 'life_years', LIFE_YEARS_METRIC)} years` }}
         </td>
       </tr>
       <tr
@@ -128,43 +128,7 @@
           :key="scenario.runId"
           :class="scenarioClass(scenario)"
         >
-          {{ displayValue(scenario, ageSectorCost.id, LIFE_YEARS_METRIC) }}
-        </td>
-      </tr>
-      <tr
-        class="boldish no-hover"
-        :class="{ 'border-bottom-2 border-black': !multiScenario }"
-      >
-        <td class="border-0" />
-        <td class="border-0 pt-3" colspan="100%">
-          Deaths
-        </td>
-      </tr>
-      <tr v-if="multiScenario" class="border-bottom-2 border-black no-hover">
-        <td />
-        <td
-          v-for="scenario in scenariosToDisplay"
-          :key="scenario.runId"
-          class="pt-0"
-        >
-          <span
-            class="fw-light"
-            :class="{ 'text-primary-emphasis fw-medium': scenario === appStore.baselineScenario }"
-          >
-            {{ scenarioLabel(scenario) }}
-          </span>
-        </td>
-      </tr>
-      <tr class="bg-white fw-medium">
-        <td class="ps-2">
-          Total
-        </td>
-        <td
-          v-for="(scenario) in scenariosToDisplay"
-          :key="scenario.runId"
-          :class="scenarioClass(scenario)"
-        >
-          {{ displayDeaths(scenario) }}
+          {{ `${displayValue(scenario, ageSectorCost.id, LIFE_YEARS_METRIC)} years` }}
         </td>
       </tr>
     </tbody>
@@ -206,7 +170,7 @@ const displayValue = (scenario: Scenario, costId: string, metricId: string): str
   }
   if (metricId !== USD_METRIC) {
     const { amount, unit } = abbreviateMillions(val / 1000_000, true, 1);
-    return `${amount} ${unit}`;
+    return `${amount}${unit}`;
   }
   switch (appStore.preferences.costBasis) {
     case CostBasis.PercentGDP:
@@ -238,10 +202,10 @@ const displayDeaths = (scenario: Scenario): string | undefined => {
       return;
     }
     const { amount, unit } = abbreviateMillions((totalDeaths - baselineTotalDeaths) / 1000_000, true, 1);
-    return `${amount} ${unit}`;
+    return `${amount}${unit}`;
   }
   const { amount, unit } = abbreviateMillions(totalDeaths / 1000_000, true, 1);
-  return `${amount} ${unit}`;
+  return `${amount}${unit}`;
 };
 
 const scenarioClass = (scenario: Scenario) => {
