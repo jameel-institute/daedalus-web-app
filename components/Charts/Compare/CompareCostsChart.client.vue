@@ -16,7 +16,8 @@ import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
 import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, type CustomPointOptionsObject, menuItemDefinitionOptions } from "@/components/utils/charts";
-import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioStackLabelFormatter, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartYAxisTickFormatter, costsChartYAxisTitle, thickPlotLineForDiffedChart } from "~/components/Charts/utils/costCharts";
+import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioStackLabelFormatter, costsChartMultiScenarioXAxisLabelFormatter } from "@/components/Charts/Compare/utils/multiScenarioCostCharts";
+import { costsChartPalette, costsChartYAxisTickFormatter, costsChartYAxisTitle, thickPlotLineForDiffedChart } from "~/components/Charts/utils/costCharts";
 import { costAsPercentOfGdp } from "@/components/utils/formatters";
 import { CostBasis } from "@/types/unitTypes";
 import { debounce } from "perfect-debounce";
