@@ -21,16 +21,9 @@
           :key="scenario.runId"
         >
           <div class="d-flex flex-column">
-            <template v-if="index === 0">
-              <span v-if="appStore.preferences.costBasis === CostBasis.PercentGDP" class="boldish">
-                % of GDP
-              </span>
-              <div v-else>
-                <span class="boldish">
-                  $, millions (USD)
-                </span>
-              </div>
-            </template>
+            <span v-if="index === 0" class="boldish">
+              {{ appStore.preferences.costBasis === CostBasis.PercentGDP ? "% of GDP" : "$, millions (USD)" }}
+            </span>
             <span
               v-if="multiScenario"
               class="fw-light"
@@ -43,20 +36,18 @@
       </tr>
     </thead>
     <tbody id="costs-table-body">
-      <template v-if="multiScenario">
-        <tr class="bg-white fw-medium">
-          <td class="ps-2">
-            {{ props.diffing ? "Net losses relative to baseline" : "Total losses" }}
-          </td>
-          <td
-            v-for="(scenario) in scenariosToDisplay"
-            :key="scenario.runId"
-            :class="scenarioClass(scenario)"
-          >
-            {{ displayValue(scenario, 'total') }}
-          </td>
-        </tr>
-      </template>
+      <tr class="bg-white fw-medium">
+        <td class="ps-2">
+          {{ props.diffing ? "Net losses relative to baseline" : "Total losses" }}
+        </td>
+        <td
+          v-for="(scenario) in scenariosToDisplay"
+          :key="scenario.runId"
+          :class="scenarioClass(scenario)"
+        >
+          {{ displayValue(scenario, 'total', USD_METRIC) }}
+        </td>
+      </tr>
       <template
         v-for="(childCost) in appStore.getScenarioTotalCost(props.scenarios[0])?.children"
         :key="childCost.id"
@@ -70,7 +61,7 @@
             :key="scenario.runId"
             :class="scenarioClass(scenario)"
           >
-            {{ displayValue(scenario, childCost.id) }}
+            {{ displayValue(scenario, childCost.id, USD_METRIC) }}
           </td>
         </tr>
         <tr
@@ -85,10 +76,60 @@
             :key="scenario.runId"
             :class="scenarioClass(scenario)"
           >
-            {{ displayValue(scenario, grandChildCost.id) }}
+            {{ displayValue(scenario, grandChildCost.id, USD_METRIC) }}
           </td>
         </tr>
       </template>
+      <tr
+        class="boldish"
+        :class="{ 'border-bottom-2 border-black': !multiScenario }"
+      >
+        <td class="border-0" />
+        <td class="border-0 pt-3" colspan="100%">
+          Life lost (years)
+        </td>
+      </tr>
+      <tr v-if="multiScenario" class="border-bottom-2 border-black">
+        <td />
+        <td
+          v-for="scenario in scenariosToDisplay"
+          :key="scenario.runId"
+        >
+          <span
+            class="fw-light"
+            :class="{ 'text-primary-emphasis fw-medium': scenario === appStore.baselineScenario }"
+          >
+            {{ scenarioLabel(scenario) }}
+          </span>
+        </td>
+      </tr>
+      <tr class="bg-white fw-medium">
+        <td class="ps-2">
+          All age sectors
+        </td>
+        <td
+          v-for="(scenario) in scenariosToDisplay"
+          :key="scenario.runId"
+          :class="scenarioClass(scenario)"
+        >
+          {{ displayValue(scenario, 'life_years', LIFE_YEARS_METRIC) }}
+        </td>
+      </tr>
+      <tr
+        v-for="ageSectorCost in appStore.getScenarioCostById(props.scenarios[0], LIFE_YEARS_METRIC)?.children"
+        v-show="!accordioned"
+        :key="ageSectorCost.id"
+        class="nested-row fw-lighter"
+      >
+        <td>{{ appStore.getCostLabel(ageSectorCost.id) }}</td>
+        <td
+          v-for="(scenario) in scenariosToDisplay"
+          :key="scenario.runId"
+          :class="scenarioClass(scenario)"
+        >
+          {{ displayValue(scenario, ageSectorCost.id, LIFE_YEARS_METRIC) }}
+        </td>
+      </tr>
     </tbody>
   </table>
   <p class="fw-lighter small mt-auto">
@@ -182,25 +223,29 @@ const vslLabel = (scenario: Scenario) => {
   return `${commaSeparatedNumber(vsl)} Int'l$`;
 };
 
-const displayValue = (scenario: Scenario, costId: string): string | undefined => {
+const displayValue = (scenario: Scenario, costId: string, metricId: string): string | undefined => {
   const cost = appStore.getScenarioCostById(scenario, costId)!;
-  const valueInDollarTerms = props.diffing ? diffAgainstBaseline(cost) : getDollarValueFromCost(cost);
-  if (valueInDollarTerms === undefined) {
+  const val = props.diffing ? diffAgainstBaseline(cost, metricId) : getValueFromCost(cost, metricId);
+  if (val === undefined) {
     return;
+  }
+  if (metricId !== USD_METRIC) {
+    const { amount, unit } = abbreviateMillions(val / 1000_000, true, 1);
+    return `${amount} ${unit}`;
   }
   switch (appStore.preferences.costBasis) {
     case CostBasis.PercentGDP:
     {
-      const percentOfGdp = costAsPercentOfGdp(valueInDollarTerms, scenario.result.data?.gdp);
+      const percentOfGdp = costAsPercentOfGdp(val, scenario.result.data?.gdp);
       return `${humanReadablePercentOfGdp(percentOfGdp).percent}%`;
     }
     case CostBasis.USD:
     {
-      return Math.abs(valueInDollarTerms) > 10_000
-        ? (Math.round(valueInDollarTerms / 1000) * 1000).toLocaleString()
+      return Math.abs(val) > 10_000
+        ? (Math.round(val / 1000) * 1000).toLocaleString()
         : new Intl.NumberFormat("en-US", {
             maximumSignificantDigits: 1,
-          }).format(valueInDollarTerms);
+          }).format(val);
     }
   }
 };

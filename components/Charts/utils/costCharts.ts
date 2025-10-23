@@ -1,4 +1,4 @@
-import { abbreviateMillionsDollars } from "~/utils/money";
+import { abbreviateMillions } from "~/utils/money";
 import { humanReadablePercentOfGdp } from "~/components/utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import { colorBlindSafeSmallPalette, type TooltipPointInstance } from "../../utils/charts";
@@ -19,9 +19,9 @@ export const valueColor = (value: number, diffing: boolean) => {
   return value > 0 ? "darkred" : "darkgreen";
 };
 
-// A wrapper for abbreviateMillionsDollars that ensures the correct order of negative sign and dollar sign.
+// A wrapper for abbreviateMillions that ensures the correct order of negative sign and dollar sign.
 export const displayMillionsDollars = (value: number, abbreviateUnits?: boolean, precision?: number) => {
-  const abbr = abbreviateMillionsDollars(value, abbreviateUnits, precision);
+  const abbr = abbreviateMillions(value, abbreviateUnits, precision);
   if (value >= 0) {
     return `$${abbr.amount} ${abbr.unit}`;
   } else {

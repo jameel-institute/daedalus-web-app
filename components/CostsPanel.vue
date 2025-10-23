@@ -67,7 +67,7 @@
 
 <script lang="ts" setup>
 import { costAsPercentOfGdp, humanReadablePercentOfGdp } from "@/components/utils/formatters";
-import { abbreviateMillionsDollars } from "@/utils/money";
+import { abbreviateMillions } from "@/utils/money";
 import { CIcon } from "@coreui/icons-vue";
 
 const appStore = useAppStore();
@@ -85,7 +85,7 @@ const gdpTotalCostPercent = computed(() => {
 
 const totalCostAbbr = computed(() => {
   if (totalCostUSD.value !== undefined) {
-    return abbreviateMillionsDollars(totalCostUSD.value, true);
+    return abbreviateMillions(totalCostUSD.value, true);
   } else {
     return undefined;
   }
