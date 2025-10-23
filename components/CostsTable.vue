@@ -2,7 +2,6 @@
   <table class="table rounded table-hover table-sm" aria-label="Costs table">
     <thead class="border-bottom-2 border-black">
       <tr>
-        <!-- TODO: set width of first column constant, or animate any width changes? -->
         <th>
           <CButton
             class="btn p-0 text-decoration-none text-muted"
