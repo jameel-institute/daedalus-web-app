@@ -80,11 +80,6 @@
           </td>
         </tr>
       </template>
-      <tr class="no-hover">
-        <td class="border-0" colspan="100%">
-          <VSLModal :scenarios="props.scenarios" />
-        </td>
-      </tr>
       <tr
         class="boldish no-hover"
         :class="{ 'border-bottom-2 border-black': !multiScenario }"
@@ -136,8 +131,45 @@
           {{ displayValue(scenario, ageSectorCost.id, LIFE_YEARS_METRIC) }}
         </td>
       </tr>
+      <tr
+        class="boldish no-hover"
+        :class="{ 'border-bottom-2 border-black': !multiScenario }"
+      >
+        <td class="border-0" />
+        <td class="border-0 pt-3" colspan="100%">
+          Deaths
+        </td>
+      </tr>
+      <tr v-if="multiScenario" class="border-bottom-2 border-black no-hover">
+        <td />
+        <td
+          v-for="scenario in scenariosToDisplay"
+          :key="scenario.runId"
+          class="pt-0"
+        >
+          <span
+            class="fw-light"
+            :class="{ 'text-primary-emphasis fw-medium': scenario === appStore.baselineScenario }"
+          >
+            {{ scenarioLabel(scenario) }}
+          </span>
+        </td>
+      </tr>
+      <tr class="bg-white fw-medium">
+        <td class="ps-2">
+          Total
+        </td>
+        <td
+          v-for="(scenario) in scenariosToDisplay"
+          :key="scenario.runId"
+          :class="scenarioClass(scenario)"
+        >
+          {{ displayDeaths(scenario) }}
+        </td>
+      </tr>
     </tbody>
   </table>
+  <VSLModal :scenarios="props.scenarios" />
 </template>
 
 <script lang="ts" setup>
@@ -146,6 +178,7 @@ import { costAsPercentOfGdp, humanReadablePercentOfGdp } from "./utils/formatter
 import { CostBasis } from "~/types/unitTypes";
 import type { Scenario } from "~/types/storeTypes";
 import { diffAgainstBaseline } from "./utils/comparisons";
+import { CUMULATIVE_DEATHS_SERIES_ID } from "./Charts/utils/timeSeriesData";
 
 const props = defineProps<{
   scenarios: Scenario[]
@@ -190,6 +223,25 @@ const displayValue = (scenario: Scenario, costId: string, metricId: string): str
           }).format(val);
     }
   }
+};
+
+const displayDeaths = (scenario: Scenario): string | undefined => {
+  const series = scenario.result.data!.time_series[CUMULATIVE_DEATHS_SERIES_ID];
+  const totalDeaths = series.at(-1);
+  if (totalDeaths === undefined) {
+    return;
+  }
+  if (props.diffing) {
+    const baselineSeries = appStore.baselineScenario?.result.data!.time_series[CUMULATIVE_DEATHS_SERIES_ID];
+    const baselineTotalDeaths = baselineSeries?.at(-1) || 0;
+    if (baselineTotalDeaths === undefined) {
+      return;
+    }
+    const { amount, unit } = abbreviateMillions((totalDeaths - baselineTotalDeaths) / 1000_000, true, 1);
+    return `${amount} ${unit}`;
+  }
+  const { amount, unit } = abbreviateMillions(totalDeaths / 1000_000, true, 1);
+  return `${amount} ${unit}`;
 };
 
 const scenarioClass = (scenario: Scenario) => {
