@@ -1,6 +1,6 @@
 import { type Parameter, type ParameterOption, TypeOfParameter } from "~/types/parameterTypes";
 import { getRangeForDependentParam, paramOptsToSelectOpts } from "~/components/utils/parameters";
-import { humanReadableInteger } from "~/components/utils/formatters";
+import { commaSeparatedNumber } from "~/components/utils/formatters";
 
 export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
   const appStore = useAppStore();
@@ -12,7 +12,7 @@ export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
       return undefined;
     } else if (axis.value.parameterType === TypeOfParameter.Numeric) {
       const baselineValue = appStore.currentScenario.parameters[axis.value.id];
-      return { id: baselineValue, label: humanReadableInteger(baselineValue), description: "" } as ParameterOption;
+      return { id: baselineValue, label: commaSeparatedNumber(baselineValue), description: "" } as ParameterOption;
     } else if (axis.value.id && appStore.currentScenario.parameters) {
       return axis.value.options?.find(o => o.id === appStore.currentScenario.parameters![axis.value!.id]);
     }
@@ -38,9 +38,9 @@ export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
       const max = dependentRange.max.toString();
 
       return [
-        { id: min, label: humanReadableInteger(min), description: `Minimum for ${dependedOnParamOptionLabel.value}` },
-        { id: defaultVal, label: humanReadableInteger(defaultVal), description: `Default for ${dependedOnParamOptionLabel.value}` },
-        { id: max, label: humanReadableInteger(max), description: `Maximum for ${dependedOnParamOptionLabel.value}` },
+        { id: min, label: commaSeparatedNumber(min), description: `Minimum for ${dependedOnParamOptionLabel.value}` },
+        { id: defaultVal, label: commaSeparatedNumber(defaultVal), description: `Default for ${dependedOnParamOptionLabel.value}` },
+        { id: max, label: commaSeparatedNumber(max), description: `Maximum for ${dependedOnParamOptionLabel.value}` },
       ] as ParameterOption[];
     }
   });

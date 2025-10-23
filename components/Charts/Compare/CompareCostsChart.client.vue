@@ -3,7 +3,7 @@
     <div
       id="compareCostsChartContainer"
       ref="chartContainer"
-      :data-summary="JSON.stringify(seriesData)"
+      :data-summary="JSON.stringify(seriesSummary)"
     />
   </div>
 </template>
@@ -15,23 +15,31 @@ import "highcharts/esm/modules/exporting";
 import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
-import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions } from "@/components/utils/charts";
-import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartStackLabelFormatter, costsChartYAxisTickFormatter, costsChartYAxisTitle } from "~/components/Charts/utils/costCharts";
+import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, type CustomPointOptionsObject, menuItemDefinitionOptions } from "@/components/utils/charts";
+import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioStackLabelFormatter, costsChartMultiScenarioXAxisLabelFormatter, costsChartPalette, costsChartYAxisTickFormatter, costsChartYAxisTitle, thickPlotLineForDiffedChart } from "~/components/Charts/utils/costCharts";
 import { costAsPercentOfGdp } from "@/components/utils/formatters";
 import { CostBasis } from "@/types/unitTypes";
 import { debounce } from "perfect-debounce";
 
+const props = defineProps<{
+  diffing: boolean
+}>();
+
 const appStore = useAppStore();
 let chart: Highcharts.Chart;
-const seriesData = ref<Highcharts.SeriesColumnOptions[]>([]); // This only exists for testing purposes
+const seriesSummary = ref<Highcharts.SeriesColumnOptions[]>([]); // This only exists for testing purposes
 const chartContainer = ref<HTMLElement | null>(null);
 const chartParentEl = computed(() => chartContainer.value?.parentElement);
-const scenarios = computed(() => appStore.currentComparison.scenarios);
+const scenarios = computed(() => {
+  return props.diffing
+    ? appStore.currentComparison.scenarios.filter(s => s.runId !== appStore.baselineScenario?.runId)
+    : appStore.currentComparison.scenarios;
+});
 const costBasis = computed(() => appStore.preferences.costBasis);
 const chartTitle = computed(() => {
   const firstScenarioTimeSeries = appStore.currentComparison.scenarios[0].result?.data?.time_series;
   const scenarioDuration = Object.values(firstScenarioTimeSeries || {})[0].length - 1;
-  return `Losses after ${scenarioDuration} days`;
+  return `Losses ${props.diffing ? "relative to baseline " : ""}after ${scenarioDuration} days`;
 });
 
 // There are 3 levels of data breakdown for costs:
@@ -45,28 +53,58 @@ const chartTitle = computed(() => {
 const getSeries = (): Highcharts.SeriesColumnOptions[] => {
   // Take the first scenario's costs as an example to find out what the second-level breakdowns are.
   const secondLevelCostIds = scenarios.value[0].result.data?.costs[0].children?.map(c => c.id) || [];
-  seriesData.value = secondLevelCostIds?.map((costId, index) => ({
-    type: "column",
-    name: appStore.getCostLabel(costId),
-    borderWidth: 1,
-    borderColor: costsChartPalette[index].rgb,
-    zIndex: secondLevelCostIds.length - index, // Ensure that stack segments are in front of each other from top to bottom.
-    data: scenarios.value.map((scenario) => {
-      const subCost = scenario.result.data?.costs[0].children?.find(c => c.id === costId);
-      const dollarAmount = getDollarValueFromCost(subCost);
-      // costAsGdpPercent is calculated here since the national GDP may vary by scenario if the axis is 'country'.
-      const costAsGdpPercent = costAsPercentOfGdp(dollarAmount, scenario.result.data?.gdp);
-      const y = costBasis.value === CostBasis.PercentGDP ? costAsGdpPercent : dollarAmount;
-      const name = appStore.getCostLabel(subCost?.id || "");
-      return {
-        y,
-        name,
-        custom: { costAsGdpPercent },
-      };
-    }),
-  } as Highcharts.SeriesColumnOptions)) || [];
+  const allSeries = secondLevelCostIds?.map((costId, index) => {
+    return {
+      type: "column" as Highcharts.SeriesColumnOptions["type"],
+      name: appStore.getCostLabel(costId),
+      borderWidth: 1,
+      borderColor: costsChartPalette[index].rgb,
+      zIndex: secondLevelCostIds.length - index, // Ensure that stack segments are in front of each other from top to bottom.
+      data: scenarios.value.map((scenario) => {
+        const subCost = scenario.result.data?.costs[0].children?.find(c => c.id === costId);
+        const subCostDollarAmount = getDollarValueFromCost(subCost);
+        const matchingBaselineCost = appStore.baselineScenario?.result.data?.costs[0].children?.find(c => c.id === costId);
+        const baselineCostDollarAmount = getDollarValueFromCost(matchingBaselineCost);
+        const dollarValue = props.diffing && subCostDollarAmount !== undefined && baselineCostDollarAmount !== undefined
+          ? subCostDollarAmount - baselineCostDollarAmount
+          : subCostDollarAmount;
+        // costAsGdpPercent is calculated here since the national GDP may vary by scenario if the axis is 'country'.
+        const costAsGdpPercent = costAsPercentOfGdp(dollarValue, scenario.result.data?.gdp);
+        const y = costBasis.value === CostBasis.PercentGDP ? costAsGdpPercent : dollarValue;
+        const name = appStore.getCostLabel(subCost?.id || "");
+        return {
+          y,
+          name,
+          custom: {
+            costAsGdpPercent,
+            scenarioId: scenario.runId,
+          },
+        } as CustomPointOptionsObject;
+      }),
+    };
+  }) || [];
 
-  return seriesData.value;
+  // NB: when some sub-stacks are negative, the stack total produced by Highcharts is the sum of only the positive
+  // sub-stacks, not the actual net total. So we have to calculate that total ourselves.
+  const flatData = allSeries.flatMap(s => s.data as CustomPointOptionsObject[]);
+  allSeries.forEach((ser) => {
+    const newData = ser.data?.map((dataPoint) => {
+      const stackNetTotal = flatData
+        .filter(({ custom }) => custom.scenarioId === dataPoint.custom.scenarioId)
+        .reduce((acc, { y }) => acc + y!, 0);
+      return {
+        ...dataPoint,
+        custom: {
+          ...dataPoint.custom,
+          stackNetTotal,
+        },
+      };
+    });
+    ser.data = newData;
+  });
+
+  seriesSummary.value = allSeries;
+  return seriesSummary.value;
 };
 
 const chartHeightPx = 500;
@@ -101,7 +139,7 @@ const chartInitialOptions = () => {
       },
     },
     xAxis: {
-      categories: scenarios.value?.map(s => appStore.getScenarioAxisValue(s)) || [],
+      categories: scenarios.value.map(s => appStore.getScenarioAxisValue(s)),
       title: { text: appStore.axisMetadata?.label },
       labels: {
         style: {
@@ -115,12 +153,16 @@ const chartInitialOptions = () => {
     },
     yAxis: {
       gridLineColor: "lightgrey",
-      min: 0,
-      title: { text: costsChartYAxisTitle(costBasis.value) },
+      min: props.diffing ? undefined : 0,
+      plotLines: props.diffing ? [thickPlotLineForDiffedChart] : [],
+      title: { text: costsChartYAxisTitle(costBasis.value, props.diffing) },
       stackLabels: {
         enabled: true,
+        style: {
+          fontWeight: 500,
+        },
         formatter() {
-          return costsChartStackLabelFormatter(this.total, costBasis.value);
+          return costsChartMultiScenarioStackLabelFormatter(this, costBasis.value, props.diffing);
         },
       },
       labels: {
@@ -135,7 +177,7 @@ const chartInitialOptions = () => {
     tooltip: {
       shared: true,
       formatter() {
-        return costsChartMultiScenarioStackedTooltip(this, costBasis.value, appStore.axisMetadata);
+        return costsChartMultiScenarioStackedTooltip(this, costBasis.value, appStore.axisMetadata, props.diffing);
       },
     },
     plotOptions: {
@@ -155,14 +197,39 @@ watch(() => [chartContainer.value, appStore.everyScenarioHasCosts], () => {
 });
 
 watch(() => costBasis.value, () => {
-  if (chart) {
-    chart.update({ yAxis: { title: { text: costsChartYAxisTitle(costBasis.value) } }, series: getSeries() });
-  }
+  chart?.update({
+    yAxis: {
+      title: {
+        text: costsChartYAxisTitle(costBasis.value, props.diffing),
+      },
+    },
+    series: getSeries(),
+  });
+});
+
+watch(() => props.diffing, () => {
+  chart?.update({
+    exporting: {
+      filename: chartTitle.value,
+    },
+    title: { text: chartTitle.value },
+    xAxis: {
+      categories: scenarios.value.map(s => appStore.getScenarioAxisValue(s) || ""),
+    },
+    yAxis: {
+      min: props.diffing ? undefined : 0,
+      title: {
+        text: costsChartYAxisTitle(costBasis.value, props.diffing),
+      },
+      plotLines: props.diffing ? [thickPlotLineForDiffedChart] : [],
+    },
+    series: getSeries(),
+  });
 });
 
 const setChartDimensions = debounce(() => {
-  if (chart && chartParentEl.value) {
-    chart.setSize(targetWidth(), chartHeightPx, { duration: 250 });
+  if (chartParentEl.value) {
+    chart?.setSize(targetWidth(), chartHeightPx, { duration: 250 });
   }
 });
 

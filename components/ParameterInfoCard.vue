@@ -16,7 +16,10 @@
               v-on="on"
             >
               <ParameterIcon :parameter="parameter" />
-              <span class="ms-1">
+              <span
+                class="ms-1"
+                :class="{ 'text-primary-emphasis boldish': (parameter.id === appStore.currentComparison.axis) }"
+              >
                 {{ paramDisplayText(parameter) }}
               </span>
               <span
@@ -34,7 +37,7 @@
 
 <script setup lang="ts">
 import type { Parameter } from "~/types/parameterTypes";
-import { humanReadableInteger } from "./utils/formatters";
+import { commaSeparatedNumber } from "./utils/formatters";
 import { countryFlagClass } from "./utils/countryFlag";
 import type { Scenario } from "~/types/storeTypes";
 
@@ -50,7 +53,7 @@ const paramDisplayText = (param: Parameter) => {
 
     const rawValIsIntString = Number.parseInt(rawVal).toString() === rawVal;
     if (rawValIsIntString) {
-      return humanReadableInteger(rawVal);
+      return commaSeparatedNumber(rawVal);
     } else if (param.options) {
       return param.options.find(({ id }) => id === rawVal)!.label;
     } else {

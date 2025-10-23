@@ -124,7 +124,7 @@ import type { Parameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
 import { numericValueIsOutOfRange } from "~/components/utils/validations";
 import { getRangeForDependentParam } from "~/components/utils/parameters";
-import { humanReadableInteger } from "~/components/utils/formatters";
+import { commaSeparatedNumber } from "~/components/utils/formatters";
 
 const emit = defineEmits(["showRCode"]);
 
@@ -153,7 +153,7 @@ const baselineIsOutOfRange = computed(() =>
 const getDependentParamValueForScenarioOption = (parameter: Parameter, scenarioOption: string) => {
   const scenarioParameters = { ...baselineParameters.value, [chosenAxisId.value]: scenarioOption };
   const range = getRangeForDependentParam(parameter, scenarioParameters);
-  return humanReadableInteger(range?.default.toString());
+  return commaSeparatedNumber(range?.default.toString());
 };
 
 const handleCloseModal = () => {

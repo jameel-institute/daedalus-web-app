@@ -1,4 +1,4 @@
-import { humanReadableInteger } from "~/components/utils/formatters";
+import { commaSeparatedNumber } from "~/components/utils/formatters";
 import { plotLinesColor, plotLinesWidthPx } from "~/components/Charts/utils/timeSeriesCharts";
 import type { Scenario } from "~/types/storeTypes";
 
@@ -24,7 +24,7 @@ export default (
       return {
         color: plotLinesColor,
         label: {
-          text: `${label}: ${humanReadableInteger(value.toString())}`,
+          text: `${label}: ${commaSeparatedNumber(value.toString())}`,
           style: {
             color: plotLinesColor,
           },

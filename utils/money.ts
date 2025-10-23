@@ -1,4 +1,4 @@
-import { humanReadableInteger } from "~/components/utils/formatters";
+import { commaSeparatedNumber } from "~/components/utils/formatters";
 
 // Convert values expressed in millions of dollars to sensible human-readable precision with units
 // E.g. 1234567 -> { amount: "1.2", unit: "trillion" }
@@ -12,10 +12,10 @@ export const abbreviateMillionsDollars = (
 } => {
   let shortAmount: string;
   let unit: string;
-  if (amount >= 1e6) {
+  if (Math.abs(amount) >= 1e6) {
     shortAmount = (amount / 1e6).toFixed(precision ?? 1);
     unit = abbreviateUnits ? "T" : "trillion";
-  } else if (amount >= 1e3) {
+  } else if (Math.abs(amount) >= 1e3) {
     shortAmount = (amount / 1e3).toFixed(precision ?? 1);
     unit = abbreviateUnits ? "B" : "billion";
   } else {
@@ -23,7 +23,7 @@ export const abbreviateMillionsDollars = (
     unit = abbreviateUnits ? "M" : "million";
   }
   if (precision === 0) {
-    shortAmount = humanReadableInteger(shortAmount);
+    shortAmount = commaSeparatedNumber(shortAmount);
   }
   return {
     amount: shortAmount,
@@ -42,7 +42,7 @@ export const expressMillionsDollarsAsBillions = (
   let shortAmount = (amount / 1e3).toFixed(precision);
   const beforeDecimal = shortAmount.split(".")[0];
   const afterDecimal = shortAmount.split(".")[1];
-  shortAmount = [humanReadableInteger(beforeDecimal), afterDecimal]
+  shortAmount = [commaSeparatedNumber(beforeDecimal), afterDecimal]
     .filter(Boolean)
     .join(".");
   return {

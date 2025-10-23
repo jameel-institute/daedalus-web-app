@@ -1,5 +1,5 @@
 import { colorBlindSafeLargePalette, type TooltipPointInstance } from "../../utils/charts";
-import { humanReadableInteger } from "../../utils/formatters";
+import { commaSeparatedNumber } from "../../utils/formatters";
 
 export const plotLinesColorName = "Red";
 export const plotLinesColor = colorBlindSafeLargePalette.find(c => c.name === plotLinesColorName)!.rgb;
@@ -18,14 +18,14 @@ export const timeSeriesColors = colorBlindSafeLargePalette
 export const multiScenarioTimeSeriesChartTooltipFormatter = (point: TooltipPointInstance, yUnits: string) => {
   const blobHtml = `<span style="color:${point.color}; font-size: 1.3rem;">●</span> `;
   const dayText = `<span style='font-size: 0.7rem; margin-bottom: 0.3rem;'>Day ${point.x}</span><br/>`;
-  const yText = `<span style='font-weight: 500'>${humanReadableInteger(point.y?.toFixed(0) ?? "0")}</span> ${yUnits}`;
+  const yText = `<span style='font-weight: 500'>${commaSeparatedNumber(point.y?.toFixed(0) ?? "0")}</span> ${yUnits}`;
   if (point.series.options.custom?.isBaseline) {
     return `${blobHtml}${point.series.name} (baseline)<br/>${dayText}${yText}`;
   }
   const baselineSeries = point.series.chart.series.find(s => s.options.custom?.isBaseline);
   const matchingPointInBaseline = baselineSeries?.data.find(p => p.x === point.x);
   return `${blobHtml}${point.series.name}<br/>${dayText}${yText}`
-    + ` (baseline: ${humanReadableInteger(matchingPointInBaseline?.y?.toFixed(0) ?? "0")})`;
+    + ` (baseline: ${commaSeparatedNumber(matchingPointInBaseline?.y?.toFixed(0) ?? "0")})`;
 };
 
 export const timeSeriesChartOptions = {
