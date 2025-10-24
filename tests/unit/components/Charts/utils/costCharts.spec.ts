@@ -48,7 +48,7 @@ describe("single-scenario costs chart tooltip text for stacked column", () => {
   it("should return the correct text for the stack's tooltip, when cost basis is USD", () => {
     const tooltipText = costsChartSingleScenarioTooltip(tooltipPointInstance, CostBasis.USD, 4000);
     expect(tooltipText).toMatch(
-      /Life years losses.*\$2.0 billion.*USD.*50.0% of pre-pandemic GDP.*#FF0000.*Working-age adults.*\$999 M.*#00FF00.*Children.*\$0 M/,
+      /Life years losses.*\$2\.0 billion.*USD.*50\.0% of pre-pandemic GDP.*#FF0000.*Working-age adults.*\$999\.0 M.*#00FF00.*Children.*\$0\.0 K/,
     );
     expect(tooltipText).not.toMatch(/Do not include in tooltips/i);
   });
@@ -93,7 +93,7 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
   };
   const notDiffingHeader = "Total losses";
   const diffingHeader = "Net losses relative to baseline";
-  const conversionToGdpPercent = "74.0% of pre-pandemic GDP"; // Calculated from sum of the three point custom.costAsGdpPercent values
+  const conversionToGdpPercent = "74\\.0% of pre-pandemic GDP"; // Calculated from sum of the three point custom.costAsGdpPercent values
   const multiScenarioStackedTooltipMatcher = (
     param: Parameter,
     paramOption: ParameterOption,
@@ -131,10 +131,10 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
             highOption,
             notDiffingHeader,
             true,
-            { color: "inherit", text: "\\$1.9 trillion.*USD" },
-            { color: "inherit", text: "\\$97.4 B" },
-            { color: "inherit", text: "\\$2.7 B" },
-            { color: "inherit", text: "\\$1.8 T" },
+            { color: "inherit", text: "\\$1\\.9 trillion.*USD" },
+            { color: "inherit", text: "\\$97\\.4 B" },
+            { color: "inherit", text: "\\$2\\.7 B" },
+            { color: "inherit", text: "\\$1\\.8 T" },
           ),
         );
       });
@@ -150,10 +150,10 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
             highOption,
             diffingHeader,
             true,
-            { color: "darkgreen", text: "\\$1.9 trillion.*USD", isNegative: true },
-            { color: "darkgreen", text: "\\$97.4 B", isNegative: true },
-            { color: "darkred", text: "\\$2.7 B" },
-            { color: "darkred", text: "\\$1.8 T" },
+            { color: "darkgreen", text: "\\$1\\.9 trillion.*USD", isNegative: true },
+            { color: "darkgreen", text: "\\$97\\.4 B", isNegative: true },
+            { color: "darkred", text: "\\$2\\.7 B" },
+            { color: "darkred", text: "\\$1\\.8 T" },
           ),
         );
       });
@@ -173,10 +173,10 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
             highOption,
             notDiffingHeader,
             false,
-            { color: "inherit", text: "74.0%.* of pre-pandemic GDP" },
-            { color: "inherit", text: "3.8%" },
-            { color: "inherit", text: "0.1%" },
-            { color: "inherit", text: "70.1%" },
+            { color: "inherit", text: "74\\.0%.* of pre-pandemic GDP" },
+            { color: "inherit", text: "3\\.8%" },
+            { color: "inherit", text: "0\\.1%" },
+            { color: "inherit", text: "70\\.1%" },
           ),
         );
       });
@@ -194,10 +194,10 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
             highOption,
             diffingHeader,
             false,
-            { color: "darkgreen", text: "74.0%.* of pre-pandemic GDP", isNegative: true },
-            { color: "darkgreen", text: "3.8%", isNegative: true },
-            { color: "darkred", text: "0.1%" },
-            { color: "darkred", text: "70.1%" },
+            { color: "darkgreen", text: "74\\.0%.* of pre-pandemic GDP", isNegative: true },
+            { color: "darkgreen", text: "3\\.8%", isNegative: true },
+            { color: "darkred", text: "0\\.1%" },
+            { color: "darkred", text: "70\\.1%" },
           ),
         );
       });
@@ -220,10 +220,10 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
           hospitalParamOption,
           notDiffingHeader,
           true,
-          { color: "inherit", text: "\\$1.9 trillion.*USD" },
-          { color: "inherit", text: "\\$97.4 B" },
-          { color: "inherit", text: "\\$2.7 B" },
-          { color: "inherit", text: "\\$1.8 T" },
+          { color: "inherit", text: "\\$1\\.9 trillion.*USD" },
+          { color: "inherit", text: "\\$97\\.4 B" },
+          { color: "inherit", text: "\\$2\\.7 B" },
+          { color: "inherit", text: "\\$1\\.8 T" },
         ));
       });
 
@@ -238,10 +238,10 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
             hospitalParamOption,
             diffingHeader,
             true,
-            { color: "darkgreen", text: "\\$1.9 trillion.*USD", isNegative: true },
-            { color: "darkgreen", text: "\\$97.4 B", isNegative: true },
-            { color: "darkred", text: "\\$2.7 B" },
-            { color: "darkred", text: "\\$1.8 T" },
+            { color: "darkgreen", text: "\\$1\\.9 trillion.*USD", isNegative: true },
+            { color: "darkgreen", text: "\\$97\\.4 B", isNegative: true },
+            { color: "darkred", text: "\\$2\\.7 B" },
+            { color: "darkred", text: "\\$1\\.8 T" },
           ),
         );
       });
@@ -261,10 +261,10 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
             hospitalParamOption,
             notDiffingHeader,
             false,
-            { color: "inherit", text: "74.0%.* of pre-pandemic GDP" },
-            { color: "inherit", text: "3.8%" },
-            { color: "inherit", text: "0.1%" },
-            { color: "inherit", text: "70.1%" },
+            { color: "inherit", text: "74\\.0%.* of pre-pandemic GDP" },
+            { color: "inherit", text: "3\\.8%" },
+            { color: "inherit", text: "0\\.1%" },
+            { color: "inherit", text: "70\\.1%" },
           ),
         );
       });
@@ -282,9 +282,9 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
             hospitalParamOption,
             diffingHeader,
             false,
-            { color: "darkgreen", text: "7,301.0%.* of pre-pandemic GDP", isNegative: true },
-            { color: "darkgreen", text: "3.8%", isNegative: true },
-            { color: "darkred", text: "0.1%" },
+            { color: "darkgreen", text: "7,301\\.0%.* of pre-pandemic GDP", isNegative: true },
+            { color: "darkgreen", text: "3\\.8%", isNegative: true },
+            { color: "darkred", text: "0\\.1%" },
             { color: "darkred", text: "7,000%" },
           ),
         );
@@ -296,7 +296,7 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
 describe("costsChartSingleScenarioStackLabelFormatter", () => {
   it("should return the correct stack label for USD cost basis", () => {
     const label = costsChartSingleScenarioStackLabelFormatter(200, CostBasis.USD);
-    expect(label).toBe("$200 million");
+    expect(label).toBe("$200.0 million");
 
     const label2 = costsChartSingleScenarioStackLabelFormatter(20000000, CostBasis.USD);
     expect(label2).toBe("$20.0 trillion");
