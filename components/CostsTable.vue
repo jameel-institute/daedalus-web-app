@@ -131,7 +131,7 @@
         The assumed VSL for this country is {{ vslLabel(scenarios[0]) }}.
       </p>
       <p>
-        {{ props.scenarios.length > 1 ? 'These values' : 'This value' }}
+        {{ vslVariesByScenario ? 'These values' : 'This value' }}
         can be adjusted if using the <code>DAEDALUS</code> R package directly.
       </p>
       <p class="mb-0">
