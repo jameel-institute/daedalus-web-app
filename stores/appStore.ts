@@ -315,6 +315,25 @@ export const useAppStore = defineStore("app", {
     getScenarioTotalCost(scenario: Scenario): ScenarioCost | undefined {
       return scenario.result.data?.costs?.find(cost => cost.id === "total");
     },
+    getScenarioCostById(scenario: Scenario, costId: string): ScenarioCost | undefined {
+      const totalCost = this.getScenarioTotalCost(scenario);
+      if (!totalCost) {
+        return undefined;
+      }
+      let cost: ScenarioCost | undefined;
+      const costFromParent = (parentCost: ScenarioCost): ScenarioCost | undefined => {
+        if (cost) {
+          return;
+        }
+        if (costId === parentCost.id) {
+          cost = parentCost;
+          return;
+        }
+        parentCost.children?.forEach(c => costFromParent(c));
+      };
+      costFromParent(totalCost);
+      return cost;
+    },
     getScenarioLifeValue(scenario: Scenario): string | undefined {
       const vsl = scenario.result.data?.vsl.average;
       if (vsl) {

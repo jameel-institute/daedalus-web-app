@@ -2,7 +2,7 @@ import { expect, type Locator, type Page, test } from "@playwright/test";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
 import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
-import { commaSeparatedNumberMatcher, costTolerance, decimalPercentMatcher, parameterLabels, runIdMatcher, scenarioPathMatcher } from "./helpers/constants";
+import { commaSeparatedNumberMatcher, costTolerance, decimalPercentMatcher, decimalPercentMatcherAllowNegatives, parameterLabels, runIdMatcher, scenarioPathMatcher } from "./helpers/constants";
 import checkValueIsInRange from "./helpers/checkValueIsInRange";
 import checkBarChartDataIsDifferent from "./helpers/checkBarChartDataIsDifferent";
 import { checkMultiScenarioTimeSeriesDataPoints } from "./helpers/checkTimeSeriesDataPoints";
@@ -138,13 +138,18 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
   const costsChartDataGdp = JSON.parse(costsChartDataGdpStr!);
   expect(costsChartDataGdp).toHaveLength(3);
   checkBarChartDataIsDifferent(costsChartDataUsd, costsChartDataGdp);
-  expect(await tableRows.nth(0).textContent()).toMatch(new RegExp(`Total losses\\s*${decimalPercentMatcher}\\s*${decimalPercentMatcher}\\s*${decimalPercentMatcher}`));
+  expect(await tableRows.nth(0).textContent()).toMatch(
+    new RegExp(`Total losses.*${decimalPercentMatcher}\\s*${decimalPercentMatcher}\\s*${decimalPercentMatcher}`),
+  );
 
-  // Check that after switching on the diffing mode, we see different data in the costs chart.
+  // Check that after switching on the diffing mode, we see different data.
   await page.getByLabel("Display as difference from baseline").check();
   const costsChartDataDiffStr = await page.locator("#compareCostsChartContainer").getAttribute("data-summary");
   const costsChartDataDiff = JSON.parse(costsChartDataDiffStr!);
   checkBarChartDataIsDifferent(costsChartDataGdp, costsChartDataDiff);
+  expect(await tableRows.nth(0).textContent()).toMatch(
+    new RegExp(`Net losses.*${decimalPercentMatcherAllowNegatives}\\s*${decimalPercentMatcherAllowNegatives}`),
+  );
 
   await page.getByRole("tab", { name: "Time series" }).click();
 

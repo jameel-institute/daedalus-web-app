@@ -6,7 +6,7 @@
     >
       <CFormSwitch
         id="costsChartDiffSwitch"
-        v-model="diffCostsChart"
+        v-model="diffCosts"
         label="Display as difference from baseline"
         class="mb-3"
       />
@@ -14,7 +14,7 @@
         <CostBasisToggler :scenarios="appStore.currentComparison.scenarios" />
         <CompareCostsLegend />
       </div>
-      <CompareCostsChart :diffing="diffCostsChart" />
+      <CompareCostsChart :diffing="diffCosts" />
     </div>
     <div
       class="col-12 d-flex flex-column"
@@ -22,6 +22,7 @@
     >
       <CostsTable
         :scenarios="appStore.currentComparison.scenarios"
+        :diffing="diffCosts"
         class="w-full mt-5"
       />
     </div>
@@ -31,7 +32,7 @@
 <script setup lang="ts">
 const appStore = useAppStore();
 
-const diffCostsChart = ref(false);
+const diffCosts = ref(false);
 
 const allowVerticalSplit = computed(() => appStore.currentComparison.scenarios.length < 5);
 </script>
