@@ -14,6 +14,7 @@ const stubs = {
 };
 
 const expectedCostsForNoneScenario = [
+  "8,925,000",
   "6,531,000",
   "6,329,000",
   "202,000",
@@ -26,6 +27,9 @@ const expectedCostsForNoneScenario = [
   "31,000",
   "175,000",
 ];
+const expectedLifeYearsNaturalUnitsCostsForNoneScenario = ["158.1M", "9.9M", "85.9M", "38.4M", "23.9M"];
+const expectedDeathsForNoneScenario = "378.0K";
+
 const expectedUKAverageVslText = "2,032,236 Int'l$";
 const noneScenario = {
   ...emptyScenario,
@@ -66,28 +70,34 @@ describe("costs table for the current scenario", () => {
       props: { scenarios: [store.currentScenario] },
     });
 
-    let componentText = component.text();
+    const componentText = component.text();
 
     expect(componentText).toContain("$, millions");
-
     expect(componentText).toContain("Expand all");
     expect(componentText).not.toContain("Collapse all");
-    expect(componentText).not.toContain("Total");
+    expect(component.findAll("tr")[1].text()).toContain("Total losses");
 
-    const expandButton = component.find("button[aria-label='Expand costs table']");
-    await expandButton.trigger("click");
+    expectedCostsForNoneScenario.forEach((cost, index) => {
+      const row = component.findAll("tr")[index + 1];
+      expect(row.text()).toContain(cost);
+    });
 
-    componentText = component.text();
-
-    expect(componentText).not.toContain("Expand all");
-    expect(componentText).toContain("Collapse all");
-
-    expectedCostsForNoneScenario.forEach(cost => expect(componentText).toContain(cost));
+    const deathRow = component.findAll("tr")[expectedCostsForNoneScenario.length + 2].text();
+    expect(deathRow).toContain("Total deaths");
+    expect(deathRow).toContain(expectedDeathsForNoneScenario);
+    const lifeYearsNaturalUnitsRow = component.findAll("tr")[expectedCostsForNoneScenario.length + 3].text();
+    expect(lifeYearsNaturalUnitsRow).toContain("All age sectors");
+    expectedLifeYearsNaturalUnitsCostsForNoneScenario.forEach((cost, index) => {
+      const row = component.findAll("tr")[index + expectedCostsForNoneScenario.length + 3];
+      expect(row.text()).toContain(cost);
+    });
 
     const vslModalComponentText = await openVslModal(component);
 
     expect(vslModalComponentText).toContain("value of statistical life");
     expect(vslModalComponentText).toContain(expectedUKAverageVslText);
+
+    expect(componentText).not.toContain("+");
   });
 
   it("should render costs table correctly, when cost basis is percent of GDP", async () => {
@@ -110,7 +120,7 @@ describe("costs table for the current scenario", () => {
     const componentText = component.text();
 
     expect(componentText).toContain("% of GDP");
-    expect(componentText).not.toContain("Total");
+    expect(component.findAll("tr")[1].text()).toContain("Total losses");
 
     mockResultResponseData.costs[0].children.forEach((cost) => {
       const costUSD = cost.values.find(v => v.metric === USD_METRIC)?.value;
@@ -125,18 +135,20 @@ describe("costs table for the current scenario", () => {
 
     expect(vslModalComponentText).toContain("value of statistical life");
     expect(vslModalComponentText).toContain(expectedUKAverageVslText);
+
+    expect(componentText).not.toContain("+");
   });
 });
 
 describe("costs table for all scenarios in a comparison", () => {
-  const recursivelyAddValue = (costs: ScenarioCost[], valueToAdd: number): ScenarioCost[] => {
+  const recursivelyMultiplyValue = (costs: ScenarioCost[], factor: number): ScenarioCost[] => {
     return costs.map(cost => ({
       ...cost,
-      values: cost.values.map(v => ({ ...v, value: v.value + valueToAdd })),
-      children: cost.children ? recursivelyAddValue(cost.children, valueToAdd) : undefined,
+      values: cost.values.map(v => ({ ...v, value: v.value * factor })),
+      children: cost.children ? recursivelyMultiplyValue(cost.children, factor) : undefined,
     }));
   };
-  const differenceBetweenScenarios = 2000;
+  const differenceBetweenScenarios = 2;
   const mediumScenario = {
     ...structuredClone(emptyScenario),
     runId: "medium-scenario-id",
@@ -146,24 +158,38 @@ describe("costs table for all scenarios in a comparison", () => {
       data: {
         ...structuredClone(mockResultResponseData),
         parameters: { vaccine: "medium" },
-        costs: recursivelyAddValue(mockResultResponseData.costs, differenceBetweenScenarios),
+        costs: recursivelyMultiplyValue(mockResultResponseData.costs, differenceBetweenScenarios),
+        time_series: {
+          ...structuredClone(mockResultResponseData.time_series),
+          dead: [
+            ...structuredClone(mockResultResponseData.time_series.dead),
+            12345,
+          ],
+        },
       },
     },
   };
-  const expectedTotalForNoneScenario = "8,925,000";
-  const expectedTotalForMediumScenario = "8,927,000";
   const expectedCostsForMediumScenario = [
-    "6,533,000",
-    "6,331,000",
-    "204,000",
-    "1,541,000",
-    "1,538,000",
-    "5,000",
-    "857,000",
-    "2,000",
-    "651,000",
-    "33,000",
-    "177,000",
+    "17,850,000",
+    "13,062,000",
+    "12,658,000",
+    "404,000",
+    "3,077,000",
+    "3,071,000",
+    "6,000",
+    "1,710,000",
+    "700",
+    "1,298,000",
+    "61,000",
+    "351,000",
+  ];
+  const expectedDeathsForMediumScenario = "12.3K";
+  const expectedLifeYearsNaturalUnitsCostsForMediumScenario = [
+    "316.2M",
+    "19.9M",
+    "171.8M",
+    "76.8M",
+    "47.7M",
   ];
 
   it("should render costs table correctly, when cost basis is USD, and NOT diffing", async () => {
@@ -208,23 +234,47 @@ describe("costs table for all scenarios in a comparison", () => {
     expect(componentText).not.toContain("Expand all");
     expect(componentText).toContain("Collapse all");
 
-    expect(componentText).toContain("Total");
-    expect(componentText).toContain(expectedTotalForNoneScenario);
-    expect(componentText).toContain(expectedTotalForMediumScenario);
+    const firstDataRowText = component.findAll("tr")[1].text();
+    expect(firstDataRowText).toContain("Total losses");
 
     const baselineTdClass = "text-primary-emphasis";
-    expectedCostsForNoneScenario.forEach((cost) => {
-      expect(component.findAll("td").find(td => td.text() === cost)!.classes()).not.toContain(baselineTdClass);
+    expectedCostsForNoneScenario.forEach((cost, index) => {
+      const row = component.findAll("tr")[index + 1];
+      expect(row.text()).toContain(cost);
+      const td = row.findAll("td").find(td => td.text() === cost);
+      expect(td).toBeDefined();
+      expect(td!.classes()).not.toContain(baselineTdClass);
     });
 
-    expectedCostsForMediumScenario.forEach((cost) => {
-      expect(component.findAll("td").find(td => td.text() === cost)!.classes()).toContain(baselineTdClass);
+    expectedCostsForMediumScenario.forEach((cost, index) => {
+      const row = component.findAll("tr")[index + 1];
+      expect(row.text()).toContain(cost);
+      const td = row.findAll("td").find(td => td.text() === cost);
+      expect(td).toBeDefined();
+      expect(td!.classes()).toContain(baselineTdClass);
+    });
+
+    const deathRow = component.findAll("tr")[expectedCostsForNoneScenario.length + 2].text();
+    expect(deathRow).toContain("Total deaths");
+    expect(deathRow).toContain(expectedDeathsForNoneScenario);
+    expect(deathRow).toContain(expectedDeathsForMediumScenario);
+    const lifeYearsNaturalUnitsRow = component.findAll("tr")[expectedCostsForNoneScenario.length + 3].text();
+    expect(lifeYearsNaturalUnitsRow).toContain("All age sectors");
+    expectedLifeYearsNaturalUnitsCostsForNoneScenario.forEach((cost, index) => {
+      const row = component.findAll("tr")[index + expectedCostsForNoneScenario.length + 3];
+      expect(row.text()).toContain(cost);
+    });
+    expectedLifeYearsNaturalUnitsCostsForMediumScenario.forEach((cost, index) => {
+      const row = component.findAll("tr")[index + expectedCostsForNoneScenario.length + 3];
+      expect(row.text()).toContain(cost);
     });
 
     const vslModalComponentText = await openVslModal(component);
 
     expect(vslModalComponentText).toContain("value of statistical life");
     expect(vslModalComponentText).toContain(expectedUKAverageVslText);
+
+    expect(componentText).not.toContain("+");
   });
 
   it("should render costs table correctly, when cost basis is percent of GDP, and NOT diffing", async () => {
@@ -258,19 +308,19 @@ describe("costs table for all scenarios in a comparison", () => {
     expect(componentText).toContain("None");
     expect(componentText).toContain("Medium");
 
-    expect(componentText).toContain("Total");
+    expect(component.findAll("tr")[1].text()).toContain("Total");
     mockResultResponseData.costs.forEach((totalCost) => {
       const totalCostUSD = totalCost.values.find(v => v.metric === USD_METRIC)!.value;
       expect(componentText).toContain(costAsPercentOfGdp(totalCostUSD, mockResultResponseData.gdp).toFixed(1));
-      expect(componentText).toContain(costAsPercentOfGdp(totalCostUSD + 2000, mockResultResponseData.gdp).toFixed(1));
+      expect(componentText).toContain(costAsPercentOfGdp(totalCostUSD * differenceBetweenScenarios, mockResultResponseData.gdp).toFixed(1));
       totalCost.children.forEach((cost) => {
         const costUSD = cost.values.find(v => v.metric === USD_METRIC)!.value;
         expect(componentText).toContain(costAsPercentOfGdp(costUSD, mockResultResponseData.gdp).toFixed(1));
-        expect(componentText).toContain(costAsPercentOfGdp(costUSD + 2000, mockResultResponseData.gdp).toFixed(1));
+        expect(componentText).toContain(costAsPercentOfGdp(costUSD * differenceBetweenScenarios, mockResultResponseData.gdp).toFixed(1));
         cost.children.forEach((subCost) => {
           const subCostUSD = subCost.values.find(v => v.metric === USD_METRIC)!.value;
           expect(componentText).toContain(costAsPercentOfGdp(subCostUSD, mockResultResponseData.gdp).toFixed(1));
-          expect(componentText).toContain(costAsPercentOfGdp(subCostUSD + 2000, mockResultResponseData.gdp).toFixed(1));
+          expect(componentText).toContain(costAsPercentOfGdp(subCostUSD * differenceBetweenScenarios, mockResultResponseData.gdp).toFixed(1));
         });
       });
     });
@@ -279,6 +329,8 @@ describe("costs table for all scenarios in a comparison", () => {
 
     expect(vslModalComponentText).toContain("value of statistical life");
     expect(vslModalComponentText).toContain(expectedUKAverageVslText);
+
+    expect(componentText).not.toContain("+");
   });
 
   it("should render costs table correctly, when cost basis is USD, and diffing mode is switched on", async () => {
@@ -303,7 +355,6 @@ describe("costs table for all scenarios in a comparison", () => {
       },
       props: { diffing: true, scenarios: store.currentComparison.scenarios },
     });
-    const expectedDiffString = `-${Intl.NumberFormat().format(differenceBetweenScenarios)}`;
 
     const componentText = component.text();
 
@@ -313,12 +364,16 @@ describe("costs table for all scenarios in a comparison", () => {
     expect(componentText).toContain("None");
     expect(componentText).not.toContain("Medium");
 
-    expect(componentText).toContain("Net losses");
-    let numberOfMatchesFound = 0;
-    Array.from(componentText.matchAll(new RegExp(expectedDiffString, "g"))).forEach(() => {
-      numberOfMatchesFound++;
+    expect(component.findAll("tr")[1].text()).toContain("Net losses");
+    let numberOfNegativeDifferences = 0;
+    Array.from(componentText.matchAll(/-\d/g)).forEach(() => {
+      numberOfNegativeDifferences++;
     });
-    expect(numberOfMatchesFound).toEqual(expectedCostsForNoneScenario.length + 1); // Plus one for the net total.
+    expect(numberOfNegativeDifferences).toEqual(expectedCostsForNoneScenario.length + expectedLifeYearsNaturalUnitsCostsForNoneScenario.length);
+
+    const deathRow = component.findAll("tr")[expectedCostsForNoneScenario.length + 2];
+    expect(deathRow.text()).toContain("Total deaths");
+    expect(deathRow.text()).toContain("+365.6K"); // A positive difference including '+' sign
 
     const vslModalComponentText = await openVslModal(component);
 

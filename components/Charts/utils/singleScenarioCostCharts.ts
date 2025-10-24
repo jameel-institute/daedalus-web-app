@@ -1,5 +1,5 @@
 import type { TooltipPointInstance } from "~/components/utils/charts";
-import { costAsPercentOfGdp, humanReadablePercentOfGdp } from "~/components/utils/formatters";
+import { abbreviateMillions, costAsPercentOfGdp, humanReadablePercentOfGdp } from "~/components/utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import { costsChartTooltipPointFormatter } from "./costCharts";
 
@@ -12,7 +12,7 @@ export const costsChartSingleScenarioTooltip = (context: unknown, costBasis: Cos
     const percentOfGdp = humanReadablePercentOfGdp(tooltipPointInstance.total);
     headerText = `${headerText}<b>${percentOfGdp.percent}%</b> ${percentOfGdp.reference}`;
   } else {
-    const abbreviatedTotal = abbreviateMillionsDollars(tooltipPointInstance.total);
+    const abbreviatedTotal = abbreviateMillions(tooltipPointInstance.total);
     headerText = `${headerText}<b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b> USD`;
     if (tooltipPointInstance.total > 0) {
       const percentOfGdp = humanReadablePercentOfGdp(costAsPercentOfGdp(tooltipPointInstance.total, nationalGdp));
@@ -35,7 +35,7 @@ export const costsChartSingleScenarioStackLabelFormatter = (value: number, costB
   if (costBasis === CostBasis.PercentGDP) {
     return `${humanReadablePercentOfGdp(value).percent}% of GDP`;
   } else if (costBasis === CostBasis.USD) {
-    const abbr = abbreviateMillionsDollars(value, false);
+    const abbr = abbreviateMillions(value, false);
     return `$${abbr.amount} ${abbr.unit}`;
   }
 };
