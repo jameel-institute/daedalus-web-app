@@ -1,5 +1,4 @@
-import { abbreviateMillions } from "~/utils/money";
-import { humanReadablePercentOfGdp } from "~/components/utils/formatters";
+import { abbreviateMillions, humanReadablePercentOfGdp } from "~/components/utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import { colorBlindSafeSmallPalette, type TooltipPointInstance } from "../../utils/charts";
 

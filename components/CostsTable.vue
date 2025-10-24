@@ -138,7 +138,7 @@
 
 <script lang="ts" setup>
 import { CIcon } from "@coreui/icons-vue";
-import { costAsPercentOfGdp, humanReadablePercentOfGdp } from "./utils/formatters";
+import { abbreviateMillions, costAsPercentOfGdp, humanReadablePercentOfGdp } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import type { Scenario } from "~/types/storeTypes";
 import { diffAgainstBaseline } from "./utils/comparisons";

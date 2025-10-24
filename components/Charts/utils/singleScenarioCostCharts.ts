@@ -1,5 +1,5 @@
 import type { TooltipPointInstance } from "~/components/utils/charts";
-import { costAsPercentOfGdp, humanReadablePercentOfGdp } from "~/components/utils/formatters";
+import { abbreviateMillions, costAsPercentOfGdp, humanReadablePercentOfGdp } from "~/components/utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import { costsChartTooltipPointFormatter } from "./costCharts";
 
