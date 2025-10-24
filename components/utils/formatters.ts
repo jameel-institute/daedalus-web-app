@@ -15,7 +15,7 @@ export const commaSeparatedNumber = (num: string | undefined): string => {
     return `-${commaSeparatedNumber(num.slice(1))}`;
   }
   const numberOfDigitsAfterDecimal = num.split(".")[1]?.length;
-  num = num.replace(/,/g, "");
+  num = num.replaceAll(",", "");
   const parsedNum = numberOfDigitsAfterDecimal ? Number.parseFloat(num) : Number.parseInt(num);
   return Intl.NumberFormat(undefined, {
     minimumFractionDigits: numberOfDigitsAfterDecimal,

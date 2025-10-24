@@ -162,6 +162,11 @@ const scenariosToDisplay = computed(() => {
 
 const scenarioLabel = (scenario: Scenario) => appStore.getScenarioAxisLabel(scenario);
 
+const withSign = (value: string): string => {
+  const sign = Number.parseInt(value) < 0 ? "-" : "+";
+  return `${props.diffing ? sign : ""}${value.replace("-", "")}`;
+};
+
 const displayValue = (scenario: Scenario, costId: string, metricId: string): string | undefined => {
   const cost = appStore.getScenarioCostById(scenario, costId)!;
   const val = props.diffing ? diffAgainstBaseline(cost, metricId) : getValueFromCost(cost, metricId);
@@ -170,21 +175,22 @@ const displayValue = (scenario: Scenario, costId: string, metricId: string): str
   }
   if (metricId !== USD_METRIC) {
     const { amount, unit } = abbreviateMillions(val / 1000_000, true, 1);
-    return `${amount}${unit}`;
+    return `${withSign(amount)}${unit}`;
   }
   switch (appStore.preferences.costBasis) {
     case CostBasis.PercentGDP:
     {
       const percentOfGdp = costAsPercentOfGdp(val, scenario.result.data?.gdp);
-      return `${humanReadablePercentOfGdp(percentOfGdp).percent}%`;
+      return `${withSign(humanReadablePercentOfGdp(percentOfGdp).percent)}%`;
     }
     case CostBasis.USD:
     {
-      return Math.abs(val) > 10_000
+      const amount = Math.abs(val) > 10_000
         ? (Math.round(val / 1000) * 1000).toLocaleString()
         : new Intl.NumberFormat("en-US", {
             maximumSignificantDigits: 1,
           }).format(val);
+      return withSign(amount);
     }
   }
 };
@@ -202,10 +208,10 @@ const displayDeaths = (scenario: Scenario): string | undefined => {
       return;
     }
     const { amount, unit } = abbreviateMillions((totalDeaths - baselineTotalDeaths) / 1000_000, true, 1);
-    return `${amount}${unit}`;
+    return `${withSign(amount)}${unit}`;
   }
   const { amount, unit } = abbreviateMillions(totalDeaths / 1000_000, true, 1);
-  return `${amount}${unit}`;
+  return `${withSign(amount)}${unit}`;
 };
 
 const scenarioClass = (scenario: Scenario) => {
