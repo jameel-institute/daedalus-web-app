@@ -669,10 +669,17 @@ describe("app store", () => {
         expect(store.currentScenario.result.data?.costs).toEqual(mockResultData.costs);
       });
 
-      const cost = store.getScenarioCostById(store.currentScenario, "gdp_closures");
+      const totalCost = store.getScenarioCostById(store.currentScenario, "total");
+      expect(totalCost?.id).toEqual("total");
+      expect(totalCost?.children).toHaveLength(3);
 
-      expect(cost?.id).toEqual("gdp_closures");
-      expect(cost?.values).toHaveLength(1);
+      const educationCost = store.getScenarioCostById(store.currentScenario, "education");
+      expect(educationCost?.id).toEqual("education");
+      expect(educationCost?.children).toHaveLength(2);
+
+      const gdpClosuresCost = store.getScenarioCostById(store.currentScenario, "gdp_closures");
+      expect(gdpClosuresCost?.id).toEqual("gdp_closures");
+      expect(gdpClosuresCost?.children).toBeUndefined();
     });
 
     it("can get the 'value of statistical life' for a given scenario", async () => {
