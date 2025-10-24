@@ -322,16 +322,14 @@ export const useAppStore = defineStore("app", {
       }
       let cost: ScenarioCost | undefined;
       const costFromParent = (parentCost: ScenarioCost): ScenarioCost | undefined => {
-        if (cost !== undefined) {
+        if (cost) {
           return;
         }
         if (costId === parentCost.id) {
           cost = parentCost;
+          return;
         }
-        const matchingChild = parentCost.children?.find(c => costFromParent(c));
-        if (!cost) {
-          cost = matchingChild;
-        }
+        parentCost.children?.forEach(c => costFromParent(c));
       };
       costFromParent(totalCost);
       return cost;
