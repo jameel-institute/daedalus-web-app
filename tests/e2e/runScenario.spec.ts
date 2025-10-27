@@ -4,7 +4,7 @@ import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
 import { checkTimeSeriesDataPoints } from "./helpers/checkTimeSeriesDataPoints";
-import { commaSeparatedNumberMatcher, costTolerance, decimalPercentMatcher, parameterLabels, scenarioPathMatcher } from "./helpers/constants";
+import { commaSeparatedNumberMatcher, costTolerance, decimalPercentMatcher, moneyTableRowLabels, parameterLabels, scenarioPathMatcher } from "./helpers/constants";
 import checkBarChartDataIsDifferent from "./helpers/checkBarChartDataIsDifferent";
 import checkValueIsInRange from "./helpers/checkValueIsInRange";
 
@@ -153,23 +153,12 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   const expandCostsTableButton = page.getByTestId("toggle-costs-table");
   await expandCostsTableButton.click();
   const tableRows = page.locator("#costs-table-body tr");
-
-  [
-    "GDP",
-    "Closures",
-    "Absences",
-    "Education",
-    "Closures",
-    "Absences",
-    "Life years\\*",
-    "Preschool-age children",
-    "School-age children",
-    "Working-age adults",
-    "Retirement-age adults",
-  ].forEach(async (label, i) => {
-    const row = tableRows.nth(i);
-    await expect(row).toHaveText(new RegExp(`${label}\\s*${commaSeparatedNumberMatcher}`));
+  moneyTableRowLabels.forEach(async (label, i) => {
+    await expect(tableRows.nth(i)).toHaveText(new RegExp(`${label}\\s*${commaSeparatedNumberMatcher}`));
   });
+
+  await expect(tableRows.nth(moneyTableRowLabels.length + 1)).toHaveText(/Deaths\s*\d{1,4}\.\d(TBMK)?/);
+  await expect(tableRows.nth(moneyTableRowLabels.length + 2)).toHaveText(/Life years lost\s*\d{1,4}\.\d(TBMK)?/);
 
   // Check that after toggling the cost basis we see different data.
   await page.getByLabel("as % of pre-pandemic GDP").check();
@@ -177,7 +166,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   const costsChartDataGdp = JSON.parse(costsChartDataGdpStr!);
   expect(costsChartDataGdp).toHaveLength(4);
   checkBarChartDataIsDifferent(costsChartDataUsd, costsChartDataGdp);
-  expect(await tableRows.nth(0).textContent()).toMatch(new RegExp(`GDP\\s*${decimalPercentMatcher}`));
+  moneyTableRowLabels.forEach(async (label, i) => {
+    await expect(tableRows.nth(i)).toHaveText(new RegExp(`${label}\\s*${decimalPercentMatcher}`));
+  });
 
   // Run a second analysis with a different parameter, using the parameters form on the results page.
   await page.getByRole("button", { name: "Parameters" }).first().click();

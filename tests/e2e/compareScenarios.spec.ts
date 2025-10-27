@@ -2,7 +2,7 @@ import { expect, type Locator, type Page, test } from "@playwright/test";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
 import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
-import { commaSeparatedNumberMatcher, costTolerance, decimalPercentMatcher, decimalPercentMatcherAllowNegatives, parameterLabels, runIdMatcher, scenarioPathMatcher } from "./helpers/constants";
+import { commaSeparatedNumberMatcher, costTolerance, decimalPercentMatcher, decimalPercentMatcherAllowNegatives, moneyTableRowLabels, parameterLabels, runIdMatcher, scenarioPathMatcher } from "./helpers/constants";
 import checkValueIsInRange from "./helpers/checkValueIsInRange";
 import checkBarChartDataIsDifferent from "./helpers/checkBarChartDataIsDifferent";
 import { checkMultiScenarioTimeSeriesDataPoints } from "./helpers/checkTimeSeriesDataPoints";
@@ -110,27 +110,16 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
   await expandCostsTableButton.click();
   const tableRows = page.locator("#costs-table-body tr");
 
-  [
-    "Total losses",
-    "GDP",
-    "Closures",
-    "Absences",
-    "Education",
-    "Closures",
-    "Absences",
-    "Life years\\*",
-    "Preschool-age children",
-    "School-age children",
-    "Working-age adults",
-    "Retirement-age adults",
-  ].forEach(async (label, i) => {
-    const row = tableRows.nth(i);
-    await expect(row).toHaveText(new RegExp(`${label}`
+  moneyTableRowLabels.forEach(async (label, i) => {
+    await expect(tableRows.nth(i)).toHaveText(new RegExp(`${label}`
       + `\\s*${commaSeparatedNumberMatcher}`
       + `\\s*${commaSeparatedNumberMatcher}`
       + `\\s*${commaSeparatedNumberMatcher}`),
     );
   });
+
+  await expect(tableRows.nth(moneyTableRowLabels.length + 1)).toHaveText(/Deaths\s*\d{1,4}\.\d(TBMK)?/);
+  await expect(tableRows.nth(moneyTableRowLabels.length + 2)).toHaveText(/Life years lost\s*\d{1,4}\.\d(TBMK)?/);
 
   // Check that after toggling the cost basis we see different data.
   await page.getByLabel("as % of pre-pandemic GDP").check();

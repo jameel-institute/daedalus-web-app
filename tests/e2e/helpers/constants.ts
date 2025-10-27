@@ -15,3 +15,18 @@ export const costTolerance = 0.3;
 export const commaSeparatedNumberMatcher = "\\d{1,3}(,\\d{3})*";
 export const decimalPercentMatcher = "\\d{1,4}(\\.\\d)?%";
 export const decimalPercentMatcherAllowNegatives = "-?\\d{1,4}(\\.\\d)?%";
+
+export const moneyTableRowLabels = [
+  "Total losses",
+  "GDP",
+  "Closures",
+  "Absences",
+  "Education",
+  "Closures",
+  "Absences",
+  "Life years\\*",
+  "Preschool-age children",
+  "School-age children",
+  "Working-age adults",
+  "Retirement-age adults",
+];
