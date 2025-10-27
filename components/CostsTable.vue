@@ -1,6 +1,15 @@
 <template>
   <table class="table rounded table-hover table-sm" aria-label="Costs table">
     <thead class="border-bottom-2 border-black">
+      <tr v-if="multiScenario">
+        <th class="border-0" />
+        <th
+          colspan="100%"
+          class="border-0 fw-medium pb-0"
+        >
+          {{ costBasisText }}
+        </th>
+      </tr>
       <tr>
         <th>
           <CButton
@@ -17,12 +26,12 @@
           </CButton>
         </th>
         <th
-          v-for="(scenario, index) in scenariosToDisplay"
+          v-for="scenario in scenariosToDisplay"
           :key="scenario.runId"
         >
           <div class="d-flex flex-column">
-            <span v-if="index === 0" class="boldish">
-              {{ appStore.preferences.costBasis === CostBasis.PercentGDP ? "% of GDP" : "$, millions (USD)" }}
+            <span v-if="!multiScenario" class="boldish">
+              {{ costBasisText }}
             </span>
             <span
               v-if="multiScenario"
@@ -81,17 +90,11 @@
         </tr>
       </template>
       <tr class="boldish no-hover border-bottom-2 border-black">
-        <td class="border-0" />
-        <td class="border-0 pt-3" colspan="100%">
-          Loss of life
-        </td>
+        <td class="pt-3" colspan="100%" />
       </tr>
-      <tr
-        class="bg-white"
-        :class="{ 'fw-medium': !accordioned }"
-      >
+      <tr class="bg-white">
         <td class="ps-2">
-          Total deaths
+          Deaths
         </td>
         <td
           v-for="(scenario) in scenariosToDisplay"
@@ -101,12 +104,9 @@
           {{ `${displayDeaths(scenario)} ${multiScenario ? "" : "deaths"}` }}
         </td>
       </tr>
-      <tr
-        class="bg-white"
-        :class="{ 'fw-medium': !accordioned }"
-      >
+      <tr class="bg-white">
         <td class="ps-2">
-          All age sectors (life years)
+          Life years lost
         </td>
         <td
           v-for="(scenario) in scenariosToDisplay"
@@ -153,7 +153,7 @@ const accordioned = ref(true);
 const appStore = useAppStore();
 
 const multiScenario = computed(() => props.scenarios.length > 1);
-
+const costBasisText = computed(() => appStore.preferences.costBasis === CostBasis.PercentGDP ? "% of GDP" : "$, millions (USD)");
 const scenariosToDisplay = computed(() => {
   return props.diffing
     ? props.scenarios.filter(s => s.runId !== appStore.baselineScenario?.runId)
