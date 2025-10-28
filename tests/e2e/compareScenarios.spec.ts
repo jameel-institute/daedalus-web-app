@@ -118,8 +118,8 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
     );
   });
 
-  await expect(tableRows.nth(moneyTableRowLabels.length + 1)).toHaveText(/Deaths\s*\d{1,4}\.\d(TBMK)?/);
-  await expect(tableRows.nth(moneyTableRowLabels.length + 2)).toHaveText(/Life years lost\s*\d{1,4}\.\d(TBMK)?/);
+  await expect(tableRows.nth(moneyTableRowLabels.length + 1)).toHaveText(/Life years lost\s*\d{1,4}\.\d(TBMK)?/);
+  await expect(tableRows.nth(moneyTableRowLabels.length + 7)).toHaveText(/Deaths\s*\d{1,4}\.\d(TBMK)?/);
 
   // Check that after toggling the cost basis we see different data.
   await page.getByLabel("as % of pre-pandemic GDP").check();

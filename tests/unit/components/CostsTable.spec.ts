@@ -81,16 +81,18 @@ describe("costs table for the current scenario", () => {
     const rows = component.findAll("tbody tr");
     expectedCostsForNoneScenario.forEach((cost, index) => expect(rows[index].text()).toContain(cost));
 
-    const deathRow = component.findAll("tbody tr")[expectedCostsForNoneScenario.length + 1].text();
-    expect(deathRow).toContain("Deaths");
-    expect(deathRow).toContain(expectedDeathsForNoneScenario);
-    const lifeYearsNaturalUnitsRow = component.findAll("tbody tr")[expectedCostsForNoneScenario.length + 2].text();
+    const lifeYearsNaturalUnitsRow = component.findAll("tbody tr")[expectedCostsForNoneScenario.length + 1].text();
     expect(lifeYearsNaturalUnitsRow).toContain("Life years lost");
     expectedLifeYearsNaturalUnitsCostsForNoneScenario.forEach((cost, index) => {
-      const row = component.findAll("tbody tr")[index + expectedCostsForNoneScenario.length + 2];
+      const row = component.findAll("tbody tr")[index + expectedCostsForNoneScenario.length + 1];
       expect(row.text()).toContain(cost);
     });
 
+    const deathRow = component.findAll("tbody tr")[
+      expectedCostsForNoneScenario.length + expectedLifeYearsNaturalUnitsCostsForNoneScenario.length + 2
+    ].text();
+    expect(deathRow).toContain("Deaths");
+    expect(deathRow).toContain(expectedDeathsForNoneScenario);
     const vslModalComponentText = await openVslModal(component);
 
     expect(vslModalComponentText).toContain("value of statistical life");
@@ -250,17 +252,20 @@ describe("costs table for all scenarios in a comparison", () => {
     });
 
     const rows = component.findAll("tbody tr");
-    const deathRow = rows[expectedCostsForNoneScenario.length + 1].text();
-    expect(deathRow).toContain("Deaths");
-    expect(deathRow).toContain(expectedDeathsForNoneScenario);
-    expect(deathRow).toContain(expectedDeathsForMediumScenario);
-    const lifeYearsNaturalUnitsRow = rows[expectedCostsForNoneScenario.length + 2].text();
+    const lifeYearsNaturalUnitsRow = rows[expectedCostsForNoneScenario.length + 1].text();
     expect(lifeYearsNaturalUnitsRow).toContain("Life years lost");
     expectedLifeYearsNaturalUnitsCostsForNoneScenario.forEach((cost, index) => {
-      const rowText = rows[index + expectedCostsForNoneScenario.length + 2].text();
+      const rowText = rows[index + expectedCostsForNoneScenario.length + 1].text();
       expect(rowText).toContain(cost);
       expect(rowText).toContain(expectedLifeYearsNaturalUnitsCostsForMediumScenario[index]);
     });
+
+    const deathRow = rows[
+      expectedCostsForNoneScenario.length + expectedLifeYearsNaturalUnitsCostsForNoneScenario.length + 2
+    ].text();
+    expect(deathRow).toContain("Deaths");
+    expect(deathRow).toContain(expectedDeathsForNoneScenario);
+    expect(deathRow).toContain(expectedDeathsForMediumScenario);
 
     const vslModalComponentText = await openVslModal(component);
 
@@ -364,7 +369,9 @@ describe("costs table for all scenarios in a comparison", () => {
     });
     expect(numberOfNegativeDifferences).toEqual(expectedCostsForNoneScenario.length + expectedLifeYearsNaturalUnitsCostsForNoneScenario.length);
 
-    const deathRow = component.findAll("tbody tr")[expectedCostsForNoneScenario.length + 1];
+    const deathRow = component.findAll("tbody tr")[
+      expectedCostsForNoneScenario.length + expectedLifeYearsNaturalUnitsCostsForNoneScenario.length + 2
+    ];
     expect(deathRow.text()).toContain("Deaths");
     expect(deathRow.text()).toContain("+365.6K"); // A positive difference including '+' sign
 

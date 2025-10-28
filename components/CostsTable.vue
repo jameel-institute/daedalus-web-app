@@ -94,18 +94,6 @@
       </tr>
       <tr class="bg-white">
         <td class="ps-2">
-          Deaths
-        </td>
-        <td
-          v-for="(scenario) in scenariosToDisplay"
-          :key="scenario.runId"
-          :class="scenarioClass(scenario)"
-        >
-          {{ `${displayDeaths(scenario)} ${multiScenario ? "" : "deaths"}` }}
-        </td>
-      </tr>
-      <tr class="bg-white">
-        <td class="ps-2">
           Life years lost
         </td>
         <td
@@ -129,6 +117,21 @@
           :class="scenarioClass(scenario)"
         >
           {{ `${displayValue(scenario, ageSectorCost.id, LIFE_YEARS_METRIC)} years` }}
+        </td>
+      </tr>
+      <tr class="boldish no-hover border-bottom-2 border-black">
+        <td class="pt-3" colspan="100%" />
+      </tr>
+      <tr class="bg-white">
+        <td class="ps-2">
+          Deaths
+        </td>
+        <td
+          v-for="(scenario) in scenariosToDisplay"
+          :key="scenario.runId"
+          :class="scenarioClass(scenario)"
+        >
+          {{ `${displayDeaths(scenario)} ${multiScenario ? "" : "deaths"}` }}
         </td>
       </tr>
     </tbody>
