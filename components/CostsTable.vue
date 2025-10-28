@@ -94,7 +94,7 @@
       </tr>
       <tr class="bg-white">
         <td class="ps-2">
-          Life years lost
+          Life years lost {{ props.diffing ? "relative to baseline" : "" }}
         </td>
         <td
           v-for="(scenario) in scenariosToDisplay"
@@ -124,7 +124,7 @@
       </tr>
       <tr class="bg-white">
         <td class="ps-2">
-          Deaths
+          Deaths {{ props.diffing ? "relative to baseline" : "" }}
         </td>
         <td
           v-for="(scenario) in scenariosToDisplay"
