@@ -1,15 +1,6 @@
 <template>
   <table class="table rounded table-hover table-sm" aria-label="Costs table">
     <thead class="border-bottom-2 border-black">
-      <tr v-if="multiScenario">
-        <th class="border-0" />
-        <th
-          colspan="100%"
-          class="border-0 fw-medium pb-0"
-        >
-          {{ costBasisText }}
-        </th>
-      </tr>
       <tr>
         <th>
           <CButton
@@ -30,9 +21,6 @@
           :key="scenario.runId"
         >
           <div class="d-flex flex-column">
-            <span v-if="!multiScenario" class="boldish">
-              {{ costBasisText }}
-            </span>
             <span
               v-if="multiScenario"
               class="fw-light"
@@ -48,6 +36,7 @@
       <tr class="bg-white fw-medium">
         <td class="ps-2">
           {{ props.diffing ? "Net losses relative to baseline" : "Total losses" }}
+          {{ appStore.preferences.costBasis === CostBasis.PercentGDP ? "as % of GDP" : "(USD)" }}
         </td>
         <td
           v-for="(scenario) in scenariosToDisplay"

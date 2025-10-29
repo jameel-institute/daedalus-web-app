@@ -223,7 +223,6 @@ describe("costs table for all scenarios in a comparison", () => {
     });
 
     const headerText = component.find("thead").text();
-    expect(headerText).toContain("$, millions");
     // Scenario labels
     expect(headerText).toContain("None");
     expect(headerText).toContain("Medium");
@@ -239,7 +238,7 @@ describe("costs table for all scenarios in a comparison", () => {
     expect(componentText).not.toContain("Expand all");
     expect(componentText).toContain("Collapse all");
 
-    expect(component.find("tbody tr").text()).toContain("Total losses");
+    expect(component.find("tbody tr").text()).toContain("Total losses (USD)");
 
     const baselineTdClass = "text-primary-emphasis";
     expectedCostsForNoneScenario.forEach((cost, index) => {
@@ -360,15 +359,12 @@ describe("costs table for all scenarios in a comparison", () => {
     });
 
     const headerText = component.find("thead").text();
-
-    expect(headerText).toContain("$, millions");
-
     // Scenario labels
     expect(headerText).toContain("None");
     expect(headerText).not.toContain("Medium");
 
     const componentText = component.text();
-    expect(component.find("tbody tr").text()).toContain("Net losses relative to baseline");
+    expect(component.find("tbody tr").text()).toContain("Net losses relative to baseline (USD)");
     let numberOfNegativeDifferences = 0;
     Array.from(componentText.matchAll(/-\$?\d/g)).forEach(() => {
       numberOfNegativeDifferences++;
