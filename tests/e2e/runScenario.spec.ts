@@ -4,7 +4,7 @@ import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
 import { checkTimeSeriesDataPoints } from "./helpers/checkTimeSeriesDataPoints";
-import { commaSeparatedNumberMatcher, costTolerance, decimalPercentMatcher, moneyTableRowLabels, parameterLabels, scenarioPathMatcher } from "./helpers/constants";
+import { costTolerance, decimalPercentMatcher, decimalUSDMatcher, moneyTableRowLabels, parameterLabels, scenarioPathMatcher } from "./helpers/constants";
 import checkBarChartDataIsDifferent from "./helpers/checkBarChartDataIsDifferent";
 import checkValueIsInRange from "./helpers/checkValueIsInRange";
 
@@ -116,6 +116,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
 
   await expect(page.locator("#costsChartContainer text.highcharts-credits").first()).toBeVisible();
 
+  expect(page.getByLabel("as % of pre-pandemic GDP")).not.toBeChecked();
+  expect(page.getByLabel("in USD")).toBeChecked();
+
   const costsChartDataUsdStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
   const costsChartDataUsd = JSON.parse(costsChartDataUsdStr!);
 
@@ -152,9 +155,10 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
 
   const expandCostsTableButton = page.getByTestId("toggle-costs-table");
   await expandCostsTableButton.click();
+
   const tableRows = page.locator("#costs-table-body tr");
   moneyTableRowLabels.forEach(async (label, i) => {
-    await expect(tableRows.nth(i)).toHaveText(new RegExp(`${label}\\s*${commaSeparatedNumberMatcher}`));
+    await expect(tableRows.nth(i)).toHaveText(new RegExp(`${label}\\s*${decimalUSDMatcher}`));
   });
 
   await expect(tableRows.nth(moneyTableRowLabels.length + 1)).toHaveText(/Life years lost\s*\d{1,4}\.\d(TBMK)?/);
