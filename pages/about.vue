@@ -176,6 +176,14 @@
       <a href="https://www.flaticon.com/" target="_blank">Flaticon</a>
     </p>
 
+    <p>
+      <strong>social-distance-2-meters-mdi.svg</strong>
+      Icon by
+      <a href="https://pictogrammers.com/contributor/mririgoyen/" target="_blank">Michael Irigoyen</a>
+      in Apache 2.0 License via
+      <a href="https://pictogrammers.com/" target="_blank">Pictogrammers</a>
+    </p>
+
     <h3>World map disclaimer and attribution</h3>
     <p>
       The country borders shown on the world map in DAEDALUS Explore are reflective of boundaries as
