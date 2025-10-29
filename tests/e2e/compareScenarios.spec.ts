@@ -27,7 +27,7 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
   await selectParameterOption(page, "pathogen", "SARS 2004");
   await selectParameterOption(page, "response", "Elimination");
   await selectParameterOption(page, "country", "United States");
-  await page.click(`div[aria-label="${parameterLabels.vaccine}"] label[for="medium"]`);
+  await page.click(`div[aria-label="${parameterLabels.vaccine}"] label[for="vaccine-medium"]`);
   await page.fill(`input[aria-label="${parameterLabels.hospital_capacity}"][type="number"]`, "305000");
 
   await page.click('button:has-text("Run")');

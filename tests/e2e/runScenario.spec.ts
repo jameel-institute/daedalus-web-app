@@ -35,7 +35,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await selectParameterOption(page, "country", "United States");
   await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).not.toHaveValue(initialHospitalCapacityValue);
 
-  await page.click(`div[aria-label="${parameterLabels.vaccine}"] label[for="medium"]`);
+  await page.click(`div[aria-label="${parameterLabels.vaccine}"] label[for="vaccine-medium"]`);
   await page.fill(`input[aria-label="${parameterLabels.hospital_capacity}"][type="number"]`, "305000");
 
   await page.click('button:has-text("Run")');

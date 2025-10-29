@@ -380,6 +380,36 @@
         ]
       },
       {
+        "id": "behaviour",
+        "label": "Change in public behaviour",
+        "description": "Level of change in public behaviour due to the perceived risk of infection; at a low level of behaviour change, the public adopts fewer precautions against infection.",
+        "parameterType": "select",
+        "defaultOption": "none",
+        "ordered": true,
+        "options": [
+          {
+            "id": "none",
+            "label": "None",
+            "description": "A"
+          },
+          {
+            "id": "low",
+            "label": "Low",
+            "description": "B"
+          },
+          {
+            "id": "medium",
+            "label": "Medium",
+            "description": "C"
+          },
+          {
+            "id": "high",
+            "label": "High",
+            "description": "D"
+          }
+        ]
+      },
+      {
         "id": "hospital_capacity",
         "label": "Hospital surge capacity",
         "description": "Number of hospital beds available nationally for pandemic patients",
