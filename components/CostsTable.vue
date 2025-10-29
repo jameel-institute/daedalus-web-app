@@ -182,11 +182,12 @@ const displayValue = (scenario: Scenario, costId: string, metricId: string): str
     }
     case CostBasis.USD:
     {
+      const numberOfSignificantDigits = absVal > 1_000 ? 4 : 1;
       return new Intl.NumberFormat(undefined, {
         notation: "compact",
         signDisplay,
-        maximumSignificantDigits: absVal > 1_000 ? 4 : 1,
-        minimumSignificantDigits: absVal > 1_000 ? 4 : 1,
+        maximumSignificantDigits: numberOfSignificantDigits,
+        minimumSignificantDigits: numberOfSignificantDigits,
         style: "currency",
         currency: "USD",
         currencyDisplay: "narrowSymbol",

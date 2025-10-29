@@ -4,7 +4,8 @@ import { getScenarioLabel } from "@/components/utils/comparisons";
 import type { TooltipPointInstance } from "@/components/utils/charts";
 import { CostBasis } from "@/types/unitTypes";
 import { costsChartTooltipPointFormatter, displayValue, valueColor } from "@/components/Charts/utils/costCharts";
-import { abbreviateMillionsDollars, humanReadablePercentOfGdp } from "@/components/utils/formatters";
+import { humanReadablePercentOfGdp } from "@/components/utils/formatters";
+import { abbreviateMillionsDollars } from "@/utils/money";
 
 // Tooltip text for a stacked column in a multi-scenario costs chart (shared tooltip for all points in the stack)
 export const costsChartMultiScenarioStackedTooltip = (

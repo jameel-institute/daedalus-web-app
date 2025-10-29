@@ -65,7 +65,8 @@
 </template>
 
 <script lang="ts" setup>
-import { abbreviateMillionsDollars, costAsPercentOfGdp, humanReadablePercentOfGdp } from "@/components/utils/formatters";
+import { costAsPercentOfGdp, humanReadablePercentOfGdp } from "@/components/utils/formatters";
+import { abbreviateMillionsDollars } from "@/utils/money";
 import { CIcon } from "@coreui/icons-vue";
 
 const appStore = useAppStore();
