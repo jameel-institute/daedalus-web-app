@@ -141,7 +141,7 @@
 
 <script lang="ts" setup>
 import { CIcon } from "@coreui/icons-vue";
-import { abbreviateMillions, costAsPercentOfGdp, humanReadablePercentOfGdp } from "./utils/formatters";
+import { costAsPercentOfGdp, humanReadablePercentOfGdp } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import type { Scenario } from "~/types/storeTypes";
 import { diffAgainstBaseline } from "./utils/comparisons";
@@ -156,7 +156,6 @@ const accordioned = ref(true);
 const appStore = useAppStore();
 
 const multiScenario = computed(() => props.scenarios.length > 1);
-const costBasisText = computed(() => appStore.preferences.costBasis === CostBasis.PercentGDP ? "% of GDP" : "$, millions (USD)");
 const scenariosToDisplay = computed(() => {
   return props.diffing
     ? props.scenarios.filter(s => s.runId !== appStore.baselineScenario?.runId)
@@ -165,35 +164,44 @@ const scenariosToDisplay = computed(() => {
 
 const scenarioLabel = (scenario: Scenario) => appStore.getScenarioAxisLabel(scenario);
 
-const withSign = (value: string): string => {
-  const sign = Number.parseInt(value) < 0 ? "-" : "+";
-  return `${props.diffing ? sign : ""}${value.replace("-", "")}`;
-};
-
 const displayValue = (scenario: Scenario, costId: string, metricId: string): string | undefined => {
   const cost = appStore.getScenarioCostById(scenario, costId)!;
   const val = props.diffing ? diffAgainstBaseline(cost, metricId) : getValueFromCost(cost, metricId);
   if (val === undefined) {
     return;
   }
+  const absVal = Math.abs(val);
+  const signDisplay = props.diffing ? "exceptZero" : "auto";
   if (metricId !== USD_METRIC) {
-    const { amount, unit } = abbreviateMillions(val / 1000_000, true, 1);
-    return `${withSign(amount)}${unit}`;
+    return Intl.NumberFormat(undefined, {
+      notation: "compact",
+      signDisplay,
+      maximumSignificantDigits: absVal > 10_000 ? 4 : 1,
+    }).format(val).split(/([KMBT])/).join(" ");
+  }
+  if (absVal < 1 && absVal > 0) {
+    return `<1${appStore.preferences.costBasis === CostBasis.PercentGDP ? "%" : ""}`;
   }
   switch (appStore.preferences.costBasis) {
     case CostBasis.PercentGDP:
     {
       const percentOfGdp = costAsPercentOfGdp(val, scenario.result.data?.gdp);
-      return `${withSign(humanReadablePercentOfGdp(percentOfGdp).percent)}%`;
+      if (percentOfGdp < 1) {
+        return "<1%";
+      }
+      return humanReadablePercentOfGdp(percentOfGdp, signDisplay).percent;
     }
     case CostBasis.USD:
     {
-      const amount = Math.abs(val) > 10_000
-        ? (Math.round(val / 1000) * 1000).toLocaleString()
-        : new Intl.NumberFormat("en-US", {
-            maximumSignificantDigits: 1,
-          }).format(val);
-      return withSign(amount);
+      return new Intl.NumberFormat(undefined, {
+        notation: "compact",
+        signDisplay,
+        maximumSignificantDigits: absVal > 1_000 ? 4 : 1,
+        minimumSignificantDigits: absVal > 1_000 ? 4 : 1,
+        style: "currency",
+        currency: "USD",
+        currencyDisplay: "narrowSymbol",
+      }).format(val * 1_000_000).split(/([KMBT])/).join(" ");
     }
   }
 };
@@ -204,17 +212,20 @@ const displayDeaths = (scenario: Scenario): string | undefined => {
   if (totalDeaths === undefined) {
     return;
   }
+  let val = totalDeaths;
   if (props.diffing) {
     const baselineSeries = appStore.baselineScenario?.result.data!.time_series[CUMULATIVE_DEATHS_SERIES_ID];
     const baselineTotalDeaths = baselineSeries?.at(-1) || 0;
     if (baselineTotalDeaths === undefined) {
       return;
     }
-    const { amount, unit } = abbreviateMillions((totalDeaths - baselineTotalDeaths) / 1000_000, true, 1);
-    return `${withSign(amount)}${unit}`;
+    val -= baselineTotalDeaths;
   }
-  const { amount, unit } = abbreviateMillions(totalDeaths / 1000_000, true, 1);
-  return `${withSign(amount)}${unit}`;
+  return Intl.NumberFormat(undefined, {
+    notation: "compact",
+    signDisplay: props.diffing ? "exceptZero" : "auto",
+    maximumSignificantDigits: Math.abs(val) > 10_000 ? 3 : 1,
+  }).format(val).split(/([KMBT])/).join(" ");
 };
 
 const scenarioClass = (scenario: Scenario) => {

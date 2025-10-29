@@ -14,21 +14,21 @@ const stubs = {
 };
 
 const expectedCostsForNoneScenario = [
-  "8,925,000",
-  "6,531,000",
-  "6,329,000",
-  "202,000",
-  "1,539,000",
-  "1,536,000",
-  "3,000",
-  "855,000",
-  "300",
-  "649,000",
-  "31,000",
-  "175,000",
+  "$8.925 T",
+  "$6.531 T",
+  "$6.329 T",
+  "$201.8 B",
+  "$1.539 T",
+  "$1.536 T",
+  "$3.146 B",
+  "$855.2 B",
+  "$300 M",
+  "$648.9 B",
+  "$30.64 B",
+  "$175.4 B",
 ];
-const expectedLifeYearsNaturalUnitsCostsForNoneScenario = ["158.1M", "9.9M", "85.9M", "38.4M", "23.9M"];
-const expectedDeathsForNoneScenario = "378.0K";
+const expectedLifeYearsNaturalUnitsCostsForNoneScenario = ["158.1 M", "9.945 M", "85.88 M", "38.42 M", "23.85 M"];
+const expectedDeathsForNoneScenario = "378 K";
 
 const expectedUKAverageVslText = "2,032,236 Int'l$";
 const noneScenario = {
@@ -52,6 +52,15 @@ const openVslModal = async (component: VueWrapper) => {
   return modalComponent.text();
 };
 
+const checkPercentText = (costUSD: number, gdp: number, componentText: string) => {
+  const percent = costAsPercentOfGdp(costUSD, gdp);
+  if (percent < 1) {
+    expect(componentText).toContain("<1%");
+  } else {
+    expect(componentText).toContain(percent.toFixed(1));
+  }
+};
+
 describe("costs table for the current scenario", () => {
   it("should render costs table correctly, when cost basis is USD", async () => {
     const pinia = mockPinia({
@@ -72,11 +81,10 @@ describe("costs table for the current scenario", () => {
 
     const headerText = component.find("thead").text();
 
-    expect(headerText).toContain("$, millions");
     expect(headerText).toContain("Expand all");
     expect(headerText).not.toContain("Collapse all");
 
-    expect(component.find("tbody tr").text()).toContain("Total losses");
+    expect(component.find("tbody tr").text()).toContain("Total losses (USD)");
 
     const rows = component.findAll("tbody tr");
     expectedCostsForNoneScenario.forEach((cost, index) => expect(rows[index].text()).toContain(cost));
@@ -118,16 +126,15 @@ describe("costs table for the current scenario", () => {
       props: { scenarios: [store.currentScenario] },
     });
 
-    expect(component.find("thead").text()).toContain("% of GDP");
-    expect(component.find("tbody tr").text()).toContain("Total losses");
+    expect(component.find("tbody tr").text()).toContain("Total losses as % of GDP");
 
     const componentText = component.text();
     mockResultResponseData.costs[0].children.forEach((cost) => {
-      const costUSD = cost.values.find(v => v.metric === USD_METRIC)?.value;
-      expect(componentText).toContain(costAsPercentOfGdp(costUSD, mockResultResponseData.gdp).toFixed(1));
+      const costUSD = cost.values.find(v => v.metric === USD_METRIC)!.value;
+      checkPercentText(costUSD, mockResultResponseData.gdp, componentText);
       cost.children.forEach((subCost) => {
-        const subCostUSD = subCost.values.find(v => v.metric === USD_METRIC)?.value;
-        expect(componentText).toContain(costAsPercentOfGdp(subCostUSD, mockResultResponseData.gdp).toFixed(1));
+        const subCostUSD = subCost.values.find(v => v.metric === USD_METRIC)!.value;
+        checkPercentText(subCostUSD, mockResultResponseData.gdp, componentText);
       });
     });
 
@@ -170,26 +177,26 @@ describe("costs table for all scenarios in a comparison", () => {
     },
   };
   const expectedCostsForMediumScenario = [
-    "17,850,000",
-    "13,062,000",
-    "12,658,000",
-    "404,000",
-    "3,077,000",
-    "3,071,000",
-    "6,000",
-    "1,710,000",
-    "700",
-    "1,298,000",
-    "61,000",
-    "351,000",
+    "$17.85 T",
+    "$13.06 T",
+    "$12.66 T",
+    "$403.5 B",
+    "$3.077 T",
+    "$3.071 T",
+    "$6.292 B",
+    "$1.710 T",
+    "$700 M",
+    "$1.298 T",
+    "$61.27 B",
+    "$350.8 B",
   ];
-  const expectedDeathsForMediumScenario = "12.3K";
+  const expectedDeathsForMediumScenario = "12.3 K";
   const expectedLifeYearsNaturalUnitsCostsForMediumScenario = [
-    "316.2M",
-    "19.9M",
-    "171.8M",
-    "76.8M",
-    "47.7M",
+    "316.2 M",
+    "19.89 M",
+    "171.8 M",
+    "76.85 M",
+    "47.7 M",
   ];
 
   it("should render costs table correctly, when cost basis is USD, and NOT diffing", async () => {
@@ -299,25 +306,24 @@ describe("costs table for all scenarios in a comparison", () => {
     });
 
     const headerText = component.find("thead").text();
-    expect(headerText).toContain("% of GDP");
     // Scenario labels
     expect(headerText).toContain("None");
     expect(headerText).toContain("Medium");
 
     const componentText = component.text();
-    expect(component.find("tbody tr").text()).toContain("Total");
+    expect(component.find("tbody tr").text()).toContain("Total losses as % of GDP");
     mockResultResponseData.costs.forEach((totalCost) => {
       const totalCostUSD = totalCost.values.find(v => v.metric === USD_METRIC)!.value;
-      expect(componentText).toContain(costAsPercentOfGdp(totalCostUSD, mockResultResponseData.gdp).toFixed(1));
-      expect(componentText).toContain(costAsPercentOfGdp(totalCostUSD * differenceBetweenScenarios, mockResultResponseData.gdp).toFixed(1));
+      checkPercentText(totalCostUSD, mockResultResponseData.gdp, componentText);
+      checkPercentText(totalCostUSD * differenceBetweenScenarios, mockResultResponseData.gdp, componentText);
       totalCost.children.forEach((cost) => {
         const costUSD = cost.values.find(v => v.metric === USD_METRIC)!.value;
-        expect(componentText).toContain(costAsPercentOfGdp(costUSD, mockResultResponseData.gdp).toFixed(1));
-        expect(componentText).toContain(costAsPercentOfGdp(costUSD * differenceBetweenScenarios, mockResultResponseData.gdp).toFixed(1));
+        checkPercentText(costUSD, mockResultResponseData.gdp, componentText);
+        checkPercentText(costUSD * differenceBetweenScenarios, mockResultResponseData.gdp, componentText);
         cost.children.forEach((subCost) => {
           const subCostUSD = subCost.values.find(v => v.metric === USD_METRIC)!.value;
-          expect(componentText).toContain(costAsPercentOfGdp(subCostUSD, mockResultResponseData.gdp).toFixed(1));
-          expect(componentText).toContain(costAsPercentOfGdp(subCostUSD * differenceBetweenScenarios, mockResultResponseData.gdp).toFixed(1));
+          checkPercentText(subCostUSD, mockResultResponseData.gdp, componentText);
+          checkPercentText(subCostUSD * differenceBetweenScenarios, mockResultResponseData.gdp, componentText);
         });
       });
     });
@@ -364,7 +370,7 @@ describe("costs table for all scenarios in a comparison", () => {
     const componentText = component.text();
     expect(component.find("tbody tr").text()).toContain("Net losses relative to baseline");
     let numberOfNegativeDifferences = 0;
-    Array.from(componentText.matchAll(/-\d/g)).forEach(() => {
+    Array.from(componentText.matchAll(/-\$?\d/g)).forEach(() => {
       numberOfNegativeDifferences++;
     });
     expect(numberOfNegativeDifferences).toEqual(expectedCostsForNoneScenario.length + expectedLifeYearsNaturalUnitsCostsForNoneScenario.length);
@@ -373,7 +379,7 @@ describe("costs table for all scenarios in a comparison", () => {
     expect(rows[expectedCostsForNoneScenario.length + 1].text()).toContain("Life years lost relative to baseline");
     const deathRow = rows[expectedCostsForNoneScenario.length + expectedLifeYearsNaturalUnitsCostsForNoneScenario.length + 2];
     expect(deathRow.text()).toContain("Deaths relative to baseline");
-    expect(deathRow.text()).toContain("+365.6K"); // A positive difference including '+' sign
+    expect(deathRow.text()).toContain("+366 K"); // A positive difference including '+' sign
 
     const vslModalComponentText = await openVslModal(component);
 

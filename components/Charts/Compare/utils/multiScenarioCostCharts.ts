@@ -3,8 +3,8 @@ import { countryFlagClass } from "@/components/utils/countryFlag";
 import { getScenarioLabel } from "@/components/utils/comparisons";
 import type { TooltipPointInstance } from "@/components/utils/charts";
 import { CostBasis } from "@/types/unitTypes";
-import { costsChartTooltipPointFormatter, displayMillionsDollars, valueColor } from "@/components/Charts/utils/costCharts";
-import { humanReadablePercentOfGdp } from "@/components/utils/formatters";
+import { costsChartTooltipPointFormatter, displayValue, valueColor } from "@/components/Charts/utils/costCharts";
+import { abbreviateMillionsDollars, humanReadablePercentOfGdp } from "@/components/utils/formatters";
 
 // Tooltip text for a stacked column in a multi-scenario costs chart (shared tooltip for all points in the stack)
 export const costsChartMultiScenarioStackedTooltip = (
@@ -29,17 +29,18 @@ export const costsChartMultiScenarioStackedTooltip = (
   if (costBasis === CostBasis.PercentGDP) {
     const percentOfGdp = humanReadablePercentOfGdp(totalStackValue);
     headerText = `${headerText}</br></br>${totalLossesText}<b>`
-      + `<span style="color: ${totalColor}">${percentOfGdp.percent}%</span>`
+      + `<span style="color: ${totalColor}">${percentOfGdp.percent}</span>`
       + `</b> ${percentOfGdp.reference}`;
   } else {
+    const abbr = abbreviateMillionsDollars(totalStackValue);
     headerText = `${headerText}<br/></br>${totalLossesText}<b>`
-      + `<span style="color: ${totalColor}">${displayMillionsDollars(totalStackValue)}</span>`
+      + `<span style="color: ${totalColor}">${abbr.amount} ${abbr.unit}</span>`
       + `</b> USD`;
     if (totalStackValue !== 0) {
       const totalCostAsGdpPercent = point.points?.map(p => p.custom.costAsGdpPercent!).reduce((sum, a) => sum + a, 0);
       if (totalCostAsGdpPercent) {
         const percentOfGdp = humanReadablePercentOfGdp(totalCostAsGdpPercent);
-        headerText = `${headerText}</br>(${percentOfGdp.percent}% ${percentOfGdp.reference})`;
+        headerText = `${headerText}</br>(${percentOfGdp.percent} ${percentOfGdp.reference})`;
       }
     }
   }
@@ -94,12 +95,10 @@ export const costsChartMultiScenarioStackLabelFormatter = (stackLabelItem: unkno
       return "";
     }
   }
-
   const netTotal = positiveTotal + negativeTotal;
-  const totalColor = valueColor(netTotal, diffing);
 
-  return `<span style="color: ${totalColor}">`
-    + `${costBasis === CostBasis.PercentGDP ? `${humanReadablePercentOfGdp(netTotal).percent}%` : displayMillionsDollars(netTotal, true)}`
+  return `<span style="color: ${valueColor(netTotal, diffing)}">`
+    + `${displayValue(netTotal, costBasis)}`
     + `${hasBothStackLabels ? " (net)" : ""}</span>`;
 };
 

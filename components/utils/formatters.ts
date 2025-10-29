@@ -36,43 +36,56 @@ export const costAsPercentOfGdp = (cost: number | undefined, nationalGdp: number
   return (cost / nationalGdp) * 100;
 };
 
-export const humanReadablePercentOfGdp = (num: number): { percent: string, reference: string } => {
+export const humanReadablePercentOfGdp = (
+  num: number,
+  signDisplay?: "exceptZero" | "auto" | "always",
+): { percent: string, reference: string } => {
   return {
-    percent: commaSeparatedNumber(num.toFixed(num < 100 ? 1 : 0)),
+    percent: Intl.NumberFormat(undefined, {
+      style: "percent",
+      minimumFractionDigits: num > 100 ? 0 : 1,
+      signDisplay,
+    }).format(num / 100),
     reference: `of pre-pandemic GDP`,
   };
 };
 
-// Convert values expressed in millions to sensible human-readable precision with units
+// Convert values expressed in millions of dollars to sensible human-readable precision with units
 // E.g. 1234567 -> { amount: "1.2", unit: "trillion" }
-export const abbreviateMillions = (
-  millions: number,
+export const abbreviateMillionsDollars = (
+  millionsDollars: number,
   abbreviateUnits: boolean = false,
   precision?: number,
 ): {
   amount: string
   unit: string
 } => {
-  let shortAmount: string;
-  let unit: string;
-  if (Math.abs(millions) >= 1e6) {
-    shortAmount = (millions / 1e6).toFixed(precision ?? 1);
-    unit = abbreviateUnits ? "T" : "trillion";
-  } else if (Math.abs(millions) >= 1e3) {
-    shortAmount = (millions / 1e3).toFixed(precision ?? 1);
-    unit = abbreviateUnits ? "B" : "billion";
-  } else if (Math.abs(millions) >= 1e0) {
-    shortAmount = (millions / 1e0).toFixed(precision ?? 1);
-    unit = abbreviateUnits ? "M" : "million";
-  } else {
-    shortAmount = (millions / 1e-3).toFixed(precision ?? 1);
-    unit = abbreviateUnits ? "K" : "thousand";
+  if (Math.abs(millionsDollars) < 1) {
+    return {
+      amount: "<$1",
+      unit: abbreviateUnits ? "M" : "million",
+    };
   }
-  if (precision === 0) {
-    shortAmount = commaSeparatedNumber(shortAmount);
+  const dollars = millionsDollars * 1_000_000;
+  const [amount, unitAbbr] = new Intl.NumberFormat(undefined, {
+    notation: "compact",
+    maximumFractionDigits: precision ?? 1,
+    minimumFractionDigits: precision ?? 1,
+    style: "currency",
+    currency: "USD",
+    currencyDisplay: "narrowSymbol",
+  }).format(dollars).split(/([KMBT])/);
+  let unit;
+  if (!abbreviateUnits) {
+    unit = {
+      K: "thousand",
+      M: "million",
+      B: "billion",
+      T: "trillion",
+    }[unitAbbr];
   }
   return {
-    amount: shortAmount,
-    unit,
+    amount,
+    unit: unit ?? unitAbbr ?? "",
   };
 };

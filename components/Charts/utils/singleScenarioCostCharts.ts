@@ -1,5 +1,5 @@
 import type { TooltipPointInstance } from "~/components/utils/charts";
-import { abbreviateMillions, costAsPercentOfGdp, humanReadablePercentOfGdp } from "~/components/utils/formatters";
+import { abbreviateMillionsDollars, costAsPercentOfGdp, humanReadablePercentOfGdp } from "~/components/utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import { costsChartTooltipPointFormatter } from "./costCharts";
 
@@ -10,13 +10,13 @@ export const costsChartSingleScenarioTooltip = (context: unknown, costBasis: Cos
   let headerText = `${tooltipPointInstance.point?.category} losses: `;
   if (costBasis === CostBasis.PercentGDP) {
     const percentOfGdp = humanReadablePercentOfGdp(tooltipPointInstance.total);
-    headerText = `${headerText}<b>${percentOfGdp.percent}%</b> ${percentOfGdp.reference}`;
+    headerText = `${headerText}<b>${percentOfGdp.percent}</b> ${percentOfGdp.reference}`;
   } else {
-    const abbreviatedTotal = abbreviateMillions(tooltipPointInstance.total);
-    headerText = `${headerText}<b>$${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b> USD`;
+    const abbreviatedTotal = abbreviateMillionsDollars(tooltipPointInstance.total);
+    headerText = `${headerText}<b>${abbreviatedTotal.amount} ${abbreviatedTotal.unit}</b> USD`;
     if (tooltipPointInstance.total > 0) {
       const percentOfGdp = humanReadablePercentOfGdp(costAsPercentOfGdp(tooltipPointInstance.total, nationalGdp));
-      headerText = `${headerText}</br>(${percentOfGdp.percent}% ${percentOfGdp.reference})`;
+      headerText = `${headerText}</br>(${percentOfGdp.percent} ${percentOfGdp.reference})`;
     }
   }
 
@@ -33,9 +33,9 @@ export const costsChartSingleScenarioTooltip = (context: unknown, costBasis: Cos
 // Labels for (stacked) columns for single scenario cost charts
 export const costsChartSingleScenarioStackLabelFormatter = (value: number, costBasis: CostBasis) => {
   if (costBasis === CostBasis.PercentGDP) {
-    return `${humanReadablePercentOfGdp(value).percent}% of GDP`;
+    return `${humanReadablePercentOfGdp(value).percent} of GDP`;
   } else if (costBasis === CostBasis.USD) {
-    const abbr = abbreviateMillions(value, false);
-    return `$${abbr.amount} ${abbr.unit}`;
+    const abbr = abbreviateMillionsDollars(value, false);
+    return `${abbr.amount} ${abbr.unit}`;
   }
 };

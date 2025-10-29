@@ -1,4 +1,3 @@
-<!-- TODO: take another look at rounding in the chart and table. -->
 <template>
   <div class="card costs-card">
     <!-- Todo: Make height dynamic. Matching header of time series. -->
@@ -42,7 +41,7 @@
           </div>
           <p id="totalCostPara" class="d-inline-block">
             <span id="usdTotalCost">
-              <span>{{ totalCostAbbr?.amount }}</span>
+              <span>{{ totalCostAbbr?.amount.replace("$", "") }}</span>
               <span id="totalCostUnit">
                 {{ totalCostAbbr?.unit }}
               </span>
@@ -66,7 +65,7 @@
 </template>
 
 <script lang="ts" setup>
-import { abbreviateMillions, costAsPercentOfGdp, humanReadablePercentOfGdp } from "@/components/utils/formatters";
+import { abbreviateMillionsDollars, costAsPercentOfGdp, humanReadablePercentOfGdp } from "@/components/utils/formatters";
 import { CIcon } from "@coreui/icons-vue";
 
 const appStore = useAppStore();
@@ -79,12 +78,12 @@ const totalCostUSD = computed(() => {
 // Display the 'headline' total cost in terms of a percentage of annual national GDP
 const gdpTotalCostPercent = computed(() => {
   const totalAsPercentOfGdp = costAsPercentOfGdp(totalCostUSD.value, appStore.currentScenario.result.data?.gdp);
-  return humanReadablePercentOfGdp(totalAsPercentOfGdp).percent;
+  return humanReadablePercentOfGdp(totalAsPercentOfGdp).percent.replace("%", "");
 });
 
 const totalCostAbbr = computed(() => {
   if (totalCostUSD.value !== undefined) {
-    return abbreviateMillions(totalCostUSD.value, true);
+    return abbreviateMillionsDollars(totalCostUSD.value, true);
   } else {
     return undefined;
   }

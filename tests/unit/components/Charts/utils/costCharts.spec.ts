@@ -48,7 +48,7 @@ describe("single-scenario costs chart tooltip text for stacked column", () => {
   it("should return the correct text for the stack's tooltip, when cost basis is USD", () => {
     const tooltipText = costsChartSingleScenarioTooltip(tooltipPointInstance, CostBasis.USD, 4000);
     expect(tooltipText).toMatch(
-      /Life years losses.*\$2\.0 billion.*USD.*50\.0% of pre-pandemic GDP.*#FF0000.*Working-age adults.*\$999\.0 M.*#00FF00.*Children.*\$0\.0 K/,
+      /Life years losses.*\$2\.0 billion.*USD.*50\.0% of pre-pandemic GDP.*#FF0000.*Working-age adults.*\$999\.0 M.*#00FF00.*Children.*<\$1 M/,
     );
     expect(tooltipText).not.toMatch(/Do not include in tooltips/i);
   });
