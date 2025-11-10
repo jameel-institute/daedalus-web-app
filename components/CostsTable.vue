@@ -1,8 +1,14 @@
 <template>
   <table class="table rounded table-hover table-sm" aria-label="Costs table">
     <thead class="border-bottom-2 border-black">
+      <tr v-if="multiScenario">
+        <td colspan="1" class="border-0 pb-0" />
+        <td colspan="100%" class="border-0 pb-0 text-muted">
+          {{ appStore.axisLabel }}
+        </td>
+      </tr>
       <tr>
-        <th>
+        <th class="pt-0">
           <CButton
             class="btn p-0 text-decoration-none text-muted"
             color="link"
@@ -19,6 +25,7 @@
         <th
           v-for="scenario in scenariosToDisplay"
           :key="scenario.runId"
+          class="pt-0"
         >
           <div class="d-flex flex-column">
             <span

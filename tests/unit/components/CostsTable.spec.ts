@@ -223,6 +223,7 @@ describe("costs table for all scenarios in a comparison", () => {
     });
 
     const headerText = component.find("thead").text();
+    expect(headerText).toContain("Global vaccine investment");
     // Scenario labels
     expect(headerText).toContain("None");
     expect(headerText).toContain("Medium");
@@ -305,6 +306,7 @@ describe("costs table for all scenarios in a comparison", () => {
     });
 
     const headerText = component.find("thead").text();
+    expect(headerText).toContain("Global vaccine investment");
     // Scenario labels
     expect(headerText).toContain("None");
     expect(headerText).toContain("Medium");
@@ -359,6 +361,7 @@ describe("costs table for all scenarios in a comparison", () => {
     });
 
     const headerText = component.find("thead").text();
+    expect(headerText).toContain("Global vaccine investment");
     // Scenario labels
     expect(headerText).toContain("None");
     expect(headerText).not.toContain("Medium");
