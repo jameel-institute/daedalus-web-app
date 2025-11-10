@@ -129,7 +129,7 @@ describe("scenario result page", () => {
 
     const appStore = useAppStore(piniaMock);
     expect(appStore.downloadError).toBeUndefined();
-    expect(appStore.currentScenario).not.toBeUndefined();
+    expect(appStore.currentScenario.parameters).not.toBeUndefined();
     expect(appStore.currentComparison.axis).toBeUndefined();
     expect(appStore.currentComparison.baseline).toBeUndefined();
     expect(appStore.currentComparison.scenarios).toHaveLength(0);

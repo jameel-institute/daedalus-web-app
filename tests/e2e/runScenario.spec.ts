@@ -27,7 +27,7 @@ const expectSelectParameterToHaveValueLabel = async (page: Page, parameterLabel:
 test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await waitForNewScenarioPage(page, baseURL);
 
-  await selectParameterOption(page, "pathogen", "SARS 2004");
+  await selectParameterOption(page, "pathogen", "Covid-19 Delta");
   await selectParameterOption(page, "response", "Elimination");
 
   const initialHospitalCapacityValue = await page.inputValue(`input[aria-label="${parameterLabels.hospital_capacity}"][type="number"]`);
@@ -35,7 +35,8 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await selectParameterOption(page, "country", "United States");
   await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).not.toHaveValue(initialHospitalCapacityValue);
 
-  await page.click(`div[aria-label="${parameterLabels.vaccine}"] label[for="vaccine-medium"]`);
+  await page.click(`div[aria-label="${parameterLabels.vaccine}"] label[for="vaccine-low"]`);
+  await page.click(`div[aria-label="${parameterLabels.behaviour}"] label[for="behaviour-medium"]`);
   await page.fill(`input[aria-label="${parameterLabels.hospital_capacity}"][type="number"]`, "305000");
 
   await page.click('button:has-text("Run")');
@@ -45,9 +46,10 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   expect(page.url()).toMatch(new RegExp(`${baseURL}/${scenarioPathMatcher}`));
   await expect(page.getByText("Simulate a new scenario")).not.toBeVisible();
 
-  await expect(page.getByText("SARS 2004").first()).toBeVisible();
+  await expect(page.getByText("Covid-19 Delta").first()).toBeVisible();
   await expect(page.getByText("Elimination").first()).toBeVisible();
   await expect(page.getByText("United States").first()).toBeVisible();
+  await expect(page.getByText("Low").first()).toBeVisible();
   await expect(page.getByText("Medium").first()).toBeVisible();
   await expect(page.getByText("305,000").first()).toBeVisible();
 
@@ -63,12 +65,12 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.locator(`${infectionsTimeSeriesContainerId} .highcharts-yaxis-labels`)).toBeVisible();
   await expect(page.locator(`${infectionsTimeSeriesContainerId} .highcharts-plot-band`)).toHaveCount(2);
   await expect(page.locator(infectionsTimeSeriesContainerId).getByLabel("View chart menu, Chart")).toBeVisible();
-  await checkTimeSeriesDataPoints(page.locator(infectionsTimeSeriesContainerId), 33_000_000);
+  await checkTimeSeriesDataPoints(page.locator(infectionsTimeSeriesContainerId), 47_000_000);
 
   // Check can toggle time series to "New per day" and back
   await expect(page.getByText("New per day").first()).toBeVisible();
   await page.locator("#infectionsDailySwitch").check();
-  await checkTimeSeriesDataPoints(page.locator(infectionsTimeSeriesContainerId), 7_500_000);
+  await checkTimeSeriesDataPoints(page.locator(infectionsTimeSeriesContainerId), 18_000_000);
   await expect(page.getByRole("button", { name: "New infections" })).toBeVisible();
   await page.locator("#infectionsDailySwitch").setChecked(false);
   await expect(page.getByRole("button", { name: "Prevalence" })).toBeVisible();
@@ -80,10 +82,10 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.locator(`${hospitalisationsTimeSeriesContainerId} .highcharts-plot-band`)).toHaveCount(2);
   await expect(page.locator(`${hospitalisationsTimeSeriesContainerId} .highcharts-plot-line`)).toBeInViewport();
   await expect(page.locator(hospitalisationsTimeSeriesContainerId).getByLabel("View chart menu, Chart")).toBeVisible();
-  await checkTimeSeriesDataPoints(page.locator(hospitalisationsTimeSeriesContainerId), 14_000_000);
+  await checkTimeSeriesDataPoints(page.locator(hospitalisationsTimeSeriesContainerId), 4_500_000);
 
   await page.locator("#hospitalisationsDailySwitch").check();
-  await checkTimeSeriesDataPoints(page.locator(hospitalisationsTimeSeriesContainerId), 1_000_000);
+  await checkTimeSeriesDataPoints(page.locator(hospitalisationsTimeSeriesContainerId), 750_000);
   await expect(page.getByRole("button", { name: "New hospitalisations" })).toBeVisible();
   await page.locator("#hospitalisationsDailySwitch").setChecked(false);
   await expect(page.getByRole("button", { name: "Hospital demand" })).toBeVisible();
@@ -92,9 +94,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.locator(`${deathsTimeSeriesContainerId} .highcharts-xaxis-labels`)).toBeVisible();
   await expect(page.locator(`${deathsTimeSeriesContainerId} .highcharts-yaxis-labels`)).toBeVisible();
   await expect(page.locator(deathsTimeSeriesContainerId).getByLabel("View chart menu, Chart")).toBeVisible();
-  await checkTimeSeriesDataPoints(page.locator(deathsTimeSeriesContainerId), 18_000_000);
+  await checkTimeSeriesDataPoints(page.locator(deathsTimeSeriesContainerId), 8_200_000);
   await page.locator("#deathsDailySwitch").check();
-  await checkTimeSeriesDataPoints(page.locator(deathsTimeSeriesContainerId), 250_000);
+  await checkTimeSeriesDataPoints(page.locator(deathsTimeSeriesContainerId), 200_000);
   await expect(page.getByRole("button", { name: "New deaths" })).toBeVisible();
   await page.locator("#deathsDailySwitch").setChecked(false);
   await expect(page.getByRole("button", { name: "Dead" })).toBeVisible();
@@ -103,9 +105,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.locator(`${vaccinationsTimeSeriesContainerId} .highcharts-xaxis-labels`)).toBeVisible();
   await expect(page.locator(`${vaccinationsTimeSeriesContainerId} .highcharts-yaxis-labels`)).toBeVisible();
   await expect(page.locator(vaccinationsTimeSeriesContainerId).getByLabel("View chart menu, Chart")).toBeVisible();
-  await checkTimeSeriesDataPoints(page.locator(vaccinationsTimeSeriesContainerId), 135_000_000);
+  await checkTimeSeriesDataPoints(page.locator(vaccinationsTimeSeriesContainerId), 110_000_000);
   await page.locator("#vaccinationsDailySwitch").check();
-  await checkTimeSeriesDataPoints(page.locator(vaccinationsTimeSeriesContainerId), 1_350_000);
+  await checkTimeSeriesDataPoints(page.locator(vaccinationsTimeSeriesContainerId), 900_000);
   await expect(page.getByRole("button", { name: "New vaccinations" })).toBeVisible();
   await page.locator("#vaccinationsDailySwitch").setChecked(false);
   await expect(page.getByRole("button", { name: "Vaccinated" })).toBeVisible();
@@ -125,30 +127,30 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   expect(costsChartDataUsd[0].data.length).toBe(3);
   expect(costsChartDataUsd[0].data.map((dataPoint: any) => dataPoint.name)).toEqual(["Closures", "Closures", "Preschool-age children"]);
   expect(costsChartDataUsd[0].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([true, true, true]);
-  checkValueIsInRange(costsChartDataUsd[0].data[0].y, 6_168_000, costTolerance);
-  checkValueIsInRange(costsChartDataUsd[0].data[1].y, 4_648_000, costTolerance);
-  checkValueIsInRange(costsChartDataUsd[0].data[2].y, 2_994_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[0].data[0].y, 5_100_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[0].data[1].y, 3_900_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[0].data[2].y, 9_000, costTolerance);
 
   expect(costsChartDataUsd[1].data.length).toBe(3);
   expect(costsChartDataUsd[1].data.map((dataPoint: any) => dataPoint.name)).toEqual(["Absences", "Absences", "School-age children"]);
   expect(costsChartDataUsd[1].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([true, true, true]);
-  checkValueIsInRange(costsChartDataUsd[1].data[0].y, 514_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[1].data[0].y, 240_000, costTolerance);
   checkValueIsInRange(costsChartDataUsd[1].data[1].y, 8_000, costTolerance);
-  checkValueIsInRange(costsChartDataUsd[1].data[2].y, 25_984_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[1].data[2].y, 4_800_000, costTolerance);
 
   expect(costsChartDataUsd[2].data.length).toBe(3);
   expect(costsChartDataUsd[2].data.map((dataPoint: any) => dataPoint.name)).toEqual(["", "", "Working-age adults"]);
   expect(costsChartDataUsd[2].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([false, false, true]);
   expect(costsChartDataUsd[2].data[0].y).toEqual(0);
   expect(costsChartDataUsd[2].data[1].y).toEqual(0);
-  checkValueIsInRange(costsChartDataUsd[2].data[2].y, 9_645_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[2].data[2].y, 110_000, costTolerance);
 
   expect(costsChartDataUsd[3].data.length).toBe(3);
   expect(costsChartDataUsd[3].data.map((dataPoint: any) => dataPoint.name)).toEqual(["", "", "Retirement-age adults"]);
   expect(costsChartDataUsd[3].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([false, false, true]);
   expect(costsChartDataUsd[3].data[0].y).toEqual(0);
   expect(costsChartDataUsd[3].data[1].y).toEqual(0);
-  checkValueIsInRange(costsChartDataUsd[3].data[2].y, 6_412_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[3].data[2].y, 5_700_000, costTolerance);
 
   const expandCostsTableButton = page.getByTestId("toggle-costs-table");
   await expandCostsTableButton.click();
@@ -185,10 +187,10 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.getByRole("heading", { name: "Change parameters" })).toBeVisible();
 
   await expectSelectParameterToHaveValueLabel(page, parameterLabels.country, "United States");
-  await expectSelectParameterToHaveValueLabel(page, parameterLabels.pathogen, "SARS 2004");
+  await expectSelectParameterToHaveValueLabel(page, parameterLabels.pathogen, "Covid-19 Delta");
   await expectSelectParameterToHaveValueLabel(page, parameterLabels.response, "Elimination");
-
-  await expect(page.getByLabel("Medium")).toBeChecked();
+  await expect(page.getByTestId("select-group-vaccine").getByLabel("Low")).toBeChecked();
+  await expect(page.getByTestId("select-group-behaviour").getByLabel("Medium")).toBeChecked();
   await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue("305000");
   await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue("305000");
 
@@ -205,19 +207,21 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await page.waitForURL(new RegExp(matchAnyScenarioResultPathExceptTheFirst));
 
   // Test that the second analysis results page shows the correct parameters.
-  await expect(page.getByText("SARS 2004").first()).toBeVisible();
+  await expect(page.getByText("Covid-19 Delta").first()).toBeVisible();
   await expect(page.getByText("Elimination").first()).toBeVisible();
   await expect(page.getByText("Philippines").first()).toBeVisible();
   await expect(page.getByText("Medium").first()).toBeVisible();
+  await expect(page.getByText("Low").first()).toBeVisible();
   await expect(page.getByText(philippinesMinimumHospitalCapacityFormatted).first()).toBeVisible();
 
   // Test that the second analysis results page has the correct parameters within the parameters form modal.
   await page.getByRole("button", { name: "Parameters" }).first().click();
   await expect(page.getByRole("heading", { name: "Change parameters" })).toBeVisible();
   await expectSelectParameterToHaveValueLabel(page, parameterLabels.country, "Philippines");
-  await expectSelectParameterToHaveValueLabel(page, parameterLabels.pathogen, "SARS 2004");
+  await expectSelectParameterToHaveValueLabel(page, parameterLabels.pathogen, "Covid-19 Delta");
   await expectSelectParameterToHaveValueLabel(page, parameterLabels.response, "Elimination");
-  await expect(page.getByLabel("Medium")).toBeChecked();
+  await expect(page.getByTestId("select-group-vaccine").getByLabel("Low").first()).toBeChecked();
+  await expect(page.getByTestId("select-group-behaviour").getByLabel("Medium")).toBeChecked();
   await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
   await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
   const closeButton = page.getByLabel("Change parameters").getByLabel("Close");

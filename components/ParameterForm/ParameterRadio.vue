@@ -8,6 +8,7 @@
       :aria-label="props.parameter.label"
       :size="appStore.largeScreen ? 'lg' : undefined"
       :class="`${props.pulsing ? 'pulse' : ''}`"
+      :data-testid="`select-group-${parameter.id}`"
       @change="$emit('change')"
     >
       <CTooltip

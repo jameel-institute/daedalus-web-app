@@ -6,6 +6,7 @@ export const parameterLabels = {
   pathogen: "Disease",
   response: "Response",
   vaccine: "Global vaccine investment",
+  behaviour: "Change in public behaviour",
   hospital_capacity: "Hospital surge capacity",
 };
 Object.freeze(parameterLabels);

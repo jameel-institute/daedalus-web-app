@@ -390,22 +390,22 @@
           {
             "id": "none",
             "label": "None",
-            "description": "A"
+            "description": "The population does not adopt any protective behaviour against the risk of infection."
           },
           {
             "id": "low",
             "label": "Low",
-            "description": "B"
+            "description": "The population perceives a low risk of infection, resulting in low adoption of behaviour that protects against infection."
           },
           {
             "id": "medium",
             "label": "Medium",
-            "description": "C"
+            "description": "The population perceives a medium risk of infection, resulting in medium adoption of behaviour that protects against infection."
           },
           {
             "id": "high",
             "label": "High",
-            "description": "D"
+            "description": "The population perceives a high risk of infection, resulting in high adoption of behaviour that protects against infection."
           }
         ]
       },
