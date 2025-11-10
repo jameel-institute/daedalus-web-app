@@ -1,7 +1,7 @@
 import Comparison from "@/pages/comparison.vue";
 import { mockNuxtImport, mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
 import { describe, expect, it } from "vitest";
-import { mockPinia, mockResultData, mockVersions } from "../mocks/mockPinia";
+import { emptyScenario, mockPinia, mockResultData, mockVersions } from "../mocks/mockPinia";
 import { mockMetadataResponseData } from "../mocks/mockResponseData";
 import type { Metadata } from "~/types/apiResponseTypes";
 import { waitFor } from "@testing-library/vue";
@@ -135,16 +135,22 @@ describe("comparison page", () => {
     });
   });
 
-  it("resets appStore.downloadError when the page is loaded", async () => {
+  it("resets appStore.downloadError and any previous scenario runs when the page is loaded", async () => {
     const piniaMock = mockPinia({
       metadata: mockMetadataResponseData as Metadata,
       versions: mockVersions,
       downloadError: "Some error",
+      currentScenario: {
+        ...emptyScenario,
+        parameters: mockResultData.parameters,
+      },
     }, false, { stubActions: false });
 
     await mountSuspended(Comparison, { global: { plugins: [piniaMock], stubs } });
 
     const appStore = useAppStore();
     expect(appStore.downloadError).toBeUndefined();
+    expect(appStore.currentScenario.parameters).toBeUndefined();
+    await waitFor(() => expect(appStore.currentComparison.axis).not.toBeUndefined());
   });
 });
