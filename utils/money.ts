@@ -25,7 +25,9 @@ export const expressMillionsDollarsAsBillions = (
 export const abbreviateMillionsDollars = (
   millionsDollars: number,
   abbreviateUnits: boolean = false,
+  signDisplay: "exceptZero" | "auto" | "always" = "auto",
   precision?: number,
+  numberOfSignificantDigits?: number,
 ): {
   amount: string
   unit: string
@@ -39,6 +41,9 @@ export const abbreviateMillionsDollars = (
   const dollars = millionsDollars * 1_000_000;
   const [amount, unitAbbr] = new Intl.NumberFormat(undefined, {
     notation: "compact",
+    signDisplay,
+    maximumSignificantDigits: numberOfSignificantDigits,
+    minimumSignificantDigits: numberOfSignificantDigits,
     maximumFractionDigits: precision ?? 1,
     minimumFractionDigits: precision ?? 1,
     style: "currency",

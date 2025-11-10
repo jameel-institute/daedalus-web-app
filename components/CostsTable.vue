@@ -130,7 +130,7 @@
 
 <script lang="ts" setup>
 import { CIcon } from "@coreui/icons-vue";
-import { costAsPercentOfGdp, humanReadablePercentOfGdp } from "./utils/formatters";
+import { compactValueWithSign, costAsPercentOfGdp, humanReadablePercentOfGdp } from "./utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import type { Scenario } from "~/types/storeTypes";
 import { diffAgainstBaseline } from "./utils/comparisons";
@@ -162,36 +162,24 @@ const displayValue = (scenario: Scenario, costId: string, metricId: string): str
   const absVal = Math.abs(val);
   const signDisplay = props.diffing ? "exceptZero" : "auto";
   if (metricId !== USD_METRIC) {
-    return Intl.NumberFormat(undefined, {
-      notation: "compact",
-      signDisplay,
-      maximumSignificantDigits: absVal > 10_000 ? 4 : 1,
-    }).format(val).split(/([KMBT])/).join(" ");
-  }
-  if (absVal < 1 && absVal > 0) {
-    return `<1${appStore.preferences.costBasis === CostBasis.PercentGDP ? "%" : ""}`;
+    return compactValueWithSign(val, absVal > 10_000 ? 4 : 1, signDisplay);
   }
   switch (appStore.preferences.costBasis) {
     case CostBasis.PercentGDP:
     {
       const percentOfGdp = costAsPercentOfGdp(val, scenario.result.data?.gdp);
-      if (percentOfGdp < 1) {
-        return "<1%";
+      if (percentOfGdp < 0.05 && percentOfGdp > 0) {
+        return "<0.05%";
       }
       return humanReadablePercentOfGdp(percentOfGdp, signDisplay).percent;
     }
     case CostBasis.USD:
     {
-      const numberOfSignificantDigits = absVal > 1_000 ? 4 : 1;
-      return new Intl.NumberFormat(undefined, {
-        notation: "compact",
-        signDisplay,
-        maximumSignificantDigits: numberOfSignificantDigits,
-        minimumSignificantDigits: numberOfSignificantDigits,
-        style: "currency",
-        currency: "USD",
-        currencyDisplay: "narrowSymbol",
-      }).format(val * 1_000_000).split(/([KMBT])/).join(" ");
+      if (absVal < 1 && absVal > 0) {
+        return `<$1M`;
+      }
+      const { amount, unit } = abbreviateMillionsDollars(val, true, signDisplay, undefined, absVal > 1_000 ? 4 : 1);
+      return `${amount}${unit}`;
     }
   }
 };
@@ -211,11 +199,7 @@ const displayDeaths = (scenario: Scenario): string | undefined => {
     }
     val -= baselineTotalDeaths;
   }
-  return Intl.NumberFormat(undefined, {
-    notation: "compact",
-    signDisplay: props.diffing ? "exceptZero" : "auto",
-    maximumSignificantDigits: Math.abs(val) > 10_000 ? 3 : 1,
-  }).format(val).split(/([KMBT])/).join(" ");
+  return compactValueWithSign(val, Math.abs(val) > 10_000 ? 3 : 1, props.diffing ? "exceptZero" : "auto");
 };
 
 const scenarioClass = (scenario: Scenario) => {

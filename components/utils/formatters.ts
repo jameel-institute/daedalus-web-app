@@ -49,3 +49,15 @@ export const humanReadablePercentOfGdp = (
     reference: `of pre-pandemic GDP`,
   };
 };
+
+export const compactValueWithSign = (
+  val: number,
+  maximumSignificantDigits: number,
+  signDisplay?: "exceptZero" | "auto" | "always",
+): string => {
+  return Intl.NumberFormat(undefined, {
+    notation: "compact",
+    signDisplay,
+    maximumSignificantDigits,
+  }).format(val);
+};

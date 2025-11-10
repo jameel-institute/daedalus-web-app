@@ -14,21 +14,21 @@ const stubs = {
 };
 
 const expectedCostsForNoneScenario = [
-  "$8.925 T",
-  "$6.531 T",
-  "$6.329 T",
-  "$201.8 B",
-  "$1.539 T",
-  "$1.536 T",
-  "$3.146 B",
-  "$855.2 B",
-  "$300 M",
-  "$648.9 B",
-  "$30.64 B",
-  "$175.4 B",
+  "$8.925T",
+  "$6.531T",
+  "$6.329T",
+  "$201.8B",
+  "$1.539T",
+  "$1.536T",
+  "$3.146B",
+  "$855.2B",
+  "$300M",
+  "$648.9B",
+  "$30.64B",
+  "$175.4B",
 ];
-const expectedLifeYearsNaturalUnitsCostsForNoneScenario = ["158.1 M", "9.945 M", "85.88 M", "38.42 M", "23.85 M"];
-const expectedDeathsForNoneScenario = "378 K";
+const expectedLifeYearsNaturalUnitsCostsForNoneScenario = ["158.1M", "9.945M", "85.88M", "38.42M", "23.85M"];
+const expectedDeathsForNoneScenario = "378K";
 
 const expectedUKAverageVslText = "2,032,236 Int'l$";
 const noneScenario = {
@@ -54,8 +54,8 @@ const openVslModal = async (component: VueWrapper) => {
 
 const checkPercentText = (costUSD: number, gdp: number, componentText: string) => {
   const percent = costAsPercentOfGdp(costUSD, gdp);
-  if (percent < 1) {
-    expect(componentText).toContain("<1%");
+  if (percent < 0.05) {
+    expect(componentText).toContain("<0.05%");
   } else {
     expect(componentText).toContain(percent.toFixed(1));
   }
@@ -177,26 +177,26 @@ describe("costs table for all scenarios in a comparison", () => {
     },
   };
   const expectedCostsForMediumScenario = [
-    "$17.85 T",
-    "$13.06 T",
-    "$12.66 T",
-    "$403.5 B",
-    "$3.077 T",
-    "$3.071 T",
-    "$6.292 B",
-    "$1.710 T",
-    "$700 M",
-    "$1.298 T",
-    "$61.27 B",
-    "$350.8 B",
+    "$17.85T",
+    "$13.06T",
+    "$12.66T",
+    "$403.5B",
+    "$3.077T",
+    "$3.071T",
+    "$6.292B",
+    "$1.710T",
+    "$700M",
+    "$1.298T",
+    "$61.27B",
+    "$350.8B",
   ];
-  const expectedDeathsForMediumScenario = "12.3 K";
+  const expectedDeathsForMediumScenario = "12.3K";
   const expectedLifeYearsNaturalUnitsCostsForMediumScenario = [
-    "316.2 M",
-    "19.89 M",
-    "171.8 M",
-    "76.85 M",
-    "47.7 M",
+    "316.2M",
+    "19.89M",
+    "171.8M",
+    "76.85M",
+    "47.7M",
   ];
 
   it("should render costs table correctly, when cost basis is USD, and NOT diffing", async () => {
@@ -375,7 +375,7 @@ describe("costs table for all scenarios in a comparison", () => {
     expect(rows[expectedCostsForNoneScenario.length + 1].text()).toContain("Life years lost relative to baseline");
     const deathRow = rows[expectedCostsForNoneScenario.length + expectedLifeYearsNaturalUnitsCostsForNoneScenario.length + 2];
     expect(deathRow.text()).toContain("Deaths relative to baseline");
-    expect(deathRow.text()).toContain("+366 K"); // A positive difference including '+' sign
+    expect(deathRow.text()).toContain("+366K"); // A positive difference including '+' sign
 
     const vslModalComponentText = await openVslModal(component);
 
