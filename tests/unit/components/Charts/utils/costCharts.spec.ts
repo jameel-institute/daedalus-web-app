@@ -48,7 +48,7 @@ describe("single-scenario costs chart tooltip text for stacked column", () => {
   it("should return the correct text for the stack's tooltip, when cost basis is USD", () => {
     const tooltipText = costsChartSingleScenarioTooltip(tooltipPointInstance, CostBasis.USD, 4000);
     expect(tooltipText).toMatch(
-      /Life years losses.*\$2\.0 billion.*USD.*50\.0% of pre-pandemic GDP.*#FF0000.*Working-age adults.*\$999\.0 M.*#00FF00.*Children.*<\$1 M/,
+      /Life years losses.*\$2\.0 billion.*USD.*50\.0% of pre-pandemic GDP.*#FF0000.*Working-age adults.*\$999\.0M.*#00FF00.*Children.*<\$1M/,
     );
     expect(tooltipText).not.toMatch(/Do not include in tooltips/i);
   });
@@ -132,9 +132,9 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
             notDiffingHeader,
             true,
             { color: "inherit", text: "\\$1\\.9 trillion.*USD" },
-            { color: "inherit", text: "\\$97\\.4 B" },
-            { color: "inherit", text: "\\$2\\.7 B" },
-            { color: "inherit", text: "\\$1\\.8 T" },
+            { color: "inherit", text: "\\$97\\.4B" },
+            { color: "inherit", text: "\\$2\\.7B" },
+            { color: "inherit", text: "\\$1\\.8T" },
           ),
         );
       });
@@ -151,9 +151,9 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
             diffingHeader,
             true,
             { color: "darkgreen", text: "\\$1\\.9 trillion.*USD", isNegative: true },
-            { color: "darkgreen", text: "\\$97\\.4 B", isNegative: true },
-            { color: "darkred", text: "\\$2\\.7 B" },
-            { color: "darkred", text: "\\$1\\.8 T" },
+            { color: "darkgreen", text: "\\$97\\.4B", isNegative: true },
+            { color: "darkred", text: "\\$2\\.7B" },
+            { color: "darkred", text: "\\$1\\.8T" },
           ),
         );
       });
@@ -221,9 +221,9 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
           notDiffingHeader,
           true,
           { color: "inherit", text: "\\$1\\.9 trillion.*USD" },
-          { color: "inherit", text: "\\$97\\.4 B" },
-          { color: "inherit", text: "\\$2\\.7 B" },
-          { color: "inherit", text: "\\$1\\.8 T" },
+          { color: "inherit", text: "\\$97\\.4B" },
+          { color: "inherit", text: "\\$2\\.7B" },
+          { color: "inherit", text: "\\$1\\.8T" },
         ));
       });
 
@@ -239,9 +239,9 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
             diffingHeader,
             true,
             { color: "darkgreen", text: "\\$1\\.9 trillion.*USD", isNegative: true },
-            { color: "darkgreen", text: "\\$97\\.4 B", isNegative: true },
-            { color: "darkred", text: "\\$2\\.7 B" },
-            { color: "darkred", text: "\\$1\\.8 T" },
+            { color: "darkgreen", text: "\\$97\\.4B", isNegative: true },
+            { color: "darkred", text: "\\$2\\.7B" },
+            { color: "darkred", text: "\\$1\\.8T" },
           ),
         );
       });
@@ -311,7 +311,7 @@ describe("costsChartSingleScenarioStackLabelFormatter", () => {
 describe("costsChartLabelFormatter", () => {
   it("should return the correct y-axis tick label for USD cost basis", () => {
     const label = costsChartYAxisTickFormatter(200, CostBasis.USD);
-    expect(label).toBe("0 B");
+    expect(label).toBe("$200M");
   });
 
   it("should return the correct y-axis tick label for percent of GDP cost basis", () => {
@@ -453,7 +453,7 @@ describe("costsChartMultiScenarioStackLabelFormatter", () => {
     describe("when chart is NOT diffing", () => {
       it("should return the correct label", () => {
         const label = costsChartMultiScenarioStackLabelFormatter(createTestStackItem(1, false, 2000), CostBasis.USD, false);
-        expect(label).toContain("$2.0 B");
+        expect(label).toContain("$2.0B");
         expect(label).toContain("color: inherit");
       });
     });
@@ -462,7 +462,7 @@ describe("costsChartMultiScenarioStackLabelFormatter", () => {
       it("should return the correct labels when both positive and negative stack labels exist, and positive is larger", () => {
         const stackLabelItem = createTestStackItem(2, false, 1500, -500);
         const positiveLabel = costsChartMultiScenarioStackLabelFormatter(stackLabelItem, CostBasis.USD, true);
-        expect(positiveLabel).toContain("$1.0 B (net)");
+        expect(positiveLabel).toContain("$1.0B (net)");
         expect(positiveLabel).toContain("color: darkred");
 
         const negStackLabelItem = { ...stackLabelItem, isNegative: true };
@@ -477,19 +477,19 @@ describe("costsChartMultiScenarioStackLabelFormatter", () => {
 
         const negStackLabelItem = { ...stackLabelItem, isNegative: true };
         const negativeLabel = costsChartMultiScenarioStackLabelFormatter(negStackLabelItem, CostBasis.USD, true);
-        expect(negativeLabel).toContain("-$1.0 B (net)");
+        expect(negativeLabel).toContain("-$1.0B (net)");
         expect(negativeLabel).toContain("color: darkgreen");
       });
 
       it("should return the correct label when only positive stack label exists", () => {
         const label = costsChartMultiScenarioStackLabelFormatter(createTestStackItem(4, false, 2000), CostBasis.USD, true);
-        expect(label).toContain("$2.0 B");
+        expect(label).toContain("$2.0B");
         expect(label).toContain("color: darkred");
       });
 
       it("should return the correct label when only negative stack label exists", () => {
         const label = costsChartMultiScenarioStackLabelFormatter(createTestStackItem(5, true, undefined, -3000), CostBasis.USD, true);
-        expect(label).toContain("-$3.0 B");
+        expect(label).toContain("-$3.0B");
         expect(label).toContain("color: darkgreen");
       });
     });
