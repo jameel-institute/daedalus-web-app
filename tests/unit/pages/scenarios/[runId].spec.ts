@@ -14,11 +14,12 @@ const stubs = {
 const longRunningRunId = "123";
 const failedRunId = "456";
 const successfulRunId = "789";
+const sampleScenario = {
+  ...emptyScenario,
+  parameters: mockResultData.parameters,
+};
 const plugins = [mockPinia({
-  currentScenario: {
-    ...emptyScenario,
-    parameters: mockResultData.parameters,
-  },
+  currentScenario: sampleScenario,
   metadata: mockMetadataResponseData as Metadata,
 }, false, { stubActions: false })];
 
@@ -103,7 +104,7 @@ describe("scenario result page", () => {
     });
   });
 
-  it("resets appStore.downloadError when the page is loaded", async () => {
+  it("resets appStore.downloadError and any previous scenario runs when the page is loaded", async () => {
     mockRoute.mockReturnValue({
       params: {
         runId: successfulRunId,
@@ -111,6 +112,12 @@ describe("scenario result page", () => {
     });
     const piniaMock = mockPinia({
       downloadError: "Some error",
+      currentComparison: {
+        axis: "response",
+        baseline: "none",
+        scenarios: [sampleScenario, sampleScenario],
+      },
+      metadata: mockMetadataResponseData as Metadata,
     }, true, { stubActions: false });
 
     await mountSuspended(ScenariosIdPage, {
@@ -122,6 +129,10 @@ describe("scenario result page", () => {
 
     const appStore = useAppStore(piniaMock);
     expect(appStore.downloadError).toBeUndefined();
+    expect(appStore.currentScenario.parameters).not.toBeUndefined();
+    expect(appStore.currentComparison.axis).toBeUndefined();
+    expect(appStore.currentComparison.baseline).toBeUndefined();
+    expect(appStore.currentComparison.scenarios).toHaveLength(0);
   });
 
   // Also end-to-end tested in tests/e2e/slowAnalysis.spec.ts

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 import checkRApiServer from "./helpers/checkRApiServer";
 import waitForNewScenarioPage from "./helpers/waitForNewScenarioPage";
 import startComparison from "~/tests/e2e/helpers/startComparison";
@@ -8,16 +8,15 @@ test.beforeAll(async () => {
   checkRApiServer();
 });
 
-const runScenario = async (page, baseURL) => {
+const runScenario = async (page: Page, baseURL: string | undefined) => {
   await waitForNewScenarioPage(page, baseURL);
   // Run scenario with default parameters
   await page.click('button:has-text("Run")');
   await page.waitForURL(new RegExp(`${baseURL}/scenarios/[a-f0-9]{32}`));
-  await page.waitForSelector("#btn-download-excel");
   await expect(page.getByText("Prevalence").first()).toBeVisible(); // Wait for data
 };
 
-const doDownload = async (page, expectedFileName) => {
+const doDownload = async (page: Page, expectedFileName: string) => {
   const downloadBtn = page.locator("#btn-download-excel");
   await expect(downloadBtn).toBeVisible();
 
@@ -37,7 +36,7 @@ const doDownload = async (page, expectedFileName) => {
 
 test("can download Excel file for scenario results", async ({ page, baseURL }) => {
   await runScenario(page, baseURL);
-  await doDownload(page, "daedalus_GBR_none_sars_cov_1_none_26200.xlsx");
+  await doDownload(page, "daedalus_GBR_none_sars_cov_1_none_none_26200.xlsx");
 });
 
 test("can download Excel file for comparison results", async ({ page, baseURL, isMobile }) => {

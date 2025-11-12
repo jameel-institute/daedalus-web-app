@@ -138,6 +138,9 @@ export const useAppStore = defineStore("app", {
     clearScenario(scenario: Scenario) {
       Object.assign(scenario, structuredClone(emptyScenario));
     },
+    clearComparison(): void {
+      this.currentComparison = structuredClone(emptyComparison);
+    },
     async loadScenarioDetails(scenario: Scenario) {
       if (!scenario.runId) {
         throw new Error("No runId provided for scenario load.");

@@ -13,7 +13,7 @@ test("can see expected parameter help", async ({ page, baseURL }) => {
   await expect(tooltip).not.toBeVisible();
 
   // radio button help
-  await page.getByText("None").hover();
+  await page.getByTestId("select-group-vaccine").getByText("None").hover();
   await expect(tooltip).toHaveText(/An investment level corresponding to: vaccine rollout commencing 365 days after the outbreak/);
 
   // dropdown option help

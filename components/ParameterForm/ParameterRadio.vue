@@ -8,6 +8,7 @@
       :aria-label="props.parameter.label"
       :size="appStore.largeScreen ? 'lg' : undefined"
       :class="`${props.pulsing ? 'pulse' : ''}`"
+      :data-testid="`select-group-${parameter.id}`"
       @change="$emit('change')"
     >
       <CTooltip
@@ -24,7 +25,7 @@
             v-on="on"
           >
             <CFormCheck
-              :id="option.id"
+              :id="globallyUniqueOptionId(option)"
               v-model="parameterValue"
               type="radio"
               :button="{ color: 'primary', variant: 'outline' }"
@@ -42,6 +43,7 @@
 
 <script lang="ts" setup>
 import type { Parameter } from "@/types/parameterTypes";
+import type { DisplayInfo } from "~/types/apiResponseTypes";
 
 const props = defineProps<{
   parameter: Parameter
@@ -53,6 +55,9 @@ defineEmits(["change"]);
 const parameterValue = defineModel("parameterValue", { type: String, required: true });
 
 const appStore = useAppStore();
+
+// Required to prevent parameters whose options have the same id from updating one another
+const globallyUniqueOptionId = (option: DisplayInfo) => `${props.parameter.id}-${option.id}`;
 </script>
 
 <style lang="scss">

@@ -69,7 +69,7 @@ const getVaccineButton = (axisOptionsEl: DOMWrapper<Element>) => {
 };
 
 const getHospitalCapacityButton = (axisOptionsEl: DOMWrapper<Element>) => {
-  const hospitalCapacityButton = axisOptionsEl.findAll("button")[4];
+  const hospitalCapacityButton = axisOptionsEl.findAll("button")[5];
   expect(hospitalCapacityButton.text()).toEqual("Hospital surge capacity");
   return hospitalCapacityButton;
 };
@@ -91,7 +91,7 @@ const expectModalHasNoAxisSelected = (wrapper: VueWrapper) => {
   const newaxisOptionsEl = newModalEl.find("#axisOptions");
 
   expect(newModalEl.text()).not.toContain("Compare baseline scenario");
-  expect(newaxisOptionsEl.findAll("button")).toHaveLength(5);
+  expect(newaxisOptionsEl.findAll("button")).toHaveLength(6);
   newaxisOptionsEl.findAll("button").forEach((button) => {
     expect(button.classes()).not.toContain("bg-primary");
   });
@@ -157,7 +157,8 @@ describe("create comparison button and modal", () => {
     expect(axisButtons[1].text()).toEqual("Disease");
     expect(axisButtons[2].text()).toEqual("Response");
     expect(axisButtons[3].text()).toEqual("Global vaccine investment");
-    expect(axisButtons[4].text()).toEqual("Hospital surge capacity");
+    expect(axisButtons[4].text()).toEqual("Change in public behaviour");
+    expect(axisButtons[5].text()).toEqual("Hospital surge capacity");
 
     axisButtons.forEach(button => expect(button.classes()).not.toContain("bg-primary"));
 
@@ -179,7 +180,7 @@ describe("create comparison button and modal", () => {
     // Hides the scenario selection section and reveals all parameter axis buttons, and 'Advanced usage' button
     expect(modalEl.text()).not.toContain("Compare baseline scenario");
     expect(getComboboxEl(wrapper).exists()).toBe(false);
-    expect(axisOptionsEl.findAll("button")).toHaveLength(5);
+    expect(axisOptionsEl.findAll("button")).toHaveLength(6);
     axisOptionsEl.findAll("button").forEach((button) => {
       expect(button.classes()).not.toContain("bg-primary");
     });

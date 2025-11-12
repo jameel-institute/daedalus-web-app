@@ -84,6 +84,7 @@ const runId = route.params.runId as string;
 
 // Required so that previous parameters aren't hanging around in the store
 appStore.clearScenario(appStore.currentScenario);
+appStore.clearComparison();
 appStore.downloadError = undefined;
 
 // Fetch scenario from db so we can know its parameters now rather than wait for them in the result data
