@@ -28,11 +28,12 @@ export const abbreviateMillionsDollars = (
   signDisplay: "exceptZero" | "auto" | "always" = "auto",
   precision?: number,
   numberOfSignificantDigits?: number,
+  allowZero?: boolean,
 ): {
   amount: string
   unit: string
 } => {
-  if (Math.abs(millionsDollars) < 1) {
+  if (Math.abs(millionsDollars) < 1 && !allowZero) {
     return {
       amount: "<$1",
       unit: abbreviateUnits ? "M" : "million",

@@ -36,7 +36,6 @@ export const costsChartSingleScenarioStackLabelFormatter = (value: number, costB
   if (costBasis === CostBasis.PercentGDP) {
     return `${humanReadablePercentOfGdp(value).percent} of GDP`;
   } else if (costBasis === CostBasis.USD) {
-    const abbr = abbreviateMillionsDollars(value, false);
-    return `${abbr.amount} ${abbr.unit}`;
+    return Object.values(abbreviateMillionsDollars(value, false)).join(" ");
   }
 };

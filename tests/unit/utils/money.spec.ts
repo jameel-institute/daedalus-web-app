@@ -21,11 +21,13 @@ describe("abbreviateMillionsDollars", () => {
     expect(abbreviateMillionsDollars(0.0012345)).toEqual({ amount: "<$1", unit: "million" });
     expect(abbreviateMillionsDollars(0.0012345, true)).toEqual({ amount: "<$1", unit: "M" });
     expect(abbreviateMillionsDollars(0.0012345, true, undefined, 2)).toEqual({ amount: "<$1", unit: "M" });
+    expect(abbreviateMillionsDollars(0.0012345, true, undefined, 3, undefined, true)).toEqual({ amount: "$1.235", unit: "K" });
   });
 
   it("should handle zero correctly", () => {
     expect(abbreviateMillionsDollars(0)).toEqual({ amount: "<$1", unit: "million" });
     expect(abbreviateMillionsDollars(0, true)).toEqual({ amount: "<$1", unit: "M" });
     expect(abbreviateMillionsDollars(0, true, undefined, 2)).toEqual({ amount: "<$1", unit: "M" });
+    expect(abbreviateMillionsDollars(0, true, undefined, 2, undefined, true)).toEqual({ amount: "$0.00", unit: "" });
   });
 });

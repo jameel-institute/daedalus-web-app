@@ -23,8 +23,7 @@ export const displayValue = (value: number, costBasis: CostBasis) => {
   if (costBasis === CostBasis.PercentGDP) {
     return humanReadablePercentOfGdp(value).percent;
   } else {
-    const abbr = abbreviateMillionsDollars(value, true);
-    return `${abbr.amount} ${abbr.unit}`;
+    return Object.values(abbreviateMillionsDollars(value, true)).join("");
   }
 };
 
@@ -42,6 +41,6 @@ export const costsChartYAxisTickFormatter = (value: string | number, costBasis: 
   if (costBasis === CostBasis.PercentGDP) {
     return `${value}%`;
   } else if (costBasis === CostBasis.USD) {
-    return Object.values(expressMillionsDollarsAsBillions(value as number, 0, true)).join(" ");
+    return Object.values(abbreviateMillionsDollars(value as number, true, "auto", 0, 2, true)).join("");
   }
 };
