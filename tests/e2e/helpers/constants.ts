@@ -12,9 +12,9 @@ Object.freeze(parameterLabels);
 
 export const costTolerance = 0.3;
 
-export const decimalPercentMatcher = "(\\d{1,4}(\\.\\d)?%|<1%)";
-export const decimalUSDMatcher = "(\\$\\d{1,3}(,\\d{3})*(\\.\\d{1,4})? [TBMK]|<\\$1 M)";
-export const decimalPercentMatcherAllowNegatives = "(-?\\d{1,4}(\\.\\d)?%|<1%)";
+export const decimalPercentMatcher = "(\\d{1,4}(\\.\\d)?%|<0\\.05%)";
+export const decimalUSDMatcher = "(\\$\\d{1,3}(,\\d{3})*(\\.\\d{1,4})?[TBMK]|<\\$1 M)";
+export const decimalPercentMatcherAllowNegatives = "(-?\\d{1,4}(\\.\\d)?%|<0\\.05%)";
 
 export const moneyTableRowLabels = [
   "(Net|Total) losses (relative to baseline )?(as % of GDP|\\(USD\\))",
