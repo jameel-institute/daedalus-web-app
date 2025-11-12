@@ -1,5 +1,5 @@
-import { abbreviateMillionsDollars } from "~/utils/money";
 import { humanReadablePercentOfGdp } from "~/components/utils/formatters";
+import { abbreviateMillionsDollars } from "@/utils/money";
 import { CostBasis } from "~/types/unitTypes";
 import { colorBlindSafeSmallPalette, type TooltipPointInstance } from "../../utils/charts";
 
@@ -19,30 +19,22 @@ export const valueColor = (value: number, diffing: boolean) => {
   return value > 0 ? "darkred" : "darkgreen";
 };
 
-// A wrapper for abbreviateMillionsDollars that ensures the correct order of negative sign and dollar sign.
-export const displayMillionsDollars = (value: number, abbreviateUnits?: boolean, precision?: number) => {
-  const abbr = abbreviateMillionsDollars(value, abbreviateUnits, precision);
-  if (value >= 0) {
-    return `$${abbr.amount} ${abbr.unit}`;
+export const displayValue = (value: number, costBasis: CostBasis) => {
+  if (costBasis === CostBasis.PercentGDP) {
+    return humanReadablePercentOfGdp(value).percent;
   } else {
-    const abbrEls = abbr.amount.split("-");
-    return `-$${abbrEls[abbrEls.length - 1]} ${abbr.unit}`;
+    const abbr = abbreviateMillionsDollars(value, true);
+    return `${abbr.amount} ${abbr.unit}`;
   }
 };
 
 export const costsChartTooltipPointFormatter = (point: TooltipPointInstance, costBasis: CostBasis, diffing: boolean) => {
   const val = point.y || 0;
-  let valueDisplay;
-  if (costBasis === CostBasis.PercentGDP) {
-    valueDisplay = `${humanReadablePercentOfGdp(val).percent}%`;
-  } else {
-    valueDisplay = displayMillionsDollars(val, true);
-  }
 
   return `<span style="font-size: 0.8rem;">`
     + `<span style="color:${point.color}; font-size: 1.3rem;">●</span> `
     + `<span style="font-size: 0.8rem;">${point.key}: `
-    + `<span style="font-weight: bold; color: ${valueColor(point.y, diffing)}">${valueDisplay}</span>`
+    + `<span style="font-weight: bold; color: ${valueColor(point.y, diffing)}">${displayValue(val, costBasis)}</span>`
     + `</span><br/>`;
 };
 

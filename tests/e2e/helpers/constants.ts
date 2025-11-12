@@ -13,6 +13,21 @@ Object.freeze(parameterLabels);
 
 export const costTolerance = 0.3;
 
-export const commaSeparatedNumberMatcher = "\\d{1,3}(,\\d{3})*";
-export const decimalPercentMatcher = "\\d{1,4}(\\.\\d)?%";
-export const decimalPercentMatcherAllowNegatives = "-?\\d{1,4}(\\.\\d)?%";
+export const decimalPercentMatcher = "(\\d{1,4}(\\.\\d)?%|<0\\.05%)";
+export const decimalUSDMatcher = "(\\$\\d{1,3}(,\\d{3})*(\\.\\d{1,4})?[TBMK]|<\\$1 M)";
+export const decimalPercentMatcherAllowNegatives = "(-?\\d{1,4}(\\.\\d)?%|<0\\.05%)";
+
+export const moneyTableRowLabels = [
+  "(Net|Total) losses (relative to baseline )?(as % of GDP|\\(USD\\))",
+  "GDP",
+  "Closures",
+  "Absences",
+  "Education",
+  "Closures",
+  "Absences",
+  "Life years\\*",
+  "Preschool-age children",
+  "School-age children",
+  "Working-age adults",
+  "Retirement-age adults",
+];

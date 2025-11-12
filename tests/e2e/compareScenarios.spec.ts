@@ -2,7 +2,7 @@ import { expect, type Locator, type Page, test } from "@playwright/test";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
 import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
-import { commaSeparatedNumberMatcher, costTolerance, decimalPercentMatcher, decimalPercentMatcherAllowNegatives, parameterLabels, runIdMatcher, scenarioPathMatcher } from "./helpers/constants";
+import { costTolerance, decimalPercentMatcher, decimalPercentMatcherAllowNegatives, decimalUSDMatcher, moneyTableRowLabels, parameterLabels, runIdMatcher, scenarioPathMatcher } from "./helpers/constants";
 import checkValueIsInRange from "./helpers/checkValueIsInRange";
 import checkBarChartDataIsDifferent from "./helpers/checkBarChartDataIsDifferent";
 import { checkMultiScenarioTimeSeriesDataPoints } from "./helpers/checkTimeSeriesDataPoints";
@@ -71,6 +71,9 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
   // Results
   await expect(page.locator("#compareCostsChartContainer text.highcharts-credits").first()).toBeVisible();
 
+  await expect(page.getByLabel("as % of pre-pandemic GDP")).not.toBeChecked();
+  await expect(page.getByLabel("in USD")).toBeChecked();
+
   const costsChartDataUsdStr = await page.locator("#compareCostsChartContainer").getAttribute("data-summary");
   const costsChartDataUsd = JSON.parse(costsChartDataUsdStr!);
 
@@ -111,27 +114,16 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
   await expandCostsTableButton.click();
   const tableRows = page.locator("#costs-table-body tr");
 
-  [
-    "Total losses",
-    "GDP",
-    "Closures",
-    "Absences",
-    "Education",
-    "Closures",
-    "Absences",
-    "Life years\\*",
-    "Preschool-age children",
-    "School-age children",
-    "Working-age adults",
-    "Retirement-age adults",
-  ].forEach(async (label, i) => {
-    const row = tableRows.nth(i);
-    await expect(row).toHaveText(new RegExp(`${label}`
-      + `\\s*${commaSeparatedNumberMatcher}`
-      + `\\s*${commaSeparatedNumberMatcher}`
-      + `\\s*${commaSeparatedNumberMatcher}`),
+  moneyTableRowLabels.forEach(async (label, i) => {
+    await expect(tableRows.nth(i)).toHaveText(new RegExp(`${label}`
+      + `\\s*${decimalUSDMatcher}`
+      + `\\s*${decimalUSDMatcher}`
+      + `\\s*${decimalUSDMatcher}`),
     );
   });
+
+  await expect(tableRows.nth(moneyTableRowLabels.length + 1)).toHaveText(/Life years lost\s*\d{1,4}\.\d(TBMK)?/);
+  await expect(tableRows.nth(moneyTableRowLabels.length + 7)).toHaveText(/Deaths\s*\d{1,4}\.\d(TBMK)?/);
 
   // Check that after toggling the cost basis we see different data.
   await page.getByLabel("as % of pre-pandemic GDP").check();
@@ -140,7 +132,7 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
   expect(costsChartDataGdp).toHaveLength(3);
   checkBarChartDataIsDifferent(costsChartDataUsd, costsChartDataGdp);
   expect(await tableRows.nth(0).textContent()).toMatch(
-    new RegExp(`Total losses.*${decimalPercentMatcher}\\s*${decimalPercentMatcher}\\s*${decimalPercentMatcher}`),
+    new RegExp(`Total losses as % of GDP.*${decimalPercentMatcher}\\s*${decimalPercentMatcher}\\s*${decimalPercentMatcher}`),
   );
 
   // Check that after switching on the diffing mode, we see different data.
@@ -149,7 +141,7 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
   const costsChartDataDiff = JSON.parse(costsChartDataDiffStr!);
   checkBarChartDataIsDifferent(costsChartDataGdp, costsChartDataDiff);
   expect(await tableRows.nth(0).textContent()).toMatch(
-    new RegExp(`Net losses.*${decimalPercentMatcherAllowNegatives}\\s*${decimalPercentMatcherAllowNegatives}`),
+    new RegExp(`Net losses relative to baseline as % of GDP.*${decimalPercentMatcherAllowNegatives}\\s*${decimalPercentMatcherAllowNegatives}`),
   );
 
   await page.getByRole("tab", { name: "Time series" }).click();

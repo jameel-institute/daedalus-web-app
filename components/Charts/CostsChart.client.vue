@@ -61,7 +61,7 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
         const subCost = cost.children?.[rowIndex];
         // If there is no Nth child for some cost, we still need to create a breakdown for the stack with a y-value of 0,
         // to ensure that any subsequent data points will belong to the correct column.
-        const dollarAmount = getDollarValueFromCost(subCost) || 0;
+        const dollarAmount = getValueFromCost(subCost, USD_METRIC) || 0;
         const yValue = appStore.preferences.costBasis === CostBasis.PercentGDP
           ? costAsPercentOfGdp(dollarAmount, appStore.currentScenario.result.data?.gdp)
           : dollarAmount;

@@ -15,7 +15,7 @@ export const commaSeparatedNumber = (num: string | undefined): string => {
     return `-${commaSeparatedNumber(num.slice(1))}`;
   }
   const numberOfDigitsAfterDecimal = num.split(".")[1]?.length;
-  num = num.replace(/,/g, "");
+  num = num.replaceAll(",", "");
   const parsedNum = numberOfDigitsAfterDecimal ? Number.parseFloat(num) : Number.parseInt(num);
   return Intl.NumberFormat(undefined, {
     minimumFractionDigits: numberOfDigitsAfterDecimal,
@@ -36,9 +36,28 @@ export const costAsPercentOfGdp = (cost: number | undefined, nationalGdp: number
   return (cost / nationalGdp) * 100;
 };
 
-export const humanReadablePercentOfGdp = (num: number): { percent: string, reference: string } => {
+export const humanReadablePercentOfGdp = (
+  num: number,
+  signDisplay?: "exceptZero" | "auto" | "always",
+): { percent: string, reference: string } => {
   return {
-    percent: commaSeparatedNumber(num.toFixed(num < 100 ? 1 : 0)),
+    percent: Intl.NumberFormat(undefined, {
+      style: "percent",
+      minimumFractionDigits: num > 100 ? 0 : 1,
+      signDisplay,
+    }).format(num / 100),
     reference: `of pre-pandemic GDP`,
   };
+};
+
+export const compactValueWithSign = (
+  val: number,
+  maximumSignificantDigits: number,
+  signDisplay?: "exceptZero" | "auto" | "always",
+): string => {
+  return Intl.NumberFormat(undefined, {
+    notation: "compact",
+    signDisplay,
+    maximumSignificantDigits,
+  }).format(val);
 };

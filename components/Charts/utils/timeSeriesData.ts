@@ -33,6 +33,7 @@ export const timeSeriesYUnits = (seriesId: string): string => {
 };
 
 export const responseInterventionId = "response";
+export const CUMULATIVE_DEATHS_SERIES_ID = "dead";
 
 // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
 export const showInterventions = (seriesId: string): boolean => {
