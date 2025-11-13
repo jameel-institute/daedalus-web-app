@@ -27,33 +27,30 @@
         </template>
       </ParameterInfoCard>
     </div>
-    <CSpinner v-show="showSpinner" class="ms-3 mb-3 mt-3" />
-    <CAlert v-if="appStore.currentScenario.status.data?.runSuccess === false" color="danger">
-      The analysis run failed. Please
-      <NuxtLink prefetch-on="interaction" to="/scenarios/new">
-        <span>try again</span>
-      </NuxtLink>.
-      <p v-for="(errorMsg, index) in appStore.currentScenario.status.data.runErrors" :key="index">
-        {{ errorMsg }}
-      </p>
-    </CAlert>
-    <CAlert
-      v-if="!appStore.currentScenario.result.data && jobSlow && appStore.currentScenario.status.data?.runStatus"
-      :color="jobReallySlow ? 'warning' : 'info'"
-    >
-      <p v-if="jobReallySlow">
-        Thank you for waiting. Some scenario analyses can take up to 60 seconds to run. You can carry on waiting or
-        <NuxtLink prefetch-on="interaction" to="/scenarios/new">
-          <span> try again</span>
-        </NuxtLink> with another run.
-      </p>
-      <p>
-        Analysis status: {{ appStore.currentScenario.status.data?.runStatus }}
-      </p>
-      <p class="mb-0">
-        Waiting for {{ secondsSinceFirstStatusPoll }} seconds
-      </p>
-    </CAlert>
+    <CSpinner v-if="showSpinner" class="ms-3 mb-3 mt-3" />
+    <template v-if="statusResponseError || appStore.currentScenario.status.data?.runSuccess === false">
+      <CAlert color="danger">
+        <CAlertHeading>
+          <CIcon icon="cilWarning" class="flex-shrink-0 me-2" width="24" height="24" />
+          Error
+        </CAlertHeading>
+        <p class="mt-3">
+          There was an unexpected error. Please try again later.
+        </p>
+        <hr>
+        <template v-if="appStore.currentScenario.status.data?.runSuccess === false">
+          <p
+            v-for="(errorMsg, index) in appStore.currentScenario.status.data.runErrors"
+            :key="index"
+          >
+            {{ errorMsg }}
+          </p>
+        </template>
+        <p v-if="statusResponseError" class="mb-0">
+          Error details: {{ statusResponseError.data?.message ?? statusResponseError.message }}
+        </p>
+      </CAlert>
+    </template>
     <CRow v-else-if="appStore.currentScenario.result.data" class="results-cards-container">
       <div class="col-12 col-xl-6">
         <CostsPanel />
@@ -66,17 +63,16 @@
 </template>
 
 <script lang="ts" setup>
-import { CIconSvg } from "@coreui/icons-vue";
+import { CIcon, CIconSvg } from "@coreui/icons-vue";
 
 const appStore = useAppStore();
 
 let statusInterval: NodeJS.Timeout;
-const jobSlow = ref(false);
-const jobReallySlow = ref(false);
-const secondsSinceFirstStatusPoll = ref("0");
+const statusResponseError = computed(() => appStore.currentScenario.status.fetchError);
 const showSpinner = computed(() => !appStore.currentScenario.result.data
   && appStore.currentScenario.status.data?.runSuccess !== false
-  && appStore.currentScenario.runId,
+  && appStore.currentScenario.runId
+  && !statusResponseError.value,
 );
 
 const route = useRoute();
@@ -91,13 +87,6 @@ appStore.downloadError = undefined;
 appStore.currentScenario.runId = runId;
 await appStore.loadScenarioDetails(appStore.currentScenario);
 
-// Use useAsyncData to store the time once, during server-side rendering: avoids client render re-writing value.
-const { data: timeOfFirstStatusPoll } = await useAsyncData<number>("timeOfFirstStatusPoll", async () => {
-  return new Promise<number>((resolve) => {
-    resolve(new Date().getTime());
-  });
-});
-
 const codeSnippet = ref<{ modalVisible: boolean } | null>(null);
 
 const handleShowRCode = () => {
@@ -109,7 +98,7 @@ const handleShowRCode = () => {
 // Eagerly try to load the status and results, in case they are already available and can be used during server-side rendering.
 await appStore.refreshScenarioStatus(appStore.currentScenario);
 if (appStore.currentScenario.status.data?.runSuccess) {
-  appStore.loadScenarioResult(appStore.currentScenario);
+  await appStore.loadScenarioResult(appStore.currentScenario);
 }
 
 watch(() => appStore.currentScenario.status.data?.runSuccess, (runSuccess) => {
@@ -118,19 +107,8 @@ watch(() => appStore.currentScenario.status.data?.runSuccess, (runSuccess) => {
   }
 });
 
-watch(() => appStore.currentScenario.status.data?.done, (done) => {
-  if (done) {
-    clearInterval(statusInterval);
-    jobSlow.value = false;
-    jobReallySlow.value = false;
-  }
-});
-
 const pollForStatusEveryNSeconds = (seconds: number) => {
   statusInterval = setInterval(() => {
-    if (timeOfFirstStatusPoll.value) {
-      secondsSinceFirstStatusPoll.value = ((new Date().getTime() - timeOfFirstStatusPoll.value) / 1000).toFixed(0);
-    };
     appStore.refreshScenarioStatus(appStore.currentScenario);
   }, seconds * 1000);
 };
@@ -140,18 +118,6 @@ onMounted(() => {
 
   if (!appStore.currentScenario.status.data?.done && appStore.currentScenario.runId) {
     pollForStatusEveryNSeconds(0.2);
-    setTimeout(() => {
-      // If the job isn't completed within a few seconds, give user the information about the run status.
-      if (!appStore.currentScenario.status.data?.done) {
-        jobSlow.value = true;
-      }
-    }, 5000);
-    // Some runs take an especially long time, e.g. Singapore + Omicron.
-    setTimeout(() => {
-      if (!appStore.currentScenario.status.data?.done) {
-        jobReallySlow.value = true;
-      }
-    }, 15000);
   }
 });
 
