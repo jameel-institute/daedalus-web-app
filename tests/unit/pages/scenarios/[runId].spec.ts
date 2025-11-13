@@ -12,7 +12,6 @@ const stubs = {
   "CostsPanel": true,
 };
 
-const failedRunId = "456";
 const successfulRunId = "789";
 const sampleScenario = {
   ...emptyScenario,
@@ -40,17 +39,6 @@ registerEndpoint(`/api/scenarios/${successfulRunId}/details`, () => {
     runId: successfulRunId,
   };
 });
-
-registerEndpoint(`/api/scenarios/${failedRunId}/status`, () => {
-  return {
-    runStatus: "failed",
-    runSuccess: false,
-    done: true,
-    runErrors: ["No biscuits available. Scenario lost motivation."],
-    runId: failedRunId,
-  };
-});
-
 registerEndpoint(`/api/scenarios/${successfulRunId}/status`, () => {
   return {
     runStatus: "complete",
@@ -60,7 +48,6 @@ registerEndpoint(`/api/scenarios/${successfulRunId}/status`, () => {
     runId: successfulRunId,
   };
 });
-
 registerEndpoint(`/api/scenarios/${successfulRunId}/result`, () => {
   return mockResultData;
 });
@@ -196,6 +183,33 @@ describe("scenario result page", () => {
     expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
   });
 
+  it("shows alert when a result request throws an error during page setup script", async () => {
+    const idForErroringResultRequest = "468";
+    registerEndpoint(`/api/scenarios/${idForErroringResultRequest}/status`, () => {
+      return {
+        runStatus: "complete",
+        runSuccess: true,
+        done: true,
+        runErrors: null,
+        runId: idForErroringResultRequest,
+      };
+    });
+    registerEndpoint(`/api/scenarios/${idForErroringResultRequest}/result`, () => {
+      throw createError({
+        statusCode: 418,
+        statusMessage: "I'm a teapot",
+      });
+    });
+    mockRoute.mockReturnValue({ params: { runId: idForErroringResultRequest } });
+
+    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
+
+    expect(component.text()).toContain("There was an unexpected error");
+    expect(component.text()).toContain("418");
+    expect(component.text()).toContain("I'm a teapot");
+    expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
+  });
+
   it("shows alert when a status request throws an error during polling", async () => {
     const statusRequestFirstPendingThenError = "357";
     let statusRequestCounts = 0;
@@ -218,12 +232,6 @@ describe("scenario result page", () => {
     registerEndpoint(`/api/scenarios/${statusRequestFirstPendingThenError}/result`, () => {
       return mockResultData;
     });
-    registerEndpoint(`/api/scenarios/${statusRequestFirstPendingThenError}/details`, () => {
-      return {
-        parameters: mockResultData.parameters,
-        runId: statusRequestFirstPendingThenError,
-      };
-    });
     mockRoute.mockReturnValue({ params: { runId: statusRequestFirstPendingThenError } });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
@@ -239,7 +247,56 @@ describe("scenario result page", () => {
     expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
   });
 
+  it("shows alert when a result request throws an error after page has loaded", async () => {
+    const idForResultRequestErroringAfterPageload = "468";
+    let statusRequestCounts = 0;
+    registerEndpoint(`/api/scenarios/${idForResultRequestErroringAfterPageload}/status`, () => {
+      statusRequestCounts++;
+      const nowComplete = statusRequestCounts === 2;
+      return {
+        runStatus: nowComplete ? "running" : "complete",
+        runSuccess: nowComplete ? "true" : null,
+        done: nowComplete,
+        runErrors: null,
+        runId: idForResultRequestErroringAfterPageload,
+      };
+    });
+    registerEndpoint(`/api/scenarios/${idForResultRequestErroringAfterPageload}/result`, () => {
+      throw createError({
+        statusCode: 418,
+        statusMessage: "I'm a teapot",
+      });
+    });
+
+    mockRoute.mockReturnValue({ params: { runId: idForResultRequestErroringAfterPageload } });
+
+    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
+
+    expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(true);
+
+    vi.advanceTimersByTime(500);
+    await flushPromises();
+
+    await waitFor(() => {
+      expect(component.text()).toContain("There was an unexpected error");
+      expect(component.text()).toContain("418");
+      expect(component.text()).toContain("I'm a teapot");
+      expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
+    });
+  });
+
   it("shows alerts when run fails (i.e. the API reports errors in the model run)", async () => {
+    const failedRunId = "456";
+    registerEndpoint(`/api/scenarios/${failedRunId}/status`, () => {
+      return {
+        runStatus: "failed",
+        runSuccess: false,
+        done: true,
+        runErrors: ["No biscuits available. Scenario lost motivation."],
+        runId: failedRunId,
+      };
+    });
+
     mockRoute.mockReturnValue({ params: { runId: failedRunId } });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });

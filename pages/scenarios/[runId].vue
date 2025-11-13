@@ -28,7 +28,7 @@
       </ParameterInfoCard>
     </div>
     <CSpinner v-if="showSpinner" class="ms-3 mb-3 mt-3" />
-    <template v-if="statusResponseError || appStore.currentScenario.status.data?.runSuccess === false">
+    <template v-if="statusResponseError || resultResponseError || appStore.currentScenario.status.data?.runSuccess === false">
       <CAlert color="danger">
         <CAlertHeading>
           <CIcon icon="cilWarning" class="flex-shrink-0 me-2" width="24" height="24" />
@@ -48,6 +48,9 @@
         </template>
         <p v-if="statusResponseError" class="mb-0">
           Error details: {{ statusResponseError.data?.message ?? statusResponseError.message }}
+        </p>
+        <p v-if="resultResponseError" class="mb-0">
+          Error details: {{ resultResponseError.data?.message ?? resultResponseError.message }}
         </p>
       </CAlert>
     </template>
@@ -69,10 +72,12 @@ const appStore = useAppStore();
 
 let statusInterval: NodeJS.Timeout;
 const statusResponseError = computed(() => appStore.currentScenario.status.fetchError);
+const resultResponseError = computed(() => appStore.currentScenario.result.fetchError);
 const showSpinner = computed(() => !appStore.currentScenario.result.data
   && appStore.currentScenario.status.data?.runSuccess !== false
   && appStore.currentScenario.runId
-  && !statusResponseError.value,
+  && !statusResponseError.value
+  && !resultResponseError.value,
 );
 
 const route = useRoute();

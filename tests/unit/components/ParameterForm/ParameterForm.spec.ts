@@ -443,9 +443,7 @@ describe("parameter form", () => {
     const buttonEl = component.find("button[type='submit']");
     await buttonEl.trigger("click");
 
-    await nextTick();
     await flushPromises();
-    await nextTick();
 
     const cAlertComponent = component.findComponent({ name: "CAlert" });
 
