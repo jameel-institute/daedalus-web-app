@@ -84,6 +84,7 @@ export const mockResultData = {
     pathogen: "sars_cov_1",
     response: "none",
     vaccine: "none",
+    behaviour: "none",
     hospital_capacity: "30500",
   },
   costs: [

@@ -8,6 +8,21 @@
       novalidate
       @submit.prevent="submitForm"
     >
+      <template v-if="submitError">
+        <CAlert color="danger">
+          <CAlertHeading>
+            <CIcon icon="cilWarning" class="flex-shrink-0 me-2" width="24" height="24" />
+            Error
+          </CAlertHeading>
+          <p class="mt-3">
+            There was an unexpected error when submitting the form. Please refresh the page and try again later.
+          </p>
+          <hr>
+          <p class="mb-0">
+            Error details: {{ submitError.data?.message ?? submitError.message }}
+          </p>
+        </CAlert>
+      </template>
       <div
         v-for="(parameter) in paramMetadata"
         :key="parameter.id"
@@ -74,6 +89,7 @@ import { CIcon } from "@coreui/icons-vue";
 import { getRangeForDependentParam } from "~/components/utils/parameters";
 import { numericValueInvalid } from "~/components/utils/validations";
 import type { ParameterNumericInput } from "#components";
+import type { NuxtError } from "#app";
 
 const props = defineProps<{
   inModal: boolean
@@ -83,6 +99,7 @@ defineEmits(["showRCode"]);
 
 const appStore = useAppStore();
 
+const submitError = ref<NuxtError<{ message?: string }> | null>(null);
 const formSubmitting = ref(false);
 const showValidations = ref(false);
 const mounted = ref(false);
@@ -212,7 +229,13 @@ const submitForm = async () => {
   formSubmitting.value = true;
 
   appStore.currentScenario.parameters = { ...formData.value };
-  await appStore.runScenario(appStore.currentScenario);
+  try {
+    await appStore.runScenario(appStore.currentScenario);
+  } catch (error) {
+    submitError.value = error as NuxtError<{ message?: string }>;
+    formSubmitting.value = false;
+    return;
+  }
 
   if (appStore.currentScenario.runId) {
     await navigateTo(`/scenarios/${appStore.currentScenario.runId}`);

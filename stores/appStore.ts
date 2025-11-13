@@ -165,8 +165,6 @@ export const useAppStore = defineStore("app", {
       const response = await $fetch<NewScenarioData>("/api/scenarios", {
         method: "POST",
         body: { parameters },
-      }).catch((error: FetchError) => {
-        console.error(error);
       });
 
       if (response) {
