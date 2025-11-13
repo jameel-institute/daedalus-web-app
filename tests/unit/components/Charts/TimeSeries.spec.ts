@@ -161,9 +161,9 @@ describe("time series", () => {
             text: "Number of new patients in need of hospitalisation per day",
           },
         }),
-        tooltip: expect.objectContaining({
-          pointFormat: expect.stringContaining("new hospitalisations needed"),
-        }),
+      }),
+      tooltip: expect.objectContaining({
+        pointFormat: expect.stringContaining("new hospitalisations needed"),
       }),
     }));
     expect(mockRemovePlotLine).toHaveBeenCalledWith("hospital_capacity-434700-scenario_1");
