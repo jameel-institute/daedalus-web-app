@@ -96,7 +96,7 @@
     </p>
     <h3>Modelling team</h3>
     <p>
-      Patrick Doohan<sup>b</sup>*, Rob Johnson<sup>b</sup>*, 
+      Patrick Doohan<sup>b</sup>*, Rob Johnson<sup>b</sup>*,
       Pratik Gupte<sup>a,b</sup>, Pablo Perez Guzman<sup>b</sup>,
       Haokun Pang<sup>h</sup>,
       David Haw<sup>b,c</sup>, Kanchan Parchani<sup>b</sup>,
@@ -240,5 +240,4 @@
 <script setup lang="ts">
 const appStore = useAppStore();
 const numberOfPandemics = appStore.parametersMetadataById.pathogen?.options?.length;
-const numberOfCountries = appStore.parametersMetadataById.country?.options?.length;
 </script>
