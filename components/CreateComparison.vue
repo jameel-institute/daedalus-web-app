@@ -94,6 +94,21 @@
               <CIcon v-else icon="cilArrowRight" />
             </CButton>
           </div>
+          <template v-if="submitError">
+            <CAlert color="danger">
+              <CAlertHeading>
+                <CIcon icon="cilWarning" class="flex-shrink-0 me-2" width="24" height="24" />
+                Error
+              </CAlertHeading>
+              <p class="mt-3">
+                There was an unexpected error when submitting the form. Please refresh the page and try again later.
+              </p>
+              <hr>
+              <p class="mb-0">
+                Error details: {{ submitError.data?.message ?? submitError.message }}
+              </p>
+            </CAlert>
+          </template>
           <div v-if="paramsDependingOnAxis?.length" class="alert alert-warning mt-3">
             <p>
               Please note: if you proceed, the scenarios will vary not only by {{ chosenParameterAxis.label.toLowerCase() }}, but also by
@@ -125,12 +140,14 @@ import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/compariso
 import { numericValueIsOutOfRange } from "~/components/utils/validations";
 import { getRangeForDependentParam } from "~/components/utils/parameters";
 import { commaSeparatedNumber } from "~/components/utils/formatters";
+import type { NuxtError } from "#app";
 
 const emit = defineEmits(["showRCode"]);
 
 const appStore = useAppStore();
 const FORM_LABEL_ID = "scenarioOptions";
 const selectedScenarioOptions = ref<string[]>([]);
+const submitError = ref<NuxtError<{ message?: string }> | null>(null);
 const modalVisible = ref(false);
 const chosenAxisId = ref("");
 const formSubmitting = ref(false);
@@ -199,7 +216,13 @@ const submitForm = async () => {
   formSubmitting.value = true;
 
   if (baselineParameters.value) {
-    await appStore.runComparison(chosenAxisId.value, baselineParameters.value, selectedScenarioOptions.value);
+    try {
+      await appStore.runComparison(chosenAxisId.value, baselineParameters.value, selectedScenarioOptions.value);
+    } catch (error) {
+      submitError.value = error as NuxtError<{ message?: string }>;
+      formSubmitting.value = false;
+      return;
+    }
 
     await navigateTo({ path: "/comparison", query: {
       axis: appStore.currentComparison.axis,

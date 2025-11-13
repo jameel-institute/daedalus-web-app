@@ -493,4 +493,43 @@ describe("create comparison button and modal", () => {
       },
     });
   });
+
+  it("displays CAlert with error message when any of the requests to run a scenario throws an error", async () => {
+    let runRequestCount = 0;
+    registerEndpoint("/api/scenarios", {
+      method: "POST",
+      async handler() {
+        runRequestCount++;
+        if (runRequestCount < 3) {
+          return { runId: `runId${runRequestCount}` };
+        }
+        throw createError({
+          statusCode: 418,
+          statusMessage: "I'm a teapot",
+        });
+      },
+    });
+
+    const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
+
+    await openModal(wrapper);
+    await clickCountryButton(wrapper);
+
+    const comboboxEl = getComboboxEl(wrapper);
+    await comboboxEl.trigger("click");
+    await wrapper.findAll(".menu .parameter-option").find(el => /United States/i.test(el.text()))!.trigger("click");
+    await wrapper.findAll(".menu .parameter-option").find(el => /Thailand/i.test(el.text()))!.trigger("click");
+
+    const buttonEl = wrapper.find("button[type='submit']");
+    expect(buttonEl.attributes("disabled")).not.toBe("");
+    await buttonEl.trigger("click");
+
+    await flushPromises();
+
+    const cAlertComponent = wrapper.findComponent({ name: "CAlert" });
+
+    expect(cAlertComponent.text()).toContain("There was an unexpected error when submitting the form");
+    expect(cAlertComponent.text()).toContain("418");
+    expect(cAlertComponent.text()).toContain("I'm a teapot");
+  });
 });
