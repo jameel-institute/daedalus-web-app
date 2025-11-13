@@ -161,6 +161,9 @@ watch(() => props.timeSeriesMetadata, () => {
   chart.value?.update({
     exporting: exportingOptions.value,
     series: chartTimeSeries.value,
+    tooltip: {
+      pointFormat: `<span style='font-weight: 500'>{point.y}</span> ${yUnits.value}`,
+    },
   });
 });
 
