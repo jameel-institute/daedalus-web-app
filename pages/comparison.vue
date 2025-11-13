@@ -27,7 +27,7 @@
       </ParameterInfoCard>
     </div>
     <CSpinner v-if="showSpinner" class="ms-3 mb-3 mt-3" />
-    <template v-if="unsuccessfulScenarios.length">
+    <template v-if="unsuccessfulScenarios.length || scenariosWithFetchErrors.length">
       <CAlert color="danger">
         <CAlertHeading>
           <CIcon icon="cilWarning" class="flex-shrink-0 me-2" width="24" height="24" />
@@ -43,6 +43,14 @@
             :key="index"
           >
             {{ errorMsg }}
+          </p>
+        </template>
+        <template v-for="scenario in scenariosWithFetchErrors" :key="scenario.runId">
+          <p v-if="scenario.status.fetchError" class="mb-0">
+            Error details: {{ scenario.status.fetchError.data?.message ?? scenario.status.fetchError.message }}
+          </p>
+          <p v-if="scenario.result.fetchError" class="mb-0">
+            Error details: {{ scenario.result.fetchError.data?.message ?? scenario.result.fetchError.message }}
           </p>
         </template>
       </CAlert>
@@ -81,12 +89,17 @@
 <script setup lang="ts">
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
 
-const showSpinner = ref(true);
-
 const nuxtApp = useNuxtApp();
 const appStore = useAppStore();
-const { unsuccessfulScenarios, everyScenarioHasRunSuccessfully } = storeToRefs(appStore);
+const { scenariosWithFetchErrors, unsuccessfulScenarios, everyScenarioHasRunSuccessfully, everyScenarioIsDone } = storeToRefs(appStore);
 const query = useRoute().query;
+
+const showSpinner = computed(() => {
+  return !everyScenarioIsDone.value
+    && scenariosWithFetchErrors.value.length === 0
+    && unsuccessfulScenarios.value.length === 0;
+});
+
 appStore.clearScenario(appStore.currentScenario);
 appStore.downloadError = undefined;
 let statusInterval: NodeJS.Timeout;
@@ -97,15 +110,14 @@ watch(() => appStore.metadata, async (newMetadata) => {
   }
 }, { immediate: true });
 
-const stopWatchingComparison = watch(() => appStore.currentComparison, async (currentComp) => {
+const stopWatchingComparison = watch(everyScenarioIsDone, () => {
   if (!statusInterval && appStore.everyScenarioHasARunId) {
     statusInterval = setInterval(() => {
       appStore.refreshComparisonStatuses(nuxtApp);
     }, 200);
   }
-  if (currentComp.scenarios?.every(s => s.status.data?.done)) {
+  if (everyScenarioIsDone.value) {
     clearInterval(statusInterval);
-    showSpinner.value = false;
   }
 }, { deep: true, immediate: true });
 

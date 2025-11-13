@@ -28,7 +28,7 @@
       </ParameterInfoCard>
     </div>
     <CSpinner v-if="showSpinner" class="ms-3 mb-3 mt-3" />
-    <template v-if="statusResponseError || resultResponseError || appStore.currentScenario.status.data?.runSuccess === false">
+    <template v-if="scenarioStatusResponseError || scenarioResultResponseError || appStore.currentScenario.status.data?.runSuccess === false">
       <CAlert color="danger">
         <CAlertHeading>
           <CIcon icon="cilWarning" class="flex-shrink-0 me-2" width="24" height="24" />
@@ -46,11 +46,11 @@
             {{ errorMsg }}
           </p>
         </template>
-        <p v-if="statusResponseError" class="mb-0">
-          Error details: {{ statusResponseError.data?.message ?? statusResponseError.message }}
+        <p v-if="scenarioStatusResponseError" class="mb-0">
+          Error details: {{ scenarioStatusResponseError.data?.message ?? scenarioStatusResponseError.message }}
         </p>
-        <p v-if="resultResponseError" class="mb-0">
-          Error details: {{ resultResponseError.data?.message ?? resultResponseError.message }}
+        <p v-if="scenarioResultResponseError" class="mb-0">
+          Error details: {{ scenarioResultResponseError.data?.message ?? scenarioResultResponseError.message }}
         </p>
       </CAlert>
     </template>
@@ -71,13 +71,13 @@ import { CIcon, CIconSvg } from "@coreui/icons-vue";
 const appStore = useAppStore();
 
 let statusInterval: NodeJS.Timeout;
-const statusResponseError = computed(() => appStore.currentScenario.status.fetchError);
-const resultResponseError = computed(() => appStore.currentScenario.result.fetchError);
+const scenarioStatusResponseError = computed(() => appStore.currentScenario.status.fetchError);
+const scenarioResultResponseError = computed(() => appStore.currentScenario.result.fetchError);
 const showSpinner = computed(() => !appStore.currentScenario.result.data
   && appStore.currentScenario.status.data?.runSuccess !== false
   && appStore.currentScenario.runId
-  && !statusResponseError.value
-  && !resultResponseError.value,
+  && !scenarioStatusResponseError.value
+  && !scenarioResultResponseError.value,
 );
 
 const route = useRoute();
