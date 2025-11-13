@@ -55,6 +55,7 @@ const { zIndex } = useAdjacentCharts(() => props.groupIndex, () => Number(appSto
 
 const chartContainerId = computed(() => `time-series-${props.groupIndex}`);
 const yUnits = computed(() => timeSeriesYUnits(props.timeSeriesMetadata.id));
+const pointFormat = computed(() => `<span style='font-weight: 500'>{point.y}</span> ${yUnits.value}`);
 const data = computed(() => getTimeSeriesDataPoints(appStore.currentScenario, props.timeSeriesMetadata.id));
 
 const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(
@@ -140,7 +141,7 @@ const chartInitialOptions = () => {
     },
     tooltip: {
       headerFormat: "<span style='font-size: 0.7rem; margin-bottom: 0.3rem;'>Day {point.x}</span><br/>",
-      pointFormat: `<span style='font-weight: 500'>{point.y}</span> ${yUnits.value}`,
+      pointFormat: pointFormat.value,
       valueDecimals: 0,
     },
     xAxis: { // Omit title to save vertical space on page
@@ -162,7 +163,7 @@ watch(() => props.timeSeriesMetadata, () => {
     exporting: exportingOptions.value,
     series: chartTimeSeries.value,
     tooltip: {
-      pointFormat: `<span style='font-weight: 500'>{point.y}</span> ${yUnits.value}`,
+      pointFormat: pointFormat.value,
     },
   });
 });
