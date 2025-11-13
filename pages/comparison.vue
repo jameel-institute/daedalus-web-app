@@ -26,7 +26,27 @@
         </template>
       </ParameterInfoCard>
     </div>
-    <CSpinner v-show="showSpinner" class="ms-3 mb-3 mt-3" />
+    <CSpinner v-if="showSpinner" class="ms-3 mb-3 mt-3" />
+    <template v-if="unsuccessfulScenarios.length">
+      <CAlert color="danger">
+        <CAlertHeading>
+          <CIcon icon="cilWarning" class="flex-shrink-0 me-2" width="24" height="24" />
+          Error
+        </CAlertHeading>
+        <p class="mt-3">
+          There was an unexpected error. Please try again later.
+        </p>
+        <hr>
+        <template v-for="scenario in unsuccessfulScenarios" :key="scenario.runId">
+          <p
+            v-for="(errorMsg, index) in scenario.status.data?.runErrors"
+            :key="index"
+          >
+            {{ errorMsg }}
+          </p>
+        </template>
+      </CAlert>
+    </template>
     <CRow v-if="appStore.everyScenarioHasCosts" class="results-cards-container">
       <div class="col-12">
         <CTabs active-item-key="costs">
@@ -65,7 +85,7 @@ const showSpinner = ref(true);
 
 const nuxtApp = useNuxtApp();
 const appStore = useAppStore();
-const { everyScenarioHasRunSuccessfully } = storeToRefs(appStore);
+const { unsuccessfulScenarios, everyScenarioHasRunSuccessfully } = storeToRefs(appStore);
 const query = useRoute().query;
 appStore.clearScenario(appStore.currentScenario);
 appStore.downloadError = undefined;

@@ -153,4 +153,25 @@ describe("comparison page", () => {
     expect(appStore.currentScenario.parameters).toBeUndefined();
     await waitFor(() => expect(appStore.currentComparison.axis).not.toBeUndefined());
   });
+
+  it("shows alerts when any run fails (i.e. the API reports errors in the model run)", async () => {
+    const failedRunId = scenarioRunIds.sars_cov_2_pre_alpha;
+    registerEndpoint(`/api/scenarios/${failedRunId}/status`, () => {
+      return {
+        runStatus: "failed",
+        runSuccess: false,
+        done: true,
+        runErrors: ["No oatcakes available. Scenario lost willpower."],
+        runId: failedRunId,
+      };
+    });
+
+    const component = await mountSuspended(Comparison, { global: { plugins: [pinia], stubs } });
+
+    await waitFor(() => {
+      expect(component.text()).toContain("There was an unexpected error");
+      expect(component.text()).toContain("No oatcakes available.");
+      expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
+    });
+  });
 });

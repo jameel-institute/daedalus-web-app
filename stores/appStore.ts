@@ -84,6 +84,9 @@ export const useAppStore = defineStore("app", {
       return state.currentComparison.scenarios?.length > 0
         && state.currentComparison.scenarios?.every(s => s.status.data?.runSuccess);
     },
+    unsuccessfulScenarios: (state): Scenario[] => {
+      return state.currentComparison.scenarios?.filter(s => s.status.data?.runSuccess === false);
+    },
     everyScenarioHasARunId: (state): boolean => {
       return state.currentComparison.scenarios?.length > 0
         && state.currentComparison.scenarios?.every(s => !!s.runId);

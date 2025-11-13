@@ -14,6 +14,7 @@ import { CostBasis } from "~/types/unitTypes";
 import { flushPromises } from "@vue/test-utils";
 import { mockMetadataResponseData } from "../mocks/mockResponseData";
 import type { Scenario } from "~/types/storeTypes";
+import type { AsyncDataRequestStatus } from "#app";
 
 const unloadedScenario = {
   ...emptyScenario,
@@ -104,6 +105,7 @@ describe("app store", () => {
       await waitFor(() => {
         expect(store.currentScenario.runId).toBe("123");
         expect(store.currentScenario.parameters).toEqual({
+          behaviour: "none",
           country: "GBR",
           pathogen: "sars_cov_1",
           response: "none",
@@ -797,6 +799,35 @@ describe("app store", () => {
 
         store.currentComparison.scenarios[1].status.data!.runSuccess = true;
         expect(store.everyScenarioHasRunSuccessfully).toBe(true);
+      });
+
+      it("can retrieve any scenarios in a comparison which report a failed run", async () => {
+        const store = useAppStore();
+        const unsuccessfulScenario = {
+          ...emptyScenario,
+          status: {
+            data: { done: true, runId: null, runStatus: runStatus.Failed, runErrors: null, runSuccess: false },
+            fetchError: undefined,
+            fetchStatus: "success" as AsyncDataRequestStatus,
+          },
+        };
+        const successfulScenario = {
+          ...emptyScenario,
+          status: {
+            data: { done: true, runId: null, runStatus: runStatus.Complete, runErrors: null, runSuccess: true },
+            fetchError: undefined,
+            fetchStatus: "success" as AsyncDataRequestStatus,
+          },
+        };
+        store.currentComparison = {
+          axis: "vaccine",
+          baseline: "high",
+          scenarios: [successfulScenario, unsuccessfulScenario],
+        };
+        expect(store.unsuccessfulScenarios).toEqual([unsuccessfulScenario]);
+
+        store.currentComparison.scenarios[1].status.data!.runSuccess = true;
+        expect(store.unsuccessfulScenarios).toHaveLength(0);
       });
 
       it("can report whether every scenario in a comparison has a run id", async () => {
