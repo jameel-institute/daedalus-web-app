@@ -108,50 +108,51 @@ const scenarioTag = (scenario: Scenario) => {
   }
 };
 
-const behaviourObj = (scenario: Scenario, varName: string) => {
+const behaviourObj = (scenario: Scenario, indentation: string) => {
   if (scenario.parameters!.behaviour === "none") {
-    return `${varName} <- NULL`;
+    return `NULL`;
   }
   return [
-    `${varName} <- daedalus::daedalus_new_behaviour(`,
+    `daedalus::daedalus_new_behaviour(`,
     `  hospital_capacity = ${scenario.parameters!.hospital_capacity},`,
     `  baseline_optimism = ${OPTIMISM[scenario.parameters!.behaviour]},`,
     `  responsiveness = ${BEHAV_RESPONSIVENESS_K2},`,
     `  behav_effectiveness = ${BEHAV_EFFECTIVENESS_DELTA}`,
     `)`,
-  ].join("\n");
+  ].join(`\n${indentation}`);
 };
 
 const codeSnippet = computed(() => {
   if (!props.scenarios.every(scenario => !!scenario.parameters)) {
     return;
   }
-  let countryObjVarName = `country_obj`;
-  let behaviourObjVarName = `behaviour_obj`;
   let modelResultVarName = `model_result`;
   const allScenariosHaveNoneBehaviour = props.scenarios.every(scenario => scenario.parameters?.behaviour === "none");
+  // Determine if we can share a single behaviour_obj across all scenarios
+  const sharedBehaviourObj = props.scenarios.length > 1
+    && !scenariosVaryBy("behaviour")
+    && !scenariosVaryBy("hospital_capacity")
+    && !allScenariosHaveNoneBehaviour
+    ? `behaviour_obj <- ${behaviourObj(props.scenarios[0], "")}\n\n`
+    : null;
+  const sharedCountryObj = props.scenarios.length === 1
+    || (!scenariosVaryBy("country") && !scenariosVaryBy("hospital_capacity"))
+    ? `country_obj <- daedalus::daedalus_country("${props.scenarios[0].parameters!.country}")\n`
+    + `country_obj$hospital_capacity <- ${props.scenarios[0].parameters!.hospital_capacity}\n\n`
+    : null;
 
-  return props.scenarios.map((s, i) => {
+  const scenariosCode = props.scenarios.map((s) => {
     const p = s.parameters as ParameterSet;
     const sTag = scenarioTag(s);
 
     let countryObjCode;
-    if (scenariosVaryBy("country") || scenariosVaryBy("hospital_capacity")) {
+    let countryObjVarName;
+    if (sharedCountryObj) {
+      countryObjVarName = `country_obj`;
+    } else {
       countryObjVarName = `${sTag}_country_obj`;
       countryObjCode = `${countryObjVarName} <- daedalus::daedalus_country("${p.country}")\n`
-        + `${countryObjVarName}$hospital_capacity <- ${p.hospital_capacity}`;
-    } else if (i === 0) {
-      countryObjCode = `${countryObjVarName} <- daedalus::daedalus_country("${p.country}")\n`
-        + `${countryObjVarName}$hospital_capacity <- ${p.hospital_capacity}`;
-    }
-
-    if ((scenariosVaryBy("behaviour") || scenariosVaryBy("hospital_capacity")) && !allScenariosHaveNoneBehaviour) {
-      behaviourObjVarName = `${sTag}_behaviour_obj`;
-    }
-
-    let behaviourObjCode;
-    if (i === 0 || !allScenariosHaveNoneBehaviour) {
-      behaviourObjCode = behaviourObj(s, behaviourObjVarName);
+        + `${countryObjVarName}$hospital_capacity <- ${p.hospital_capacity}\n\n`;
     }
 
     if (props.scenarios.length > 1) {
@@ -159,15 +160,18 @@ const codeSnippet = computed(() => {
     }
     const modelCall = [
       `${modelResultVarName} <- daedalus::daedalus(`,
-      `  ${countryObjVarName},`,
+      `  ${sharedBehaviourObj ? `country_obj` : countryObjVarName},`,
       `  "${p.pathogen}",`,
       `  response_strategy = "${p.response}",`,
       `  vaccine_investment = "${p.vaccine}",`,
-      `  ${behaviourObjVarName}`,
+      `  ${sharedBehaviourObj ? `behaviour_obj` : `behaviour = ${behaviourObj(s, "  ")}`}`,
       `)`,
     ].join("\n");
-    return [countryObjCode, behaviourObjCode, modelCall].filter(text => !!text).join("\n\n");
+
+    return [countryObjCode, modelCall].join("");
   }).join("\n\n");
+
+  return [sharedCountryObj, sharedBehaviourObj, scenariosCode].join("");
 });
 
 const copySnippet = () => {

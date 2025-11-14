@@ -20,25 +20,28 @@ const parameters = {
 const expectedSnippetForSingleScenario = `country_obj <- daedalus::daedalus_country("THA")
 country_obj$hospital_capacity <- 5500
 
-behaviour_obj <- NULL
-
 model_result <- daedalus::daedalus(
   country_obj,
   "influenza_1918",
   response_strategy = "none",
   vaccine_investment = "high",
-  behaviour_obj
+  behaviour = NULL
 )`;
 
 const scenariosVaryingByVaccine = [
-  { parameters: { ...parameters } },
-  { parameters: { ...parameters, vaccine: "low" } },
-  { parameters: { ...parameters, vaccine: "medium" } },
+  { parameters: { ...parameters, behaviour: "high" } },
+  { parameters: { ...parameters, behaviour: "high", vaccine: "low" } },
+  { parameters: { ...parameters, behaviour: "high", vaccine: "medium" } },
 ];
 const expectedSnippetForScenariosVaryingByVaccine = `country_obj <- daedalus::daedalus_country("THA")
 country_obj$hospital_capacity <- 5500
 
-behaviour_obj <- NULL
+behaviour_obj <- daedalus::daedalus_new_behaviour(
+  hospital_capacity = 5500,
+  baseline_optimism = 0.25,
+  responsiveness = 0.01,
+  behav_effectiveness = 0.2
+)
 
 vaccine_high_model_result <- daedalus::daedalus(
   country_obj,
@@ -72,21 +75,12 @@ const scenariosVaryingByBehaviour = [
 const expectedSnippetForScenariosVaryingByBehaviour = `country_obj <- daedalus::daedalus_country("THA")
 country_obj$hospital_capacity <- 5500
 
-behaviour_none_behaviour_obj <- NULL
-
 behaviour_none_model_result <- daedalus::daedalus(
   country_obj,
   "influenza_1918",
   response_strategy = "none",
   vaccine_investment = "high",
-  behaviour_none_behaviour_obj
-)
-
-behaviour_low_behaviour_obj <- daedalus::daedalus_new_behaviour(
-  hospital_capacity = 5500,
-  baseline_optimism = 0.75,
-  responsiveness = 0.01,
-  behav_effectiveness = 0.2
+  behaviour = NULL
 )
 
 behaviour_low_model_result <- daedalus::daedalus(
@@ -94,14 +88,12 @@ behaviour_low_model_result <- daedalus::daedalus(
   "influenza_1918",
   response_strategy = "none",
   vaccine_investment = "high",
-  behaviour_low_behaviour_obj
-)
-
-behaviour_medium_behaviour_obj <- daedalus::daedalus_new_behaviour(
-  hospital_capacity = 5500,
-  baseline_optimism = 0.5,
-  responsiveness = 0.01,
-  behav_effectiveness = 0.2
+  behaviour = daedalus::daedalus_new_behaviour(
+    hospital_capacity = 5500,
+    baseline_optimism = 0.75,
+    responsiveness = 0.01,
+    behav_effectiveness = 0.2
+  )
 )
 
 behaviour_medium_model_result <- daedalus::daedalus(
@@ -109,7 +101,12 @@ behaviour_medium_model_result <- daedalus::daedalus(
   "influenza_1918",
   response_strategy = "none",
   vaccine_investment = "high",
-  behaviour_medium_behaviour_obj
+  behaviour = daedalus::daedalus_new_behaviour(
+    hospital_capacity = 5500,
+    baseline_optimism = 0.5,
+    responsiveness = 0.01,
+    behav_effectiveness = 0.2
+  )
 )`;
 
 const scenariosVaryingByCountry = [
@@ -120,55 +117,49 @@ const scenariosVaryingByCountry = [
 const expectedSnippetForScenariosVaryingByCountry = `tha_country_obj <- daedalus::daedalus_country("THA")
 tha_country_obj$hospital_capacity <- 5500
 
-tha_behaviour_obj <- daedalus::daedalus_new_behaviour(
-  hospital_capacity = 5500,
-  baseline_optimism = 0.75,
-  responsiveness = 0.01,
-  behav_effectiveness = 0.2
-)
-
 tha_model_result <- daedalus::daedalus(
   tha_country_obj,
   "influenza_1918",
   response_strategy = "none",
   vaccine_investment = "high",
-  tha_behaviour_obj
+  behaviour = daedalus::daedalus_new_behaviour(
+    hospital_capacity = 5500,
+    baseline_optimism = 0.75,
+    responsiveness = 0.01,
+    behav_effectiveness = 0.2
+  )
 )
 
 usa_country_obj <- daedalus::daedalus_country("USA")
 usa_country_obj$hospital_capacity <- 1234567
-
-usa_behaviour_obj <- daedalus::daedalus_new_behaviour(
-  hospital_capacity = 1234567,
-  baseline_optimism = 0.75,
-  responsiveness = 0.01,
-  behav_effectiveness = 0.2
-)
 
 usa_model_result <- daedalus::daedalus(
   usa_country_obj,
   "influenza_1918",
   response_strategy = "none",
   vaccine_investment = "high",
-  usa_behaviour_obj
+  behaviour = daedalus::daedalus_new_behaviour(
+    hospital_capacity = 1234567,
+    baseline_optimism = 0.75,
+    responsiveness = 0.01,
+    behav_effectiveness = 0.2
+  )
 )
 
 gbr_country_obj <- daedalus::daedalus_country("GBR")
 gbr_country_obj$hospital_capacity <- 999999
-
-gbr_behaviour_obj <- daedalus::daedalus_new_behaviour(
-  hospital_capacity = 999999,
-  baseline_optimism = 0.75,
-  responsiveness = 0.01,
-  behav_effectiveness = 0.2
-)
 
 gbr_model_result <- daedalus::daedalus(
   gbr_country_obj,
   "influenza_1918",
   response_strategy = "none",
   vaccine_investment = "high",
-  gbr_behaviour_obj
+  behaviour = daedalus::daedalus_new_behaviour(
+    hospital_capacity = 999999,
+    baseline_optimism = 0.75,
+    responsiveness = 0.01,
+    behav_effectiveness = 0.2
+  )
 )`;
 
 const scenariosVaryingByHospitalCapacity = [
@@ -179,55 +170,49 @@ const scenariosVaryingByHospitalCapacity = [
 const expectedSnippetForScenariosVaryingByHospitalCapacity = `hospital_capacity_5500_country_obj <- daedalus::daedalus_country("THA")
 hospital_capacity_5500_country_obj$hospital_capacity <- 5500
 
-hospital_capacity_5500_behaviour_obj <- daedalus::daedalus_new_behaviour(
-  hospital_capacity = 5500,
-  baseline_optimism = 0.75,
-  responsiveness = 0.01,
-  behav_effectiveness = 0.2
-)
-
 hospital_capacity_5500_model_result <- daedalus::daedalus(
   hospital_capacity_5500_country_obj,
   "influenza_1918",
   response_strategy = "none",
   vaccine_investment = "high",
-  hospital_capacity_5500_behaviour_obj
+  behaviour = daedalus::daedalus_new_behaviour(
+    hospital_capacity = 5500,
+    baseline_optimism = 0.75,
+    responsiveness = 0.01,
+    behav_effectiveness = 0.2
+  )
 )
 
 hospital_capacity_1234567_country_obj <- daedalus::daedalus_country("THA")
 hospital_capacity_1234567_country_obj$hospital_capacity <- 1234567
-
-hospital_capacity_1234567_behaviour_obj <- daedalus::daedalus_new_behaviour(
-  hospital_capacity = 1234567,
-  baseline_optimism = 0.75,
-  responsiveness = 0.01,
-  behav_effectiveness = 0.2
-)
 
 hospital_capacity_1234567_model_result <- daedalus::daedalus(
   hospital_capacity_1234567_country_obj,
   "influenza_1918",
   response_strategy = "none",
   vaccine_investment = "high",
-  hospital_capacity_1234567_behaviour_obj
+  behaviour = daedalus::daedalus_new_behaviour(
+    hospital_capacity = 1234567,
+    baseline_optimism = 0.75,
+    responsiveness = 0.01,
+    behav_effectiveness = 0.2
+  )
 )
 
 hospital_capacity_999999_country_obj <- daedalus::daedalus_country("THA")
 hospital_capacity_999999_country_obj$hospital_capacity <- 999999
-
-hospital_capacity_999999_behaviour_obj <- daedalus::daedalus_new_behaviour(
-  hospital_capacity = 999999,
-  baseline_optimism = 0.75,
-  responsiveness = 0.01,
-  behav_effectiveness = 0.2
-)
 
 hospital_capacity_999999_model_result <- daedalus::daedalus(
   hospital_capacity_999999_country_obj,
   "influenza_1918",
   response_strategy = "none",
   vaccine_investment = "high",
-  hospital_capacity_999999_behaviour_obj
+  behaviour = daedalus::daedalus_new_behaviour(
+    hospital_capacity = 999999,
+    baseline_optimism = 0.75,
+    responsiveness = 0.01,
+    behav_effectiveness = 0.2
+  )
 )`;
 
 const scenariosVaryingByHospitalCapacityWithNoneBehaviour = [
@@ -238,14 +223,12 @@ const scenariosVaryingByHospitalCapacityWithNoneBehaviour = [
 const expectedSnippetForScenariosVaryingByHospitalCapacityWithNoneBehaviour = `hospital_capacity_5500_country_obj <- daedalus::daedalus_country("THA")
 hospital_capacity_5500_country_obj$hospital_capacity <- 5500
 
-behaviour_obj <- NULL
-
 hospital_capacity_5500_model_result <- daedalus::daedalus(
   hospital_capacity_5500_country_obj,
   "influenza_1918",
   response_strategy = "none",
   vaccine_investment = "high",
-  behaviour_obj
+  behaviour = NULL
 )
 
 hospital_capacity_1234567_country_obj <- daedalus::daedalus_country("THA")
@@ -256,7 +239,7 @@ hospital_capacity_1234567_model_result <- daedalus::daedalus(
   "influenza_1918",
   response_strategy = "none",
   vaccine_investment = "high",
-  behaviour_obj
+  behaviour = NULL
 )
 
 hospital_capacity_999999_country_obj <- daedalus::daedalus_country("THA")
@@ -267,7 +250,7 @@ hospital_capacity_999999_model_result <- daedalus::daedalus(
   "influenza_1918",
   response_strategy = "none",
   vaccine_investment = "high",
-  behaviour_obj
+  behaviour = NULL
 )`;
 
 const mockCopyToClipboard = vi.fn();
