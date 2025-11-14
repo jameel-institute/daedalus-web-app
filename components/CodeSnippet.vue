@@ -56,11 +56,14 @@
 
 <script setup lang="ts">
 import { CIcon } from "@coreui/icons-vue";
+import type { ParameterSet } from "~/types/parameterTypes";
 import type { Scenario } from "~/types/storeTypes";
 
 const props = defineProps<{
   scenarios: Scenario[]
 }>();
+
+const appStore = useAppStore();
 
 const modalVisible = ref(false);
 const copied = ref(false);
@@ -73,21 +76,44 @@ defineExpose({ modalVisible });
 // (1) replicating logic or constants from the R API package here,
 // (2) the risk of the code snippet being out of date with respect to the current model.
 
+const scenariosVaryBy = (parameterId: string) => props.scenarios.some((scenario, _, arr) =>
+  scenario.parameters?.[parameterId] !== arr[0].parameters?.[parameterId],
+);
+
+const modelResultVarName = (scenario: Scenario) => {
+  if (props.scenarios.length === 1) {
+    return `model_result`;
+  }
+  // NB R variable names must not start with a number.
+  return `model_result_${appStore.getScenarioAxisValue(scenario)?.toLocaleLowerCase()}`;
+};
+
 const codeSnippet = computed(() => {
   if (!props.scenarios.every(scenario => !!scenario.parameters)) {
     return;
   }
-  return props.scenarios.map(({ parameters }) => ``
-    + `country_obj <- daedalus::daedalus_country("${parameters!.country}")\n`
-    + `country_obj$hospital_capacity <- ${parameters!.hospital_capacity}\n`
-    + `\n`
-    + `model_result <- daedalus::daedalus(\n`
-    + `  country_obj,\n`
-    + `  "${parameters!.pathogen}",\n`
-    + `  response_strategy = "${parameters!.response}",\n`
-    + `  vaccine_investment = "${parameters!.vaccine}"\n`
-    + `)`,
-  ).join("\n\n");
+  let countryObjVarName = `country_obj`;
+  return props.scenarios.map((s, i) => {
+    const p = s.parameters as ParameterSet;
+    let countryObjCode;
+    if (scenariosVaryBy("country") || scenariosVaryBy("hospital_capacity")) {
+      countryObjVarName = `country_obj_${appStore.getScenarioAxisValue(s)?.toLocaleLowerCase()}`;
+      countryObjCode = `${countryObjVarName} <- daedalus::daedalus_country("${p.country}")\n`
+        + `${countryObjVarName}$hospital_capacity <- ${p.hospital_capacity}`;
+    } else if (i === 0) {
+      countryObjCode = `${countryObjVarName} <- daedalus::daedalus_country("${p.country}")\n`
+        + `${countryObjVarName}$hospital_capacity <- ${p.hospital_capacity}`;
+    }
+    const modelCall = [
+      `${modelResultVarName(s)} <- daedalus::daedalus(`,
+      `  ${countryObjVarName},`,
+      `  "${p.pathogen}",`,
+      `  response_strategy = "${p.response}",`,
+      `  vaccine_investment = "${p.vaccine}"`,
+      `)`,
+    ].join("\n");
+    return [countryObjCode, modelCall].filter(text => !!text).join("\n\n");
+  }).join("\n\n");
 });
 
 const copySnippet = () => {
