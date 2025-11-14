@@ -29,9 +29,8 @@ const originalNavigator = { ...globalThis.navigator };
 describe("code snippet", () => {
   const render = async () => {
     return await mountSuspended(CodeSnippet, {
-      global: { stubs, plugins: [mockPinia({
-        currentScenario: { ...emptyScenario, parameters },
-      })] },
+      global: { stubs },
+      props: { scenarios: [{ parameters }] },
     });
   };
 

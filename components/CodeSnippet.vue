@@ -1,6 +1,6 @@
 <template>
   <div class="d-inline-block">
-    <div v-if="parameters">
+    <div v-if="codeSnippet">
       <CTooltip content="Generate code snippet" placement="top">
         <template #toggler="{ togglerId, on }">
           <CButton
@@ -56,23 +56,30 @@
 
 <script setup lang="ts">
 import { CIcon } from "@coreui/icons-vue";
+import type { Scenario } from "~/types/storeTypes";
 
-const appStore = useAppStore();
+const props = defineProps<{
+  scenarios: Scenario[]
+}>();
 
 const modalVisible = ref(false);
 const copied = ref(false);
 
 defineExpose({ modalVisible });
 
-const parameters = computed(() => appStore.currentScenario.parameters);
 const codeSnippet = computed(() => {
-  return `model_result <- daedalus::daedalus(
-  "${parameters.value?.country}",
-  "${parameters.value?.pathogen}",
-  response_strategy = "${parameters.value?.response}",
-  response_threshold = ${parameters.value?.hospital_capacity},
-  vaccine_investment = "${parameters.value?.vaccine}"
-)`;
+  if (!props.scenarios.every(scenario => !!scenario.parameters)) {
+    return;
+  }
+  return props.scenarios.map(({ parameters }) => {
+    return `model_result <- daedalus::daedalus(
+      "${parameters?.country}",
+      "${parameters?.pathogen}",
+      response_strategy = "${parameters?.response}",
+      response_threshold = ${parameters?.hospital_capacity},
+      vaccine_investment = "${parameters?.vaccine}"
+    )`;
+  }).join("\n\n");
 });
 
 const copySnippet = () => {
