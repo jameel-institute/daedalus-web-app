@@ -162,7 +162,7 @@ describe("time series", () => {
     expect(mockAddPlotBand).toHaveBeenCalledTimes(numberOfTimeSeriesThatEnablePlotBands);
     expect(mockAddPlotBand).toHaveBeenCalledWith(expect.objectContaining({
       label: expect.objectContaining({
-        text: "Intervention days 30–600", // Has label text because series is hovered.
+        text: "Closures days 30–600", // Has label text because series is hovered.
       }),
     }));
 

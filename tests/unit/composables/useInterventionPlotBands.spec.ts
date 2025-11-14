@@ -116,7 +116,7 @@ describe("useInterventionsPlotBands", () => {
       to: 445,
       color: plotBandsDefaultColorWithAlpha,
       label: expect.objectContaining({
-        text: "Intervention days 111–445",
+        text: "Closures days 111–445",
         style: expect.objectContaining({ color: plotBandsDefaultColor }),
       }),
     })]);
@@ -179,7 +179,7 @@ describe("useInterventionsPlotBands", () => {
       to: 445,
       color: plotBandsDefaultColorWithAlpha,
       label: expect.objectContaining({
-        text: "Intervention days 111–445",
+        text: "Closures days 111–445",
       }),
     })]);
     expect(mockToggleContextMenuButton).toHaveBeenCalledTimes(expectedCallsToToggleButton);
@@ -197,7 +197,7 @@ describe("useInterventionsPlotBands", () => {
       to: 889,
       color: plotBandsDefaultColorWithAlpha,
       label: expect.objectContaining({
-        text: "Intervention days 667–889",
+        text: "Closures days 667–889",
         style: expect.objectContaining({ color: plotBandsDefaultColor }),
       }),
     })]);
@@ -241,7 +241,7 @@ describe("useInterventionsPlotBands", () => {
         to: 445,
         color: colorWithAlpha,
         label: expect.objectContaining({
-          text: "Intervention days 111–445",
+          text: "Closures days 111–445",
           style: expect.objectContaining({ color: expectedColorOfSecondTimeSeries }),
         }),
       }),
@@ -251,7 +251,7 @@ describe("useInterventionsPlotBands", () => {
         to: 889,
         color: colorWithAlpha,
         label: expect.objectContaining({
-          text: "Intervention days 667–889",
+          text: "Closures days 667–889",
           style: expect.objectContaining({ color: expectedColorOfSecondTimeSeries }),
         }),
       }),
