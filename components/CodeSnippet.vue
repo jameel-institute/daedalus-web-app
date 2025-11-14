@@ -1,6 +1,9 @@
 <template>
-  <div class="d-inline-block">
-    <div v-if="codeSnippet">
+  <div
+    class="d-inline-block"
+    :class="[scenarios.length > 1 ? 'multi-scenario' : '']"
+  >
+    <div v-if="scenarios.length">
       <CTooltip content="Generate code snippet" placement="top">
         <template #toggler="{ togglerId, on }">
           <CButton
@@ -28,13 +31,15 @@
         </CModalHeader>
         <CModalBody>
           <p>
-            Use this R code snippet to run the model directly with the daedalus package for the current parameters.
+            Use this R code snippet to run the model directly with the
+            <code>daedalus</code>
+            package for the current {{ scenarios.length > 1 ? "scenarios" : "parameters" }}.
             See the
             <!-- eslint-disable-next-line vue/singleline-html-element-content-newline -->
             <NuxtLink to="https://jameel-institute.github.io/daedalus/" target="_blank">daedalus documentation</NuxtLink> for
             installation instructions and further details.
           </p>
-          <div class="code p-3">
+          <div class="code p-3 overflow-y-auto">
             <button
               id="btn-copy-code"
               class="btn btn-clipboard"
@@ -70,7 +75,7 @@ const copied = ref(false);
 
 defineExpose({ modalVisible });
 
-// In the future, we should have the R API capture the actual call made to the model,
+// TODO: (jidea-317) In the future, we should have the R API capture the actual call made to the model,
 // returning it as part of the result response, so that it can be displayed here verbatim.
 // In that way, we'd avoid two things:
 // (1) replicating logic or constants from the R API package here,
@@ -93,10 +98,7 @@ const scenariosVaryBy = (parameterId: string) => props.scenarios.some((scenario,
 
 // A tag to append to variable names to make sure variables have unique, readable, valid names.
 const scenarioTag = (scenario: Scenario) => {
-  const axisId = appStore.currentComparison.axis;
-  if (!axisId) {
-    return;
-  }
+  const axisId = appStore.currentComparison.axis as string;
   const axisVal = appStore.getScenarioAxisValue(scenario)?.toLocaleLowerCase();
   // For disambiguation, we need to include the axis param ID if it's vaccine or behaviour, since
   // both those parameters take the same options (none, low, medium, high).
@@ -108,14 +110,19 @@ const scenarioTag = (scenario: Scenario) => {
   }
 };
 
+const countryObj = (params: ParameterSet, scenarioTag: string) => {
+  return `${scenarioTag}_country_obj <- daedalus::daedalus_country("${params.country}")\n`
+    + `${scenarioTag}_country_obj$hospital_capacity <- ${params.hospital_capacity}\n\n`;
+};
+
 const behaviourObj = (scenario: Scenario, indentation: string) => {
-  if (scenario.parameters!.behaviour === "none") {
+  if (scenario.parameters?.behaviour === "none") {
     return `NULL`;
   }
   return [
     `daedalus::daedalus_new_behaviour(`,
-    `  hospital_capacity = ${scenario.parameters!.hospital_capacity},`,
-    `  baseline_optimism = ${OPTIMISM[scenario.parameters!.behaviour]},`,
+    `  hospital_capacity = ${scenario.parameters?.hospital_capacity},`,
+    `  baseline_optimism = ${OPTIMISM[scenario.parameters?.behaviour ?? ""]},`,
     `  responsiveness = ${BEHAV_RESPONSIVENESS_K2},`,
     `  behav_effectiveness = ${BEHAV_EFFECTIVENESS_DELTA}`,
     `)`,
@@ -126,52 +133,42 @@ const codeSnippet = computed(() => {
   if (!props.scenarios.every(scenario => !!scenario.parameters)) {
     return;
   }
-  let modelResultVarName = `model_result`;
   const allScenariosHaveNoneBehaviour = props.scenarios.every(scenario => scenario.parameters?.behaviour === "none");
   // Determine if we can share a single behaviour_obj across all scenarios
-  const sharedBehaviourObj = props.scenarios.length > 1
+  const useSharedBehaviourObj = props.scenarios.length > 1
     && !scenariosVaryBy("behaviour")
     && !scenariosVaryBy("hospital_capacity")
-    && !allScenariosHaveNoneBehaviour
-    ? `behaviour_obj <- ${behaviourObj(props.scenarios[0], "")}\n\n`
-    : null;
-  const sharedCountryObj = props.scenarios.length === 1
-    || (!scenariosVaryBy("country") && !scenariosVaryBy("hospital_capacity"))
-    ? `country_obj <- daedalus::daedalus_country("${props.scenarios[0].parameters!.country}")\n`
-    + `country_obj$hospital_capacity <- ${props.scenarios[0].parameters!.hospital_capacity}\n\n`
-    : null;
+    && !allScenariosHaveNoneBehaviour;
+  const useSharedCountryObj = props.scenarios.length === 1 || (!scenariosVaryBy("country") && !scenariosVaryBy("hospital_capacity"));
 
   const scenariosCode = props.scenarios.map((s) => {
-    const p = s.parameters as ParameterSet;
-    const sTag = scenarioTag(s);
+    const params = s.parameters as ParameterSet;
+    const sTag = scenarioTag(s) ?? "";
+    const modelResultVarName = [sTag, "model_result"].filter(t => !!t).join("_");
 
-    let countryObjCode;
-    let countryObjVarName;
-    if (sharedCountryObj) {
-      countryObjVarName = `country_obj`;
-    } else {
-      countryObjVarName = `${sTag}_country_obj`;
-      countryObjCode = `${countryObjVarName} <- daedalus::daedalus_country("${p.country}")\n`
-        + `${countryObjVarName}$hospital_capacity <- ${p.hospital_capacity}\n\n`;
-    }
-
-    if (props.scenarios.length > 1) {
-      modelResultVarName = `${sTag}_model_result`;
-    }
     const modelCall = [
       `${modelResultVarName} <- daedalus::daedalus(`,
-      `  ${sharedBehaviourObj ? `country_obj` : countryObjVarName},`,
-      `  "${p.pathogen}",`,
-      `  response_strategy = "${p.response}",`,
-      `  vaccine_investment = "${p.vaccine}",`,
-      `  ${sharedBehaviourObj ? `behaviour_obj` : `behaviour = ${behaviourObj(s, "  ")}`}`,
+      `  ${useSharedCountryObj ? `country_obj` : `${sTag}_country_obj`},`,
+      `  "${params.pathogen}",`,
+      `  response_strategy = "${params.response}",`,
+      `  vaccine_investment = "${params.vaccine}",`,
+      `  ${useSharedBehaviourObj ? `behaviour_obj` : `behaviour = ${behaviourObj(s, "  ")}`}`,
       `)`,
     ].join("\n");
 
-    return [countryObjCode, modelCall].join("");
+    return [
+      useSharedCountryObj ? null : countryObj(params, sTag),
+      modelCall,
+    ].join("");
   }).join("\n\n");
 
-  return [sharedCountryObj, sharedBehaviourObj, scenariosCode].join("");
+  const sharedCountryObj = `country_obj <- daedalus::daedalus_country("${props.scenarios[0].parameters?.country}")\n`
+    + `country_obj$hospital_capacity <- ${props.scenarios[0].parameters?.hospital_capacity}\n\n`;
+  return [
+    useSharedCountryObj ? sharedCountryObj : null,
+    useSharedBehaviourObj ? `behaviour_obj <- ${behaviourObj(props.scenarios[0], "")}\n\n` : null,
+    scenariosCode,
+  ].join("");
 });
 
 const copySnippet = () => {
@@ -190,26 +187,37 @@ const resetCopied = () => {
 </script>
 
 <style lang="scss" scoped>
-  .code {
-    background-color: var(--cui-tertiary-bg);
-    position: relative;
-  }
+:deep(.modal-dialog) {
+  max-width: 40rem;}
 
-  .btn-clipboard {
-      position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
-      font-size: 0.8rem;
-      border-radius: 0.25rem;
-      padding: 0.25rem;
-    &:hover {
-      color: var(--cui-light);
-      background-color: var(--cui-primary);
-    }
+.multi-scenario {
+  :deep(.modal-dialog) {
+    max-width: 50rem;
   }
+}
 
-  .btn-copied {
-    background-color: var(--cui-secondary-bg-dark)!important;
-    color: var(--cui-light)!important;
+.code {
+  background-color: var(--cui-tertiary-bg);
+  position: relative;
+  max-height: 30rem;
+}
+
+.btn-clipboard {
+    position: sticky;
+    top: 0;
+    right: 0;
+    float: right;
+    font-size: 0.8rem;
+    border-radius: 0.25rem;
+    padding: 0.25rem;
+  &:hover {
+    color: var(--cui-light);
+    background-color: var(--cui-primary);
   }
+}
+
+.btn-copied {
+  background-color: var(--cui-secondary-bg-dark)!important;
+  color: var(--cui-light)!important;
+}
 </style>
