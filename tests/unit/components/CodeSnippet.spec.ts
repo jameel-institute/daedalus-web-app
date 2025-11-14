@@ -289,6 +289,7 @@ describe("code snippet", () => {
     });
     await component.find("button.btn-scenario-header").trigger("click");
     expect(component.findComponent(CModal).props("visible")).toBe(true);
+    expect(component.findComponent(CModal).text()).toContain("the current parameters");
     expect(component.find("a").attributes("href")).toBe("https://jameel-institute.github.io/daedalus/");
 
     expect(component.find("pre").text()).toBe(expectedSnippetForSingleScenario);
@@ -339,6 +340,7 @@ describe("code snippet", () => {
         });
         await component.find("button.btn-scenario-header").trigger("click");
         expect(component.findComponent(CModal).props("visible")).toBe(true);
+        expect(component.findComponent(CModal).text()).toContain("the current scenarios");
         expect(component.find("a").attributes("href")).toBe("https://jameel-institute.github.io/daedalus/");
         expect(component.find("pre").text()).toBe(expectedSnippet);
       });

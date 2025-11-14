@@ -3,7 +3,7 @@
     class="d-inline-block"
     :class="[scenarios.length > 1 ? 'multi-scenario' : '']"
   >
-    <div v-if="scenarios.length">
+    <div v-if="scenarios.length && everyScenarioHasParameters">
       <CTooltip content="Generate code snippet" placement="top">
         <template #toggler="{ togglerId, on }">
           <CButton
@@ -75,6 +75,8 @@ const copied = ref(false);
 
 defineExpose({ modalVisible });
 
+const everyScenarioHasParameters = computed(() => props.scenarios.every(scenario => !!scenario.parameters));
+
 // TODO: (jidea-317) In the future, we should have the R API capture the actual call made to the model,
 // returning it as part of the result response, so that it can be displayed here verbatim.
 // In that way, we'd avoid two things:
@@ -130,7 +132,7 @@ const behaviourObj = (scenario: Scenario, indentation: string) => {
 };
 
 const codeSnippet = computed(() => {
-  if (!props.scenarios.every(scenario => !!scenario.parameters)) {
+  if (!everyScenarioHasParameters.value) {
     return;
   }
   const allScenariosHaveNoneBehaviour = props.scenarios.every(scenario => scenario.parameters?.behaviour === "none");
