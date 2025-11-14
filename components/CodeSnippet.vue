@@ -67,24 +67,34 @@ const copied = ref(false);
 
 defineExpose({ modalVisible });
 
+// In the future, we should have the R API capture the actual call made to the model,
+// returning it as part of the result response, so that it can be displayed here verbatim.
+// In that way, we'd avoid two things:
+// (1) replicating logic or constants from the R API package here,
+// (2) the risk of the code snippet being out of date with respect to the current model.
+
 const codeSnippet = computed(() => {
   if (!props.scenarios.every(scenario => !!scenario.parameters)) {
     return;
   }
-  return props.scenarios.map(({ parameters }) => {
-    return `model_result <- daedalus::daedalus(
-      "${parameters?.country}",
-      "${parameters?.pathogen}",
-      response_strategy = "${parameters?.response}",
-      response_threshold = ${parameters?.hospital_capacity},
-      vaccine_investment = "${parameters?.vaccine}"
-    )`;
-  }).join("\n\n");
+  return props.scenarios.map(({ parameters }) => ``
+    + `country_obj <- daedalus::daedalus_country("${parameters!.country}")\n`
+    + `country_obj$hospital_capacity <- ${parameters!.hospital_capacity}\n`
+    + `\n`
+    + `model_result <- daedalus::daedalus(\n`
+    + `  country_obj,\n`
+    + `  "${parameters!.pathogen}",\n`
+    + `  response_strategy = "${parameters!.response}",\n`
+    + `  vaccine_investment = "${parameters!.vaccine}"\n`
+    + `)`,
+  ).join("\n\n");
 });
 
 const copySnippet = () => {
-  navigator.clipboard.writeText(codeSnippet.value);
-  copied.value = true;
+  if (codeSnippet.value) {
+    navigator.clipboard.writeText(codeSnippet.value);
+    copied.value = true;
+  };
 };
 
 const resetCopied = () => {

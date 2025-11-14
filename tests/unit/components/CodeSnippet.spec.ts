@@ -15,11 +15,13 @@ const parameters = {
   vaccine: "high",
 };
 
-const expectedSnippet = `model_result <- daedalus::daedalus(
-  "THA",
+const expectedSnippet = `country_obj <- daedalus::daedalus_country("THA")
+country_obj$hospital_capacity <- 5500
+
+model_result <- daedalus::daedalus(
+  country_obj,
   "influenza_1918",
   response_strategy = "none",
-  response_threshold = 5500,
   vaccine_investment = "high"
 )`;
 
