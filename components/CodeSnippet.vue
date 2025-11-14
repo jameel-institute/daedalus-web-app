@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { CIcon } from "@coreui/icons-vue";
-import type { ParameterSet } from "~/types/parameterTypes";
+import { type ParameterSet, TypeOfParameter } from "~/types/parameterTypes";
 import type { Scenario } from "~/types/storeTypes";
 
 const props = defineProps<{
@@ -74,18 +74,52 @@ defineExpose({ modalVisible });
 // returning it as part of the result response, so that it can be displayed here verbatim.
 // In that way, we'd avoid two things:
 // (1) replicating logic or constants from the R API package here,
-// (2) the risk of the code snippet being out of date with respect to the current model.
+// (2) the risk of the code snippet generation being out of date with respect to the current model interface.
+
+// Values copied from https://github.com/jameel-institute/daedalus.api/blob/main/R/behaviour.R
+const OPTIMISM = Object.freeze({
+  low: 0.75,
+  medium: 0.5,
+  high: 0.25,
+}) as Record<string, number>;
+
+// Values copied from https://github.com/jameel-institute/daedalus.api/blob/main/R/constants.R
+const BEHAV_RESPONSIVENESS_K2 = 0.01;
+const BEHAV_EFFECTIVENESS_DELTA = 0.2;
 
 const scenariosVaryBy = (parameterId: string) => props.scenarios.some((scenario, _, arr) =>
   scenario.parameters?.[parameterId] !== arr[0].parameters?.[parameterId],
 );
 
-const modelResultVarName = (scenario: Scenario) => {
-  if (props.scenarios.length === 1) {
-    return `model_result`;
+// A tag to append to variable names to make sure variables have unique, readable, valid names.
+const scenarioTag = (scenario: Scenario) => {
+  const axisId = appStore.currentComparison.axis;
+  if (!axisId) {
+    return;
   }
-  // NB R variable names must not start with a number.
-  return `model_result_${appStore.getScenarioAxisValue(scenario)?.toLocaleLowerCase()}`;
+  const axisVal = appStore.getScenarioAxisValue(scenario)?.toLocaleLowerCase();
+  // For disambiguation, we need to include the axis param ID if it's vaccine or behaviour, since
+  // both those parameters take the same options (none, low, medium, high).
+  // R variable names must not start with a number (so we should begin variable names with the axis if its values may be numeric).
+  if (["vaccine", "behaviour"].includes(axisId) || appStore.axisMetadata?.parameterType === TypeOfParameter.Numeric) {
+    return `${axisId}_${axisVal}`;
+  } else {
+    return axisVal;
+  }
+};
+
+const behaviourObj = (scenario: Scenario, varName: string) => {
+  if (scenario.parameters!.behaviour === "none") {
+    return `${varName} <- NULL`;
+  }
+  return [
+    `${varName} <- daedalus::daedalus_new_behaviour(`,
+    `  hospital_capacity = ${scenario.parameters!.hospital_capacity},`,
+    `  baseline_optimism = ${OPTIMISM[scenario.parameters!.behaviour]},`,
+    `  responsiveness = ${BEHAV_RESPONSIVENESS_K2},`,
+    `  behav_effectiveness = ${BEHAV_EFFECTIVENESS_DELTA}`,
+    `)`,
+  ].join("\n");
 };
 
 const codeSnippet = computed(() => {
@@ -93,26 +127,46 @@ const codeSnippet = computed(() => {
     return;
   }
   let countryObjVarName = `country_obj`;
+  let behaviourObjVarName = `behaviour_obj`;
+  let modelResultVarName = `model_result`;
+  const allScenariosHaveNoneBehaviour = props.scenarios.every(scenario => scenario.parameters?.behaviour === "none");
+
   return props.scenarios.map((s, i) => {
     const p = s.parameters as ParameterSet;
+    const sTag = scenarioTag(s);
+
     let countryObjCode;
     if (scenariosVaryBy("country") || scenariosVaryBy("hospital_capacity")) {
-      countryObjVarName = `country_obj_${appStore.getScenarioAxisValue(s)?.toLocaleLowerCase()}`;
+      countryObjVarName = `${sTag}_country_obj`;
       countryObjCode = `${countryObjVarName} <- daedalus::daedalus_country("${p.country}")\n`
         + `${countryObjVarName}$hospital_capacity <- ${p.hospital_capacity}`;
     } else if (i === 0) {
       countryObjCode = `${countryObjVarName} <- daedalus::daedalus_country("${p.country}")\n`
         + `${countryObjVarName}$hospital_capacity <- ${p.hospital_capacity}`;
     }
+
+    if ((scenariosVaryBy("behaviour") || scenariosVaryBy("hospital_capacity")) && !allScenariosHaveNoneBehaviour) {
+      behaviourObjVarName = `${sTag}_behaviour_obj`;
+    }
+
+    let behaviourObjCode;
+    if (i === 0 || !allScenariosHaveNoneBehaviour) {
+      behaviourObjCode = behaviourObj(s, behaviourObjVarName);
+    }
+
+    if (props.scenarios.length > 1) {
+      modelResultVarName = `${sTag}_model_result`;
+    }
     const modelCall = [
-      `${modelResultVarName(s)} <- daedalus::daedalus(`,
+      `${modelResultVarName} <- daedalus::daedalus(`,
       `  ${countryObjVarName},`,
       `  "${p.pathogen}",`,
       `  response_strategy = "${p.response}",`,
-      `  vaccine_investment = "${p.vaccine}"`,
+      `  vaccine_investment = "${p.vaccine}",`,
+      `  ${behaviourObjVarName}`,
       `)`,
     ].join("\n");
-    return [countryObjCode, modelCall].filter(text => !!text).join("\n\n");
+    return [countryObjCode, behaviourObjCode, modelCall].filter(text => !!text).join("\n\n");
   }).join("\n\n");
 });
 
