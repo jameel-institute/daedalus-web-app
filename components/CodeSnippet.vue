@@ -140,10 +140,7 @@ const codeSnippet = computed(() => {
   }
   const allScenariosHaveNoneBehaviour = props.scenarios.every(scenario => scenario.parameters?.behaviour === "none");
   // Determine if we can share a single behaviour_obj across all scenarios
-  const useSharedBehaviourObj = props.scenarios.length > 1
-    && !scenariosVaryBy("behaviour")
-    && !scenariosVaryBy("hospital_capacity")
-    && !allScenariosHaveNoneBehaviour;
+  const useSharedBehaviourObj = !scenariosVaryBy("behaviour") && !scenariosVaryBy("hospital_capacity") && !allScenariosHaveNoneBehaviour;
   const useSharedCountryObj = props.scenarios.length === 1 || (!scenariosVaryBy("country") && !scenariosVaryBy("hospital_capacity"));
 
   const scenariosCode = props.scenarios.map((s) => {

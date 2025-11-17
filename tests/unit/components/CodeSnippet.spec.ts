@@ -28,6 +28,25 @@ model_result <- daedalus::daedalus(
   behaviour = NULL
 )`;
 
+const scenarioNonNullBehaviour = { parameters: { ...parameters, behaviour: "high" } };
+const expectedSnippetForSingleScenarioWithNonNullBehaviour = `country_obj <- daedalus::daedalus_country("THA")
+country_obj$hospital_capacity <- 5500
+
+behaviour_obj <- daedalus::daedalus_new_behaviour(
+  hospital_capacity = 5500,
+  baseline_optimism = 0.25,
+  responsiveness = 0.01,
+  behav_effectiveness = 0.2
+)
+
+model_result <- daedalus::daedalus(
+  country_obj,
+  "influenza_1918",
+  response_strategy = "none",
+  vaccine_investment = "high",
+  behaviour_obj
+)`;
+
 const scenariosVaryingByVaccine = [
   { parameters: { ...parameters, behaviour: "high" } },
   { parameters: { ...parameters, behaviour: "high", vaccine: "low" } },
@@ -282,7 +301,7 @@ describe("code snippet", () => {
     expect(component.findComponent(CModal).props("visible")).toBe(false);
   });
 
-  it("shows modal with expected snippet for single scenario on button click", async () => {
+  it("shows modal with expected snippet for single scenario on button click, when behaviour option is 'none'", async () => {
     const component = await mountSuspended(CodeSnippet, {
       global: { stubs },
       props: { scenarios: [{ parameters }] },
@@ -293,6 +312,24 @@ describe("code snippet", () => {
     expect(component.find("a").attributes("href")).toBe("https://jameel-institute.github.io/daedalus/");
 
     expect(component.find("pre").text()).toBe(expectedSnippetForSingleScenario);
+  });
+
+  it("shows modal with expected snippet for single scenario on button click, when behaviour option is NOT 'none'", async () => {
+    const component = await mountSuspended(CodeSnippet, {
+      global: { stubs },
+      props: { scenarios: [scenarioNonNullBehaviour] },
+    });
+    await component.find("button.btn-scenario-header").trigger("click");
+    expect(component.findComponent(CModal).props("visible")).toBe(true);
+    expect(component.findComponent(CModal).text()).toContain("the current parameters");
+    expect(component.find("a").attributes("href")).toBe("https://jameel-institute.github.io/daedalus/");
+
+    console.error("Actual");
+    console.error(component.find("pre").text());
+    console.error("Expected");
+    console.error(expectedSnippetForSingleScenarioWithNonNullBehaviour);
+
+    expect(component.find("pre").text()).toBe(expectedSnippetForSingleScenarioWithNonNullBehaviour);
   });
 
   describe("shows modal with expected snippet for multiple scenarios", async () => {
