@@ -29,7 +29,7 @@
     </div>
     <CAlert v-if="showJobSlowAlert" color="info">
       <p>
-        Thank you for waiting. At times of heavy usage, scenarios can sometimes take up to 10 seconds to run.
+        Thank you for waiting. Scenarios can sometimes take up to 10 seconds to run.
       </p>
       <p class="mb-0">
         Waiting for {{ secondsSinceFirstStatusPoll }} seconds

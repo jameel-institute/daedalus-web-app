@@ -30,7 +30,7 @@
     <CSpinner v-if="showSpinner" class="ms-3 mb-3 mt-3" />
     <CAlert v-if="showJobSlowAlert" color="info">
       <p>
-        Thank you for waiting. At times of heavy usage, scenarios can sometimes take up to 10 seconds to run.
+        Thank you for waiting. Scenarios can sometimes take up to 10 seconds to run, and comparisons may take longer.
       </p>
       <p class="mb-0">
         Waiting for {{ secondsSinceFirstStatusPoll }} seconds
@@ -143,9 +143,7 @@ const stopWatchingComparison = watch(everyScenarioIsDone, () => {
       appStore.refreshComparisonStatuses(nuxtApp);
     }, 200);
     setTimeout(() => {
-      console.error("deciding whether to set job slow to true");
       if (!everyScenarioIsDone.value) {
-        console.error("setting job slow to true");
         jobSlow.value = true;
       }
     }, 5000);
