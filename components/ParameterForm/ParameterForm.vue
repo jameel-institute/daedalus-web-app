@@ -8,21 +8,19 @@
       novalidate
       @submit.prevent="submitForm"
     >
-      <template v-if="errorOnRunRequest">
-        <CAlert color="danger">
-          <CAlertHeading>
-            <CIcon icon="cilWarning" class="flex-shrink-0 me-2" width="24" height="24" />
-            Error
-          </CAlertHeading>
-          <p class="mt-3">
-            There was an unexpected error when submitting the form. Please try again.
-          </p>
-          <hr>
-          <p class="mb-0">
-            Error details: {{ errorOnRunRequest.data?.message ?? errorOnRunRequest.message }}
-          </p>
-        </CAlert>
-      </template>
+      <CAlert v-if="errorOnRunRequest" color="danger">
+        <CAlertHeading>
+          <CIcon icon="cilWarning" class="flex-shrink-0 me-2" width="24" height="24" />
+          Error
+        </CAlertHeading>
+        <p class="mt-3">
+          There was an unexpected error when submitting the form. Please try again.
+        </p>
+        <hr>
+        <p class="mb-0">
+          Error details: {{ errorOnRunRequest.data?.message ?? errorOnRunRequest.message }}
+        </p>
+      </CAlert>
       <div
         v-for="(parameter) in paramMetadata"
         :key="parameter.id"

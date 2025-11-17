@@ -138,6 +138,36 @@ describe("scenario result page", () => {
     });
   });
 
+  it("shows alert when run is taking a long time", async () => {
+    const longRunningRunId = "123";
+    registerEndpoint(`/api/scenarios/${longRunningRunId}/status`, () => {
+      return {
+        runStatus: "running",
+        runSuccess: null,
+        done: false,
+        runErrors: null,
+        runId: longRunningRunId,
+      };
+    });
+
+    mockRoute.mockReturnValue({
+      params: {
+        runId: longRunningRunId,
+      },
+    });
+
+    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
+
+    const spinner = component.findComponent({ name: "CSpinner" });
+    expect(spinner.isVisible()).toBe(true);
+    expect(component.text()).not.toContain("Thank you for waiting.");
+
+    vi.advanceTimersByTime(6000);
+    await nextTick();
+    expect(component.text()).toContain("Thank you for waiting.");
+    expect(spinner.isVisible()).toBe(true);
+  });
+
   it("resets appStore.downloadError and any previous scenario runs when the page is loaded", async () => {
     mockRoute.mockReturnValue({ params: { runId: successfulRunId } });
     const piniaMock = mockPinia({

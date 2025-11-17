@@ -161,6 +161,32 @@ describe("comparison page", () => {
     await waitFor(() => expect(appStore.currentComparison.axis).not.toBeUndefined());
   });
 
+  it("shows alert when any run is taking a long time", async () => {
+    const longRunningRunId = scenarioRunIds.sars_cov_2_pre_alpha;
+    registerEndpoint(`/api/scenarios/${longRunningRunId}/status`, () => {
+      return {
+        runStatus: "running",
+        runSuccess: null,
+        done: false,
+        runErrors: null,
+        runId: longRunningRunId,
+      };
+    });
+
+    const component = await mountSuspended(Comparison, { global: { plugins: [pinia], stubs } });
+
+    vi.advanceTimersByTime(200);
+    await flushPromises();
+    const spinner = component.findComponent({ name: "CSpinner" });
+    expect(spinner.isVisible()).toBe(true);
+    expect(component.text()).not.toContain("Thank you for waiting.");
+
+    vi.advanceTimersByTime(6000);
+    await flushPromises();
+    expect(component.text()).toContain("Thank you for waiting.");
+    expect(spinner.isVisible()).toBe(true);
+  });
+
   it("shows alerts when any run fails (i.e. the API reports errors in the model run)", async () => {
     const failedRunId = scenarioRunIds.sars_cov_2_pre_alpha;
     registerEndpoint(`/api/scenarios/${failedRunId}/status`, () => {

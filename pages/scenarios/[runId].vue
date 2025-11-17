@@ -27,34 +27,43 @@
         </template>
       </ParameterInfoCard>
     </div>
+    <CAlert v-if="showJobSlowAlert" color="info">
+      <p>
+        Thank you for waiting. At times of heavy usage, scenarios can sometimes take up to 10 seconds to run.
+      </p>
+      <p class="mb-0">
+        Waiting for {{ secondsSinceFirstStatusPoll }} seconds
+      </p>
+    </CAlert>
     <CSpinner v-if="showSpinner" class="ms-3 mb-3 mt-3" />
-    <template v-if="scenarioStatusResponseError || scenarioResultResponseError || appStore.currentScenario.status.data?.runSuccess === false">
-      <CAlert color="danger">
-        <CAlertHeading>
-          <CIcon icon="cilWarning" class="flex-shrink-0 me-2" width="24" height="24" />
-          Error
-        </CAlertHeading>
-        <p class="mt-3">
-          There was an unexpected error.
-          {{ appStore.currentScenario.status.data?.runSuccess !== false ? "Please refresh the page." : "Please try again later." }}
+    <CAlert
+      v-if="scenarioStatusResponseError || scenarioResultResponseError || appStore.currentScenario.status.data?.runSuccess === false"
+      color="danger"
+    >
+      <CAlertHeading>
+        <CIcon icon="cilWarning" class="flex-shrink-0 me-2" width="24" height="24" />
+        Error
+      </CAlertHeading>
+      <p class="mt-3">
+        There was an unexpected error.
+        {{ appStore.currentScenario.status.data?.runSuccess !== false ? "Please refresh the page." : "Please try again later." }}
+      </p>
+      <hr>
+      <template v-if="appStore.currentScenario.status.data?.runSuccess === false">
+        <p
+          v-for="(errorMsg, index) in appStore.currentScenario.status.data.runErrors"
+          :key="index"
+        >
+          {{ errorMsg }}
         </p>
-        <hr>
-        <template v-if="appStore.currentScenario.status.data?.runSuccess === false">
-          <p
-            v-for="(errorMsg, index) in appStore.currentScenario.status.data.runErrors"
-            :key="index"
-          >
-            {{ errorMsg }}
-          </p>
-        </template>
-        <p v-if="scenarioStatusResponseError" class="mb-0">
-          Error details: {{ scenarioStatusResponseError.data?.message ?? scenarioStatusResponseError.message }}
-        </p>
-        <p v-if="scenarioResultResponseError" class="mb-0">
-          Error details: {{ scenarioResultResponseError.data?.message ?? scenarioResultResponseError.message }}
-        </p>
-      </CAlert>
-    </template>
+      </template>
+      <p v-if="scenarioStatusResponseError" class="mb-0">
+        Error details: {{ scenarioStatusResponseError.data?.message ?? scenarioStatusResponseError.message }}
+      </p>
+      <p v-if="scenarioResultResponseError" class="mb-0">
+        Error details: {{ scenarioResultResponseError.data?.message ?? scenarioResultResponseError.message }}
+      </p>
+    </CAlert>
     <CRow v-else-if="appStore.currentScenario.result.data" class="results-cards-container">
       <div class="col-12 col-xl-6">
         <CostsPanel />
@@ -68,10 +77,13 @@
 
 <script lang="ts" setup>
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
+import type { runStatus } from "~/types/apiResponseTypes";
 
 const appStore = useAppStore();
 
 let statusInterval: NodeJS.Timeout;
+const jobSlow = ref(false);
+const secondsSinceFirstStatusPoll = ref("0");
 const scenarioStatusResponseError = computed(() => appStore.currentScenario.status.fetchError);
 const scenarioResultResponseError = computed(() => appStore.currentScenario.result.fetchError);
 const showSpinner = computed(() => !appStore.currentScenario.result.data
@@ -80,6 +92,12 @@ const showSpinner = computed(() => !appStore.currentScenario.result.data
   && !scenarioStatusResponseError.value
   && !scenarioResultResponseError.value,
 );
+
+const showJobSlowAlert = computed(() => {
+  return !appStore.currentScenario.result.data
+    && jobSlow.value
+    && ["queued", "running"].includes(appStore.currentScenario.status.data?.runStatus as runStatus);
+});
 
 const route = useRoute();
 const runId = route.params.runId as string;
@@ -92,6 +110,13 @@ appStore.downloadError = undefined;
 // Fetch scenario from db so we can know its parameters now rather than wait for them in the result data
 appStore.currentScenario.runId = runId;
 await appStore.loadScenarioDetails(appStore.currentScenario);
+
+// Use useAsyncData to store the time once, during server-side rendering: avoids client render re-writing value.
+const { data: timeOfFirstStatusPoll } = await useAsyncData<number>("timeOfFirstStatusPoll", async () => {
+  return new Promise<number>((resolve) => {
+    resolve(new Date().getTime());
+  });
+});
 
 const codeSnippet = ref<{ modalVisible: boolean } | null>(null);
 
@@ -113,8 +138,18 @@ watch(() => appStore.currentScenario.status.data?.runSuccess, (runSuccess) => {
   }
 });
 
+watch(() => appStore.currentScenario.status.data?.done, (done) => {
+  if (done) {
+    clearInterval(statusInterval);
+    jobSlow.value = false;
+  }
+});
+
 const pollForStatusEveryNSeconds = (seconds: number) => {
   statusInterval = setInterval(() => {
+    if (timeOfFirstStatusPoll.value) {
+      secondsSinceFirstStatusPoll.value = ((new Date().getTime() - timeOfFirstStatusPoll.value) / 1000).toFixed(0);
+    };
     appStore.refreshScenarioStatus(appStore.currentScenario);
   }, seconds * 1000);
 };
@@ -124,6 +159,11 @@ onMounted(() => {
 
   if (!appStore.currentScenario.status.data?.done && appStore.currentScenario.runId) {
     pollForStatusEveryNSeconds(0.2);
+    setTimeout(() => {
+      if (!appStore.currentScenario.status.data?.done) {
+        jobSlow.value = true;
+      }
+    }, 5000);
   }
 });
 

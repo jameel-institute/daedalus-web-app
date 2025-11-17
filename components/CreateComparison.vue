@@ -94,24 +94,22 @@
               <CIcon v-else icon="cilArrowRight" />
             </CButton>
           </div>
-          <template v-if="scenarioRunResponseErrors.length">
-            <CAlert color="danger" class="mt-3">
-              <CAlertHeading>
-                <CIcon icon="cilWarning" class="flex-shrink-0 me-2" width="24" height="24" />
-                Error
-              </CAlertHeading>
-              <p class="mt-3">
-                There was an unexpected error when submitting the form. Please try again.
-              </p>
-              <hr>
-              <p
-                v-for="(errorMsg, index) in scenarioRunResponseErrors"
-                :key="index"
-              >
-                {{ errorMsg }}
-              </p>
-            </CAlert>
-          </template>
+          <CAlert v-if="scenarioRunResponseErrors.length" color="danger" class="mt-3">
+            <CAlertHeading>
+              <CIcon icon="cilWarning" class="flex-shrink-0 me-2" width="24" height="24" />
+              Error
+            </CAlertHeading>
+            <p class="mt-3">
+              There was an unexpected error when submitting the form. Please try again.
+            </p>
+            <hr>
+            <p
+              v-for="(errorMsg, index) in scenarioRunResponseErrors"
+              :key="index"
+            >
+              {{ errorMsg }}
+            </p>
+          </CAlert>
           <div v-if="paramsDependingOnAxis?.length" class="alert alert-warning mt-3">
             <p>
               Please note: if you proceed, the scenarios will vary not only by {{ chosenParameterAxis.label.toLowerCase() }}, but also by
