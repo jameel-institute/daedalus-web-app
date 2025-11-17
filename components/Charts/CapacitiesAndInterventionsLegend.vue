@@ -37,7 +37,7 @@ const items = computed((): LegendItem[] => {
 
   const plotBandsItem = {
     color: addAlphaToRgb(plotBandsColor, plotBandsRgbAlpha),
-    label: "Pandemic response",
+    label: "Closures",
     shape: LegendShape.Rectangle,
   };
 
