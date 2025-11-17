@@ -1,12 +1,15 @@
 import { expect, test } from "@playwright/test";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 
-const expectedCodeSnippet = `model_result <- daedalus::daedalus(
-  "THA",
+const expectedCodeSnippet = `country_obj <- daedalus::daedalus_country("GBR")
+country_obj$hospital_capacity <- 26200
+
+model_result <- daedalus::daedalus(
+  country_obj,
   "sars_cov_1",
   response_strategy = "none",
-  response_threshold = 22000,
-  vaccine_investment = "none"
+  vaccine_investment = "none",
+  behaviour = NULL
 )`;
 
 const browserSupportsClipboardPermissions = (browserName: string) => {

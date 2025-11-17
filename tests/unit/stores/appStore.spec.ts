@@ -6,17 +6,20 @@ import {
   mockResultData,
 } from "@/tests/unit/mocks/mockPinia";
 import { registerEndpoint } from "@nuxt/test-utils/runtime";
+import { readBody } from "h3";
 import { waitFor } from "@testing-library/vue";
 import { createPinia, setActivePinia } from "pinia";
 import { runStatus } from "~/types/apiResponseTypes";
 import { CostBasis } from "~/types/unitTypes";
+import { flushPromises } from "@vue/test-utils";
+import { mockMetadataResponseData } from "../mocks/mockResponseData";
+import type { Scenario } from "~/types/storeTypes";
 
-const sampleUnloadedScenario = {
+const unloadedScenario = {
   ...emptyScenario,
   runId: "123",
-  parameters: { country: "USA" },
-};
-const mockResultDataWithoutRunId = { ...mockResultData, runId: undefined };
+  parameters: { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" },
+} as Scenario;
 
 registerEndpoint("/api/versions", () => {
   return {
@@ -26,41 +29,57 @@ registerEndpoint("/api/versions", () => {
   };
 });
 
-const metadata = {
-  parameters: [
-    { id: "country", parameterType: "globeSelect" },
-    { id: "settings", parameterType: "select" },
-  ],
-  results: {
-    costs: [{ id: "total", label: "Total" }],
-    time_series_groups: [
-      {
-        id: "infections",
-        label: "Infections",
-        time_series: {
-          total: "prevalence",
-          daily: "new_infected",
-        },
-      },
-    ],
-  },
-  modelVersion: "1.2.3",
-};
+registerEndpoint("/api/metadata", () => mockMetadataResponseData);
 
-registerEndpoint("/api/metadata", () => metadata);
-
-registerEndpoint("/api/scenarios/123/status", () => {
+registerEndpoint("/api/scenarios/123/details", () => {
   return {
-    done: true,
+    parameters: { ...mockResultData.parameters },
     runId: "123",
-    runErrors: null,
-    runStatus: "complete",
-    runSuccess: true,
   };
 });
 
+registerEndpoint("/api/scenarios/456/details", () => {
+  return {
+    parameters: { ...mockResultData.parameters, country: "THA" },
+    runId: "456",
+  };
+});
+
+const mockedRunScenarioResponse = vi.fn();
+registerEndpoint("/api/scenarios", {
+  method: "POST",
+  handler: mockedRunScenarioResponse,
+});
+
+const defaultStatusResponseData = {
+  done: true,
+  runErrors: null,
+  runStatus: runStatus.Complete,
+  runSuccess: true,
+};
+
+registerEndpoint("/api/scenarios/123/status", () => {
+  return { ...defaultStatusResponseData, runId: "123" };
+});
+
+registerEndpoint("/api/scenarios/234/status", () => {
+  return { ...defaultStatusResponseData, runId: "234", runStatus: runStatus.Queued };
+});
+
+registerEndpoint("/api/scenarios/345/status", () => {
+  return { ...defaultStatusResponseData, runId: "456", runStatus: runStatus.Running };
+});
+
 registerEndpoint("/api/scenarios/123/result", () => {
-  return mockResultData;
+  return { ...mockResultData, runId: "123", parameters: { ...unloadedScenario.parameters } };
+});
+
+registerEndpoint("/api/scenarios/234/result", () => {
+  return { ...mockResultData, runId: "234", parameters: { ...unloadedScenario.parameters, vaccine: "none" } };
+});
+
+registerEndpoint("/api/scenarios/345/result", () => {
+  return { ...mockResultData, runId: "345", parameters: { ...unloadedScenario.parameters, vaccine: "low" } };
 });
 
 describe("app store", () => {
@@ -77,6 +96,85 @@ describe("app store", () => {
   });
 
   describe("actions", () => {
+    it("can load a scenario from the database", async () => {
+      const store = useAppStore();
+      store.currentScenario = structuredClone(unloadedScenario);
+      await store.loadScenarioDetails(store.currentScenario);
+
+      await waitFor(() => {
+        expect(store.currentScenario.runId).toBe("123");
+        expect(store.currentScenario.parameters).toEqual({
+          country: "GBR",
+          pathogen: "sars_cov_1",
+          response: "none",
+          vaccine: "none",
+          hospital_capacity: "30500",
+        });
+      });
+    });
+
+    it("throws an error when no run id provided when loading a scenario from the database", async () => {
+      const store = useAppStore();
+      store.currentScenario = structuredClone(emptyScenario);
+      await expect(store.loadScenarioDetails(store.currentScenario)).rejects.toThrow(
+        "No runId provided for scenario load.",
+      );
+    });
+
+    it("can load multiple scenarios from the database by their run ids", async () => {
+      const store = useAppStore();
+      const runIds = ["123", "456", "789"];
+      await store.setComparisonByRunIds(runIds, "GBR", "country");
+
+      await waitFor(() => {
+        expect(store.currentComparison.scenarios.length).toBe(3);
+        expect(store.currentComparison.scenarios[0].runId).toEqual("123");
+        expect(store.currentComparison.scenarios[1].runId).toEqual("456");
+        expect(store.currentComparison.scenarios[2].runId).toEqual("789");
+        expect(store.currentComparison.scenarios[0].parameters?.country).toEqual("GBR");
+        expect(store.currentComparison.scenarios[1].parameters?.country).toEqual("THA");
+        expect(store.currentComparison.scenarios[2].parameters).toBeUndefined();
+        expect(store.currentComparison.axis).toEqual("country");
+        expect(store.currentComparison.baseline).toEqual("GBR");
+      });
+    });
+
+    it("can run a new scenario by parameters, returning a runId", async () => {
+      mockedRunScenarioResponse.mockImplementation(async (event) => {
+        const body = await readBody(event);
+        const params = body.parameters;
+        if (String(params.country) === "GBR" && String(params.pathogen) === "sars_cov_1") {
+          return { runId: "345" };
+        }
+
+        throw new Error("The test failed to pass the correct parameters to the Nuxt app API.");
+      });
+
+      const store = useAppStore();
+      store.currentScenario.result.fetchStatus = "pending";
+      store.currentScenario.parameters = {
+        country: "GBR",
+        pathogen: "sars_cov_1",
+      };
+      await store.runScenario(store.currentScenario);
+
+      await waitFor(() => {
+        expect(store.currentScenario.runId).toBe("345");
+        expect(store.currentScenario.parameters).toEqual({
+          country: "GBR",
+          pathogen: "sars_cov_1",
+        });
+        expect(store.currentScenario.result.fetchStatus).toBeUndefined();
+      });
+    });
+
+    it("throws an error when no parameters provided when running a new scenario", async () => {
+      const store = useAppStore();
+      await expect(store.runScenario(store.currentScenario)).rejects.toThrow(
+        "No parameters provided for scenario run.",
+      );
+    });
+
     it("can retrieve the version numbers", async () => {
       const store = useAppStore();
       store.loadVersionData();
@@ -95,23 +193,138 @@ describe("app store", () => {
       await store.loadMetadata();
 
       await waitFor(() => {
-        expect(store.metadata).toEqual(metadata);
+        expect(store.metadata).toEqual(mockMetadataResponseData);
       });
       expect(store.metadataFetchStatus).toBe("success");
     });
 
     it("can retrieve a scenario's status from the R API", async () => {
       const store = useAppStore();
-      store.currentScenario = structuredClone(sampleUnloadedScenario);
-      await store.loadScenarioStatus();
+      store.currentScenario = structuredClone(unloadedScenario);
+      await store.refreshScenarioStatus(store.currentScenario);
 
       await waitFor(() => {
         expect(store.currentScenario.status).toEqual({
           data: {
             done: true,
-            runId: undefined,
+            runId: null,
             runErrors: null,
-            runStatus: "complete",
+            runStatus: runStatus.Complete,
+            runSuccess: true,
+          },
+          fetchError: undefined,
+          fetchStatus: "success",
+        });
+      });
+    });
+
+    it("does not retrieve a scenario's status from the R API if run is already finished", async () => {
+      const store = useAppStore();
+      const originalStatusData = {
+        done: true, // whether the job is finished or not (superset of completed and failed)
+        runId: null,
+        runErrors: null,
+        runStatus: runStatus.Failed,
+        runSuccess: true,
+      };
+      store.currentScenario = structuredClone({
+        ...unloadedScenario,
+        status: {
+          ...unloadedScenario.status,
+          data: { ...originalStatusData },
+        },
+      });
+      await store.refreshScenarioStatus(store.currentScenario);
+
+      await flushPromises();
+
+      // Assert no changes have happened
+      expect(store.currentScenario.status.data).toEqual(originalStatusData);
+    });
+
+    it("does not retrieve a scenario's status from the R API if no run Id", async () => {
+      const store = useAppStore();
+      const originalStatusData = {
+        done: true,
+        runId: null,
+        runErrors: null,
+        runStatus: runStatus.Failed,
+        runSuccess: true,
+      };
+      store.currentScenario = structuredClone({
+        ...unloadedScenario,
+        runId: undefined,
+        status: {
+          ...unloadedScenario.status,
+          data: { ...originalStatusData },
+        },
+      });
+      await store.refreshScenarioStatus(store.currentScenario);
+
+      await flushPromises();
+
+      // Assert no changes have happened
+      expect(store.currentScenario.status.data).toEqual(originalStatusData);
+    });
+
+    it("can retrieve a comparison's scenarios' statuses from the R API", async () => {
+      const store = useAppStore();
+
+      const nuxtApp = useNuxtApp();
+
+      store.currentComparison = structuredClone({
+        axis: "vaccine",
+        baseline: "high",
+        scenarios: [
+          {
+            ...emptyScenario,
+            runId: "123",
+            parameters: { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" },
+          },
+          {
+            ...emptyScenario,
+            runId: "234",
+            parameters: { country: "USA", hospital_capacity: "54321", vaccine: "none", response: "elimination" },
+          },
+          {
+            ...emptyScenario,
+            runId: "345",
+            parameters: { country: "USA", hospital_capacity: "54321", vaccine: "low", response: "elimination" },
+          },
+        ],
+      });
+
+      await store.refreshComparisonStatuses(nuxtApp);
+
+      await waitFor(() => {
+        expect(store.currentComparison.scenarios.find(s => s.runId === "123")?.status).toEqual({
+          data: {
+            done: true,
+            runId: null,
+            runErrors: null,
+            runStatus: runStatus.Complete,
+            runSuccess: true,
+          },
+          fetchError: undefined,
+          fetchStatus: "success",
+        });
+        expect(store.currentComparison.scenarios.find(s => s.runId === "234")?.status).toEqual({
+          data: {
+            done: true,
+            runId: null,
+            runErrors: null,
+            runStatus: runStatus.Queued,
+            runSuccess: true,
+          },
+          fetchError: undefined,
+          fetchStatus: "success",
+        });
+        expect(store.currentComparison.scenarios.find(s => s.runId === "345")?.status).toEqual({
+          data: {
+            done: true,
+            runId: null,
+            runErrors: null,
+            runStatus: runStatus.Running,
             runSuccess: true,
           },
           fetchError: undefined,
@@ -122,18 +335,69 @@ describe("app store", () => {
 
     it("can load a scenario's results from the R API", async () => {
       const store = useAppStore();
-      store.currentScenario = structuredClone(sampleUnloadedScenario);
-      await store.loadScenarioResult();
+      store.currentScenario = structuredClone(unloadedScenario);
+      await store.loadScenarioResult(store.currentScenario);
 
       await waitFor(() => {
         expect(store.currentScenario.result.data).toEqual(
-          mockResultDataWithoutRunId,
+          { ...mockResultData, runId: null, parameters: { ...unloadedScenario.parameters } },
         );
+        expect(store.currentScenario.runId).toEqual("123");
         expect(store.currentScenario.result.fetchError).toEqual(undefined);
         expect(store.currentScenario.result.fetchStatus).toEqual("success");
-        expect(store.currentScenario.parameters).toEqual(
-          mockResultData.parameters,
-        );
+      });
+    });
+
+    it("throws an error when no run id provided when loading a scenario's results", async () => {
+      const store = useAppStore();
+      store.currentScenario = structuredClone(emptyScenario);
+
+      await expect(store.loadScenarioResult(store.currentScenario)).rejects.toThrow(
+        "No runId provided for scenario result load.",
+      );
+    });
+
+    it("can load a comparison's scenarios' results from the R API", async () => {
+      const store = useAppStore();
+      store.currentComparison = structuredClone({
+        axis: "vaccine",
+        baseline: "high",
+        scenarios: [
+          {
+            ...emptyScenario,
+            runId: "123",
+            parameters: { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" },
+          },
+          {
+            ...emptyScenario,
+            runId: "234",
+            parameters: { country: "USA", hospital_capacity: "54321", vaccine: "none", response: "elimination" },
+          },
+          {
+            ...emptyScenario,
+            runId: "345",
+            parameters: { country: "USA", hospital_capacity: "54321", vaccine: "low", response: "elimination" },
+          },
+        ],
+      });
+
+      await store.loadComparisonResults();
+
+      const expectedVaccineParameterByRunId = {
+        123: "high",
+        234: "none",
+        345: "low",
+      };
+      await waitFor(() => {
+        expect(store.currentComparison.scenarios.length).toBe(3);
+        Object.entries(expectedVaccineParameterByRunId).forEach(([runId, expectedVaccineParameter]) => {
+          const scenario = store.currentComparison.scenarios.find(s => s.runId === runId);
+          expect(scenario!.result.fetchError).toEqual(undefined);
+          expect(scenario!.result.fetchStatus).toEqual("success");
+          expect(scenario!.result.data?.runId).toBeNull();
+          expect(scenario!.result.data?.costs[0].values[0].value).toEqual(mockResultData.costs[0].values[0].value);
+          expect(scenario!.result.data?.parameters.vaccine).toEqual(expectedVaccineParameter);
+        });
       });
     });
 
@@ -143,14 +407,14 @@ describe("app store", () => {
         runId: "123",
         parameters: { country: "USA" },
         result: {
-          data: mockResultDataWithoutRunId,
+          data: { ...mockResultData, runId: null },
           fetchError: undefined,
           fetchStatus: "success",
         },
         status: {
           data: {
             done: true,
-            runId: undefined,
+            runId: null,
             runStatus: runStatus.Complete,
             runErrors: null,
             runSuccess: true,
@@ -160,7 +424,7 @@ describe("app store", () => {
         },
       };
 
-      store.clearScenario();
+      store.clearScenario(store.currentScenario);
       expect(store.currentScenario).toEqual({
         runId: undefined,
         parameters: undefined,
@@ -197,7 +461,7 @@ describe("app store", () => {
       const mockDownloadObj = mockExcelScenarioDownload();
 
       const store = useAppStore();
-      const downloadPromise = store.downloadExcel();
+      const downloadPromise = store.downloadExcel(false);
       // Should immediately set to downloading, then reset when download finishes
       expect(store.downloading).toBe(true);
       // wait for the promise to resolve
@@ -213,7 +477,7 @@ describe("app store", () => {
         throw "test error string";
       });
       const store = useAppStore();
-      await store.downloadExcel();
+      await store.downloadExcel(false);
       expect(store.downloadError).toBe("test error string");
       expect(store.downloading).toBe(false);
     });
@@ -223,36 +487,242 @@ describe("app store", () => {
         throw new Error("test error message");
       });
       const store = useAppStore();
-      await store.downloadExcel();
+      await store.downloadExcel(false);
       expect(store.downloadError).toBe("test error message");
       expect(store.downloading).toBe(false);
     });
 
-    it("can set the current comparison based on the axis, baseline parameter, and selected scenario options", async () => {
-      const store = useAppStore();
-      store.setComparison("vaccine", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["none", "low"]);
+    it("can run a comparison based on the axis, baseline parameter, and selected scenario options", async () => {
+      mockedRunScenarioResponse.mockImplementation(async (event) => {
+        const body = await readBody(event);
+        const params = body.parameters;
+        if (String(params.country) === "USA"
+          && String(params.hospital_capacity) === "54321"
+          && String(params.response) === "elimination") {
+          switch (String(params.vaccine)) {
+            case "high":
+              return { runId: "123" };
+            case "none":
+              return { runId: "234" };
+            case "low":
+              return { runId: "345" };
+          }
+        }
 
+        throw new Error("The test failed to pass the correct parameters to the Nuxt app API.");
+      });
+
+      const store = useAppStore();
+
+      await expect(async () => {
+        await store.runComparison("vaccine", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["none", "low"]);
+      }).rejects.toThrowError("Metadata is not loaded, cannot set comparison.");
+
+      await store.loadMetadata();
+
+      await store.runComparison("vaccine", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["none", "low"]);
+
+      // It should not reset the 'hospital_capacity' parameter to default values unless necessitated by a change of country.
       expect(store.currentComparison).toEqual({
         axis: "vaccine",
         baseline: "high",
         scenarios: [
           {
             ...emptyScenario,
+            runId: "123",
             parameters: { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" },
           },
           {
             ...emptyScenario,
+            runId: "234",
             parameters: { country: "USA", hospital_capacity: "54321", vaccine: "none", response: "elimination" },
           },
           {
             ...emptyScenario,
+            runId: "345",
             parameters: { country: "USA", hospital_capacity: "54321", vaccine: "low", response: "elimination" },
           },
         ],
       });
     });
 
+    it("can run a comparison, taking dependent parameters into account", async () => {
+      mockedRunScenarioResponse.mockImplementation(async (event) => {
+        const body = await readBody(event);
+        const params = body.parameters;
+        if (String(params.vaccine) === "high"
+          && String(params.response) === "elimination") {
+          switch (String(params.country)) {
+            case "USA":
+              return { runId: "456" };
+            case "ARG":
+              return { runId: "567" };
+            case "THA":
+              return { runId: "678" };
+          }
+        }
+
+        throw new Error("The test failed to pass the correct parameters to the Nuxt app API.");
+      });
+
+      const store = useAppStore();
+      await store.loadMetadata();
+
+      await store.runComparison("country", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["ARG", "THA"]);
+
+      // It should vary the dependent parameter 'hospital_capacity' as well as the country,
+      // since the same absolute capacity is not equivalent in different countries.
+      expect(store.currentComparison).toEqual({
+        axis: "country",
+        baseline: "USA",
+        scenarios: [
+          {
+            ...emptyScenario,
+            runId: "456",
+            parameters: { country: "USA", hospital_capacity: "334400", vaccine: "high", response: "elimination" },
+          },
+          {
+            ...emptyScenario,
+            runId: "567",
+            parameters: { country: "ARG", hospital_capacity: "33800", vaccine: "high", response: "elimination" },
+          },
+          {
+            ...emptyScenario,
+            runId: "678",
+            parameters: { country: "THA", hospital_capacity: "22000", vaccine: "high", response: "elimination" },
+          },
+        ],
+      });
+    });
+
+    it("getCostLabel returns the label for cost id", async () => {
+      const store = useAppStore();
+      store.metadata = mockedMetadata;
+
+      const costLabel = store.getCostLabel("gdp_closures");
+
+      expect(costLabel).toEqual("Closures");
+    });
+
+    it("getCostLabel returns cost id if not found in metadata", async () => {
+      const store = useAppStore();
+      store.metadata = mockedMetadata;
+
+      const costLabel = store.getCostLabel("not_found");
+
+      expect(costLabel).toEqual("not_found");
+    });
+
+    it("getScenarioAxisValue returns the value for the axis parameter for a given scenario", async () => {
+      const store = useAppStore();
+
+      const scenario = structuredClone(unloadedScenario);
+      store.currentComparison = { axis: "country", baseline: "ARG", scenarios: [] };
+
+      expect(store.getScenarioAxisValue(scenario)).toEqual("USA");
+
+      store.currentComparison = { axis: "vaccine", baseline: "high", scenarios: [] };
+      expect(store.getScenarioAxisValue(scenario)).toEqual("high");
+    });
+
+    it("getScenarioAxisLabel returns the label for the axis parameter for a given scenario", async () => {
+      const store = useAppStore();
+      store.metadata = mockMetadataResponseData;
+
+      const scenario = structuredClone(unloadedScenario);
+      store.currentComparison = { axis: "country", baseline: "ARG", scenarios: [] };
+
+      expect(store.getScenarioAxisLabel(scenario)).toEqual("United States");
+
+      store.currentComparison = { axis: "vaccine", baseline: "high", scenarios: [] };
+      expect(store.getScenarioAxisLabel(scenario)).toEqual("High");
+    });
+
+    it("can get the 'total' cost data for a given scenario", async () => {
+      const store = useAppStore();
+      store.currentScenario = structuredClone(unloadedScenario);
+
+      expect(store.getScenarioTotalCost(store.currentScenario)).toEqual(undefined);
+      await store.loadScenarioResult(store.currentScenario);
+
+      await waitFor(() => {
+        expect(store.currentScenario.result.data?.costs).toEqual(mockResultData.costs);
+      });
+
+      const totalCost = store.getScenarioTotalCost(store.currentScenario);
+
+      expect(totalCost?.id).toEqual("total");
+      expect(totalCost?.values).toHaveLength(1);
+      expect(totalCost?.values[0].value).toEqual(1086625.0137);
+      expect(totalCost?.children).toHaveLength(3);
+    });
+
+    it("can get a specific cost by id for a given scenario", async () => {
+      const store = useAppStore();
+      store.currentScenario = structuredClone(unloadedScenario);
+
+      expect(store.getScenarioCostById(store.currentScenario, "gdp_closures")).toEqual(undefined);
+
+      await store.loadScenarioResult(store.currentScenario);
+
+      await waitFor(() => {
+        expect(store.currentScenario.result.data?.costs).toEqual(mockResultData.costs);
+      });
+
+      const totalCost = store.getScenarioCostById(store.currentScenario, "total");
+      expect(totalCost?.id).toEqual("total");
+      expect(totalCost?.children).toHaveLength(3);
+
+      const educationCost = store.getScenarioCostById(store.currentScenario, "education");
+      expect(educationCost?.id).toEqual("education");
+      expect(educationCost?.children).toHaveLength(2);
+
+      const gdpClosuresCost = store.getScenarioCostById(store.currentScenario, "gdp_closures");
+      expect(gdpClosuresCost?.id).toEqual("gdp_closures");
+      expect(gdpClosuresCost?.children).toBeUndefined();
+    });
+
+    it("can get the 'value of statistical life' for a given scenario", async () => {
+      const store = useAppStore();
+      store.currentScenario = structuredClone(unloadedScenario);
+
+      expect(store.getScenarioLifeValue(store.currentScenario)).toEqual(undefined);
+
+      await store.loadScenarioResult(store.currentScenario);
+
+      await waitFor(() => {
+        expect(store.currentScenario.result.data?.costs).toEqual(mockResultData.costs);
+      });
+
+      expect(store.getScenarioLifeValue(store.currentScenario)).toEqual("779556");
+    });
+
     describe("getters", () => {
+      it("can provide a map of parameter id to parameter metadata, for easier look-up", async () => {
+        const store = useAppStore();
+        expect(store.parametersMetadataById).toEqual({});
+
+        await store.loadMetadata();
+
+        await waitFor(() => {
+          expect(store.parametersMetadataById).toHaveProperty("country");
+          expect(store.parametersMetadataById).toHaveProperty("hospital_capacity");
+          expect(store.parametersMetadataById).toHaveProperty("vaccine");
+          expect(store.parametersMetadataById).toHaveProperty("response");
+          expect(store.parametersMetadataById.country.parameterType).toEqual("globeSelect");
+        });
+      });
+
+      it("can get the current axis parameter", async () => {
+        const store = useAppStore();
+        await store.loadMetadata();
+
+        expect(store.axisMetadata).toEqual(undefined);
+        store.currentComparison = { axis: "vaccine", baseline: "high", scenarios: [] };
+        expect(store.axisMetadata!.id).toEqual("vaccine");
+        expect(store.axisMetadata!.parameterType).toEqual("select");
+      });
+
       it("can get the globe parameter", async () => {
         const store = useAppStore();
         expect(store.globeParameter).toEqual(undefined);
@@ -260,64 +730,25 @@ describe("app store", () => {
         await store.loadMetadata();
 
         await waitFor(() => {
-          expect(store.globeParameter).toEqual({
-            id: "country",
-            parameterType: "globeSelect",
-          });
+          expect(store.globeParameter!.id).toEqual("country");
         });
       });
 
-      it("can get the time series data", async () => {
+      it("can determine which country is of interest to the current scenario or comparison", async () => {
         const store = useAppStore();
-        store.currentScenario = structuredClone(sampleUnloadedScenario);
+        await store.loadMetadata();
 
-        expect(store.timeSeriesData).toEqual(undefined);
-        await store.loadScenarioResult();
+        store.currentScenario.parameters = { country: "GBR", pathogen: "sars_cov_1" };
+        expect(store.scenarioCountry).toEqual("GBR");
 
-        await waitFor(() => {
-          expect(store.timeSeriesData).toEqual(mockResultData.time_series);
-        });
-      });
+        store.currentScenario = structuredClone(emptyScenario);
+        expect(store.scenarioCountry).toBeUndefined();
 
-      it("can get the capacities data", async () => {
-        const store = useAppStore();
-        store.currentScenario = structuredClone(sampleUnloadedScenario);
+        store.currentComparison = { axis: "vaccine", baseline: "high", scenarios: [structuredClone(unloadedScenario)] };
+        expect(store.scenarioCountry).toEqual("USA");
 
-        expect(store.capacitiesData).toEqual(undefined);
-        await store.loadScenarioResult();
-
-        await waitFor(() => {
-          expect(store.capacitiesData).toEqual(mockResultData.capacities);
-        });
-      });
-
-      it("can get the interventions data", async () => {
-        const store = useAppStore();
-        store.currentScenario = structuredClone(sampleUnloadedScenario);
-
-        expect(store.interventionsData).toEqual(undefined);
-        await store.loadScenarioResult();
-
-        await waitFor(() => {
-          expect(store.interventionsData).toEqual(mockResultData.interventions);
-        });
-      });
-
-      it("can get the costs data and 'total' cost data", async () => {
-        const store = useAppStore();
-        store.currentScenario = structuredClone(sampleUnloadedScenario);
-
-        expect(store.costsData).toEqual(undefined);
-        expect(store.totalCost).toEqual(undefined);
-        await store.loadScenarioResult();
-
-        await waitFor(() => {
-          expect(store.costsData).toEqual(mockResultData.costs);
-        });
-
-        expect(store.totalCost?.id).toEqual("total");
-        expect(store.totalCost?.value).toEqual(1086625.0137);
-        expect(store.totalCost?.children?.length).toEqual(3);
+        store.currentComparison = { axis: "country", baseline: "GBR", scenarios: [structuredClone(unloadedScenario)] };
+        expect(store.scenarioCountry).toEqual("GBR");
       });
 
       it("can get the time series groups metadata", async () => {
@@ -327,7 +758,8 @@ describe("app store", () => {
         await store.loadMetadata();
 
         await waitFor(() => {
-          expect(store.timeSeriesGroups).toEqual([
+          expect(store.timeSeriesGroups).toHaveLength(4);
+          expect(store.timeSeriesGroups![0]).toEqual(
             {
               id: "infections",
               label: "Infections",
@@ -336,26 +768,107 @@ describe("app store", () => {
                 daily: "new_infected",
               },
             },
-          ]);
+          );
         });
       });
 
-      it("getCostLabel returns the label for cost id", async () => {
+      it("can report whether every scenario in a comparison has run successfully", async () => {
         const store = useAppStore();
-        store.metadata = mockedMetadata;
+        store.currentComparison = {
+          axis: "vaccine",
+          baseline: "high",
+          scenarios: [{
+            ...emptyScenario,
+            status: {
+              data: { done: true, runId: null, runStatus: runStatus.Complete, runErrors: null, runSuccess: true },
+              fetchError: undefined,
+              fetchStatus: "success",
+            },
+          }, {
+            ...emptyScenario,
+            status: {
+              data: { done: true, runId: null, runStatus: runStatus.Failed, runErrors: null, runSuccess: false },
+              fetchError: undefined,
+              fetchStatus: "success",
+            },
+          }],
+        };
+        expect(store.everyScenarioHasRunSuccessfully).toBe(false);
 
-        const costLabel = store.getCostLabel("gdp_closures");
-
-        expect(costLabel).toEqual("Closures");
+        store.currentComparison.scenarios[1].status.data!.runSuccess = true;
+        expect(store.everyScenarioHasRunSuccessfully).toBe(true);
       });
 
-      it("getCostLabel returns cost id if not found in metadata", async () => {
+      it("can report whether every scenario in a comparison has a run id", async () => {
         const store = useAppStore();
-        store.metadata = mockedMetadata;
+        store.currentComparison = {
+          axis: "vaccine",
+          baseline: "high",
+          scenarios: [{ ...emptyScenario, runId: "123" }, { ...emptyScenario, runId: "234" }],
+        };
+        expect(store.everyScenarioHasARunId).toBe(true);
 
-        const costLabel = store.getCostLabel("not_found");
+        store.currentComparison.scenarios[1].runId = undefined;
+        expect(store.everyScenarioHasARunId).toBe(false);
+      });
 
-        expect(costLabel).toEqual("not_found");
+      it("can report whether every scenario in a comparison has costs", async () => {
+        const store = useAppStore();
+        store.currentComparison = {
+          axis: "vaccine",
+          baseline: "high",
+          scenarios: [
+            {
+              ...emptyScenario,
+              result: { data: { ...mockResultData }, fetchError: undefined, fetchStatus: "success" },
+            },
+            {
+              ...emptyScenario,
+              result: { data: { ...mockResultData, costs: [] }, fetchError: undefined, fetchStatus: "success" },
+            },
+          ],
+        };
+        expect(store.everyScenarioHasCosts).toBe(false);
+
+        store.currentComparison.scenarios[1].result.data!.costs = mockResultData.costs;
+        expect(store.everyScenarioHasCosts).toBe(true);
+      });
+
+      it("can get the baseline scenario for a comparison", async () => {
+        const store = useAppStore();
+        expect(store.baselineScenario).toBeUndefined();
+
+        store.currentComparison = {
+          axis: "vaccine",
+          baseline: "high",
+          scenarios: [
+            { ...emptyScenario, parameters: { vaccine: "high" } },
+            { ...emptyScenario, parameters: { vaccine: "none" } },
+          ],
+        };
+        expect(store.baselineScenario).toEqual(store.currentComparison.scenarios[0]);
+
+        store.currentComparison.baseline = "none";
+        expect(store.baselineScenario).toEqual(store.currentComparison.scenarios[1]);
+      });
+
+      it("can get the index of the baseline scenario in the comparison scenarios array", async () => {
+        const store = useAppStore();
+        expect(store.baselineIndex).toBe(-1);
+
+        store.currentComparison = {
+          axis: "vaccine",
+          baseline: "high",
+          scenarios: [
+            { ...emptyScenario, runId: "123", parameters: { vaccine: "high" } },
+            { ...emptyScenario, runId: "234", parameters: { vaccine: "none" } },
+            { ...emptyScenario, runId: "345", parameters: { vaccine: "low" } },
+          ],
+        };
+        expect(store.baselineIndex).toBe(0);
+
+        store.currentComparison.baseline = "low";
+        expect(store.baselineIndex).toBe(2);
       });
     });
   });

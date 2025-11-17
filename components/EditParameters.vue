@@ -7,43 +7,42 @@
     >
       <CModalHeader>
         <CModalTitle id="editParamsModalTitle">
-          Edit parameters
+          Change parameters
         </CModalTitle>
       </CModalHeader>
       <CModalBody>
-        <ParameterForm :in-modal="true" />
+        <ParameterForm
+          :in-modal="true"
+          @show-r-code="handleShowRCode"
+        />
       </CModalBody>
     </CModal>
   </Teleport>
-  <CTooltip
-    content="Edit parameters"
-    placement="top"
-  >
-    <template #toggler="{ togglerId, on }">
-      <span
-        role="button"
-        :aria-describedby="togglerId"
-        @click="() => { modalVisible = true }"
-        v-on="on"
-      >
-        <CButton color="light" class="parameters-button">
-          Parameters
-        </CButton>
-        <CIcon icon="cilPencil" class="form-icon text-muted" />
-      </span>
-    </template>
-  </CTooltip>
+  <CButton color="secondary" class="parameters-button btn-scenario-header" @click="() => { modalVisible = true }">
+    Change parameters
+    <CIcon icon="cilPencil" class="ms-1" />
+  </CButton>
 </template>
 
 <script lang="ts" setup>
 import { CIcon } from "@coreui/icons-vue";
 
+const emit = defineEmits(["showRCode"]);
+
 const modalVisible = ref(false);
+
+const handleShowRCode = () => {
+  modalVisible.value = false;
+  emit("showRCode");
+};
 </script>
 
-<style lang="scss">
-.parameters-button, .parameters-button:active {
-  background: transparent !important;
-  border: transparent !important;
+<style lang="scss" scoped>
+.parameters-button {
+  border-radius: 5px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-width: 0;
+  height: 100%;
 }
 </style>

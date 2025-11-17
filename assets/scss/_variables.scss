@@ -4,6 +4,7 @@ $min-wrapper-height: calc(100dvh - $app-header-height - $app-header-margin-botto
 $container-padding: 1.5rem;
 $sidebar-narrow-width: 4rem;
 $light-background: rgba(255, 255, 255, 0.5);
+$lighter-background: rgba(255, 255, 255, 0.75);
 $narrowest-supported-screen-width: 360px; // We support screen widths down to 360px since 11% of global users have this
 
 // Imperial Brand
@@ -58,4 +59,4 @@ $table-bg: transparent;
 
 // fonts 
 $font-size-base:              1rem; // Assumes the browser default, typically `16px`
-$font-size-sm:                $font-size-base * .875;
+$font-size-xs:                $font-size-base * .875;

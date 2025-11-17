@@ -1,6 +1,9 @@
 <template>
-  <div class="d-inline-block">
-    <div v-if="parameters">
+  <div
+    class="d-inline-block"
+    :class="[scenarios.length > 1 ? 'multi-scenario' : '']"
+  >
+    <div v-if="scenarios.length && everyScenarioHasParameters">
       <CTooltip content="Generate code snippet" placement="top">
         <template #toggler="{ togglerId, on }">
           <CButton
@@ -28,13 +31,15 @@
         </CModalHeader>
         <CModalBody>
           <p>
-            Use this R code snippet to run the model directly with the daedalus package for the current parameters.
-            See the <NuxtLink to="https://jameel-institute.github.io/daedalus/" target="_blank">
-              daedalus documentation
-            </NuxtLink>
-            for installation instructions and further details.
+            Use this R code snippet to run the model directly with the
+            <code>daedalus</code>
+            package for the current {{ scenarios.length > 1 ? "scenarios" : "parameters" }}.
+            See the
+            <!-- eslint-disable-next-line vue/singleline-html-element-content-newline -->
+            <NuxtLink to="https://jameel-institute.github.io/daedalus/" target="_blank">daedalus documentation</NuxtLink> for
+            installation instructions and further details.
           </p>
-          <div class="code p-3">
+          <div class="code p-3 overflow-y-auto">
             <button
               id="btn-copy-code"
               class="btn btn-clipboard"
@@ -56,26 +61,27 @@
 
 <script setup lang="ts">
 import { CIcon } from "@coreui/icons-vue";
+import useCodeSnippet from "~/composables/useCodeSnippet";
+import type { Scenario } from "~/types/storeTypes";
 
-const appStore = useAppStore();
+const props = defineProps<{
+  scenarios: Scenario[]
+}>();
 
 const modalVisible = ref(false);
 const copied = ref(false);
 
-const parameters = computed(() => appStore.currentScenario.parameters);
-const codeSnippet = computed(() => {
-  return `model_result <- daedalus::daedalus(
-  "${parameters.value?.country}",
-  "${parameters.value?.pathogen}",
-  response_strategy = "${parameters.value?.response}",
-  response_threshold = ${parameters.value?.hospital_capacity},
-  vaccine_investment = "${parameters.value?.vaccine}"
-)`;
-});
+defineExpose({ modalVisible });
+
+const everyScenarioHasParameters = computed(() => props.scenarios.every(scenario => !!scenario.parameters));
+
+const { codeSnippet } = useCodeSnippet(() => props.scenarios, everyScenarioHasParameters);
 
 const copySnippet = () => {
-  navigator.clipboard.writeText(codeSnippet.value);
-  copied.value = true;
+  if (codeSnippet.value) {
+    navigator.clipboard.writeText(codeSnippet.value);
+    copied.value = true;
+  };
 };
 
 const resetCopied = () => {
@@ -87,26 +93,37 @@ const resetCopied = () => {
 </script>
 
 <style lang="scss" scoped>
-  .code {
-    background-color: var(--cui-tertiary-bg);
-    position: relative;
-  }
+:deep(.modal-dialog) {
+  max-width: 40rem;}
 
-  .btn-clipboard {
-      position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
-      font-size: 0.8rem;
-      border-radius: 0.25rem;
-      padding: 0.25rem;
-    &:hover {
-      color: var(--cui-light);
-      background-color: var(--cui-primary);
-    }
+.multi-scenario {
+  :deep(.modal-dialog) {
+    max-width: 50rem;
   }
+}
 
-  .btn-copied {
-    background-color: var(--cui-secondary-bg-dark)!important;
-    color: var(--cui-light)!important;
+.code {
+  background-color: var(--cui-tertiary-bg);
+  position: relative;
+  max-height: 30rem;
+}
+
+.btn-clipboard {
+    position: sticky;
+    top: 0;
+    right: 0;
+    float: right;
+    font-size: 0.8rem;
+    border-radius: 0.25rem;
+    padding: 0.25rem;
+  &:hover {
+    color: var(--cui-light);
+    background-color: var(--cui-primary);
   }
+}
+
+.btn-copied {
+  background-color: var(--cui-secondary-bg-dark)!important;
+  color: var(--cui-light)!important;
+}
 </style>

@@ -1,4 +1,4 @@
-import type { Metadata, MetadataResponse } from "@/types/apiResponseTypes";
+import type { Metadata, MetadataResponse } from "~/types/apiResponseTypes";
 import type { EventHandlerRequest, H3Event } from "h3";
 import { fetchRApi } from "@/server/utils/rApi";
 import { apiResponse } from "../utils/responseHelpers";

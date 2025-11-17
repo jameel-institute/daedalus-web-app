@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
+  expectMockAppendSheet,
   mockAoaToSheet,
-  mockBookAppendSheet,
   mockBookNew,
   mockImplementations,
   mockJsonToSheet,
@@ -19,29 +19,50 @@ const scenario = {
     data: {
       costs: [{
         id: "total",
-        value: 1000000,
+        values: [{ metric: "usd_millions", value: 1000000 }],
         children: [
           {
             id: "gdp",
-            value: 400000,
+            values: [{ metric: "usd_millions", value: 400000 }],
             children: [
-              { id: "gdp_closures", value: 100000, children: null },
-              { id: "gdp_absences", value: 300000, children: null },
+              {
+                id: "gdp_closures",
+                values: [{ metric: "usd_millions", value: 100000 }],
+              },
+              {
+                id: "gdp_absences",
+                values: [{ metric: "usd_millions", value: 300000 }],
+              },
             ],
           },
           {
             id: "life_years",
-            value: 600000,
+            values: [
+              { metric: "usd_millions", value: 600000 },
+              { metric: "life_years", value: 60000 },
+            ],
             children: [
-              { id: "life_years_children", value: 200000, children: null },
-              { id: "life_years_adults", value: 400000, children: null },
+              {
+                id: "life_years_children",
+                values: [
+                  { metric: "usd_millions", value: 200000 },
+                  { metric: "life_years", value: 20000 },
+                ],
+              },
+              {
+                id: "life_years_adults",
+                values: [
+                  { metric: "usd_millions", value: 400000 },
+                  { metric: "life_years", value: 40000 },
+                ],
+              },
             ],
           },
         ],
       }],
       interventions: [
-        { id: "school_closures", start: 10, end: 100, level: "light" },
-        { id: "business_closures", start: 5, end: 50, level: "heavy" },
+        { id: "response", start: 10, end: 100 },
+        { id: "response", start: 5, end: 50 },
       ],
       capacities: [
         { id: "hospital_capacities", value: 25000 },
@@ -49,6 +70,13 @@ const scenario = {
       time_series: {
         prevalence: [10, 20, 30],
         deaths: [0, 1, 2],
+      },
+      vsl: {
+        average: 5000000,
+        pre_school: 1000000,
+        school_age: 2000000,
+        working_age: 3000000,
+        retirement_age: 4000000,
       },
     },
   },
@@ -58,12 +86,6 @@ describe("excelScenarioDownload", () => {
   beforeEach(() => {
     mockImplementations();
   });
-
-  const expectMockAppendSheet = (callIndex: number, data: any, sheetName: string) => {
-    expect(mockBookAppendSheet.mock.calls[callIndex][0]).toBe(mockWorkbook);
-    expect(mockBookAppendSheet.mock.calls[callIndex][1]).toStrictEqual(data);
-    expect(mockBookAppendSheet.mock.calls[callIndex][2]).toBe(sheetName);
-  };
 
   it("writes expected data to excel file", () => {
     const sut = new ExcelScenarioDownload(scenario);
@@ -80,36 +102,60 @@ describe("excelScenarioDownload", () => {
     expectMockAppendSheet(0, { data: expectedParams, type: "json" }, "Parameters");
 
     // costs
-    const expectedFlatCosts = [
-      { id: "total", value: 1000000 },
-      { id: "gdp", value: 400000 },
-      { id: "gdp_closures", value: 100000 },
-      { id: "gdp_absences", value: 300000 },
-      { id: "life_years", value: 600000 },
-      { id: "life_years_children", value: 200000 },
-      { id: "life_years_adults", value: 400000 },
+    const expectedCosts = [
+      ["costId", "metric", "value"],
+      ["total", "usd_millions", 1000000],
+      ["gdp", "usd_millions", 400000],
+      ["gdp_closures", "usd_millions", 100000],
+      ["gdp_absences", "usd_millions", 300000],
+      ["life_years", "usd_millions", 600000],
+      ["life_years", "life_years", 60000],
+      ["life_years_children", "usd_millions", 200000],
+      ["life_years_children", "life_years", 20000],
+      ["life_years_adults", "usd_millions", 400000],
+      ["life_years_adults", "life_years", 40000],
     ];
-    expect(mockJsonToSheet.mock.calls[1]).toStrictEqual([expectedFlatCosts]);
-    expectMockAppendSheet(1, { data: expectedFlatCosts, type: "json" }, "Costs");
+    expect(mockAoaToSheet.mock.calls[0]).toStrictEqual([expectedCosts]);
+    expectMockAppendSheet(1, { data: expectedCosts, type: "aoa" }, "Costs");
 
     // capacities
-    expect(mockJsonToSheet.mock.calls[2]).toStrictEqual([scenario.result.data.capacities]);
-    expectMockAppendSheet(2, { data: scenario.result.data.capacities, type: "json" }, "Capacities");
+    const expectedCapacities = [
+      ["capacityId", "value"],
+      ["hospital_capacities", 25000],
+    ];
+    expect(mockAoaToSheet.mock.calls[1]).toStrictEqual([expectedCapacities]);
+    expectMockAppendSheet(2, { data: expectedCapacities, type: "aoa" }, "Capacities");
 
     // interventions
-    const expectedInterventions = scenario.result.data.interventions;
-    expect(mockJsonToSheet.mock.calls[3]).toStrictEqual([expectedInterventions]);
-    expectMockAppendSheet(3, { data: expectedInterventions, type: "json" }, "Interventions");
+    const expectedInterventions = [
+      ["interventionId", "start", "end"],
+      ["response", 10, 100],
+      ["response", 5, 50],
+    ];
+    expect(mockAoaToSheet.mock.calls[2]).toStrictEqual([expectedInterventions]);
+    expectMockAppendSheet(3, { data: expectedInterventions, type: "aoa" }, "Interventions");
 
     // time series
     const expectedTimeSeries = [
-      ["prevalence", "deaths"],
-      [10, 0],
-      [20, 1],
-      [30, 2],
+      ["day", "prevalence", "deaths"],
+      [1, 10, 0],
+      [2, 20, 1],
+      [3, 30, 2],
     ];
-    expect(mockAoaToSheet.mock.calls[0]).toStrictEqual([expectedTimeSeries]);
+    expect(mockAoaToSheet.mock.calls[3]).toStrictEqual([expectedTimeSeries]);
     expectMockAppendSheet(4, { data: expectedTimeSeries, type: "aoa" }, "Time series");
+
+    // VSLs
+    const expectedVSLs = [
+      ["vslId", "value"],
+      ["average", 5000000],
+      ["pre_school", 1000000],
+      ["school_age", 2000000],
+      ["working_age", 3000000],
+      ["retirement_age", 4000000],
+    ];
+    expect(mockAoaToSheet.mock.calls[4]).toStrictEqual([expectedVSLs]);
+    expectMockAppendSheet(5, { data: expectedVSLs, type: "aoa" }, "Value of Statistical Life");
 
     const expectedFileName = "daedalus_value1_value2.xlsx";
     expect(mockWriteFile).toHaveBeenCalledWith(mockWorkbook, expectedFileName);
@@ -129,10 +175,10 @@ describe("excelScenarioDownload", () => {
     const sut = new ExcelScenarioDownload(noInterventions);
     sut.download();
 
-    expect(mockJsonToSheet).toHaveBeenCalledTimes(3);
-    expect(mockAoaToSheet).toHaveBeenCalledTimes(2);
-    const expectedEmptyInterventionData = [["id", "level", "start", "end"]];
-    expect(mockAoaToSheet.mock.calls[0][0]).toStrictEqual(expectedEmptyInterventionData);
+    expect(mockJsonToSheet).toHaveBeenCalledTimes(1);
+    expect(mockAoaToSheet).toHaveBeenCalledTimes(5);
+    const expectedEmptyInterventionData = [["interventionId", "start", "end"]];
+    expect(mockAoaToSheet.mock.calls[2][0]).toStrictEqual(expectedEmptyInterventionData);
     expectMockAppendSheet(3, { data: expectedEmptyInterventionData, type: "aoa" }, "Interventions");
   });
 

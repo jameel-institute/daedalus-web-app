@@ -1,10 +1,10 @@
 {
   "name": "daedalus-web-app",
   "type": "module",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": "^20"
   },
   "scripts": {
     "build": "nuxt build",
@@ -39,6 +39,7 @@
     "color-convert": "^3.1.0",
     "country-iso-3-to-2": "^1.1.1",
     "eslint": "^9.12.0",
+    "flag-icons": "^7.5.0",
     "highcharts": "^12.2.0",
     "jssha": "^3.3.1",
     "lodash.throttle": "^4.1.1",
@@ -49,7 +50,7 @@
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
     "vue": "^3.5",
-    "vue3-select-component": "^0.8.0",
+    "vue3-select-component": "^0.10.0",
     "xlsx": "^0.18.5"
   },
   "optionalDependencies": {

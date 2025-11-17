@@ -127,6 +127,11 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/nav/CNavItem",
     });
     addComponent({
+      name: "CPopover",
+      export: "CPopover",
+      filePath: "@coreui/vue/src/components/popover/CPopover",
+    });
+    addComponent({
       name: "CRow",
       export: "CRow",
       filePath: "@coreui/vue/src/components/grid/CRow",
@@ -160,6 +165,31 @@ export default defineNuxtModule({
       name: "CSpinner",
       export: "CSpinner",
       filePath: "@coreui/vue/src/components/spinner/CSpinner",
+    });
+    addComponent({
+      name: "CTabContent",
+      export: "CTabContent",
+      filePath: "@coreui/vue/src/components/tabs/CTabContent",
+    });
+    addComponent({
+      name: "CTabList",
+      export: "CTabList",
+      filePath: "@coreui/vue/src/components/tabs/CTabList",
+    });
+    addComponent({
+      name: "CTabPanel",
+      export: "CTabPanel",
+      filePath: "@coreui/vue/src/components/tabs/CTabPanel",
+    });
+    addComponent({
+      name: "CTab",
+      export: "CTab",
+      filePath: "@coreui/vue/src/components/tabs/CTab",
+    });
+    addComponent({
+      name: "CTabs",
+      export: "CTabs",
+      filePath: "@coreui/vue/src/components/tabs/CTabs",
     });
     addComponent({
       name: "CTooltip",

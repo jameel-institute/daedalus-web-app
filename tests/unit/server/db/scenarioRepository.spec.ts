@@ -1,5 +1,5 @@
 import prisma from "~/server/db/prisma";
-import { createScenario, deleteScenario, getScenarioByParametersHash } from "~/server/db/scenarioRepository";
+import { createScenario, deleteScenario, getScenarioByParametersHash, getScenarioByRunId } from "~/server/db/scenarioRepository";
 
 vi.mock("~/server/db/prisma", () => ({
   default: {
@@ -12,9 +12,20 @@ vi.mock("~/server/db/prisma", () => ({
 }));
 
 describe("scenarioRepository", () => {
+  const parameters = {
+    param1: "value1",
+    param2: "value2",
+  };
   const parametersHash = "test-hash";
   const runId = "test-run-id";
-  const scenario = { id: "1", parameters_hash: parametersHash, run_id: runId, created_at: new Date(), updated_at: new Date() };
+  const scenario = {
+    id: "1",
+    parameters,
+    parameters_hash: parametersHash,
+    run_id: runId,
+    created_at: new Date(),
+    updated_at: new Date(),
+  };
 
   describe("getScenarioByParametersHash", () => {
     it("should look up a single scenario by its parameter hash", async () => {
@@ -42,6 +53,42 @@ describe("scenarioRepository", () => {
     });
   });
 
+  describe("getScenarioByRunId", () => {
+    it("should look up a single scenario by its run id", async () => {
+      const spy = vi.spyOn(prisma.scenario, "findUnique");
+      spy.mockImplementation(async () => scenario);
+
+      const result = await getScenarioByRunId(runId);
+
+      expect(spy).toHaveBeenCalledWith({
+        where: { run_id: runId },
+      });
+      expect(result).toEqual(scenario);
+    });
+
+    it("should return null when no such scenario exists", async () => {
+      const spy = vi.spyOn(prisma.scenario, "findUnique");
+      spy.mockImplementation(async () => null);
+
+      const result = await getScenarioByRunId(runId);
+
+      expect(spy).toHaveBeenCalledWith({
+        where: { run_id: runId },
+      });
+      expect(result).toEqual(null);
+    });
+
+    it("should return undefined when no runId is provided", async () => {
+      const spy = vi.spyOn(prisma.scenario, "findUnique");
+      spy.mockImplementation(async () => scenario);
+
+      const result = await getScenarioByRunId(undefined);
+
+      expect(spy).not.toHaveBeenCalled();
+      expect(result).toBeUndefined();
+    });
+  });
+
   describe("deleteScenario", () => {
     it("should delete the scenario", async () => {
       await deleteScenario(scenario);
@@ -54,14 +101,19 @@ describe("scenarioRepository", () => {
 
   describe("createScenario", () => {
     it("should create a new scenario", async () => {
-      await createScenario(parametersHash, runId);
+      await createScenario(parameters, parametersHash, runId);
 
       expect(prisma.scenario.create).toHaveBeenCalledWith({
         data: {
+          parameters,
           parameters_hash: parametersHash,
           run_id: runId,
         },
       });
+    });
+
+    it("should throw an error if parameters are empty", async () => {
+      await expect(createScenario({}, "empty-hash", runId)).rejects.toThrow("Parameters cannot be empty");
     });
   });
 });

@@ -1,0 +1,198 @@
+<template>
+  <div
+    :id="chartContainerId"
+    ref="chartContainer"
+    class="chart-container time-series"
+    :style="{ zIndex, height: 'fit-content' }"
+    :data-summary="JSON.stringify({
+      dataLength: data.length,
+      maxValue: Math.max(...data.map(d => d[1])),
+    })"
+    @mousemove="onMove"
+    @touchmove="onMove"
+    @touchstart="onMove"
+  />
+</template>
+
+<script setup lang="ts">
+import Highcharts from "highcharts/esm/highcharts";
+import "highcharts/esm/modules/accessibility";
+import "highcharts/esm/modules/exporting";
+import "highcharts/esm/modules/export-data";
+import "highcharts/esm/modules/offline-exporting";
+import { debounce } from "perfect-debounce";
+import type { DisplayInfo } from "~/types/apiResponseTypes";
+import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions } from "../utils/charts";
+import { timeSeriesChartOptions, timeSeriesColors, timeSeriesXAxisOptions, timeSeriesYAxisOptions } from "./utils/timeSeriesCharts";
+import { getTimeSeriesDataPoints, showInterventions, timeSeriesYUnits } from "./utils/timeSeriesData";
+import useCapacitiesPlotLines from "~/composables/useCapacitiesPlotLines";
+
+const props = defineProps<{
+  chartHeight: number
+  groupIndex: number // Probably 0 to about 4
+  hideTooltips: boolean
+  synchPoint: Highcharts.Point | undefined
+  seriesRole: string
+  timeSeriesMetadata: DisplayInfo
+}>();
+
+const emit = defineEmits<{
+  updateHoverPoint: [hoverPoint: Highcharts.Point]
+}>();
+
+const appStore = useAppStore();
+
+const chartContainer = ref<HTMLDivElement | null>(null);
+const chart = ref<Highcharts.Chart | undefined>(undefined);
+
+const { onMove } = useSynchronisableChart(
+  chart,
+  () => props.hideTooltips,
+  () => props.synchPoint,
+  (point: Highcharts.Point) => emit("updateHoverPoint", point),
+);
+const { zIndex } = useAdjacentCharts(() => props.groupIndex, () => Number(appStore.timeSeriesGroups?.length));
+
+const chartContainerId = computed(() => `time-series-${props.groupIndex}`);
+const yUnits = computed(() => timeSeriesYUnits(props.timeSeriesMetadata.id));
+const pointFormat = computed(() => `<span style='font-weight: 500'>{point.y}</span> ${yUnits.value}`);
+const data = computed(() => getTimeSeriesDataPoints(appStore.currentScenario, props.timeSeriesMetadata.id));
+
+const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(
+  () => props.timeSeriesMetadata.id === "hospitalised", // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
+  () => chart.value?.yAxis[0],
+  appStore.currentScenario,
+);
+
+const { initialInterventionsPlotBands } = useInterventionPlotBands(
+  () => props.synchPoint,
+  () => props.timeSeriesMetadata,
+  () => chart.value?.xAxis[0],
+  (on: boolean) => chart.value?.update({ exporting: { buttons: { contextButton: { enabled: on } } } }),
+  appStore.currentScenario,
+);
+
+const chartTimeSeries = computed((): Array<Highcharts.SeriesLineOptions | Highcharts.SeriesAreaOptions> => ([{
+  type: props.seriesRole === "total" ? "area" : "line",
+  data: data.value,
+  name: props.timeSeriesMetadata!.label,
+  color: timeSeriesColors[props.groupIndex % timeSeriesColors.length],
+  fillOpacity: 0.3,
+  marker: {
+    enabled: false,
+  },
+  states: {
+    hover: {
+      lineWidthPlus: 0,
+    },
+    inactive: {
+      enabled: false,
+    },
+  },
+  custom: {
+    synchronized: true,
+    id: appStore.currentScenario.runId,
+    showInterventions: showInterventions(props.timeSeriesMetadata.id),
+  },
+}]));
+
+const exportingOptions = computed(() => ({
+  filename: props.timeSeriesMetadata.label,
+  chartOptions: {
+    title: {
+      text: props.timeSeriesMetadata.label,
+    },
+    subtitle: {
+      text: props.timeSeriesMetadata.description,
+    },
+    chart: {
+      backgroundColor: chartBackgroundColorOnExporting,
+      height: 500,
+    },
+  },
+  buttons: {
+    contextButton: contextButtonOptions,
+  },
+  menuItemDefinitions: menuItemDefinitionOptions,
+}));
+
+const chartInitialOptions = () => {
+  return {
+    credits: {
+      enabled: false, // Omit credits to allow us to reduce margin and save vertical space on page. We must credit Highcharts elsewhere.
+    },
+    chart: {
+      ...chartOptions,
+      ...timeSeriesChartOptions,
+      height: props.chartHeight,
+      marginBottom: 35,
+    },
+    plotOptions: {
+      arearange: {
+        yAxis: 1,
+      },
+    },
+    exporting: exportingOptions.value,
+    title: {
+      text: "",
+    },
+    legend: {
+      enabled: false,
+    },
+    tooltip: {
+      headerFormat: "<span style='font-size: 0.7rem; margin-bottom: 0.3rem;'>Day {point.x}</span><br/>",
+      pointFormat: pointFormat.value,
+      valueDecimals: 0,
+    },
+    xAxis: { // Omit title to save vertical space on page
+      ...timeSeriesXAxisOptions,
+      max: chartTimeSeries.value[0].data?.length,
+      plotBands: initialInterventionsPlotBands,
+    },
+    yAxis: {
+      ...timeSeriesYAxisOptions,
+      minRange: initialMinRange,
+      plotLines: initialCapacitiesPlotLines,
+    },
+    series: chartTimeSeries.value,
+  } as Highcharts.Options;
+};
+
+watch(() => props.timeSeriesMetadata, () => {
+  chart.value?.update({
+    exporting: exportingOptions.value,
+    series: chartTimeSeries.value,
+    tooltip: {
+      pointFormat: pointFormat.value,
+    },
+  });
+});
+
+watch(() => chartContainer.value, () => {
+  if (!chart.value) {
+    chart.value = Highcharts.chart(chartContainerId.value, chartInitialOptions());
+  }
+});
+
+onUnmounted(() => {
+  // Destroy this chart, since every time we navigate away and back to this page, another set
+  // of charts is created, burdening the browser if they aren't disposed of.
+  chart.value?.destroy();
+});
+
+const setChartHeight = debounce(async (height: number) => {
+  chart.value?.setSize(undefined, height, { duration: 250 });
+}, 10);
+
+watch(() => props.chartHeight, () => {
+  setChartHeight(props.chartHeight);
+});
+</script>
+
+<style lang="scss" scoped>
+.chart-container.time-series {
+  width: 100%;
+  position: relative; /* Required for z-index to work */
+  left: -20px;
+}
+</style>

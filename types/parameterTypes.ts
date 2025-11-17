@@ -12,7 +12,7 @@ export enum TypeOfParameter {
   Numeric = "numeric",
 }
 
-export interface ValueData {
+export interface RangeData {
   min: number
   default: number
   max: number
@@ -20,7 +20,7 @@ export interface ValueData {
 
 interface UpdateNumericFrom {
   parameterId: string
-  values: Record<string, ValueData>
+  values: Record<string, RangeData>
 }
 
 export interface Parameter extends DisplayInfo {

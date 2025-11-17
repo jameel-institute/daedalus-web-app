@@ -380,6 +380,36 @@
         ]
       },
       {
+        "id": "behaviour",
+        "label": "Change in public behaviour",
+        "description": "Level of change in public behaviour due to the perceived risk of infection; at a low level of behaviour change, the public adopts fewer precautions against infection.",
+        "parameterType": "select",
+        "defaultOption": "none",
+        "ordered": true,
+        "options": [
+          {
+            "id": "none",
+            "label": "None",
+            "description": "The population does not adopt any protective behaviour against the risk of infection."
+          },
+          {
+            "id": "low",
+            "label": "Low",
+            "description": "The population perceives a low risk of infection, resulting in low adoption of behaviour that protects against infection."
+          },
+          {
+            "id": "medium",
+            "label": "Medium",
+            "description": "The population perceives a medium risk of infection, resulting in medium adoption of behaviour that protects against infection."
+          },
+          {
+            "id": "high",
+            "label": "High",
+            "description": "The population perceives a high risk of infection, resulting in high adoption of behaviour that protects against infection."
+          }
+        ]
+      },
+      {
         "id": "hospital_capacity",
         "label": "Hospital surge capacity",
         "description": "Number of hospital beds available nationally for pandemic patients",
@@ -780,6 +810,10 @@
           "label": "Retirement-age adults"
         }
       ],
+      "metrics": [
+        { "id": "usd_millions", "label": "USD" },
+        { "id": "life_years", "label": "life years" }
+      ],
       "capacities": [
         {
           "id": "hospital_capacity",
@@ -790,7 +824,7 @@
       "interventions": [
         {
           "id": "response",
-          "label": "Pandemic response",
+          "label": "Closures",
           "description": "National response to pandemic, including closures and social distancing."
         }
       ],

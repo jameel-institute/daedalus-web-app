@@ -8,17 +8,18 @@ import type { Metadata } from "~/types/apiResponseTypes";
 const stubs = {
   "CIcon": true,
   "TimeSeries.client": true,
-  "CostsCard": true,
+  "CostsPanel": true,
 };
 
 const longRunningRunId = "123";
 const failedRunId = "456";
 const successfulRunId = "789";
+const sampleScenario = {
+  ...emptyScenario,
+  parameters: mockResultData.parameters,
+};
 const plugins = [mockPinia({
-  currentScenario: {
-    ...emptyScenario,
-    parameters: mockResultData.parameters,
-  },
+  currentScenario: sampleScenario,
   metadata: mockMetadataResponseData as Metadata,
 }, false, { stubActions: false })];
 
@@ -31,6 +32,13 @@ mockNuxtImport("useRoute", () => mockRoute);
 
 afterEach(() => {
   mockRoute.mockReset();
+});
+
+registerEndpoint(`/api/scenarios/${successfulRunId}/details`, () => {
+  return {
+    parameters: mockResultData.parameters,
+    runId: successfulRunId,
+  };
 });
 
 registerEndpoint(`/api/scenarios/${longRunningRunId}/status`, () => {
@@ -79,39 +87,52 @@ describe("scenario result page", () => {
   it("renders as expected", async () => {
     mockRoute.mockReturnValue({
       params: {
-        runId: longRunningRunId,
+        runId: successfulRunId,
       },
     });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
-    expect(component.text()).toContain("Parameters");
-    expect(component.text()).toContain("United Kingdom");
+    expect(component.text()).toContain("Change parameters");
+
+    await waitFor(() => {
+      expect(component.text()).toContain("United Kingdom");
+      expect(component.text()).toContain("SARS 2004");
+      expect(component.text()).toContain("30,500");
+      expect(component.text()).toContain("No closures");
+      expect(component.text()).toContain("None");
+    });
   });
 
-  it("resets appStore.downloadError when the page is loaded", async () => {
+  it("resets appStore.downloadError and any previous scenario runs when the page is loaded", async () => {
     mockRoute.mockReturnValue({
       params: {
         runId: successfulRunId,
       },
     });
+    const piniaMock = mockPinia({
+      downloadError: "Some error",
+      currentComparison: {
+        axis: "response",
+        baseline: "none",
+        scenarios: [sampleScenario, sampleScenario],
+      },
+      metadata: mockMetadataResponseData as Metadata,
+    }, true, { stubActions: false });
 
     await mountSuspended(ScenariosIdPage, {
       global: {
         stubs,
-        plugins: [mockPinia({
-          currentScenario: {
-            ...emptyScenario,
-            parameters: mockResultData.parameters,
-          },
-          metadata: mockMetadataResponseData as Metadata,
-          downloadError: "Some error",
-        }, false, { stubActions: false })],
+        plugins: [piniaMock],
       },
     });
 
-    const appStore = useAppStore();
+    const appStore = useAppStore(piniaMock);
     expect(appStore.downloadError).toBeUndefined();
+    expect(appStore.currentScenario.parameters).not.toBeUndefined();
+    expect(appStore.currentComparison.axis).toBeUndefined();
+    expect(appStore.currentComparison.baseline).toBeUndefined();
+    expect(appStore.currentComparison.scenarios).toHaveLength(0);
   });
 
   // Also end-to-end tested in tests/e2e/slowAnalysis.spec.ts
@@ -206,5 +227,76 @@ describe("scenario result page", () => {
     expect(component.text()).not.toContain("Analysis status: running");
     expect(component.text()).not.toContain("Thank you for waiting.");
     expect(spinner.isVisible()).toBe(false);
+  });
+
+  it("opens the code snippet when the link from the advanced usage popover in the 'CreateComparison' modal is clicked", async () => {
+    mockRoute.mockReturnValue({
+      params: {
+        runId: successfulRunId,
+      },
+    });
+
+    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
+
+    await waitFor(() => {
+      expect(component.text()).toContain("Compare against other scenarios");
+      expect(component.text()).not.toContain("Use this R code snippet");
+    });
+
+    const createComparisonModalSelector = "[aria-labelledby='chooseAxisModalTitle']";
+    await component.findAll("button").find(b => b.text() === "Compare against other scenarios")!.trigger("click");
+    const countryButton = component
+      .find(createComparisonModalSelector)
+      .find("#axisOptions")
+      .findAll("button")[0];
+    await countryButton.trigger("click");
+    const popoverContainer = component.find("#advanced-usage-popover-container");
+    await popoverContainer.findAll("p").find(p => p.text() === "Advanced usage")!.trigger("click");
+    vi.advanceTimersByTime(1);
+    await nextTick();
+
+    await component.find("#showRCode").trigger("click");
+
+    expect(component.find(createComparisonModalSelector).exists()).toBe(false);
+    expect(component.text()).toContain("Use this R code snippet");
+  });
+
+  it("opens the code snippet when the link from the advanced usage popover in the 'EditParameters' modal is clicked", async () => {
+    mockRoute.mockReturnValue({
+      params: {
+        runId: successfulRunId,
+      },
+    });
+
+    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
+
+    await waitFor(() => {
+      expect(component.text()).toContain("Change parameters");
+      expect(component.text()).not.toContain("Use this R code snippet");
+    });
+
+    const editParamsModalTitleSelector = "#editParamsModalTitle";
+    expect(document.body.querySelector(editParamsModalTitleSelector)).toBeNull();
+
+    const editParametersModalButton = component.findAllComponents({ name: "CButton" }).find(b => b.text() === "Change parameters");
+    await editParametersModalButton!.trigger("click");
+
+    // Modal is teleported out of component to document body.
+    expect(document.body.querySelector(editParamsModalTitleSelector)).not.toBeNull();
+
+    const popoverContainer = document.body.querySelector("#advanced-usage-popover-container");
+    expect(popoverContainer!.classList).toContain("d-flex");
+    expect(popoverContainer!.classList).not.toContain("d-none");
+    popoverContainer!.querySelector(".trigger")!.dispatchEvent(new MouseEvent("click"));
+
+    vi.advanceTimersByTime(1);
+    await nextTick();
+
+    popoverContainer!.querySelector("#showRCode")!.dispatchEvent(new MouseEvent("click"));
+
+    await nextTick();
+
+    expect(document.body.querySelector(editParamsModalTitleSelector)).toBeNull();
+    expect(component.text()).toContain("Use this R code snippet");
   });
 });

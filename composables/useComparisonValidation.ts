@@ -1,18 +1,22 @@
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE, MIN_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
+import { numericValueInvalid } from "~/components/utils/validations";
+import type { Parameter } from "~/types/parameterTypes";
 
-export default (scenariosToCompareAgainstBaseline: MaybeRefOrGetter<Array<string>>) => {
+export default (
+  scenariosToCompareAgainstBaseline: MaybeRefOrGetter<Array<string>>,
+  parameter: MaybeRefOrGetter<Parameter | undefined>,
+) => {
   const tooFewScenarios = computed(() => toValue(scenariosToCompareAgainstBaseline).length < MIN_SCENARIOS_COMPARED_TO_BASELINE);
   const tooManyScenarios = computed(() => toValue(scenariosToCompareAgainstBaseline).length > MAX_SCENARIOS_COMPARED_TO_BASELINE);
-  const invalid = computed(() => {
-    return tooFewScenarios.value || tooManyScenarios.value;
+  const numericInvalid = computed(() => {
+    const param = toValue(parameter);
+
+    return param
+      && toValue(scenariosToCompareAgainstBaseline).filter((val: string) => numericValueInvalid(val, param)).length > 0;
   });
-  const feedback = computed(() => {
-    if (tooFewScenarios.value) {
-      return `Please select at least ${MIN_SCENARIOS_COMPARED_TO_BASELINE} scenario to compare against the baseline.`;
-    } else if (tooManyScenarios.value) {
-      return `You can compare up to ${MAX_SCENARIOS_COMPARED_TO_BASELINE} scenarios against the baseline.`;
-    }
+  const invalid = computed(() => {
+    return tooFewScenarios.value || tooManyScenarios.value || numericInvalid.value;
   });
 
-  return { invalid, feedback };
+  return { tooFewScenarios, tooManyScenarios, numericInvalid, invalid };
 };

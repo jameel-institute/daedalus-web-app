@@ -1,22 +1,31 @@
 <template>
-  <div id="resultsPage">
-    <div class="d-flex flex-wrap mb-3 gap-3">
-      <h1 class="fs-2 mb-0 pt-1">
+  <div>
+    <div class="d-flex flex-wrap mb-3 gap-3 heading-row">
+      <h1 class="fs-2 mb-0 pt-1 me-auto">
         Results
       </h1>
-      <CreateComparison />
-      <DownloadExcel />
-      <CodeSnippet />
+      <CreateComparison @show-r-code="handleShowRCode" />
+      <DownloadExcel :comparison="false" />
+      <CodeSnippet ref="codeSnippet" :scenarios="[appStore.currentScenario]" />
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
         <CIconSvg size="xxl">
           <img src="/icons/rotate-device.svg">
-          <!-- License: MIT License https://www.svgrepo.com/svg/451262/rotate-device -->
         </CIconSvg>
         <p class="mb-0">
           Rotate your mobile device to landscape for the best experience.
         </p>
       </CAlert>
-      <ParameterInfoCard />
+      <ParameterInfoCard :scenario="appStore.currentScenario">
+        <template #header>
+          <CCol class="col-auto">
+            <div
+              class="card-header h-100 align-content-center"
+            >
+              <EditParameters @show-r-code="handleShowRCode" />
+            </div>
+          </CCol>
+        </template>
+      </ParameterInfoCard>
     </div>
     <CSpinner v-show="showSpinner" class="ms-3 mb-3 mt-3" />
     <CAlert v-if="appStore.currentScenario.status.data?.runSuccess === false" color="danger">
@@ -29,7 +38,7 @@
       </p>
     </CAlert>
     <CAlert
-      v-if="!appStore.timeSeriesData && jobSlow && appStore.currentScenario.status.data?.runStatus"
+      v-if="!appStore.currentScenario.result.data && jobSlow && appStore.currentScenario.status.data?.runStatus"
       :color="jobReallySlow ? 'warning' : 'info'"
     >
       <p v-if="jobReallySlow">
@@ -47,10 +56,10 @@
     </CAlert>
     <CRow v-else-if="appStore.currentScenario.result.data" class="results-cards-container">
       <div class="col-12 col-xl-6">
-        <CostsCard />
+        <CostsPanel />
       </div>
       <div class="col-12 col-xl-6">
-        <TimeSeriesCard />
+        <TimeSeriesPanel />
       </div>
     </CRow>
   </div>
@@ -71,12 +80,16 @@ const showSpinner = computed(() => !appStore.currentScenario.result.data
 );
 
 const route = useRoute();
-const runIdFromRoute = route.params.runId as string;
-if (appStore.currentScenario.runId && runIdFromRoute !== appStore.currentScenario.runId) {
-  appStore.clearScenario(); // Required so that previous parameters aren't hanging around in the store.
-}
+const runId = route.params.runId as string;
+
+// Required so that previous parameters aren't hanging around in the store
+appStore.clearScenario(appStore.currentScenario);
+appStore.clearComparison();
 appStore.downloadError = undefined;
-appStore.currentScenario.runId = runIdFromRoute;
+
+// Fetch scenario from db so we can know its parameters now rather than wait for them in the result data
+appStore.currentScenario.runId = runId;
+await appStore.loadScenarioDetails(appStore.currentScenario);
 
 // Use useAsyncData to store the time once, during server-side rendering: avoids client render re-writing value.
 const { data: timeOfFirstStatusPoll } = await useAsyncData<number>("timeOfFirstStatusPoll", async () => {
@@ -85,15 +98,23 @@ const { data: timeOfFirstStatusPoll } = await useAsyncData<number>("timeOfFirstS
   });
 });
 
+const codeSnippet = ref<{ modalVisible: boolean } | null>(null);
+
+const handleShowRCode = () => {
+  if (codeSnippet.value) {
+    codeSnippet.value.modalVisible = true;
+  }
+};
+
 // Eagerly try to load the status and results, in case they are already available and can be used during server-side rendering.
-await appStore.loadScenarioStatus();
+await appStore.refreshScenarioStatus(appStore.currentScenario);
 if (appStore.currentScenario.status.data?.runSuccess) {
-  appStore.loadScenarioResult();
+  appStore.loadScenarioResult(appStore.currentScenario);
 }
 
 watch(() => appStore.currentScenario.status.data?.runSuccess, (runSuccess) => {
   if (runSuccess) {
-    appStore.loadScenarioResult();
+    appStore.loadScenarioResult(appStore.currentScenario);
   }
 });
 
@@ -110,7 +131,7 @@ const pollForStatusEveryNSeconds = (seconds: number) => {
     if (timeOfFirstStatusPoll.value) {
       secondsSinceFirstStatusPoll.value = ((new Date().getTime() - timeOfFirstStatusPoll.value) / 1000).toFixed(0);
     };
-    appStore.loadScenarioStatus();
+    appStore.refreshScenarioStatus(appStore.currentScenario);
   }, seconds * 1000);
 };
 
@@ -139,39 +160,21 @@ onUnmounted(() => {
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .results-cards-container {
   row-gap: 1rem;
 }
 
-#resultsPage {
-  .card {
-    background: rgba(255, 255, 255, 0.5);
+.heading-row .card {
+  display: flex;
+  flex-direction: row;
 
-    &.horizontal-card {
-      height: fit-content;
-
-      .card-header {
-        padding: 0;
-      }
-
-      .card-footer {
-        border-left: var(--cui-card-border-width) solid var(--cui-card-border-color); // copied from .card-header border-bottom
-        border-top: none;
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: var(--cui-card-inner-border-radius) var(--cui-card-inner-border-radius) 0 0;
-
-        padding-bottom: 0;
-        padding-left: 0;
-        padding-top: 0;
-      }
-
-      .row {
-        --cui-gutter-y: 0;
-        --cui-gutter-x: 0;
-      }
-    }
+  .card-header {
+    padding: 0;
+    border-width: 0;
+    border-bottom-width: 0;
+    border-radius: var(--cui-card-inner-border-radius);
+    border-right: 0;
   }
 }
 </style>

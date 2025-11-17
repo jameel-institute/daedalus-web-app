@@ -1,8 +1,13 @@
-import { costAsPercentOfGdp, humanReadableInteger, humanReadablePercentOfGdp } from "@/components/utils/formatters";
+import { commaSeparatedNumber, costAsPercentOfGdp, humanReadablePercentOfGdp } from "@/components/utils/formatters";
 
-describe("humanReadableInteger", () => {
+describe("commaSeparatedNumber", () => {
   it("should convert number strings into comma-separated numbers", () => {
-    expect(humanReadableInteger("12345")).toEqual("12,345");
+    expect(commaSeparatedNumber("12345")).toEqual("12,345");
+    expect(commaSeparatedNumber("12345.67")).toEqual("12,345.67");
+    expect(commaSeparatedNumber("12,345.67")).toEqual("12,345.67");
+    expect(commaSeparatedNumber("-12345")).toEqual("-12,345");
+    expect(commaSeparatedNumber("-12345.67")).toEqual("-12,345.67");
+    expect(commaSeparatedNumber("-12,345.67")).toEqual("-12,345.67");
   });
 });
 
@@ -23,7 +28,8 @@ describe("costAsPercentOfGdp", () => {
 
 describe("humanReadablePercentOfGdp", () => {
   it("should format number as percent of GDP", () => {
-    expect(humanReadablePercentOfGdp(10)).toEqual({ percent: "10.0", reference: "of 2018 national GDP" });
-    expect(humanReadablePercentOfGdp(20.5)).toEqual({ percent: "20.5", reference: "of 2018 national GDP" });
+    expect(humanReadablePercentOfGdp(10)).toEqual({ percent: "10.0%", reference: "of pre-pandemic GDP" });
+    expect(humanReadablePercentOfGdp(200.5)).toEqual({ percent: "201%", reference: "of pre-pandemic GDP" });
+    expect(humanReadablePercentOfGdp(12345.678)).toEqual({ percent: "12,346%", reference: "of pre-pandemic GDP" });
   });
 });

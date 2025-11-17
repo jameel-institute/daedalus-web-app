@@ -103,15 +103,15 @@ To tear down, you'll need to Ctrl+C from the `/docker/run-dev` script before the
 
 Our ORM is [Prisma](https://www.prisma.io/).
 
-To create migrations to the database, first update the Prisma schema at ./prisma/schema.prisma as required, then run the below command to generate the corresponding SQL migration and to apply it to the database. [You should commit both](https://www.prisma.io/docs/orm/prisma-migrate/workflows/team-development#source-control) the Prisma schema and the migration file to Git.
+To create migrations to the database, first update the Prisma schema at ./prisma/schema.prisma as required. Then, to generate the corresponding SQL migration and to apply it to the database, start up `scripts/run-dev-dependencies` and you will be prompted to enter a name for the new migration. [You should commit both](https://www.prisma.io/docs/orm/prisma-migrate/workflows/team-development#source-control) the Prisma schema and the migration file to Git.
+
+The below command is used to apply migrations that already exist in ./prisma/migrations but which have not been applied to the database.
 
 ```bash
 npm run db:dev:migrate
 ```
 
-The same command is also used to apply migrations that already exist in ./prisma/migrations but which have not been applied to the database.
-
-Prisma ORM can only query the database once you 'generate' the Prisma Client, which generates into `node_modules/.prisma/client` based on the file `prisma/schema.prisma`. This should happen when you install the JS dependencies and whenever you run a migration, but if the Prisma client gets out of sync or doesn't generate, you can manually generate it:
+Prisma ORM can only query the database once you 'generate' the Prisma Client, which generates into `node_modules/@prisma/client` based on the file `prisma/schema.prisma`. This should happen when you install the JS dependencies and whenever you run a migration, but if the Prisma client gets out of sync or doesn't generate, you can manually generate it:
 
 ```bash
 npx prisma generate
@@ -173,3 +173,7 @@ npm run preview
 ```
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+
+# Troubleshooting
+
+If you are struggling to work out what api routes Nuxt is generating based on your filenames and file structure, inspect this file: `.nuxt/types/nitro-routes.d.ts`.

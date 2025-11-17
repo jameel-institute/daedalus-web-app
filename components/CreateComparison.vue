@@ -1,5 +1,5 @@
 <template>
-  <div v-if="appStore.currentScenario.result.data" class="d-inline-block ms-auto">
+  <div v-if="appStore.currentScenario.result.data" class="d-inline-block">
     <div>
       <CButton
         color="primary"
@@ -27,24 +27,31 @@
         </CModalTitle>
       </CModalHeader>
       <CModalBody>
-        <p class="fs-5 form-label">
-          Which parameter would you like to explore?
-        </p>
+        <div class="d-flex">
+          <p class="fs-5 form-label">
+            Which parameter would you like to explore?
+          </p>
+          <AdvancedUsagePopover
+            class="ms-auto align-self-start"
+            :display="!!chosenParameterAxis"
+            @show-r-code="handleShowRCode"
+          />
+        </div>
         <div id="axisOptions" class="d-flex gap-2 flex-wrap">
           <CButton
-            v-for="para in appStore.metadata?.parameters.filter((p) => !chosenAxisId || chosenAxisId === p.id)"
-            :key="para.id"
+            v-for="param in appStore.metadata?.parameters.filter((p) => !chosenAxisId || chosenAxisId === p.id)"
+            :key="param.id"
             class="d-flex align-items-center axis-btn border"
-            :class="chosenAxisId === para.id ? 'bg-primary bg-opacity-10 border-primary-subtle' : ''"
+            :class="chosenAxisId === param.id ? 'bg-primary bg-opacity-10 border-primary-subtle' : ''"
             color="light"
-            @click="handleClickAxis(para)"
+            @click="handleClickAxis(param)"
           >
-            <ParameterIcon :parameter="para" />
-            <span class="ms-2">{{ para.label }}</span>
-            <CIcon v-if="chosenAxisId === para.id" class="text-muted ms-2 cilx" icon="cilX" />
+            <ParameterIcon :parameter="param" />
+            <span class="ms-2">{{ param.label }}</span>
+            <CIcon v-if="chosenAxisId === param.id" class="text-muted ms-2 cilx" icon="cilX" />
           </CButton>
         </div>
-        <div v-if="chosenParameterAxis && chosenParameterAxis.parameterType !== TypeOfParameter.Numeric" class="mt-3">
+        <div v-if="chosenParameterAxis && baselineOption" class="mt-3">
           <CFormLabel :id="FORM_LABEL_ID" :for="FORM_LABEL_ID" class="fs-5 form-label">
             Compare baseline scenario
             <CTooltip
@@ -52,8 +59,10 @@
               placement="top"
             >
               <template #toggler="{ togglerId, on }">
-                <!-- TODO: use humanReadableInteger formatter for numeric parameters -->
                 <span
+                  :class="{
+                    'bg-warning text-white': baselineIsOutOfRange,
+                  }"
                   class="multi-value d-inline-block outside-select"
                   :aria-describedby="togglerId"
                   v-on="on"
@@ -67,14 +76,14 @@
           <div class="d-flex gap-3">
             <ScenarioSelect
               v-model:selected="selectedScenarioOptions"
-              :show-feedback="showFormValidationFeedback"
+              :show-validation-feedback="showFormValidationFeedback"
               :parameter-axis="chosenParameterAxis"
               :label-id="FORM_LABEL_ID"
             />
             <CButton
               id="run-button"
               color="primary"
-              :size="appStore.largeScreen ? 'lg' : undefined"
+              size="lg"
               type="submit"
               :disabled="formSubmitting"
               class="ms-auto align-self-start"
@@ -85,6 +94,24 @@
               <CIcon v-else icon="cilArrowRight" />
             </CButton>
           </div>
+          <div v-if="paramsDependingOnAxis?.length" class="alert alert-warning mt-3">
+            <p>
+              Please note: if you proceed, the scenarios will vary not only by {{ chosenParameterAxis.label.toLowerCase() }}, but also by
+              {{ paramsDependingOnAxis?.length > 1
+                ? `any dependent parameters (${paramsDependingOnAxis.map(p => p.label.toLowerCase()).join(", ")})`
+                : paramsDependingOnAxis[0].label.toLowerCase() }},
+              which will be set to a default value depending on each scenario's {{ chosenParameterAxis.label.toLowerCase() }} parameter.
+            </p>
+            <span v-for="param in paramsDependingOnAxis" :key="param.id">
+              <p class="mb-0">These values will be used for {{ param.label.toLowerCase() }}:</p>
+              <ul>
+                <li>{{ baselineOption.label }}: {{ getDependentParamValueForScenarioOption(param, baselineOption.id) }}</li>
+                <li v-for="opt in selectedScenarioOptions" :key="opt">
+                  {{ predefinedOptions.find(o => o.id === opt)?.label }}: {{ getDependentParamValueForScenarioOption(param, opt) }}
+                </li>
+              </ul>
+            </span>
+          </div>
         </div>
       </CModalBody>
     </CModal>
@@ -93,9 +120,13 @@
 
 <script setup lang="ts">
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
-import { TypeOfParameter } from "~/types/parameterTypes";
 import type { Parameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
+import { numericValueIsOutOfRange } from "~/components/utils/validations";
+import { getRangeForDependentParam } from "~/components/utils/parameters";
+import { commaSeparatedNumber } from "~/components/utils/formatters";
+
+const emit = defineEmits(["showRCode"]);
 
 const appStore = useAppStore();
 const FORM_LABEL_ID = "scenarioOptions";
@@ -106,14 +137,33 @@ const formSubmitting = ref(false);
 // Visible feedback will be shown on submitting an invalid form, and cleared when options are changed
 const showFormValidationFeedback = ref(false);
 
-const chosenParameterAxis = computed(() => appStore.metadata?.parameters.find(p => p.id === chosenAxisId.value));
+const chosenParameterAxis = computed(() => appStore.parametersMetadataById[chosenAxisId.value]);
+const baselineParameters = computed(() => appStore.currentScenario.parameters);
 
-const { baselineOption, nonBaselineOptions } = useScenarioOptions(chosenParameterAxis);
-const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions);
+const paramsDependingOnAxis = computed(() => appStore.metadata?.parameters.filter((param) => {
+  return param.updateNumericFrom?.parameterId === chosenAxisId.value;
+}));
+
+const { baselineOption, predefinedOptions } = useScenarioOptions(chosenParameterAxis);
+const { invalid: scenarioSelectionInvalid } = useComparisonValidation(selectedScenarioOptions, chosenParameterAxis);
+
+const baselineIsOutOfRange = computed(() =>
+  numericValueIsOutOfRange(baselineOption.value?.id, chosenParameterAxis.value, appStore.currentScenario.parameters));
+
+const getDependentParamValueForScenarioOption = (parameter: Parameter, scenarioOption: string) => {
+  const scenarioParameters = { ...baselineParameters.value, [chosenAxisId.value]: scenarioOption };
+  const range = getRangeForDependentParam(parameter, scenarioParameters);
+  return commaSeparatedNumber(range?.default.toString());
+};
 
 const handleCloseModal = () => {
   modalVisible.value = false;
   chosenAxisId.value = "";
+};
+
+const handleShowRCode = () => {
+  handleCloseModal();
+  emit("showRCode");
 };
 
 const handleClickAxis = (axis: Parameter) => {
@@ -122,8 +172,8 @@ const handleClickAxis = (axis: Parameter) => {
   if (chosenAxisId.value === "") {
     chosenAxisId.value = axis.id;
     // Pre-populate the scenario options input with all options if there aren't more than max
-    selectedScenarioOptions.value = nonBaselineOptions.value.length <= MAX_SCENARIOS_COMPARED_TO_BASELINE
-      ? nonBaselineOptions.value.map(o => o.id)
+    selectedScenarioOptions.value = predefinedOptions.value.length <= MAX_SCENARIOS_COMPARED_TO_BASELINE
+      ? predefinedOptions.value.map(o => o.id)
       : []; // TODO: (jidea-230) pre-populate country parameter to nearby countries
   } else {
     chosenAxisId.value = "";
@@ -148,19 +198,13 @@ const submitForm = async () => {
   showFormValidationFeedback.value = false;
   formSubmitting.value = true;
 
-  // TODO: (jidea-262) Start scenario runs
-  // TODO: Check that the baseline option does in fact match the currentScenario
-  // TODO: When creating scenarios in a comparison, store the model version against each scenario,
-  // so that we can distinguish new and old results / serve the same results up when user returns to same url.
-  // TODO: When creating scenarios in a comparison, store the scenario runId in the database.
+  if (baselineParameters.value) {
+    await appStore.runComparison(chosenAxisId.value, baselineParameters.value, selectedScenarioOptions.value);
 
-  const baselineParameters = appStore.currentScenario.parameters;
-  if (chosenParameterAxis.value && baselineParameters) {
-    // Record comparison information in URL query parameters, to facilitate link sharing
     await navigateTo({ path: "/comparison", query: {
-      ...baselineParameters,
-      axis: chosenAxisId.value,
-      scenarios: selectedScenarioOptions.value.join(";"),
+      axis: appStore.currentComparison.axis,
+      baseline: appStore.currentComparison.baseline,
+      runIds: appStore.currentComparison.scenarios?.map(s => s.runId).join(";"),
     } });
   }
 };
@@ -171,22 +215,28 @@ const submitForm = async () => {
   max-width: 40rem;
 }
 
-.multi-value.outside-select {
-  margin: 0;
-  font-size: inherit;
-
-  // Below values copied from Vue 3 Select Component
+// Copied from v10.0.0 of the VueSelect component
+:deep(.multi-value) {
   appearance: none;
   display: flex;
   align-items: center;
   gap: var(--vs-multi-value-gap);
   padding: var(--vs-multi-value-padding);
+  margin: var(--vs-multi-value-margin);
   border: 0;
+  font-size: var(--vs-multi-value-font-size);
   font-weight: var(--vs-multi-value-font-weight);
   color: var(--vs-multi-value-text-color);
   line-height: var(--vs-multi-value-line-height);
   background: var(--vs-multi-value-bg);
   outline: none;
+  cursor: pointer;
+}
+
+.multi-value.outside-select {
+  margin: 0;
+  font-size: inherit;
+  --vs-multi-value-padding: 0.25rem 0.4rem;
 }
 
 .axis-btn {
@@ -205,5 +255,11 @@ const submitForm = async () => {
 #run-button {
   min-width: 9rem;
   align-self: flex-start;
+}
+
+.alert-warning {
+  p:last-child, ul:last-child {
+    margin-bottom: 0;
+  }
 }
 </style>

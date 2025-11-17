@@ -1,6 +1,6 @@
 <template>
   <span v-if="iconDetails" class="form-icon">
-    <CIconSvg v-if="iconDetails.custom" class="icon parameter-icon">
+    <CIconSvg v-if="iconDetails.custom" class="icon parameter-icon custom-parameter-icon">
       <img :src="customIconPath()">
     </CIconSvg>
     <CIcon v-else :icon="iconDetails.icon" class="parameter-icon text-muted" />
@@ -27,6 +27,8 @@ const iconDetails = computed((): { icon: string, custom: boolean } | undefined =
       return { icon: "pictogrammersMaterialBacteria", custom: true }; // License is detailed here: https://www.iconarchive.com/show/material-icons-by-pictogrammers/bacteria-outline-icon.html
     case "hospital_capacity":
       return { icon: "cilMedicalCross", custom: false };
+    case "behaviour":
+      return { icon: "social-distance-2-meters-mdi", custom: true };
     default:
       return undefined;
   }
@@ -55,5 +57,10 @@ const customIconPath = () => {
   .button-group-container .parameter-icon {
     margin-left: 1.5rem;
   }
+}
+
+.icon:not(.icon-c-s):not(.icon-custom-size).custom-parameter-icon {
+  width: 1rem;
+  height: unset; // Preserve svg viewbox aspect ratio by not setting height
 }
 </style>
