@@ -12,6 +12,7 @@
       <h1 class="fs-3 mb-0 pt-1 pe-5 me-auto text-nowrap flex-fill">
         Explore by {{ appStore.axisMetadata?.label.toLocaleLowerCase() }}
       </h1>
+      <CodeSnippet :scenarios="appStore.currentComparison.scenarios" />
       <DownloadExcel :comparison="true" />
       <ParameterInfoCard :scenario="appStore.baselineScenario">
         <template #header>

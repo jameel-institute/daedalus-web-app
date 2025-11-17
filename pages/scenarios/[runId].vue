@@ -6,7 +6,7 @@
       </h1>
       <CreateComparison @show-r-code="handleShowRCode" />
       <DownloadExcel :comparison="false" />
-      <CodeSnippet ref="codeSnippet" />
+      <CodeSnippet ref="codeSnippet" :scenarios="[appStore.currentScenario]" />
       <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
         <CIconSvg size="xxl">
           <img src="/icons/rotate-device.svg">
