@@ -430,6 +430,9 @@ describe("app store", () => {
       expect(store.currentScenario).toEqual({
         runId: undefined,
         parameters: undefined,
+        run: {
+          fetchError: undefined,
+        },
         result: {
           data: undefined,
           fetchError: undefined,

@@ -15,6 +15,9 @@ import { ExcelComparisonDownload } from "~/download/excelComparisonDownload";
 const emptyScenario = {
   runId: undefined,
   parameters: undefined,
+  run: {
+    fetchError: undefined,
+  },
   result: {
     data: undefined,
     fetchError: undefined,
@@ -175,6 +178,8 @@ export const useAppStore = defineStore("app", {
       const response = await $fetch<NewScenarioData>("/api/scenarios", {
         method: "POST",
         body: { parameters },
+      }).catch((error: FetchError) => {
+        scenario.run.fetchError = error;
       });
 
       if (response) {

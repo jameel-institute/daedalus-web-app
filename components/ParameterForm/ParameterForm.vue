@@ -8,7 +8,7 @@
       novalidate
       @submit.prevent="submitForm"
     >
-      <template v-if="submitError">
+      <template v-if="errorOnRunRequest">
         <CAlert color="danger">
           <CAlertHeading>
             <CIcon icon="cilWarning" class="flex-shrink-0 me-2" width="24" height="24" />
@@ -19,7 +19,7 @@
           </p>
           <hr>
           <p class="mb-0">
-            Error details: {{ submitError.data?.message ?? submitError.message }}
+            Error details: {{ errorOnRunRequest.data?.message ?? errorOnRunRequest.message }}
           </p>
         </CAlert>
       </template>
@@ -65,7 +65,7 @@
           @click="submitForm"
         >
           Run
-          <CSpinner v-if="formSubmitting && appStore.metadataFetchStatus !== 'error'" size="sm" class="ms-1" />
+          <CSpinner v-if="formSubmitting && !appStore.currentScenario.run.fetchError" size="sm" class="ms-1" />
           <CIcon v-else icon="cilArrowRight" />
         </CButton>
         <AdvancedUsagePopover
@@ -89,7 +89,6 @@ import { CIcon } from "@coreui/icons-vue";
 import { getRangeForDependentParam } from "~/components/utils/parameters";
 import { numericValueInvalid } from "~/components/utils/validations";
 import type { ParameterNumericInput } from "#components";
-import type { NuxtError } from "#app";
 
 const props = defineProps<{
   inModal: boolean
@@ -99,12 +98,12 @@ defineEmits(["showRCode"]);
 
 const appStore = useAppStore();
 
-const submitError = ref<NuxtError<{ message?: string }> | null>(null);
 const formSubmitting = ref(false);
 const showValidations = ref(false);
 const mounted = ref(false);
 const invalidFields = ref<string[]>([]);
 
+const errorOnRunRequest = computed(() => appStore.currentScenario.run.fetchError);
 const paramMetadata = computed(() => appStore.metadata?.parameters);
 
 const initialiseFormDataFromDefaults = () => {
@@ -140,7 +139,9 @@ const parameterDependencies = computed((): Record<string, string[]> => {
 });
 
 const runButtonDisabled = computed(() => {
-  if (!formData.value || formSubmitting.value || appStore.metadataFetchStatus === "error") {
+  if (appStore.currentScenario.run.fetchError) {
+    return false;
+  } else if (!formData.value || formSubmitting.value || appStore.metadataFetchStatus === "error") {
     return true;
   } else if (props.inModal && appStore.currentScenario.parameters) {
     const parametersHaveChanged = Object.keys(formData.value).some((key) => {
@@ -229,13 +230,7 @@ const submitForm = async () => {
   formSubmitting.value = true;
 
   appStore.currentScenario.parameters = { ...formData.value };
-  try {
-    await appStore.runScenario(appStore.currentScenario);
-  } catch (error) {
-    submitError.value = error as NuxtError<{ message?: string }>;
-    formSubmitting.value = false;
-    return;
-  }
+  await appStore.runScenario(appStore.currentScenario);
 
   if (appStore.currentScenario.runId) {
     await navigateTo(`/scenarios/${appStore.currentScenario.runId}`);

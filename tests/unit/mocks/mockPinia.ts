@@ -201,6 +201,9 @@ deepFreeze(mockResultData);
 export const emptyScenario = {
   runId: undefined,
   parameters: undefined,
+  run: {
+    fetchError: undefined,
+  },
   result: {
     data: undefined,
     fetchError: undefined,

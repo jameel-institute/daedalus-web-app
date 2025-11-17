@@ -85,16 +85,16 @@
               color="primary"
               size="lg"
               type="submit"
-              :disabled="formSubmitting"
+              :disabled="formSubmitting && scenarioRunResponseErrors.length === 0"
               class="ms-auto align-self-start"
               @click="submitForm"
             >
               Compare
-              <CSpinner v-if="formSubmitting" size="sm" class="ms-1" />
+              <CSpinner v-if="formSubmitting && scenarioRunResponseErrors.length === 0" size="sm" class="ms-1" />
               <CIcon v-else icon="cilArrowRight" />
             </CButton>
           </div>
-          <template v-if="submitError">
+          <template v-if="scenarioRunResponseErrors.length">
             <CAlert color="danger" class="mt-3">
               <CAlertHeading>
                 <CIcon icon="cilWarning" class="flex-shrink-0 me-2" width="24" height="24" />
@@ -104,8 +104,11 @@
                 There was an unexpected error when submitting the form. Please try again.
               </p>
               <hr>
-              <p class="mb-0">
-                Error details: {{ submitError.data?.message ?? submitError.message }}
+              <p
+                v-for="(errorMsg, index) in scenarioRunResponseErrors"
+                :key="index"
+              >
+                {{ errorMsg }}
               </p>
             </CAlert>
           </template>
@@ -140,20 +143,19 @@ import { MAX_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/compariso
 import { numericValueIsOutOfRange } from "~/components/utils/validations";
 import { getRangeForDependentParam } from "~/components/utils/parameters";
 import { commaSeparatedNumber } from "~/components/utils/formatters";
-import type { NuxtError } from "#app";
 
 const emit = defineEmits(["showRCode"]);
 
 const appStore = useAppStore();
 const FORM_LABEL_ID = "scenarioOptions";
 const selectedScenarioOptions = ref<string[]>([]);
-const submitError = ref<NuxtError<{ message?: string }> | null>(null);
 const modalVisible = ref(false);
 const chosenAxisId = ref("");
 const formSubmitting = ref(false);
 // Visible feedback will be shown on submitting an invalid form, and cleared when options are changed
 const showFormValidationFeedback = ref(false);
 
+const scenarioRunResponseErrors = computed(() => appStore.currentComparison.scenarios.map(s => s.run.fetchError).filter(e => !!e));
 const chosenParameterAxis = computed(() => appStore.parametersMetadataById[chosenAxisId.value]);
 const baselineParameters = computed(() => appStore.currentScenario.parameters);
 
@@ -216,19 +218,15 @@ const submitForm = async () => {
   formSubmitting.value = true;
 
   if (baselineParameters.value) {
-    try {
-      await appStore.runComparison(chosenAxisId.value, baselineParameters.value, selectedScenarioOptions.value);
-    } catch (error) {
-      submitError.value = error as NuxtError<{ message?: string }>;
-      formSubmitting.value = false;
-      return;
-    }
+    await appStore.runComparison(chosenAxisId.value, baselineParameters.value, selectedScenarioOptions.value);
 
-    await navigateTo({ path: "/comparison", query: {
-      axis: appStore.currentComparison.axis,
-      baseline: appStore.currentComparison.baseline,
-      runIds: appStore.currentComparison.scenarios?.map(s => s.runId).join(";"),
-    } });
+    if (appStore.everyScenarioHasARunId) {
+      await navigateTo({ path: "/comparison", query: {
+        axis: appStore.currentComparison.axis,
+        baseline: appStore.currentComparison.baseline,
+        runIds: appStore.currentComparison.scenarios?.map(s => s.runId).join(";"),
+      } });
+    }
   }
 };
 </script>

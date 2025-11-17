@@ -7,6 +7,9 @@ import type { CostBasis } from "./unitTypes";
 export interface Scenario {
   runId: string | undefined
   parameters: ParameterSet | undefined
+  run: {
+    fetchError: FetchError | undefined
+  }
   result: {
     data: ScenarioResultData | undefined
     fetchError: FetchError | undefined
