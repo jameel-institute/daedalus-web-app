@@ -513,6 +513,7 @@ describe("app store", () => {
       });
 
       const store = useAppStore();
+      store.preferences.costBasis = CostBasis.PercentGDP;
 
       await expect(async () => {
         await store.runComparison("vaccine", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["none", "low"]);
@@ -521,6 +522,8 @@ describe("app store", () => {
       await store.loadMetadata();
 
       await store.runComparison("vaccine", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["none", "low"]);
+
+      expect(store.preferences.costBasis).toBe(CostBasis.PercentGDP); // unaffected
 
       // It should not reset the 'hospital_capacity' parameter to default values unless necessitated by a change of country.
       expect(store.currentComparison).toEqual({
@@ -544,6 +547,10 @@ describe("app store", () => {
           },
         ],
       });
+
+      await store.runComparison("country", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["USA", "GBR"]);
+
+      expect(store.preferences.costBasis).toBe(CostBasis.USD);
     });
 
     it("can run a comparison, taking dependent parameters into account", async () => {

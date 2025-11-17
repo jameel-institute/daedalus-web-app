@@ -236,6 +236,13 @@ export const useAppStore = defineStore("app", {
 
       const newComparison = structuredClone(emptyComparison);
 
+      if (axis === "country") {
+        // When comparing different countries, having ‘GDP%’ as the main unit would be confusing, since it’s
+        // incommensurable between countries, and you might wonder if it refers to the baseline country’s GDP.
+        // So here in the case of comparing by country we should default to USD instead.
+        this.preferences.costBasis = CostBasis.USD;
+      }
+
       newComparison.axis = axis;
       newComparison.baseline = baselineParameters[axis];
       const allScenarioOptions = [newComparison.baseline, ...selectedScenarioOptions];
