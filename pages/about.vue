@@ -1,7 +1,53 @@
 <template>
   <CContainer>
     <h1>About</h1>
-    <h2>The DAEDALUS Explore dashboard</h2>
+    <div class="toc">
+      <ul>
+        <li>
+          <a href="#dashboard">The DAEDALUS Explore dashboard</a>
+          <ul>
+            <li><a href="#hypothetical-diseases">Hypothetical diseases</a></li>
+            <li><a href="#policy-responses">Policy responses</a></li>
+            <li><a href="#global-vaccine-investment">Global vaccine investment</a></li>
+            <li><a href="#change-in-public-behaviour">Change in public behaviour</a></li>
+            <li><a href="#hospital-surge-capacity">Hospital surge capacity</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#results">Results</a>
+          <ul>
+            <li><a href="#estimates-of-losses">Estimates of losses</a></li>
+            <li><a href="#time-series">Time series</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#intended-use">Intended use</a>
+        </li>
+        <li>
+          <a href="#contact-us">Contact us</a>
+        </li>
+        <li>
+          <a href="#contribution-acknowledgements">Contribution acknowledgements</a>
+        </li>
+        <li>
+          <a href="#funding-acknowledgements">Funding acknowledgements</a>
+        </li>
+        <li>
+          <a href="#disclaimer-and-licensing">Disclaimer and licensing</a>
+        </li>
+        <template v-if="appStore.versions">
+          <li>
+            <a href="#version">Version</a>
+          </li>
+        </template>
+        <li>
+          <a href="#references">References</a>
+        </li>
+      </ul>
+    </div>
+    <h2 id="dashboard">
+      The DAEDALUS Explore dashboard
+    </h2>
     <p>
       DAEDALUS Explore is an interactive dashboard tool that allows users to project the health, education and economic
       impacts of epidemic scenarios and their mitigation measures. DAEDALUS Explore allows users to simulate what would
@@ -20,7 +66,9 @@
       <a href="https://jameel-institute.github.io/daedalus/" target="_blank">Daedalus model website</a>.
       Please use the Daedalus R package for advanced use cases that are not yet supported by the dashboard.
     </p>
-    <h3>Hypothetical diseases</h3>
+    <h3 id="hypothetical-diseases">
+      Hypothetical diseases
+    </h3>
     <p>
       Users choose among {{ numberOfPandemics }} diseases, to set model parameters for transmissibility, delays and
       severity based on known characteristics of the historical pathogens (see <span class="table-ref">Table 1</span>).
@@ -81,7 +129,9 @@
       </tfoot>
     </table>
 
-    <h3>Policy responses</h3>
+    <h3 id="policy-responses">
+      Policy responses
+    </h3>
     <p>
       The user then chooses a policy response amongst four options: No closures, school closures, business closures,
       and elimination (see <span class="table-ref">Table 2</span>). These policy responses simulate non-pharmaceutical economic
@@ -129,7 +179,9 @@
       economic activity, respectively, are targeted for closures. In school closure scenarios, we assume that the lost
       present value of future earnings due to lost education is reduced due to remote education.
     </p>
-    <h3>Global vaccine investment</h3>
+    <h3 id="global-vaccine-investment">
+      Global vaccine investment
+    </h3>
     <p>
       Users can explore the impact of pandemic preparedness on estimated losses, specifically global investments into
       vaccines and vaccine acceptance that are funded by the international community in advance of a pandemic’s arrival.
@@ -174,7 +226,9 @@
         </tr>
       </tbody>
     </table>
-    <h3>Change in public behaviour</h3>
+    <h3 id="change-in-public-behaviour">
+      Change in public behaviour
+    </h3>
     <p>
       It is likely that many individuals change their behaviour and adopt precautions as cases increase and they
       perceive a high risk of infection. The user can allow for such effects and specify behaviour change ranging
@@ -182,15 +236,21 @@
       infection, resulting in high adoption of behaviour that protects against infection. Note that behaviour change
       reduces transmissions but has not direct impact on economic output.
     </p>
-    <h3>Hospital surge capacity</h3>
+    <h3 id="hospital-surge-capacity">
+      Hospital surge capacity
+    </h3>
     <p>
       The number of hospital beds that are available nationally for the treatment of epidemic patients is prepopulated
       with the actual value from the chosen country. Note that available beds are lower than total beds, which allows
       for the treatment of patients with other urgent conditions. Users can adjust bed capacity up or down within
       reasonable limits.
     </p>
-    <h2>Results</h2>
-    <h3>Estimates of losses</h3>
+    <h2 id="results">
+      Results
+    </h2>
+    <h3 id="estimates-of-losses">
+      Estimates of losses
+    </h3>
     <p>
       The dashboard provides estimates of losses after 600 days in the chosen country. Estimated losses are:
     </p>
@@ -211,7 +271,9 @@
         life-years lost</a> for further details). Losses are provided in both % of pre-pandemic GDP and in US
       dollars. We also output life-years lost and number of deaths in natural units.
     </p>
-    <h3>Time series</h3>
+    <h3 id="time-series">
+      Time series
+    </h3>
     <p>
       Time series display prevalence, hospital demand or occupancy, cumulative deaths and numbers vaccinated. Toggles
       allow the user to switch the four outcomes to numbers ‘New per day’, i.e. to infection incidence, hospitalizations,
@@ -227,7 +289,9 @@
       functionality, R users can run the model directly through the
       <a target="_blank" href="https://jameel-institute.github.io/daedalus/">Daedalus R package</a>.
     </p>
-    <h2>Intended use</h2>
+    <h2 id="intended-use">
+      Intended use
+    </h2>
     <p>
       The DAEDALUS Explore dashboard tool and the Daedalus model are projection and decision-support tools and not
       forecasting tools. The Daedalus model projects outcomes for diseases similar to pathogens that have caused
@@ -239,12 +303,16 @@
       options for customising pathogen, country, and response parameters, allowing for modelling real-time policy
       responses and their projected outcomes.
     </p>
-    <h2>Contact us</h2>
+    <h2 id="contact-us">
+      Contact us
+    </h2>
     <p>
       If you have any queries regarding DAEDALUS Explore, please contact:
       <a href="mailto:daedalus.explore@imperial.ac.uk" class="email">daedalus.explore@imperial.ac.uk</a>
     </p>
-    <h2>Contribution Acknowledgements</h2>
+    <h2 id="contribution-acknowledgements">
+      Contribution Acknowledgements
+    </h2>
     <p>
       The DAEDALUS Explore dashboard and the underlying Daedalus model were
       created by ‘The Jameel Institute – Kenneth C Griffin Initiative for the
@@ -292,7 +360,9 @@
       <li>Imperial Business School, Imperial, London, United Kingdom</li>
       <li>Umeå School of Business, Economics and Statistics, Umeå Universitet, Umeå, Sweden</li>
     </ol>
-    <h2>Funding Acknowledgements</h2>
+    <h2 id="funding-acknowledgements">
+      Funding Acknowledgements
+    </h2>
     <p>
       The EPPI Initiative gratefully acknowledges research funding from
       Community Jameel and Kenneth C Griffin which enabled the development of
@@ -302,7 +372,9 @@
       <img class="p-2" title="Jameel community logo" style="width: 200px" src="~/assets/img/jameel-community-logo.svg" alt="Jameel community logo">
       <img class="p-2" title="Kenneth C Griffin logo" style="width: 200px" src="~/assets/img/GriffinCatalyst_Logo_FullColor.png" alt="Kenneth C Griffin logo">
     </div>
-    <h2>Disclaimer and Licensing</h2>
+    <h2 id="disclaimer-and-licensing">
+      Disclaimer and Licensing
+    </h2>
     <h3>Model code license</h3>
     <p>
       The Daedalus model code is provided “as is”, without warranty of any kind,
@@ -385,14 +457,18 @@
       updates will be at the discretion of the DAEDALUS Explore creators.
     </p>
     <template v-if="appStore.versions">
-      <h2>Version</h2>
+      <h2 id="version">
+        Version
+      </h2>
       <ul>
         <li>Model version: {{ appStore.versions.daedalusModel }}</li>
         <li>R API version: {{ appStore.versions.daedalusApi }}</li>
         <li>Web app version: {{ appStore.versions.daedalusWebApp }}</li>
       </ul>
     </template>
-    <h2>References</h2>
+    <h2 id="references">
+      References
+    </h2>
     <ol>
       <li>
         Doohan, Patrick, Rob Johnson, Alessandra Løchen, Christian Morgenstern, David Haw, Alice Sabino,
@@ -427,6 +503,15 @@ const numberOfCountries = appStore.parametersMetadataById.country?.options?.leng
 </script>
 
 <style scoped>
+.toc ul{
+  list-style-type: none;
+  font-size: large;
+}
+
+h2, h3 {
+  scroll-margin-top: 4.5rem;
+}
+
 thead {
   border-bottom-width: 2px;
 }
