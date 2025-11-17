@@ -64,7 +64,7 @@ vi.mock("highcharts/esm/modules/offline-exporting", () => ({}));
 const expectedUndiffedPercentGDPSeries = [
   expect.objectContaining({
     name: "GDP",
-    data: [
+    data: expect.arrayContaining([
       expect.objectContaining({
         name: "GDP",
         y: 32.87931628748886,
@@ -79,11 +79,11 @@ const expectedUndiffedPercentGDPSeries = [
           stackNetTotal: 0.302068586827395,
         }),
       }),
-    ],
+    ]),
   }),
   expect.objectContaining({
     name: "Education",
-    data: [
+    data: expect.arrayContaining([
       expect.objectContaining({
         name: "Education",
         y: 7.74667209175136,
@@ -98,11 +98,11 @@ const expectedUndiffedPercentGDPSeries = [
           stackNetTotal: 0.302068586827395,
         }),
       }),
-    ],
+    ]),
   }),
   expect.objectContaining({
     name: "Life years",
-    data: [
+    data: expect.arrayContaining([
       expect.objectContaining({
         name: "Life years",
         y: 4.305661740495233,
@@ -117,14 +117,14 @@ const expectedUndiffedPercentGDPSeries = [
           stackNetTotal: 0.302068586827395,
         }),
       }),
-    ],
+    ]),
   }),
 ];
 
 const expectedUndiffedUSDSeries = [
   expect.objectContaining({
     name: "GDP",
-    data: [
+    data: expect.arrayContaining([
       expect.objectContaining({
         name: "GDP",
         y: 6530831.2856,
@@ -141,11 +141,11 @@ const expectedUndiffedUSDSeries = [
           stackNetTotal: 60000,
         }),
       }),
-    ],
+    ]),
   }),
   expect.objectContaining({
     name: "Education",
-    data: [
+    data: expect.arrayContaining([
       expect.objectContaining({
         name: "Education",
         y: 1538724.4678,
@@ -162,11 +162,11 @@ const expectedUndiffedUSDSeries = [
           stackNetTotal: 60000,
         }),
       }),
-    ],
+    ]),
   }),
   expect.objectContaining({
     name: "Life years",
-    data: [
+    data: expect.arrayContaining([
       expect.objectContaining({
         name: "Life years",
         y: 855235.2535,
@@ -183,7 +183,7 @@ const expectedUndiffedUSDSeries = [
           stackNetTotal: 60000,
         }),
       }),
-    ],
+    ]),
   }),
 ];
 

@@ -38,7 +38,7 @@ export default (
         to: Number(end.toFixed(0)),
         color: addAlphaToRgb(color, plotBandsRgbAlpha),
         label: {
-          text: hoveredChartExistsAndShowsInterventions ? `Intervention days ${start.toFixed(0)}–${end.toFixed(0)}` : "",
+          text: hoveredChartExistsAndShowsInterventions ? `Closures days ${start.toFixed(0)}–${end.toFixed(0)}` : "",
           align: "center",
           inside: false,
           verticalAlign: "top",

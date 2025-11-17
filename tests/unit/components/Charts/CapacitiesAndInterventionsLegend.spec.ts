@@ -28,7 +28,7 @@ describe("time series", () => {
 
     const legendItems = component.findAll(".legend-item");
     const plotBandsLegendItem = legendItems[0];
-    expect(plotBandsLegendItem.text()).toContain("Pandemic response");
+    expect(plotBandsLegendItem.text()).toContain("Closures");
     expect(plotBandsLegendItem.element.outerHTML).toContain("background: rgba(51, 187, 238, 0.3)");
 
     const plotLinesLegendItem = legendItems[1];
@@ -66,7 +66,7 @@ describe("time series", () => {
 
     const legendItems = component.findAll(".legend-item");
     const plotBandsLegendItem = legendItems[0];
-    expect(plotBandsLegendItem.text()).toContain("Pandemic response");
+    expect(plotBandsLegendItem.text()).toContain("Closures");
     expect(plotBandsLegendItem.element.outerHTML).toContain("background: rgba(238, 119, 51, 0.3)");
 
     const plotLinesLegendItem = legendItems[1];
@@ -89,7 +89,7 @@ describe("time series", () => {
     });
 
     const plotBandsLegendItem = component.find(".legend-item");
-    expect(plotBandsLegendItem.text()).toContain("Pandemic response");
+    expect(plotBandsLegendItem.text()).toContain("Closures");
 
     expect(component.findAll(".legend-item")).toHaveLength(1);
   });
