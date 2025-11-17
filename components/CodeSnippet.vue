@@ -84,6 +84,9 @@ const everyScenarioHasParameters = computed(() => props.scenarios.every(scenario
 // (2) the risk of the code snippet generation being out of date with respect to the current model interface.
 
 // Values copied from https://github.com/jameel-institute/daedalus.api/blob/main/R/behaviour.R
+// Note that the mapping from the options text to the optimism parameter
+// is reversed: for an option of 'low', optimism is high. This allows
+// the parameter label to present as 'change in public behaviour'.
 const OPTIMISM = Object.freeze({
   low: 0.75,
   medium: 0.5,
@@ -112,12 +115,12 @@ const scenarioTag = (scenario: Scenario) => {
   }
 };
 
-const countryObj = (params: ParameterSet, scenarioTag: string) => {
+const countryObjRCode = (params: ParameterSet, scenarioTag: string) => {
   return `${scenarioTag}_country_obj <- daedalus::daedalus_country("${params.country}")\n`
     + `${scenarioTag}_country_obj$hospital_capacity <- ${params.hospital_capacity}\n\n`;
 };
 
-const behaviourObj = (scenario: Scenario, indentation: string) => {
+const behaviourObjRCode = (scenario: Scenario, indentation: string) => {
   if (scenario.parameters?.behaviour === "none") {
     return `NULL`;
   }
@@ -154,12 +157,12 @@ const codeSnippet = computed(() => {
       `  "${params.pathogen}",`,
       `  response_strategy = "${params.response}",`,
       `  vaccine_investment = "${params.vaccine}",`,
-      `  ${useSharedBehaviourObj ? `behaviour_obj` : `behaviour = ${behaviourObj(s, "  ")}`}`,
+      `  ${useSharedBehaviourObj ? `behaviour_obj` : `behaviour = ${behaviourObjRCode(s, "  ")}`}`,
       `)`,
     ].join("\n");
 
     return [
-      useSharedCountryObj ? null : countryObj(params, sTag),
+      useSharedCountryObj ? null : countryObjRCode(params, sTag),
       modelCall,
     ].join("");
   }).join("\n\n");
@@ -168,7 +171,7 @@ const codeSnippet = computed(() => {
     + `country_obj$hospital_capacity <- ${props.scenarios[0].parameters?.hospital_capacity}\n\n`;
   return [
     useSharedCountryObj ? sharedCountryObj : null,
-    useSharedBehaviourObj ? `behaviour_obj <- ${behaviourObj(props.scenarios[0], "")}\n\n` : null,
+    useSharedBehaviourObj ? `behaviour_obj <- ${behaviourObjRCode(props.scenarios[0], "")}\n\n` : null,
     scenariosCode,
   ].join("");
 });
