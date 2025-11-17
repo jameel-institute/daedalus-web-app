@@ -500,13 +500,13 @@ describe("create comparison button and modal", () => {
       method: "POST",
       async handler() {
         runRequestCount++;
-        if (runRequestCount < 3) {
-          return { runId: `runId${runRequestCount}` };
+        if (runRequestCount === 3) {
+          throw createError({
+            statusCode: 418,
+            statusMessage: "I'm a teapot",
+          });
         }
-        throw createError({
-          statusCode: 418,
-          statusMessage: "I'm a teapot",
-        });
+        return { runId: `runId${runRequestCount}` };
       },
     });
 

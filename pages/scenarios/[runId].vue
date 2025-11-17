@@ -35,7 +35,8 @@
           Error
         </CAlertHeading>
         <p class="mt-3">
-          There was an unexpected error. Please try again later.
+          There was an unexpected error.
+          {{ appStore.currentScenario.status.data?.runSuccess !== false ? "Please refresh the page." : "Please try again later." }}
         </p>
         <hr>
         <template v-if="appStore.currentScenario.status.data?.runSuccess === false">

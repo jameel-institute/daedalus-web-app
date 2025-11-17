@@ -95,13 +95,13 @@
             </CButton>
           </div>
           <template v-if="submitError">
-            <CAlert color="danger">
+            <CAlert color="danger" class="mt-3">
               <CAlertHeading>
                 <CIcon icon="cilWarning" class="flex-shrink-0 me-2" width="24" height="24" />
                 Error
               </CAlertHeading>
               <p class="mt-3">
-                There was an unexpected error when submitting the form. Please refresh the page and try again later.
+                There was an unexpected error when submitting the form. Please try again.
               </p>
               <hr>
               <p class="mb-0">

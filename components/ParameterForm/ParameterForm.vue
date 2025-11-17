@@ -15,7 +15,7 @@
             Error
           </CAlertHeading>
           <p class="mt-3">
-            There was an unexpected error when submitting the form. Please refresh the page and try again later.
+            There was an unexpected error when submitting the form. Please try again.
           </p>
           <hr>
           <p class="mb-0">

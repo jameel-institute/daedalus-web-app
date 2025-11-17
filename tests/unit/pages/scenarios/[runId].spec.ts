@@ -178,6 +178,7 @@ describe("scenario result page", () => {
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
     expect(component.text()).toContain("There was an unexpected error");
+    expect(component.text()).toContain("refresh the page");
     expect(component.text()).toContain("418");
     expect(component.text()).toContain("I'm a teapot");
     expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
@@ -205,6 +206,7 @@ describe("scenario result page", () => {
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
     expect(component.text()).toContain("There was an unexpected error");
+    expect(component.text()).toContain("refresh the page");
     expect(component.text()).toContain("418");
     expect(component.text()).toContain("I'm a teapot");
     expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
@@ -242,6 +244,7 @@ describe("scenario result page", () => {
     await flushPromises();
 
     expect(component.text()).toContain("There was an unexpected error");
+    expect(component.text()).toContain("refresh the page");
     expect(component.text()).toContain("418");
     expect(component.text()).toContain("I'm a teapot");
     expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
@@ -279,6 +282,7 @@ describe("scenario result page", () => {
 
     await waitFor(() => {
       expect(component.text()).toContain("There was an unexpected error");
+      expect(component.text()).toContain("refresh the page");
       expect(component.text()).toContain("418");
       expect(component.text()).toContain("I'm a teapot");
       expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
@@ -302,6 +306,7 @@ describe("scenario result page", () => {
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
     expect(component.text()).toContain("There was an unexpected error");
+    expect(component.text()).toContain("try again later");
     expect(component.text()).toContain("No biscuits available.");
     expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
   });
