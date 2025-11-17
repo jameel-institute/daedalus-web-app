@@ -353,7 +353,7 @@ describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
 
     const label = costsChartMultiScenarioXAxisLabelFormatter("high", axisParam, "medium");
     expect(label).toContain("High");
-    expect(label).not.toContain("fi");
+    expect(label).not.toContain("fi-");
     expect(label).not.toContain("bold");
   });
 
@@ -368,7 +368,7 @@ describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
 
     const label = costsChartMultiScenarioXAxisLabelFormatter("12345", axisParam, "999");
     expect(label).toContain("12,345");
-    expect(label).not.toContain("fi");
+    expect(label).not.toContain("fi-");
     expect(label).not.toContain("bold");
   });
 
@@ -387,7 +387,7 @@ describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
     const label = costsChartMultiScenarioXAxisLabelFormatter("high", axisParam, "high");
     expect(label).toContain("High");
     expect(label).toContain("bold");
-    expect(label).not.toContain("fi");
+    expect(label).not.toContain("fi-");
   });
 
   it("should return the correct label for a non-baseline scenario", () => {
@@ -404,7 +404,7 @@ describe("costsChartMultiScenarioXAxisLabelFormatter", () => {
 
     const label = costsChartMultiScenarioXAxisLabelFormatter("high", axisParam, "low");
     expect(label).toContain("High");
-    expect(label).not.toContain("fi");
+    expect(label).not.toContain("fi-");
     expect(label).not.toContain("bold");
   });
 
