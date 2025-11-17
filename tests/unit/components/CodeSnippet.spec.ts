@@ -323,12 +323,6 @@ describe("code snippet", () => {
     expect(component.findComponent(CModal).props("visible")).toBe(true);
     expect(component.findComponent(CModal).text()).toContain("the current parameters");
     expect(component.find("a").attributes("href")).toBe("https://jameel-institute.github.io/daedalus/");
-
-    console.error("Actual");
-    console.error(component.find("pre").text());
-    console.error("Expected");
-    console.error(expectedSnippetForSingleScenarioWithNonNullBehaviour);
-
     expect(component.find("pre").text()).toBe(expectedSnippetForSingleScenarioWithNonNullBehaviour);
   });
 
