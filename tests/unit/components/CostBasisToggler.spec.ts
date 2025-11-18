@@ -55,6 +55,7 @@ describe("cost basis toggler", () => {
 
   it("should change the cost basis when the radio buttons are clicked", async () => {
     const store = useAppStore(pinia);
+    store.preferences.costBasis = CostBasis.USD;
 
     const component = await mountSuspended(CostBasisToggler, {
       global: { stubs, plugins: [pinia] },

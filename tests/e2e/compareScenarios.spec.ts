@@ -2,7 +2,7 @@ import { expect, type Locator, type Page, test } from "@playwright/test";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
 import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
-import { costTolerance, decimalPercentMatcher, decimalPercentMatcherAllowNegatives, decimalUSDMatcher, moneyTableRowLabels, parameterLabels, runIdMatcher, scenarioPathMatcher } from "./helpers/constants";
+import { costTolerance, decimalPercentMatcher, decimalUSDMatcher, decimalUSDMatcherAllowNegatives, parameterLabels, runIdMatcher, scenarioPathMatcher, tableRowLabels } from "./helpers/constants";
 import checkValueIsInRange from "./helpers/checkValueIsInRange";
 import checkBarChartDataIsDifferent from "./helpers/checkBarChartDataIsDifferent";
 import { checkMultiScenarioTimeSeriesDataPoints } from "./helpers/checkTimeSeriesDataPoints";
@@ -71,12 +71,36 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
   // Results
   await expect(page.locator("#compareCostsChartContainer text.highcharts-credits").first()).toBeVisible();
 
-  await expect(page.getByLabel("as % of pre-pandemic GDP")).not.toBeChecked();
-  await expect(page.getByLabel("in USD")).toBeChecked();
+  await expect(page.getByLabel("as % of pre-pandemic GDP")).toBeChecked();
+  await expect(page.getByLabel("in USD")).not.toBeChecked();
 
+  const costsChartDataGdpStr = await page.locator("#compareCostsChartContainer").getAttribute("data-summary");
+  const costsChartDataGdp = JSON.parse(costsChartDataGdpStr!);
+
+  const expandCostsTableButton = page.getByTestId("toggle-costs-table");
+  await expandCostsTableButton.click();
+  const tableRows = page.locator("#costs-table-body tr");
+
+  tableRowLabels.forEach(async (label, i) => {
+    await expect(tableRows.nth(i)).toHaveText(new RegExp(`${label}`
+      + `\\s*${decimalPercentMatcher}`
+      + `\\s*${decimalPercentMatcher}`
+      + `\\s*${decimalPercentMatcher}`),
+    );
+  });
+
+  await expect(tableRows.nth(tableRowLabels.length + 1)).toHaveText(/Life years lost\s*\d{1,4}\.\d(TBMK)?/);
+  await expect(tableRows.nth(tableRowLabels.length + 7)).toHaveText(/Deaths\s*\d{1,4}\.\d(TBMK)?/);
+
+  // Check that after toggling the cost basis we see different data.
+  await page.getByLabel("USD").check();
   const costsChartDataUsdStr = await page.locator("#compareCostsChartContainer").getAttribute("data-summary");
   const costsChartDataUsd = JSON.parse(costsChartDataUsdStr!);
-
+  expect(costsChartDataUsd).toHaveLength(3);
+  checkBarChartDataIsDifferent(costsChartDataGdp, costsChartDataUsd);
+  expect(await tableRows.nth(0).textContent()).toMatch(
+    new RegExp(`Total losses \\(USD\\).*${decimalUSDMatcher}\\s*${decimalUSDMatcher}\\s*${decimalUSDMatcher}`),
+  );
   // There should be 3 columns in the chart (vertical, one for each scenario), and 3 series (horizontal, one for each top-level cost).
   // Each series will have 3 data points, one for each column.
   expect(costsChartDataUsd).toHaveLength(3);
@@ -110,38 +134,13 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
   checkValueIsInRange(lifeYearsSeries.data[1].custom.costAsGdpPercent, 27, costTolerance);
   checkValueIsInRange(lifeYearsSeries.data[2].custom.costAsGdpPercent, 19, costTolerance);
 
-  const expandCostsTableButton = page.getByTestId("toggle-costs-table");
-  await expandCostsTableButton.click();
-  const tableRows = page.locator("#costs-table-body tr");
-
-  moneyTableRowLabels.forEach(async (label, i) => {
-    await expect(tableRows.nth(i)).toHaveText(new RegExp(`${label}`
-      + `\\s*${decimalUSDMatcher}`
-      + `\\s*${decimalUSDMatcher}`
-      + `\\s*${decimalUSDMatcher}`),
-    );
-  });
-
-  await expect(tableRows.nth(moneyTableRowLabels.length + 1)).toHaveText(/Life years lost\s*\d{1,4}\.\d(TBMK)?/);
-  await expect(tableRows.nth(moneyTableRowLabels.length + 7)).toHaveText(/Deaths\s*\d{1,4}\.\d(TBMK)?/);
-
-  // Check that after toggling the cost basis we see different data.
-  await page.getByLabel("as % of pre-pandemic GDP").check();
-  const costsChartDataGdpStr = await page.locator("#compareCostsChartContainer").getAttribute("data-summary");
-  const costsChartDataGdp = JSON.parse(costsChartDataGdpStr!);
-  expect(costsChartDataGdp).toHaveLength(3);
-  checkBarChartDataIsDifferent(costsChartDataUsd, costsChartDataGdp);
-  expect(await tableRows.nth(0).textContent()).toMatch(
-    new RegExp(`Total losses as % of GDP.*${decimalPercentMatcher}\\s*${decimalPercentMatcher}\\s*${decimalPercentMatcher}`),
-  );
-
   // Check that after switching on the diffing mode, we see different data.
   await page.getByLabel("Display as difference from baseline").check();
   const costsChartDataDiffStr = await page.locator("#compareCostsChartContainer").getAttribute("data-summary");
   const costsChartDataDiff = JSON.parse(costsChartDataDiffStr!);
-  checkBarChartDataIsDifferent(costsChartDataGdp, costsChartDataDiff);
+  checkBarChartDataIsDifferent(costsChartDataUsd, costsChartDataDiff);
   expect(await tableRows.nth(0).textContent()).toMatch(
-    new RegExp(`Net losses relative to baseline as % of GDP.*${decimalPercentMatcherAllowNegatives}\\s*${decimalPercentMatcherAllowNegatives}`),
+    new RegExp(`Net losses relative to baseline \\(USD\\).*${decimalUSDMatcherAllowNegatives}\\s*${decimalUSDMatcherAllowNegatives}`),
   );
 
   await page.getByRole("tab", { name: "Time series" }).click();
