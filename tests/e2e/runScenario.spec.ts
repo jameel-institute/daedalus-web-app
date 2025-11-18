@@ -4,7 +4,7 @@ import selectParameterOption from "~/tests/e2e/helpers/selectParameterOption";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
 import { checkTimeSeriesDataPoints } from "./helpers/checkTimeSeriesDataPoints";
-import { costTolerance, decimalPercentMatcher, decimalUSDMatcher, moneyTableRowLabels, parameterLabels, scenarioPathMatcher } from "./helpers/constants";
+import { costTolerance, decimalPercentMatcher, decimalUSDMatcher, parameterLabels, scenarioPathMatcher, tableRowLabels } from "./helpers/constants";
 import checkBarChartDataIsDifferent from "./helpers/checkBarChartDataIsDifferent";
 import checkValueIsInRange from "./helpers/checkValueIsInRange";
 
@@ -118,15 +118,13 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
 
   await expect(page.locator("#costsChartContainer text.highcharts-credits").first()).toBeVisible();
 
-  expect(page.getByLabel("as % of pre-pandemic GDP")).not.toBeChecked();
-  expect(page.getByLabel("in USD")).toBeChecked();
+  await expect(page.getByLabel("in USD")).not.toBeChecked();
+  await expect(page.getByLabel("as % of pre-pandemic GDP")).toBeChecked();
+
+  await page.getByLabel("in USD").check();
 
   const costsChartDataUsdStr = await page.locator("#costsChartContainer").getAttribute("data-summary");
   const costsChartDataUsd = JSON.parse(costsChartDataUsdStr!);
-
-  await expect(page.getByLabel("in USD")).not.toBeChecked();
-  await expect(page.getByLabel("as % of 2018 GDP")).toBeChecked();
-  await page.getByLabel("in USD").check();
 
   // Though there are 3 columns (vertical), there should be 4 series (horizontal).
   // Each series will have 3 data points, one for each column.
@@ -163,12 +161,12 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expandCostsTableButton.click();
 
   const tableRows = page.locator("#costs-table-body tr");
-  moneyTableRowLabels.forEach(async (label, i) => {
+  tableRowLabels.forEach(async (label, i) => {
     await expect(tableRows.nth(i)).toHaveText(new RegExp(`${label}\\s*${decimalUSDMatcher}`));
   });
 
-  await expect(tableRows.nth(moneyTableRowLabels.length + 1)).toHaveText(/Life years lost\s*\d{1,4}\.\d(TBMK)?/);
-  await expect(tableRows.nth(moneyTableRowLabels.length + 7)).toHaveText(/Deaths\s*\d{1,4}\.\d(TBMK)?/);
+  await expect(tableRows.nth(tableRowLabels.length + 1)).toHaveText(/Life years lost\s*\d{1,4}\.\d(TBMK)?/);
+  await expect(tableRows.nth(tableRowLabels.length + 7)).toHaveText(/Deaths\s*\d{1,4}\.\d(TBMK)?/);
 
   // Check that after toggling the cost basis we see different data.
   await page.getByLabel("as % of pre-pandemic GDP").check();
@@ -176,7 +174,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   const costsChartDataGdp = JSON.parse(costsChartDataGdpStr!);
   expect(costsChartDataGdp).toHaveLength(4);
   checkBarChartDataIsDifferent(costsChartDataUsd, costsChartDataGdp);
-  moneyTableRowLabels.forEach(async (label, i) => {
+  tableRowLabels.forEach(async (label, i) => {
     await expect(tableRows.nth(i)).toHaveText(new RegExp(`${label}\\s*${decimalPercentMatcher}`));
   });
 
@@ -247,8 +245,8 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   checkBarChartDataIsDifferent(costsChartDataUsd, costsChart2Data);
   checkBarChartDataIsDifferent(costsChartDataGdp, costsChart2Data);
 
-  // Test that the second analysis retains the user's preference for the "as % of GDP" cost basis.
-  await expect(page.getByLabel("as % of pre-pandemic GDP")).toBeChecked();
+  // Test that the second analysis retains the user's preference for the "USD" cost basis.
+  await expect(page.getByLabel("in USD")).toBeChecked();
 
   // Test that the user can navigate to previously-run analyses, including when the page is initially rendered server-side.
   await page.goto(urlOfFirstAnalysis);
