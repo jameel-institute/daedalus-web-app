@@ -64,14 +64,7 @@ vi.mock("highcharts/esm/modules/offline-exporting", () => ({}));
 const expectedUndiffedPercentGDPSeries = [
   expect.objectContaining({
     name: "GDP",
-    data: expect.arrayContaining([
-      expect.objectContaining({
-        name: "GDP",
-        y: 32.87931628748886,
-        custom: expect.objectContaining({
-          stackNetTotal: 44.93165011973545,
-        }),
-      }),
+    data: [
       expect.objectContaining({
         name: "GDP",
         y: 0.050344764471232505,
@@ -79,18 +72,18 @@ const expectedUndiffedPercentGDPSeries = [
           stackNetTotal: 0.302068586827395,
         }),
       }),
-    ]),
-  }),
-  expect.objectContaining({
-    name: "Education",
-    data: expect.arrayContaining([
       expect.objectContaining({
-        name: "Education",
-        y: 7.74667209175136,
+        name: "GDP",
+        y: 32.87931628748886,
         custom: expect.objectContaining({
           stackNetTotal: 44.93165011973545,
         }),
       }),
+    ],
+  }),
+  expect.objectContaining({
+    name: "Education",
+    data: [
       expect.objectContaining({
         name: "Education",
         y: 0.10068952894246501,
@@ -98,18 +91,18 @@ const expectedUndiffedPercentGDPSeries = [
           stackNetTotal: 0.302068586827395,
         }),
       }),
-    ]),
-  }),
-  expect.objectContaining({
-    name: "Life years",
-    data: expect.arrayContaining([
       expect.objectContaining({
-        name: "Life years",
-        y: 4.305661740495233,
+        name: "Education",
+        y: 7.74667209175136,
         custom: expect.objectContaining({
           stackNetTotal: 44.93165011973545,
         }),
       }),
+    ],
+  }),
+  expect.objectContaining({
+    name: "Life years",
+    data: [
       expect.objectContaining({
         name: "Life years",
         y: expect.closeTo(0.151, 0.001),
@@ -117,22 +110,21 @@ const expectedUndiffedPercentGDPSeries = [
           stackNetTotal: 0.302068586827395,
         }),
       }),
-    ]),
+      expect.objectContaining({
+        name: "Life years",
+        y: 4.305661740495233,
+        custom: expect.objectContaining({
+          stackNetTotal: 44.93165011973545,
+        }),
+      }),
+    ],
   }),
 ];
 
 const expectedUndiffedUSDSeries = [
   expect.objectContaining({
     name: "GDP",
-    data: expect.arrayContaining([
-      expect.objectContaining({
-        name: "GDP",
-        y: 6530831.2856,
-        custom: expect.objectContaining({
-          costAsGdpPercent: 32.87931628748886,
-          stackNetTotal: 8924791.0069,
-        }),
-      }),
+    data: [
       expect.objectContaining({
         name: "GDP",
         y: 10000,
@@ -141,19 +133,19 @@ const expectedUndiffedUSDSeries = [
           stackNetTotal: 60000,
         }),
       }),
-    ]),
-  }),
-  expect.objectContaining({
-    name: "Education",
-    data: expect.arrayContaining([
       expect.objectContaining({
-        name: "Education",
-        y: 1538724.4678,
+        name: "GDP",
+        y: 6530831.2856,
         custom: expect.objectContaining({
-          costAsGdpPercent: 7.74667209175136,
+          costAsGdpPercent: 32.87931628748886,
           stackNetTotal: 8924791.0069,
         }),
       }),
+    ],
+  }),
+  expect.objectContaining({
+    name: "Education",
+    data: [
       expect.objectContaining({
         name: "Education",
         y: 20000,
@@ -162,19 +154,19 @@ const expectedUndiffedUSDSeries = [
           stackNetTotal: 60000,
         }),
       }),
-    ]),
-  }),
-  expect.objectContaining({
-    name: "Life years",
-    data: expect.arrayContaining([
       expect.objectContaining({
-        name: "Life years",
-        y: 855235.2535,
+        name: "Education",
+        y: 1538724.4678,
         custom: expect.objectContaining({
-          costAsGdpPercent: 4.305661740495233,
+          costAsGdpPercent: 7.74667209175136,
           stackNetTotal: 8924791.0069,
         }),
       }),
+    ],
+  }),
+  expect.objectContaining({
+    name: "Life years",
+    data: [
       expect.objectContaining({
         name: "Life years",
         y: 30000,
@@ -183,7 +175,15 @@ const expectedUndiffedUSDSeries = [
           stackNetTotal: 60000,
         }),
       }),
-    ]),
+      expect.objectContaining({
+        name: "Life years",
+        y: 855235.2535,
+        custom: expect.objectContaining({
+          costAsGdpPercent: 4.305661740495233,
+          stackNetTotal: 8924791.0069,
+        }),
+      }),
+    ],
   }),
 ];
 
@@ -288,7 +288,7 @@ describe("costs chart", () => {
               filename: "Losses after 599 days",
             }),
             xAxis: expect.objectContaining({
-              categories: expect.arrayContaining(["high", "low"]),
+              categories: ["low", "high"],
               title: expect.objectContaining({ text: "Global vaccine investment" }),
             }),
             yAxis: expect.objectContaining({
@@ -363,7 +363,7 @@ describe("costs chart", () => {
               filename: "Losses relative to baseline after 599 days",
             }),
             xAxis: expect.objectContaining({
-              categories: expect.arrayContaining(["low"]),
+              categories: ["low"],
               title: expect.objectContaining({ text: "Global vaccine investment" }),
             }),
             yAxis: expect.objectContaining({
@@ -437,7 +437,7 @@ describe("costs chart", () => {
           },
           title: expect.objectContaining({ text: "Losses relative to baseline after 599 days" }),
           xAxis: expect.objectContaining({
-            categories: expect.arrayContaining(["low"]),
+            categories: ["low"],
           }),
           yAxis: expect.objectContaining({
             min: undefined,
@@ -459,7 +459,7 @@ describe("costs chart", () => {
           },
           title: expect.objectContaining({ text: "Losses after 599 days" }),
           xAxis: expect.objectContaining({
-            categories: expect.arrayContaining(["high", "low"]),
+            categories: ["low", "high"],
           }),
           yAxis: expect.objectContaining({
             min: 0,

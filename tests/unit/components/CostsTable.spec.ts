@@ -205,7 +205,7 @@ describe("costs table for all scenarios in a comparison", () => {
       currentComparison: {
         axis: "vaccine",
         baseline: "medium",
-        scenarios: [structuredClone(noneScenario), structuredClone(mediumScenario)],
+        scenarios: [structuredClone(mediumScenario), structuredClone(noneScenario)],
       },
       preferences: {
         costBasis: CostBasis.USD,
@@ -224,9 +224,8 @@ describe("costs table for all scenarios in a comparison", () => {
 
     const headerText = component.find("thead").text();
     expect(headerText).toContain("Global vaccine investment");
-    // Scenario labels
-    expect(headerText).toContain("None");
-    expect(headerText).toContain("Medium");
+    // Scenario labels in correct order
+    expect(headerText).toMatch(/None.*Medium/);
 
     expect(headerText).toContain("Expand all");
     expect(headerText).not.toContain("Collapse all");
@@ -307,9 +306,8 @@ describe("costs table for all scenarios in a comparison", () => {
 
     const headerText = component.find("thead").text();
     expect(headerText).toContain("Global vaccine investment");
-    // Scenario labels
-    expect(headerText).toContain("None");
-    expect(headerText).toContain("Medium");
+    // Scenario labels in correct order
+    expect(headerText).toMatch(/None.*Medium/);
 
     const componentText = component.text();
     expect(component.find("tbody tr").text()).toContain("Total losses as % of GDP");
@@ -343,7 +341,7 @@ describe("costs table for all scenarios in a comparison", () => {
       currentComparison: {
         axis: "vaccine",
         baseline: "medium",
-        scenarios: [structuredClone(noneScenario), structuredClone(mediumScenario)],
+        scenarios: [structuredClone(mediumScenario), structuredClone(noneScenario)],
       },
       preferences: {
         costBasis: CostBasis.USD,

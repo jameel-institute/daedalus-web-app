@@ -20,18 +20,17 @@ import { timeSeriesColors } from "../utils/timeSeriesCharts";
 
 const appStore = useAppStore();
 
-const items = computed((): LegendItem[] => {
-  const all = appStore.currentComparison.scenarios.map((scenario: Scenario, index: number) => {
-    const isBaseline = scenario === appStore.baselineScenario;
-    return {
-      color: timeSeriesColors[index],
-      label: `${appStore.getScenarioAxisLabel(scenario)} ${(isBaseline ? " (baseline)" : "")}`,
-      shape: LegendShape.Line,
-    };
-  }) || [];
+const scenarios = computed(() => appStore.currentComparison.scenarios);
+const { sortedScenarios } = useSortedScenarios(scenarios);
 
-  return all;
-});
+const items = computed((): LegendItem[] => sortedScenarios.value.map((scenario: Scenario, index: number) => {
+  const isBaseline = scenario === appStore.baselineScenario;
+  return {
+    color: timeSeriesColors[index],
+    label: `${appStore.getScenarioAxisLabel(scenario)} ${(isBaseline ? " (baseline)" : "")}`,
+    shape: LegendShape.Line,
+  };
+}) || []);
 
 // Lay out items in columns manually since the implementation of 'flex-direction: column'
 // while applying flex wrap differs between Safari/Firefox/Chrome.

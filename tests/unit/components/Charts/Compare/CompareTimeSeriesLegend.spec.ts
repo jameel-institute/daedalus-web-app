@@ -23,7 +23,7 @@ describe("time series", () => {
       currentComparison: {
         baseline: "economic_closures",
         axis: "response",
-        scenarios: [noneScenario, economicClosuresScenario],
+        scenarios: [economicClosuresScenario, noneScenario],
       },
       metadata: mockMetadataResponseData,
     }, false, { stubActions: false });
@@ -34,6 +34,7 @@ describe("time series", () => {
 
     const legendItems = component.findAll(".legend-item");
 
+    // Items have been sorted by parameter option
     expect(legendItems[0].text()).toContain("No closures");
     expect(legendItems[0].text()).not.toContain("baseline");
     expect(legendItems[0].element.outerHTML).toContain("background: rgb(238, 51, 119)");
