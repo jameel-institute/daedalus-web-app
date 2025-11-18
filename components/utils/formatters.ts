@@ -40,13 +40,19 @@ export const humanReadablePercentOfGdp = (
   num: number,
   signDisplay?: "exceptZero" | "auto" | "always",
 ): { percent: string, reference: string } => {
+  const reference = `of pre-pandemic GDP`;
+  if (num < 0.005 && num > 0) {
+    return { percent: "<0.005%", reference };
+  }
+  const numberOfSignificantDigits = Math.abs(num) < 1 ? 1 : 3;
   return {
     percent: Intl.NumberFormat(undefined, {
       style: "percent",
-      minimumFractionDigits: num > 100 ? 0 : 1,
+      minimumSignificantDigits: numberOfSignificantDigits,
+      maximumSignificantDigits: numberOfSignificantDigits,
       signDisplay,
     }).format(num / 100),
-    reference: `of pre-pandemic GDP`,
+    reference,
   };
 };
 
