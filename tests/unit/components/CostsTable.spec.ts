@@ -54,10 +54,10 @@ const openVslModal = async (component: VueWrapper) => {
 
 const checkPercentText = (costUSD: number, gdp: number, componentText: string) => {
   const percent = costAsPercentOfGdp(costUSD, gdp);
-  if (percent < 0.05) {
-    expect(componentText).toContain("<0.05%");
-  } else {
-    expect(componentText).toContain(percent.toFixed(1));
+  if (percent < 0.005) {
+    expect(componentText).toContain("<0.005%");
+  } else if (percent < 1) {
+    expect(componentText).toContain(percent.toFixed(0));
   }
 };
 
