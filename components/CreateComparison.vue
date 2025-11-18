@@ -85,15 +85,31 @@
               color="primary"
               size="lg"
               type="submit"
-              :disabled="formSubmitting"
+              :disabled="formSubmitting && scenarioRunResponseErrors.length === 0"
               class="ms-auto align-self-start"
               @click="submitForm"
             >
               Compare
-              <CSpinner v-if="formSubmitting" size="sm" class="ms-1" />
+              <CSpinner v-if="formSubmitting && scenarioRunResponseErrors.length === 0" size="sm" class="ms-1" />
               <CIcon v-else icon="cilArrowRight" />
             </CButton>
           </div>
+          <CAlert v-if="scenarioRunResponseErrors.length" color="danger" class="mt-3">
+            <CAlertHeading>
+              <CIcon icon="cilWarning" class="flex-shrink-0 me-2" width="24" height="24" />
+              Error
+            </CAlertHeading>
+            <p class="mt-3">
+              There was an unexpected error when submitting the form. Please try again.
+            </p>
+            <hr>
+            <p
+              v-for="(errorMsg, index) in scenarioRunResponseErrors"
+              :key="index"
+            >
+              {{ errorMsg }}
+            </p>
+          </CAlert>
           <div v-if="paramsDependingOnAxis?.length" class="alert alert-warning mt-3">
             <p>
               Please note: if you proceed, the scenarios will vary not only by {{ chosenParameterAxis.label.toLowerCase() }}, but also by
@@ -137,6 +153,7 @@ const formSubmitting = ref(false);
 // Visible feedback will be shown on submitting an invalid form, and cleared when options are changed
 const showFormValidationFeedback = ref(false);
 
+const scenarioRunResponseErrors = computed(() => appStore.currentComparison.scenarios.map(s => s.run.fetchError).filter(e => !!e));
 const chosenParameterAxis = computed(() => appStore.parametersMetadataById[chosenAxisId.value]);
 const baselineParameters = computed(() => appStore.currentScenario.parameters);
 
@@ -201,11 +218,13 @@ const submitForm = async () => {
   if (baselineParameters.value) {
     await appStore.runComparison(chosenAxisId.value, baselineParameters.value, selectedScenarioOptions.value);
 
-    await navigateTo({ path: "/comparison", query: {
-      axis: appStore.currentComparison.axis,
-      baseline: appStore.currentComparison.baseline,
-      runIds: appStore.currentComparison.scenarios?.map(s => s.runId).join(";"),
-    } });
+    if (appStore.everyScenarioHasARunId) {
+      await navigateTo({ path: "/comparison", query: {
+        axis: appStore.currentComparison.axis,
+        baseline: appStore.currentComparison.baseline,
+        runIds: appStore.currentComparison.scenarios?.map(s => s.runId).join(";"),
+      } });
+    }
   }
 };
 </script>

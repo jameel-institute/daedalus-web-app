@@ -15,6 +15,9 @@ import { ExcelComparisonDownload } from "~/download/excelComparisonDownload";
 const emptyScenario = {
   runId: undefined,
   parameters: undefined,
+  run: {
+    fetchError: undefined,
+  },
   result: {
     data: undefined,
     fetchError: undefined,
@@ -80,9 +83,19 @@ export const useAppStore = defineStore("app", {
       }
     },
     timeSeriesGroups: (state): Array<TimeSeriesGroup> | undefined => state.metadata?.results.time_series_groups as TimeSeriesGroup[] | undefined,
+    everyScenarioIsDone: (state): boolean => {
+      return state.currentComparison.scenarios?.length > 0
+        && state.currentComparison.scenarios?.every(s => s.status.data?.done);
+    },
     everyScenarioHasRunSuccessfully: (state): boolean => {
       return state.currentComparison.scenarios?.length > 0
         && state.currentComparison.scenarios?.every(s => s.status.data?.runSuccess);
+    },
+    unsuccessfulScenarios: (state): Scenario[] => {
+      return state.currentComparison.scenarios?.filter(s => s.status.data?.runSuccess === false);
+    },
+    scenariosWithFetchErrors: (state): Scenario[] => {
+      return state.currentComparison.scenarios?.filter(s => s.status.fetchError || s.result.fetchError);
     },
     everyScenarioHasARunId: (state): boolean => {
       return state.currentComparison.scenarios?.length > 0
@@ -166,7 +179,7 @@ export const useAppStore = defineStore("app", {
         method: "POST",
         body: { parameters },
       }).catch((error: FetchError) => {
-        console.error(error);
+        scenario.run.fetchError = error;
       });
 
       if (response) {

@@ -84,6 +84,7 @@ export const mockResultData = {
     pathogen: "sars_cov_1",
     response: "none",
     vaccine: "none",
+    behaviour: "none",
     hospital_capacity: "30500",
   },
   costs: [
@@ -200,6 +201,9 @@ deepFreeze(mockResultData);
 export const emptyScenario = {
   runId: undefined,
   parameters: undefined,
+  run: {
+    fetchError: undefined,
+  },
   result: {
     data: undefined,
     fetchError: undefined,
