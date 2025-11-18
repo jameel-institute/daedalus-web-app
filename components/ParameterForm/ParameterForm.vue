@@ -230,7 +230,7 @@ const submitForm = async () => {
   appStore.currentScenario.parameters = { ...formData.value };
   await appStore.runScenario(appStore.currentScenario);
 
-  if (appStore.currentScenario.runId) {
+  if (appStore.currentScenario.runId && !appStore.currentScenario.run.fetchError) {
     await navigateTo(`/scenarios/${appStore.currentScenario.runId}`);
   }
 };

@@ -450,6 +450,9 @@ describe("parameter form", () => {
     expect(cAlertComponent.text()).toContain("There was an unexpected error when submitting the form");
     expect(cAlertComponent.text()).toContain("418");
     expect(cAlertComponent.text()).toContain("I'm a teapot");
+
+    await flushPromises();
+    expect(mockNavigateTo).not.toBeCalled();
   });
 
   it("displays CSpinner when metadata is not defined and there is no error", async () => {
