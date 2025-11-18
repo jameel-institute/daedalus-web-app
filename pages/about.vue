@@ -51,8 +51,8 @@
     <p>
       DAEDALUS Explore is an interactive dashboard tool that allows users to project the health, education and economic
       impacts of epidemic scenarios and their mitigation measures. DAEDALUS Explore allows users to simulate what would
-      happen in specific countries if one of {{ numberOfPandemics }} hypothetical pandemics of varying severity were to
-      occur. The {{ numberOfPandemics }} diseases
+      happen in specific countries if one of 7 hypothetical pandemics of varying severity were to
+      occur. The 7 diseases
       are hypothetical but informed by the characteristics of pathogens that have caused pandemics in the past. Daedalus
       Explore supports projections for {{ numberOfCountries }} countries, and pulls in data on demography, social mixing
       patterns, and economic sector productivity and workforces from publicly available sources.
@@ -70,7 +70,7 @@
       Hypothetical diseases
     </h3>
     <p>
-      Users choose among {{ numberOfPandemics }} diseases, to set model parameters for transmissibility, delays and
+      Users choose among 7 diseases, to set model parameters for transmissibility, delays and
       severity based on known characteristics of the historical pathogens (see <span class="table-ref">Table 1</span>).
       We assume there is no prior immunity to the disease amongst the countries’ populations.
     </p>
@@ -498,7 +498,6 @@
 
 <script setup lang="ts">
 const appStore = useAppStore();
-const numberOfPandemics = appStore.parametersMetadataById.pathogen?.options?.length;
 const numberOfCountries = appStore.parametersMetadataById.country?.options?.length;
 </script>
 
