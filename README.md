@@ -39,7 +39,7 @@ npm run test:e2e
 
 ## <a id="first-time"></a> Your first time setting up
 
-Use Node 20.
+Use Node 22.
 
 Make sure Docker is installed.
 
