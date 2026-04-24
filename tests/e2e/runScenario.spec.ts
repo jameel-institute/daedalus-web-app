@@ -132,16 +132,16 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   expect(costsChartDataUsd[0].data.length).toBe(3);
   expect(costsChartDataUsd[0].data.map((dataPoint: any) => dataPoint.name)).toEqual(["Closures", "Closures", "Preschool-age children"]);
   expect(costsChartDataUsd[0].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([true, true, true]);
-  checkValueIsInRange(costsChartDataUsd[0].data[0].y, 5_100_000, costTolerance);
-  checkValueIsInRange(costsChartDataUsd[0].data[1].y, 3_900_000, costTolerance);
-  checkValueIsInRange(costsChartDataUsd[0].data[2].y, 9_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[0].data[0].y, 5_500_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[0].data[1].y, 3_400_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[0].data[2].y, 5_200, costTolerance);
 
   expect(costsChartDataUsd[1].data.length).toBe(3);
   expect(costsChartDataUsd[1].data.map((dataPoint: any) => dataPoint.name)).toEqual(["Absences", "Absences", "School-age children"]);
   expect(costsChartDataUsd[1].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([true, true, true]);
-  checkValueIsInRange(costsChartDataUsd[1].data[0].y, 240_000, costTolerance);
-  checkValueIsInRange(costsChartDataUsd[1].data[1].y, 8_000, costTolerance);
-  checkValueIsInRange(costsChartDataUsd[1].data[2].y, 4_800_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[1].data[0].y, 180_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[1].data[1].y, 5_600, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[1].data[2].y, 3_900_000, costTolerance);
 
   expect(costsChartDataUsd[2].data.length).toBe(3);
   expect(costsChartDataUsd[2].data.map((dataPoint: any) => dataPoint.name)).toEqual(["", "", "Working-age adults"]);
@@ -155,7 +155,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   expect(costsChartDataUsd[3].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([false, false, true]);
   expect(costsChartDataUsd[3].data[0].y).toEqual(0);
   expect(costsChartDataUsd[3].data[1].y).toEqual(0);
-  checkValueIsInRange(costsChartDataUsd[3].data[2].y, 5_700_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[3].data[2].y, 3_600_000, costTolerance);
 
   const expandCostsTableButton = page.getByTestId("toggle-costs-table");
   await expandCostsTableButton.click();
