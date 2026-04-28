@@ -26,6 +26,9 @@
         <img
           :src="`/icons/${infoIcon ? 'info.png' : 'circleQuestion.svg'}`"
           :aria-describedby="togglerId"
+          @click.stop
+          @pointerdown.stop
+          @touchstart.stop
           v-on="on"
         >
       </CIconSvg>

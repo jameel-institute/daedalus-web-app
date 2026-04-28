@@ -139,4 +139,15 @@ describe("timeSeriesGroup component", () => {
 
     expect(component.emitted("toggleOpen")).toBeTruthy();
   });
+
+  it("should not emit toggleOpen when the tooltip icon is clicked", async () => {
+    const component = await mountSuspended(TimeSeriesTile, {
+      global: { plugins: [pinia] },
+      props: getProps(),
+    });
+
+    await component.find("img").trigger("click");
+
+    expect(component.emitted("toggleOpen")).toBeUndefined();
+  });
 });
