@@ -221,7 +221,7 @@ const submitForm = async () => {
     if (appStore.everyScenarioHasARunId) {
       await navigateTo({ path: "/comparison", query: {
         axis: appStore.currentComparison.axis,
-        baseline: appStore.currentComparison.baseline,
+        baselineRunId: appStore.currentComparison.baselineRunId,
         runIds: appStore.currentComparison.scenarios?.map(s => s.runId).join(";"),
       } });
     }

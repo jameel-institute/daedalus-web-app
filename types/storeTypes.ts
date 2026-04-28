@@ -24,7 +24,7 @@ export interface Scenario {
 
 export interface Comparison {
   axis: string | undefined
-  baseline: string | undefined
+  baselineRunId: string | undefined
   scenarios: Scenario[]
 }
 

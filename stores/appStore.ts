@@ -33,7 +33,7 @@ deepFreeze(emptyScenario);
 
 const emptyComparison = {
   axis: undefined,
-  baseline: undefined,
+  baselineRunId: undefined,
   scenarios: [],
 } as Comparison;
 deepFreeze(emptyComparison);
@@ -72,15 +72,17 @@ export const useAppStore = defineStore("app", {
       if (!this.globeParameter?.id) {
         return;
       }
+      // Find a scenario whose country we will consider as 'of interest' for the globe component
+      let scenarioOfInterest: Scenario | undefined;
       if (state.currentComparison.scenarios?.[0]?.parameters) {
-        if (state.currentComparison.axis === this.globeParameter.id) {
-          return state.currentComparison.baseline;
-        } else if (state.currentComparison.axis) {
-          return state.currentComparison.scenarios[0].parameters[this.globeParameter.id];
-        }
+        // If we're in a comparison view, the scenario of interest depends on whether the axis of comparison is country.
+        const axisIsCountry = state.currentComparison.axis === this.globeParameter.id;
+        scenarioOfInterest = axisIsCountry ? this.baselineScenario : state.currentComparison.scenarios[0];
       } else if (state.currentScenario?.parameters) {
-        return state.currentScenario.parameters[this.globeParameter.id!];
+        // Otherwise just use the current scenario.
+        scenarioOfInterest = state.currentScenario;
       }
+      return scenarioOfInterest?.parameters?.[this.globeParameter.id];
     },
     timeSeriesGroups: (state): Array<TimeSeriesGroup> | undefined => state.metadata?.results.time_series_groups as TimeSeriesGroup[] | undefined,
     everyScenarioIsDone: (state): boolean => {
@@ -104,17 +106,15 @@ export const useAppStore = defineStore("app", {
     everyScenarioHasCosts: (state): boolean => {
       return state.currentComparison.scenarios?.map(s => s.result.data?.costs).every(c => !!c && c.length > 0);
     },
-    baselineScenario: (state): Scenario | undefined => {
-      return state.currentComparison.scenarios.find((scenario) => {
-        if (state.currentComparison.axis && scenario.parameters) {
-          return scenario.parameters[state.currentComparison.axis] === state.currentComparison.baseline;
-        } else {
-          return false;
-        }
-      });
-    },
     baselineIndex(state): number {
-      return state.currentComparison.scenarios.findIndex(s => s.runId === this.baselineScenario?.runId);
+      return state.currentComparison.scenarios.findIndex(s => s.runId === this.currentComparison.baselineRunId);
+    },
+    baselineScenario(state): Scenario | undefined {
+      if (this.currentComparison.baselineRunId) {
+        return state.currentComparison.scenarios[this.baselineIndex];
+      } else if (state.currentScenario.parameters) {
+        return state.currentScenario;
+      }
     },
     axisLabel(state): string | undefined {
       if (state.currentComparison.axis) {
@@ -228,7 +228,7 @@ export const useAppStore = defineStore("app", {
         fetchError: error.value || undefined,
       };
     },
-    async setComparisonByRunIds(newRunIds: string[], baseline: string, axis: string) {
+    async setComparisonByRunIds(newRunIds: string[], baselineRunId: string, axis: string) {
       this.currentComparison.scenarios = newRunIds.map((runId) => {
         return structuredClone({ ...emptyScenario, runId });
       });
@@ -239,7 +239,7 @@ export const useAppStore = defineStore("app", {
         }) || [],
       );
 
-      this.currentComparison.baseline = baseline;
+      this.currentComparison.baselineRunId = baselineRunId;
       this.currentComparison.axis = axis;
     },
     async runComparison(axis: string, baselineParameters: ParameterSet, selectedScenarioOptions: string[]) {
@@ -257,8 +257,8 @@ export const useAppStore = defineStore("app", {
       }
 
       newComparison.axis = axis;
-      newComparison.baseline = baselineParameters[axis];
-      const allScenarioOptions = [newComparison.baseline, ...selectedScenarioOptions];
+      const baselineParamVal = baselineParameters[axis];
+      const allScenarioOptions = [baselineParamVal, ...selectedScenarioOptions];
 
       const paramsDependingOnAxis = this.metadata?.parameters.filter((param) => {
         return param.updateNumericFrom?.parameterId === axis;
@@ -282,6 +282,9 @@ export const useAppStore = defineStore("app", {
       await Promise.all(
         this.currentComparison.scenarios?.map(async (scenario) => {
           await this.runScenario(scenario);
+          if (scenario.runId && scenario.parameters?.[axis] === baselineParamVal) {
+            this.currentComparison.baselineRunId = scenario.runId;
+          }
         }) || [],
       );
     },

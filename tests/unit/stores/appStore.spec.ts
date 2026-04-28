@@ -126,7 +126,7 @@ describe("app store", () => {
     it("can load multiple scenarios from the database by their run ids", async () => {
       const store = useAppStore();
       const runIds = ["123", "456", "789"];
-      await store.setComparisonByRunIds(runIds, "GBR", "country");
+      await store.setComparisonByRunIds(runIds, "123", "country");
 
       await waitFor(() => {
         expect(store.currentComparison.scenarios.length).toBe(3);
@@ -137,7 +137,7 @@ describe("app store", () => {
         expect(store.currentComparison.scenarios[1].parameters?.country).toEqual("THA");
         expect(store.currentComparison.scenarios[2].parameters).toBeUndefined();
         expect(store.currentComparison.axis).toEqual("country");
-        expect(store.currentComparison.baseline).toEqual("GBR");
+        expect(store.currentComparison.baselineRunId).toEqual("123");
       });
     });
 
@@ -276,7 +276,7 @@ describe("app store", () => {
 
       store.currentComparison = structuredClone({
         axis: "vaccine",
-        baseline: "high",
+        baselineRunId: "123",
         scenarios: [
           {
             ...emptyScenario,
@@ -363,7 +363,7 @@ describe("app store", () => {
       const store = useAppStore();
       store.currentComparison = structuredClone({
         axis: "vaccine",
-        baseline: "high",
+        baselineRunId: "123",
         scenarios: [
           {
             ...emptyScenario,
@@ -533,7 +533,7 @@ describe("app store", () => {
       // It should not reset the 'hospital_capacity' parameter to default values unless necessitated by a change of country.
       expect(store.currentComparison).toEqual({
         axis: "vaccine",
-        baseline: "high",
+        baselineRunId: "123",
         scenarios: [
           {
             ...emptyScenario,
@@ -586,7 +586,7 @@ describe("app store", () => {
       // since the same absolute capacity is not equivalent in different countries.
       expect(store.currentComparison).toEqual({
         axis: "country",
-        baseline: "USA",
+        baselineRunId: "456",
         scenarios: [
           {
             ...emptyScenario,
@@ -629,11 +629,11 @@ describe("app store", () => {
       const store = useAppStore();
 
       const scenario = structuredClone(unloadedScenario);
-      store.currentComparison = { axis: "country", baseline: "ARG", scenarios: [] };
+      store.currentComparison = { axis: "country", baselineRunId: "456", scenarios: [] };
 
       expect(store.getScenarioAxisValue(scenario)).toEqual("USA");
 
-      store.currentComparison = { axis: "vaccine", baseline: "high", scenarios: [] };
+      store.currentComparison = { axis: "vaccine", baselineRunId: "456", scenarios: [] };
       expect(store.getScenarioAxisValue(scenario)).toEqual("high");
     });
 
@@ -642,11 +642,11 @@ describe("app store", () => {
       store.metadata = mockMetadataResponseData;
 
       const scenario = structuredClone(unloadedScenario);
-      store.currentComparison = { axis: "country", baseline: "ARG", scenarios: [] };
+      store.currentComparison = { axis: "country", baselineRunId: "456", scenarios: [] };
 
       expect(store.getScenarioAxisLabel(scenario)).toEqual("United States");
 
-      store.currentComparison = { axis: "vaccine", baseline: "high", scenarios: [] };
+      store.currentComparison = { axis: "vaccine", baselineRunId: "456", scenarios: [] };
       expect(store.getScenarioAxisLabel(scenario)).toEqual("High");
     });
 
@@ -730,7 +730,7 @@ describe("app store", () => {
         await store.loadMetadata();
 
         expect(store.axisMetadata).toEqual(undefined);
-        store.currentComparison = { axis: "vaccine", baseline: "high", scenarios: [] };
+        store.currentComparison = { axis: "vaccine", baselineRunId: "456", scenarios: [] };
         expect(store.axisMetadata!.id).toEqual("vaccine");
         expect(store.axisMetadata!.parameterType).toEqual("select");
       });
@@ -756,11 +756,8 @@ describe("app store", () => {
         store.currentScenario = structuredClone(emptyScenario);
         expect(store.scenarioCountry).toBeUndefined();
 
-        store.currentComparison = { axis: "vaccine", baseline: "high", scenarios: [structuredClone(unloadedScenario)] };
-        expect(store.scenarioCountry).toEqual("USA");
-
-        store.currentComparison = { axis: "country", baseline: "GBR", scenarios: [structuredClone(unloadedScenario)] };
-        expect(store.scenarioCountry).toEqual("GBR");
+        store.currentComparison = { axis: "vaccine", baselineRunId: unloadedScenario.runId, scenarios: [structuredClone(unloadedScenario)] };
+        expect(store.scenarioCountry).toEqual(unloadedScenario.parameters!.country);
       });
 
       it("can get the time series groups metadata", async () => {
@@ -788,7 +785,7 @@ describe("app store", () => {
         const store = useAppStore();
         store.currentComparison = {
           axis: "vaccine",
-          baseline: "high",
+          baselineRunId: undefined,
           scenarios: [{
             ...emptyScenario,
             status: {
@@ -831,7 +828,7 @@ describe("app store", () => {
         };
         store.currentComparison = {
           axis: "vaccine",
-          baseline: "high",
+          baselineRunId: undefined,
           scenarios: [successfulScenario, unsuccessfulScenario],
         };
         expect(store.unsuccessfulScenarios).toEqual([unsuccessfulScenario]);
@@ -844,7 +841,7 @@ describe("app store", () => {
         const store = useAppStore();
         store.currentComparison = {
           axis: "vaccine",
-          baseline: "high",
+          baselineRunId: "123",
           scenarios: [{ ...emptyScenario, runId: "123" }, { ...emptyScenario, runId: "234" }],
         };
         expect(store.everyScenarioHasARunId).toBe(true);
@@ -857,7 +854,7 @@ describe("app store", () => {
         const store = useAppStore();
         store.currentComparison = {
           axis: "vaccine",
-          baseline: "high",
+          baselineRunId: undefined,
           scenarios: [
             {
               ...emptyScenario,
@@ -875,21 +872,31 @@ describe("app store", () => {
         expect(store.everyScenarioHasCosts).toBe(true);
       });
 
-      it("can get the baseline scenario for a comparison", async () => {
+      it("can get the baseline scenario for a comparison (or current scenario if current comparison is not complete)", async () => {
         const store = useAppStore();
         expect(store.baselineScenario).toBeUndefined();
 
+        store.currentScenario = structuredClone(unloadedScenario);
+        expect(store.baselineScenario).toEqual(store.currentScenario);
+
         store.currentComparison = {
           axis: "vaccine",
-          baseline: "high",
+          baselineRunId: undefined,
           scenarios: [
             { ...emptyScenario, parameters: { vaccine: "high" } },
             { ...emptyScenario, parameters: { vaccine: "none" } },
           ],
         };
-        expect(store.baselineScenario).toEqual(store.currentComparison.scenarios[0]);
+        expect(store.baselineScenario).toEqual(store.currentScenario);
 
-        store.currentComparison.baseline = "none";
+        store.currentComparison = {
+          axis: "vaccine",
+          baselineRunId: "456",
+          scenarios: [
+            { ...unloadedScenario, runId: "123", parameters: { vaccine: "high" } },
+            { ...unloadedScenario, runId: "456", parameters: { vaccine: "none" } },
+          ],
+        };
         expect(store.baselineScenario).toEqual(store.currentComparison.scenarios[1]);
       });
 
@@ -899,17 +906,17 @@ describe("app store", () => {
 
         store.currentComparison = {
           axis: "vaccine",
-          baseline: "high",
+          baselineRunId: "345",
           scenarios: [
             { ...emptyScenario, runId: "123", parameters: { vaccine: "high" } },
             { ...emptyScenario, runId: "234", parameters: { vaccine: "none" } },
             { ...emptyScenario, runId: "345", parameters: { vaccine: "low" } },
           ],
         };
-        expect(store.baselineIndex).toBe(0);
-
-        store.currentComparison.baseline = "low";
         expect(store.baselineIndex).toBe(2);
+
+        store.currentComparison.baselineRunId = "234";
+        expect(store.baselineIndex).toBe(1);
       });
     });
   });

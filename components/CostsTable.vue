@@ -154,7 +154,7 @@ const appStore = useAppStore();
 const multiScenario = computed(() => props.scenarios.length > 1);
 const scenariosToDisplay = computed(() => {
   return props.diffing
-    ? props.scenarios.filter(s => s.runId !== appStore.baselineScenario?.runId)
+    ? props.scenarios.filter(s => s.runId !== appStore.currentComparison.baselineRunId)
     : props.scenarios;
 });
 
