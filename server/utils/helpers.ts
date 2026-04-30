@@ -32,8 +32,8 @@ export const hashParameters = (parameters: ParameterSet, modelVersion: string, r
   sha256.update(
     sortedKeys.join()
     + sortedKeys.map(k => parameters[k]).join()
-    + modelVersion
-    + rApiVersion,
+    + ":" + modelVersion
+    + ":" + rApiVersion,
   );
   return sha256.getHash("HEX");
 };

@@ -41,7 +41,7 @@ describe("hashParameters", () => {
     };
     const modelVersion = "0.0.1";
     const rApiVersion = "1.2.3";
-    const expectedHash = "b27f9454621989a290b9d493b0ae243f34d1a6aa832778da69e4649457862277";
+    const expectedHash = "f26fb3d5f0dc922ffc5f90bd606812e718e004dcc6fc95c9ca81c7ea04973473";
 
     expect(hashParameters(parameters, modelVersion, rApiVersion)).toEqual(expectedHash);
     expect(hashParameters(parameters, "9.9.9", rApiVersion)).not.toEqual(expectedHash);
@@ -60,7 +60,7 @@ describe("hashParameters", () => {
     };
     const modelVersion = "0.0.1";
     const rApiVersion = "1.2.3";
-    const expectedHash = "b27f9454621989a290b9d493b0ae243f34d1a6aa832778da69e4649457862277";
+    const expectedHash = "f26fb3d5f0dc922ffc5f90bd606812e718e004dcc6fc95c9ca81c7ea04973473";
 
     // Verify the expected case still matches
     expect(hashParameters(parameters, modelVersion, rApiVersion)).toEqual(expectedHash);
