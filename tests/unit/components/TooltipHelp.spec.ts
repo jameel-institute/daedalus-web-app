@@ -24,15 +24,17 @@ describe("tooltip help", () => {
     });
     expect(document.body.textContent).not.toContain("some help text");
 
-    await component.find("img").trigger("focus");
+    await component.find("button").trigger("focus");
     vi.advanceTimersByTime(1);
     await nextTick();
 
     expect(document.body.innerHTML).toContain("some help text");
 
+    const button = component.find("button");
     const img = component.find("img");
-    expect(img.classes().includes("class-1")).toBe(true);
-    expect(img.classes().includes("class-2")).toBe(true);
+    expect(button.classes().includes("class-1")).toBe(true);
+    expect(button.classes().includes("class-2")).toBe(true);
+    expect(button.attributes("type")).toBe("button");
     expect(img.attributes("src")).toBe("/icons/circleQuestion.svg");
   });
 
@@ -48,7 +50,7 @@ describe("tooltip help", () => {
     });
     expect(document.body.textContent).not.toContain("some help text");
 
-    await component.find("img").trigger("focus");
+    await component.find("button").trigger("focus");
     vi.advanceTimersByTime(1);
     await nextTick();
 
@@ -56,9 +58,9 @@ describe("tooltip help", () => {
       /Get ready to read an unordered list\s*<ul.*><li.*>some help text<\/li><li.*>on separate lines<\/li><\/ul>/,
     );
 
-    const img = component.find("img");
-    expect(img.classes().includes("class-1")).toBe(true);
-    expect(img.classes().includes("class-2")).toBe(true);
+    const button = component.find("button");
+    expect(button.classes().includes("class-1")).toBe(true);
+    expect(button.classes().includes("class-2")).toBe(true);
 
     expect(component.find("img").attributes("src")).toBe("/icons/info.png");
   });
