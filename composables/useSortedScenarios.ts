@@ -14,12 +14,18 @@ export default (scenarios: MaybeRefOrGetter<Scenario[]>) => {
     }
     const scenarioAxisValues = scens.map(s => appStore.getScenarioAxisValue(s)).filter(o => o !== undefined);
     const sortedOptions = sortOptions(appStore.axisMetadata, scenarioAxisValues);
-    scens.sort((a, b) => {
+    const missingRank = sortedOptions.length;
+    const sorted = [...scens];
+    sorted.sort((a, b) => {
       const aValue = appStore.getScenarioAxisValue(a)!;
       const bValue = appStore.getScenarioAxisValue(b)!;
-      return sortedOptions.indexOf(aValue) - sortedOptions.indexOf(bValue);
+      const aIndex = sortedOptions.indexOf(aValue);
+      const bIndex = sortedOptions.indexOf(bValue);
+      const aRank = aIndex >= 0 ? aIndex : missingRank;
+      const bRank = bIndex >= 0 ? bIndex : missingRank;
+      return aRank - bRank;
     });
-    return scens;
+    return sorted;
   });
 
   return { sortedScenarios };
