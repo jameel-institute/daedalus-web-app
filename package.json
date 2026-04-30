@@ -68,7 +68,7 @@
     "@playwright/test": "^1.49.1",
     "@testing-library/vue": "^8.1.0",
     "@types/lodash.throttle": "^4.1.9",
-    "@types/node": "^22.7.5",
+    "@types/node": "^20.16.0",
     "@vitest/coverage-v8": "^2.1.2",
     "@vue/test-utils": "^2.4.6",
     "babel-jest": "^29.7.0",
