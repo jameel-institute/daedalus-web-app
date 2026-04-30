@@ -140,13 +140,16 @@ describe("timeSeriesGroup component", () => {
     expect(component.emitted("toggleOpen")).toBeTruthy();
   });
 
-  it("should not emit toggleOpen when the tooltip icon is clicked", async () => {
+  it("should not emit toggleOpen when the tooltip icon is clicked or tapped", async () => {
     const component = await mountSuspended(TimeSeriesTile, {
       global: { plugins: [pinia] },
       props: getProps(),
     });
 
-    await component.find("img").trigger("click");
+    const tooltipIcon = component.find("button.tooltip-help-trigger");
+    await tooltipIcon.trigger("click");
+    await tooltipIcon.trigger("pointerdown");
+    await tooltipIcon.trigger("touchstart");
 
     expect(component.emitted("toggleOpen")).toBeUndefined();
   });
