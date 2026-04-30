@@ -5,7 +5,7 @@ import { readBody } from "h3";
 import prisma from "~/server/db/prisma";
 
 const runId = "abcd1234";
-const expectedParametersHash = "f8e5108ebf58e390662f32e51bdc3ec94e475ba69aaf68c90704baa961e0592f";
+const expectedParametersHash = "da2a09e178fef43d49b159141f5490f34213e8eb6658ec12efd259cdf01e71c1";
 
 const mockedRunScenarioResponse = vi.fn();
 const mockedScenarioStatusResponse = vi.fn();
