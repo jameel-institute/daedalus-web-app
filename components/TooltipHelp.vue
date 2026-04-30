@@ -19,19 +19,21 @@
       </template>
     </template>
     <template #toggler="{ togglerId, on }">
-      <CIconSvg
-        class="icon help-icon opacity-50 p-0"
+      <button
+        type="button"
+        class="tooltip-help-trigger"
         :class="classes"
+        :aria-describedby="togglerId"
+        aria-label="Show help information"
+        v-on="on"
+        @click.stop
+        @pointerdown.stop
+        @touchstart.stop
       >
-        <img
-          :src="`/icons/${infoIcon ? 'info.png' : 'circleQuestion.svg'}`"
-          :aria-describedby="togglerId"
-          @click.stop
-          @pointerdown.stop
-          @touchstart.stop
-          v-on="on"
-        >
-      </CIconSvg>
+        <CIconSvg class="icon help-icon opacity-50 p-0">
+          <img :src="`/icons/${infoIcon ? 'info.png' : 'circleQuestion.svg'}`">
+        </CIconSvg>
+      </button>
     </template>
   </CTooltip>
 </template>
@@ -52,3 +54,27 @@ defineProps<{
 // Bear in mind that this means the image will be cached by the browser, so to update the image, you must also change
 // the file name.
 </script>
+
+<style scoped>
+.tooltip-help-trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  line-height: 0;
+  vertical-align: middle;
+  appearance: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  width: fit-content;
+}
+
+.tooltip-help-trigger::before {
+  content: "";
+  position: absolute;
+  inset: -0.5rem;
+}
+</style>
