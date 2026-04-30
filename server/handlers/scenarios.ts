@@ -11,9 +11,10 @@ import type {
 import type { ParameterSet } from "~/types/parameterTypes";
 import type { EventHandlerRequest, H3Event } from "h3";
 import { fetchRApi } from "@/server/utils/rApi";
-import { getModelVersion, hashParameters } from "../utils/helpers";
+import { hashParameters } from "../utils/helpers";
 import { apiResponse, badRequestResponse, internalServerErrorResponse } from "../utils/responseHelpers";
 import { createScenario, deleteScenario, getScenarioByParametersHash, getScenarioByRunId } from "../db/scenarioRepository";
+import { getVersionData } from "./versions";
 
 export const getScenario = async (runId: string | undefined) => {
   if (!runId) {
@@ -109,13 +110,15 @@ export const newScenario = async (
   parameters: ParameterSet,
   event?: H3Event<EventHandlerRequest>,
 ): Promise<NewScenarioResponse> => {
-  const version = await getModelVersion();
+  const versionResponse = await getVersionData();
+  const modelVersion = versionResponse.data?.daedalusModel;
+  const rApiVersion = versionResponse.data?.daedalusApi;
 
-  if (!version) {
-    const errors: Array<ApiError> = [{ error: "Internal server error", detail: "Model version lookup failed." }];
+  if (!modelVersion || !rApiVersion) {
+    const errors: Array<ApiError> = [{ error: "Internal server error", detail: "Version lookup failed." }];
     return internalServerErrorResponse(errors) as NewScenarioResponse;
   }
-  const parametersHash = hashParameters(parameters, version);
+  const parametersHash = hashParameters(parameters, modelVersion, rApiVersion);
   const scenario = await getScenarioByParametersHash(parametersHash);
 
   if (scenario) {
@@ -131,7 +134,7 @@ export const newScenario = async (
     }
   }
 
-  const response = await runScenario(parameters, version, event);
+  const response = await runScenario(parameters, modelVersion, event);
 
   if (response?.data?.runId) {
     await createScenario(parameters, parametersHash, response.data.runId);
