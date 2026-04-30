@@ -30,10 +30,10 @@ export const hashParameters = (parameters: ParameterSet, modelVersion: string, r
   const sha256 = new JSSHA("SHA-256", "TEXT");
   const sortedKeys = Object.keys(parameters).sort();
   sha256.update(
-    sortedKeys.join()
+    `${sortedKeys.join()
     + sortedKeys.map(k => parameters[k]).join()
-    + modelVersion
-    + rApiVersion,
+    }:${modelVersion
+    }:${rApiVersion}`,
   );
   return sha256.getHash("HEX");
 };

@@ -41,7 +41,7 @@ describe("hashParameters", () => {
     };
     const modelVersion = "0.0.1";
     const rApiVersion = "1.2.3";
-    const expectedHash = "b27f9454621989a290b9d493b0ae243f34d1a6aa832778da69e4649457862277";
+    const expectedHash = "f26fb3d5f0dc922ffc5f90bd606812e718e004dcc6fc95c9ca81c7ea04973473";
 
     expect(hashParameters(parameters, modelVersion, rApiVersion)).toEqual(expectedHash);
     expect(hashParameters(parameters, "9.9.9", rApiVersion)).not.toEqual(expectedHash);
@@ -49,5 +49,31 @@ describe("hashParameters", () => {
     expect(hashParameters(parameters, modelVersion, "9.9.9")).not.toEqual(hashParameters(parameters, "9.9.9", rApiVersion));
     expect(hashParameters(reorderedParameters, modelVersion, rApiVersion)).toEqual(expectedHash);
     expect(hashParameters(parametersWithSwappedValues, modelVersion, rApiVersion)).not.toEqual(expectedHash);
+  });
+
+  it("should generate different hashes for model/R-API boundary-collision cases to prevent ambiguity", () => {
+    // Regression test: ensure hashParameters separates modelVersion and rApiVersion unambiguously
+    // e.g., modelVersion="1" + rApiVersion="23" should not collide with modelVersion="12" + rApiVersion="3"
+    const parameters = {
+      param1: "value1",
+      param2: "value2",
+    };
+    const modelVersion = "0.0.1";
+    const rApiVersion = "1.2.3";
+    const expectedHash = "f26fb3d5f0dc922ffc5f90bd606812e718e004dcc6fc95c9ca81c7ea04973473";
+
+    // Verify the expected case still matches
+    expect(hashParameters(parameters, modelVersion, rApiVersion)).toEqual(expectedHash);
+
+    // Test ambiguous boundary pairs
+    const hash1_23 = hashParameters(parameters, "1", "23");
+    const hash12_3 = hashParameters(parameters, "12", "3");
+
+    // These should produce different hashes (no collision)
+    expect(hash1_23).not.toEqual(hash12_3);
+
+    // Neither should match the expected hash
+    expect(hash1_23).not.toEqual(expectedHash);
+    expect(hash12_3).not.toEqual(expectedHash);
   });
 });
