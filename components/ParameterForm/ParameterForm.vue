@@ -8,6 +8,19 @@
       novalidate
       @submit.prevent="submitForm"
     >
+      <CAlert v-if="errorOnRunRequest" color="danger">
+        <CAlertHeading>
+          <CIcon icon="cilWarning" class="flex-shrink-0 me-2" width="24" height="24" />
+          Error
+        </CAlertHeading>
+        <p class="mt-3">
+          There was an unexpected error when submitting the form. Please try again.
+        </p>
+        <hr>
+        <p class="mb-0">
+          Error details: {{ errorOnRunRequest.data?.message ?? errorOnRunRequest.message }}
+        </p>
+      </CAlert>
       <div
         v-for="(parameter) in paramMetadata"
         :key="parameter.id"
@@ -50,7 +63,7 @@
           @click="submitForm"
         >
           Run
-          <CSpinner v-if="formSubmitting && appStore.metadataFetchStatus !== 'error'" size="sm" class="ms-1" />
+          <CSpinner v-if="formSubmitting && !appStore.currentScenario.run.fetchError" size="sm" class="ms-1" />
           <CIcon v-else icon="cilArrowRight" />
         </CButton>
         <AdvancedUsagePopover
@@ -88,6 +101,7 @@ const showValidations = ref(false);
 const mounted = ref(false);
 const invalidFields = ref<string[]>([]);
 
+const errorOnRunRequest = computed(() => appStore.currentScenario.run.fetchError);
 const paramMetadata = computed(() => appStore.metadata?.parameters);
 
 const initialiseFormDataFromDefaults = () => {
@@ -123,7 +137,9 @@ const parameterDependencies = computed((): Record<string, string[]> => {
 });
 
 const runButtonDisabled = computed(() => {
-  if (!formData.value || formSubmitting.value || appStore.metadataFetchStatus === "error") {
+  if (appStore.currentScenario.run.fetchError) {
+    return false;
+  } else if (!formData.value || formSubmitting.value || appStore.metadataFetchStatus === "error") {
     return true;
   } else if (props.inModal && appStore.currentScenario.parameters) {
     const parametersHaveChanged = Object.keys(formData.value).some((key) => {
@@ -214,7 +230,7 @@ const submitForm = async () => {
   appStore.currentScenario.parameters = { ...formData.value };
   await appStore.runScenario(appStore.currentScenario);
 
-  if (appStore.currentScenario.runId) {
+  if (appStore.currentScenario.runId && !appStore.currentScenario.run.fetchError) {
     await navigateTo(`/scenarios/${appStore.currentScenario.runId}`);
   }
 };

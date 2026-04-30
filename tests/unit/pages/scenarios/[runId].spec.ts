@@ -2,6 +2,7 @@ import ScenariosIdPage from "@/pages/scenarios/[runId].vue";
 import { emptyScenario, mockPinia, mockResultData } from "@/tests/unit/mocks/mockPinia";
 import { mockNuxtImport, mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
+import { flushPromises } from "@vue/test-utils";
 import { mockMetadataResponseData } from "~/tests/unit/mocks/mockResponseData";
 import type { Metadata } from "~/types/apiResponseTypes";
 
@@ -11,8 +12,6 @@ const stubs = {
   "CostsPanel": true,
 };
 
-const longRunningRunId = "123";
-const failedRunId = "456";
 const successfulRunId = "789";
 const sampleScenario = {
   ...emptyScenario,
@@ -40,27 +39,6 @@ registerEndpoint(`/api/scenarios/${successfulRunId}/details`, () => {
     runId: successfulRunId,
   };
 });
-
-registerEndpoint(`/api/scenarios/${longRunningRunId}/status`, () => {
-  return {
-    runStatus: "running",
-    runSuccess: null,
-    done: false,
-    runErrors: null,
-    runId: longRunningRunId,
-  };
-});
-
-registerEndpoint(`/api/scenarios/${failedRunId}/status`, () => {
-  return {
-    runStatus: "failed",
-    runSuccess: false,
-    done: true,
-    runErrors: ["No biscuits available. Analysis lost motivation."],
-    runId: failedRunId,
-  };
-});
-
 registerEndpoint(`/api/scenarios/${successfulRunId}/status`, () => {
   return {
     runStatus: "complete",
@@ -70,7 +48,6 @@ registerEndpoint(`/api/scenarios/${successfulRunId}/status`, () => {
     runId: successfulRunId,
   };
 });
-
 registerEndpoint(`/api/scenarios/${successfulRunId}/result`, () => {
   return mockResultData;
 });
@@ -84,18 +61,75 @@ afterAll(() => {
 });
 
 describe("scenario result page", () => {
-  it("renders as expected", async () => {
-    mockRoute.mockReturnValue({
-      params: {
-        runId: successfulRunId,
-      },
+  it("renders as expected if scenario status is already complete at pageload time", async () => {
+    const completeRunId = "135";
+    registerEndpoint(`/api/scenarios/${completeRunId}/status`, () => {
+      return {
+        runStatus: "complete",
+        runSuccess: true,
+        done: true,
+        runErrors: null,
+        runId: completeRunId,
+      };
     });
+    registerEndpoint(`/api/scenarios/${completeRunId}/result`, () => {
+      return mockResultData;
+    });
+    registerEndpoint(`/api/scenarios/${completeRunId}/details`, () => {
+      return {
+        parameters: mockResultData.parameters,
+        runId: completeRunId,
+      };
+    });
+
+    mockRoute.mockReturnValue({ params: { runId: completeRunId } });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
     expect(component.text()).toContain("Change parameters");
+    expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
+    expect(component.text()).toContain("United Kingdom");
+    expect(component.text()).toContain("SARS 2004");
+    expect(component.text()).toContain("30,500");
+    expect(component.text()).toContain("No closures");
+    expect(component.text()).toContain("None");
+  });
+
+  it("renders as expected if scenario status is still in progress at pageload time", async () => {
+    const pendingRunId = "246";
+    let statusRequestCounts = 0;
+    registerEndpoint(`/api/scenarios/${pendingRunId}/status`, () => {
+      statusRequestCounts++;
+      const nowComplete = statusRequestCounts === 2;
+      return {
+        runStatus: nowComplete ? "running" : "complete",
+        runSuccess: nowComplete ? "true" : null,
+        done: nowComplete,
+        runErrors: null,
+        runId: pendingRunId,
+      };
+    });
+    registerEndpoint(`/api/scenarios/${pendingRunId}/result`, () => {
+      return mockResultData;
+    });
+    registerEndpoint(`/api/scenarios/${pendingRunId}/details`, () => {
+      return {
+        parameters: mockResultData.parameters,
+        runId: pendingRunId,
+      };
+    });
+
+    mockRoute.mockReturnValue({ params: { runId: pendingRunId } });
+
+    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
+
+    expect(component.text()).toContain("Change parameters");
+    expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(true);
+
+    vi.advanceTimersByTime(500);
 
     await waitFor(() => {
+      expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
       expect(component.text()).toContain("United Kingdom");
       expect(component.text()).toContain("SARS 2004");
       expect(component.text()).toContain("30,500");
@@ -104,12 +138,38 @@ describe("scenario result page", () => {
     });
   });
 
-  it("resets appStore.downloadError and any previous scenario runs when the page is loaded", async () => {
+  it("shows alert when run is taking a long time", async () => {
+    const longRunningRunId = "123";
+    registerEndpoint(`/api/scenarios/${longRunningRunId}/status`, () => {
+      return {
+        runStatus: "running",
+        runSuccess: null,
+        done: false,
+        runErrors: null,
+        runId: longRunningRunId,
+      };
+    });
+
     mockRoute.mockReturnValue({
       params: {
-        runId: successfulRunId,
+        runId: longRunningRunId,
       },
     });
+
+    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
+
+    const spinner = component.findComponent({ name: "CSpinner" });
+    expect(spinner.isVisible()).toBe(true);
+    expect(component.text()).not.toContain("Thank you for waiting.");
+
+    vi.advanceTimersByTime(6000);
+    await nextTick();
+    expect(component.text()).toContain("Thank you for waiting.");
+    expect(spinner.isVisible()).toBe(true);
+  });
+
+  it("resets appStore.downloadError and any previous scenario runs when the page is loaded", async () => {
+    mockRoute.mockReturnValue({ params: { runId: successfulRunId } });
     const piniaMock = mockPinia({
       downloadError: "Some error",
       currentComparison: {
@@ -135,106 +195,162 @@ describe("scenario result page", () => {
     expect(appStore.currentComparison.scenarios).toHaveLength(0);
   });
 
-  // Also end-to-end tested in tests/e2e/slowAnalysis.spec.ts
-  it("shows alerts when analysis is taking a long time and when it is taking a really long time", async () => {
-    mockRoute.mockReturnValue({
-      params: {
-        runId: longRunningRunId,
-      },
+  it("shows alert when a status request throws an error during page setup script", async () => {
+    const idForErroringStatusRequests = "123";
+    registerEndpoint(`/api/scenarios/${idForErroringStatusRequests}/status`, () => {
+      throw createError({
+        statusCode: 418,
+        statusMessage: "I'm a teapot",
+      });
     });
+    mockRoute.mockReturnValue({ params: { runId: idForErroringStatusRequests } });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
-    const spinner = component.findComponent({ name: "CSpinner" });
-    expect(spinner.isVisible()).toBe(true);
-    expect(component.text()).not.toContain("Analysis status: running");
-    expect(component.text()).not.toContain("Thank you for waiting.");
-    expect(component.text()).not.toContain("The analysis run failed.");
-
-    vi.advanceTimersByTime(6000);
-    await nextTick();
-    expect(component.text()).toContain("Analysis status: running");
-    expect(component.text()).not.toContain("Thank you for waiting.");
-    expect(component.text()).not.toContain("The analysis run failed.");
-    expect(spinner.isVisible()).toBe(true);
-
-    vi.advanceTimersByTime(11000);
-    await nextTick();
-    // This alert text should be displayed after a further 10 seconds of waiting.
-    expect(component.text()).toContain("Analysis status: running");
-    expect(component.text()).toContain("Thank you for waiting.");
-    expect(component.text()).not.toContain("The analysis run failed.");
-    expect(spinner.isVisible()).toBe(true);
+    expect(component.text()).toContain("There was an unexpected error");
+    expect(component.text()).toContain("refresh the page");
+    expect(component.text()).toContain("418");
+    expect(component.text()).toContain("I'm a teapot");
+    expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
   });
 
-  it("shows alerts when analysis fails", async () => {
-    mockRoute.mockReturnValue({
-      params: {
-        runId: failedRunId,
-      },
+  it("shows alert when a result request throws an error during page setup script", async () => {
+    const idForErroringResultRequest = "468";
+    registerEndpoint(`/api/scenarios/${idForErroringResultRequest}/status`, () => {
+      return {
+        runStatus: "complete",
+        runSuccess: true,
+        done: true,
+        runErrors: null,
+        runId: idForErroringResultRequest,
+      };
     });
+    registerEndpoint(`/api/scenarios/${idForErroringResultRequest}/result`, () => {
+      throw createError({
+        statusCode: 418,
+        statusMessage: "I'm a teapot",
+      });
+    });
+    mockRoute.mockReturnValue({ params: { runId: idForErroringResultRequest } });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
-    const spinner = component.findComponent({ name: "CSpinner" });
-    expect(spinner.isVisible()).toBe(false);
-    expect(component.text()).toContain("The analysis run failed.");
-    expect(component.text()).toContain("No biscuits available.");
-
-    vi.advanceTimersByTime(6000);
-    await nextTick();
-    expect(component.text()).toContain("The analysis run failed.");
-    expect(component.text()).not.toContain("Analysis status: running");
-    expect(component.text()).not.toContain("Thank you for waiting.");
-    expect(spinner.isVisible()).toBe(false);
-
-    vi.advanceTimersByTime(11000);
-    await nextTick();
-    expect(component.text()).toContain("The analysis run failed.");
-    expect(component.text()).not.toContain("Analysis status: running");
-    expect(component.text()).not.toContain("Thank you for waiting.");
-    expect(spinner.isVisible()).toBe(false);
+    expect(component.text()).toContain("There was an unexpected error");
+    expect(component.text()).toContain("refresh the page");
+    expect(component.text()).toContain("418");
+    expect(component.text()).toContain("I'm a teapot");
+    expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
   });
 
-  it("shows no alerts when analysis succeeds", async () => {
-    mockRoute.mockReturnValue({
-      params: {
-        runId: successfulRunId,
-      },
+  it("shows alert when a status request throws an error during polling", async () => {
+    const statusRequestFirstPendingThenError = "357";
+    let statusRequestCounts = 0;
+    registerEndpoint(`/api/scenarios/${statusRequestFirstPendingThenError}/status`, () => {
+      statusRequestCounts++;
+      if (statusRequestCounts < 2) {
+        return {
+          runStatus: "running",
+          runSuccess: null,
+          done: false,
+          runErrors: null,
+          runId: statusRequestFirstPendingThenError,
+        };
+      }
+      throw createError({
+        statusCode: 418,
+        statusMessage: "I'm a teapot",
+      });
     });
+    registerEndpoint(`/api/scenarios/${statusRequestFirstPendingThenError}/result`, () => {
+      return mockResultData;
+    });
+    mockRoute.mockReturnValue({ params: { runId: statusRequestFirstPendingThenError } });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
-    const spinner = component.findComponent({ name: "CSpinner" });
-    // Two nextTicks are needed to wait for the spinner to disappear: status fetch and result fetch.
+    expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(true);
+
+    vi.advanceTimersByTime(500);
+    await flushPromises();
+
+    expect(component.text()).toContain("There was an unexpected error");
+    expect(component.text()).toContain("refresh the page");
+    expect(component.text()).toContain("418");
+    expect(component.text()).toContain("I'm a teapot");
+    expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
+  });
+
+  it("shows alert when a result request throws an error after page has loaded", async () => {
+    const idForResultRequestErroringAfterPageload = "468";
+    let statusRequestCounts = 0;
+    registerEndpoint(`/api/scenarios/${idForResultRequestErroringAfterPageload}/status`, () => {
+      statusRequestCounts++;
+      const nowComplete = statusRequestCounts === 2;
+      return {
+        runStatus: nowComplete ? "running" : "complete",
+        runSuccess: nowComplete ? "true" : null,
+        done: nowComplete,
+        runErrors: null,
+        runId: idForResultRequestErroringAfterPageload,
+      };
+    });
+    registerEndpoint(`/api/scenarios/${idForResultRequestErroringAfterPageload}/result`, () => {
+      throw createError({
+        statusCode: 418,
+        statusMessage: "I'm a teapot",
+      });
+    });
+
+    mockRoute.mockReturnValue({ params: { runId: idForResultRequestErroringAfterPageload } });
+
+    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
+
+    expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(true);
+
+    vi.advanceTimersByTime(500);
+    await flushPromises();
+
     await waitFor(() => {
-      expect(spinner.isVisible()).toBe(false);
+      expect(component.text()).toContain("There was an unexpected error");
+      expect(component.text()).toContain("refresh the page");
+      expect(component.text()).toContain("418");
+      expect(component.text()).toContain("I'm a teapot");
+      expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
     });
-    expect(component.text()).not.toContain("The analysis run failed.");
-    expect(component.text()).not.toContain("Analysis status: running");
-    expect(component.text()).not.toContain("Thank you for waiting.");
+  });
 
-    vi.advanceTimersByTime(6000);
-    await nextTick();
-    expect(component.text()).not.toContain("The analysis run failed.");
-    expect(component.text()).not.toContain("Analysis status: running");
-    expect(component.text()).not.toContain("Thank you for waiting.");
-    expect(spinner.isVisible()).toBe(false);
+  it("shows alerts when run fails (i.e. the API reports errors in the model run)", async () => {
+    const failedRunId = "456";
+    registerEndpoint(`/api/scenarios/${failedRunId}/status`, () => {
+      return {
+        runStatus: "failed",
+        runSuccess: false,
+        done: true,
+        runErrors: ["No biscuits available. Scenario lost motivation."],
+        runId: failedRunId,
+      };
+    });
 
-    vi.advanceTimersByTime(11000);
-    await nextTick();
-    expect(component.text()).not.toContain("The analysis run failed.");
-    expect(component.text()).not.toContain("Analysis status: running");
-    expect(component.text()).not.toContain("Thank you for waiting.");
-    expect(spinner.isVisible()).toBe(false);
+    mockRoute.mockReturnValue({ params: { runId: failedRunId } });
+
+    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
+
+    expect(component.text()).toContain("There was an unexpected error");
+    expect(component.text()).toContain("try again later");
+    expect(component.text()).toContain("No biscuits available.");
+    expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
+  });
+
+  it("shows no spinner when run succeeds", async () => {
+    mockRoute.mockReturnValue({ params: { runId: successfulRunId } });
+
+    const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
+
+    expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
   });
 
   it("opens the code snippet when the link from the advanced usage popover in the 'CreateComparison' modal is clicked", async () => {
-    mockRoute.mockReturnValue({
-      params: {
-        runId: successfulRunId,
-      },
-    });
+    mockRoute.mockReturnValue({ params: { runId: successfulRunId } });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
@@ -262,11 +378,7 @@ describe("scenario result page", () => {
   });
 
   it("opens the code snippet when the link from the advanced usage popover in the 'EditParameters' modal is clicked", async () => {
-    mockRoute.mockReturnValue({
-      params: {
-        runId: successfulRunId,
-      },
-    });
+    mockRoute.mockReturnValue({ params: { runId: successfulRunId } });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 

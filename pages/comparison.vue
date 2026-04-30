@@ -27,7 +27,41 @@
         </template>
       </ParameterInfoCard>
     </div>
-    <CSpinner v-show="showSpinner" class="ms-3 mb-3 mt-3" />
+    <CSpinner v-if="showSpinner" class="ms-3 mb-3 mt-3" />
+    <CAlert v-if="showJobSlowAlert" color="info">
+      <p>
+        Thank you for waiting. Scenarios can sometimes take up to 10 seconds to run, and comparisons may take longer.
+      </p>
+      <p class="mb-0">
+        Waiting for {{ secondsSinceFirstStatusPoll }} seconds
+      </p>
+    </CAlert>
+    <CAlert v-if="unsuccessfulScenarios.length || scenariosWithFetchErrors.length" color="danger">
+      <CAlertHeading>
+        <CIcon icon="cilWarning" class="flex-shrink-0 me-2" width="24" height="24" />
+        Error
+      </CAlertHeading>
+      <p class="mt-3">
+        There was an unexpected error. Please try again later.
+      </p>
+      <hr>
+      <template v-for="scenario in unsuccessfulScenarios" :key="scenario.runId">
+        <p
+          v-for="(errorMsg, index) in scenario.status.data?.runErrors"
+          :key="index"
+        >
+          {{ errorMsg }}
+        </p>
+      </template>
+      <template v-for="scenario in scenariosWithFetchErrors" :key="scenario.runId">
+        <p v-if="scenario.status.fetchError" class="mb-0">
+          Error details: {{ scenario.status.fetchError.data?.message ?? scenario.status.fetchError.message }}
+        </p>
+        <p v-if="scenario.result.fetchError" class="mb-0">
+          Error details: {{ scenario.result.fetchError.data?.message ?? scenario.result.fetchError.message }}
+        </p>
+      </template>
+    </CAlert>
     <CRow v-if="appStore.everyScenarioHasCosts" class="results-cards-container">
       <div class="col-12">
         <CTabs active-item-key="costs">
@@ -61,13 +95,28 @@
 
 <script setup lang="ts">
 import { CIcon, CIconSvg } from "@coreui/icons-vue";
-
-const showSpinner = ref(true);
+import type { runStatus } from "~/types/apiResponseTypes";
 
 const nuxtApp = useNuxtApp();
 const appStore = useAppStore();
-const { everyScenarioHasRunSuccessfully } = storeToRefs(appStore);
+const { scenariosWithFetchErrors, unsuccessfulScenarios, everyScenarioHasRunSuccessfully, everyScenarioIsDone } = storeToRefs(appStore);
 const query = useRoute().query;
+
+const jobSlow = ref(false);
+const secondsSinceFirstStatusPoll = ref("0");
+
+const showSpinner = computed(() => {
+  return !everyScenarioIsDone.value
+    && scenariosWithFetchErrors.value.length === 0
+    && unsuccessfulScenarios.value.length === 0;
+});
+
+const showJobSlowAlert = computed(() => {
+  return jobSlow.value && appStore.currentComparison.scenarios.some((s) => {
+    return !s.result.data && ["queued", "running"].includes(s.status.data?.runStatus as runStatus);
+  });
+});
+
 appStore.clearScenario(appStore.currentScenario);
 appStore.downloadError = undefined;
 let statusInterval: NodeJS.Timeout;
@@ -78,15 +127,30 @@ watch(() => appStore.metadata, async (newMetadata) => {
   }
 }, { immediate: true });
 
-const stopWatchingComparison = watch(() => appStore.currentComparison, async (currentComp) => {
+// Use useAsyncData to store the time once, during server-side rendering: avoids client render re-writing value.
+const { data: timeOfFirstStatusPoll } = await useAsyncData<number>("timeOfFirstStatusPoll", async () => {
+  return new Promise<number>((resolve) => {
+    resolve(new Date().getTime());
+  });
+});
+
+const stopWatchingComparison = watch(everyScenarioIsDone, () => {
   if (!statusInterval && appStore.everyScenarioHasARunId) {
     statusInterval = setInterval(() => {
+      if (timeOfFirstStatusPoll.value) {
+        secondsSinceFirstStatusPoll.value = ((new Date().getTime() - timeOfFirstStatusPoll.value) / 1000).toFixed(0);
+      };
       appStore.refreshComparisonStatuses(nuxtApp);
     }, 200);
+    setTimeout(() => {
+      if (!everyScenarioIsDone.value) {
+        jobSlow.value = true;
+      }
+    }, 5000);
   }
-  if (currentComp.scenarios?.every(s => s.status.data?.done)) {
+  if (everyScenarioIsDone.value) {
     clearInterval(statusInterval);
-    showSpinner.value = false;
+    jobSlow.value = false;
   }
 }, { deep: true, immediate: true });
 

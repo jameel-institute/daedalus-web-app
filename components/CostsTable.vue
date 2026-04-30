@@ -175,9 +175,6 @@ const displayValue = (scenario: Scenario, costId: string, metricId: string): str
     case CostBasis.PercentGDP:
     {
       const percentOfGdp = costAsPercentOfGdp(val, scenario.result.data?.gdp);
-      if (percentOfGdp < 0.005 && percentOfGdp > 0) {
-        return "<0.005%";
-      }
       return humanReadablePercentOfGdp(percentOfGdp, signDisplay).percent;
     }
     case CostBasis.USD:

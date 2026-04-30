@@ -421,9 +421,38 @@ describe("parameter form", () => {
       },
     });
 
-    expect(component.findComponent({ name: "CAlert" }).exists()).toBe(true);
-    expect(component.text()).toContain("Failed to initialise.");
-    expect(component.text()).toContain("There was a bee-related issue.");
+    const cAlertComponent = component.findComponent({ name: "CAlert" });
+
+    expect(cAlertComponent.text()).toContain("Failed to initialise.");
+    expect(cAlertComponent.text()).toContain("There was a bee-related issue.");
+  });
+
+  it("displays CAlert with error message when the request to run a scenario throws an error", async () => {
+    registerEndpoint("/api/scenarios", {
+      method: "POST",
+      async handler() {
+        throw createError({
+          statusCode: 418,
+          statusMessage: "I'm a teapot",
+        });
+      },
+    });
+
+    const component = await mountSuspended(ParameterForm, { props: { inModal: false }, global: { stubs, plugins } });
+
+    const buttonEl = component.find("button[type='submit']");
+    await buttonEl.trigger("click");
+
+    await flushPromises();
+
+    const cAlertComponent = component.findComponent({ name: "CAlert" });
+
+    expect(cAlertComponent.text()).toContain("There was an unexpected error when submitting the form");
+    expect(cAlertComponent.text()).toContain("418");
+    expect(cAlertComponent.text()).toContain("I'm a teapot");
+
+    await flushPromises();
+    expect(mockNavigateTo).not.toBeCalled();
   });
 
   it("displays CSpinner when metadata is not defined and there is no error", async () => {

@@ -32,6 +32,11 @@ export default defineNuxtModule({
       filePath: "@coreui/vue/src/components/alert/CAlert",
     });
     addComponent({
+      name: "CAlertHeading",
+      export: "CAlertHeading",
+      filePath: "@coreui/vue/src/components/alert/CAlertHeading",
+    });
+    addComponent({
       name: "CButtonGroup",
       export: "CButtonGroup",
       filePath: "@coreui/vue/src/components/button-group/CButtonGroup",

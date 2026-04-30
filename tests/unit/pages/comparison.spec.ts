@@ -6,6 +6,7 @@ import { mockMetadataResponseData } from "../mocks/mockResponseData";
 import type { Metadata } from "~/types/apiResponseTypes";
 import { waitFor } from "@testing-library/vue";
 import { setActivePinia } from "pinia";
+import { flushPromises } from "@vue/test-utils";
 
 const stubs = {
   "CIcon": true,
@@ -74,8 +75,16 @@ const { mockRoute } = vi.hoisted(() => ({
 
 mockNuxtImport("useRoute", () => mockRoute);
 
+beforeAll(async () => {
+  vi.useFakeTimers();
+});
+
 afterEach(() => {
   mockRoute.mockReset();
+});
+
+afterAll(() => {
+  vi.useRealTimers();
 });
 
 describe("comparison page", () => {
@@ -95,21 +104,18 @@ describe("comparison page", () => {
     const appStoreStatusSpy = vi.spyOn(appStore, "refreshScenarioStatus");
     const component = await mountSuspended(Comparison, { global: { plugins: [pinia], stubs } });
 
-    await waitFor(() => {
-      expect(appStore.currentComparison.scenarios.length).toBe(3);
+    vi.advanceTimersByTime(200);
+    await flushPromises();
 
-      const text = component.text();
-
-      expect(text).toContain("Explore by disease");
-
-      // Don't continue polling for status after runs are known to be complete
-      expect(appStoreStatusSpy).toHaveBeenCalledTimes(3);
-    });
+    expect(appStore.currentComparison.scenarios.length).toBe(3);
+    expect(component.text()).toContain("Explore by disease");
+    // Don't continue polling for status after runs are known to be complete
+    expect(appStoreStatusSpy).toHaveBeenCalledTimes(3);
   });
 
   it("should initialise with the losses tab selected", async () => {
     const component = await mountSuspended(Comparison, { global: { plugins: [pinia], stubs } });
-
+    vi.advanceTimersByTime(200);
     await waitFor(() => {
       const tabPanes = component.findAll(".tab-pane");
       expect(tabPanes[0].text()).toContain("Show losses");
@@ -124,15 +130,16 @@ describe("comparison page", () => {
 
     const infoCard = component.find(".card");
 
-    await waitFor(() => {
-      const text = infoCard.text();
-      expect(text).toContain("Baseline scenario");
-      expect(text).toContain("United States");
-      expect(text).toContain("SARS 2004");
-      expect(text).toContain("Elimination");
-      expect(text).toContain("Medium");
-      expect(text).toContain("305,000");
-    });
+    vi.advanceTimersByTime(200);
+    await flushPromises();
+
+    const text = infoCard.text();
+    expect(text).toContain("Baseline scenario");
+    expect(text).toContain("United States");
+    expect(text).toContain("SARS 2004");
+    expect(text).toContain("Elimination");
+    expect(text).toContain("Medium");
+    expect(text).toContain("305,000");
   });
 
   it("resets appStore.downloadError and any previous scenario runs when the page is loaded", async () => {
@@ -152,5 +159,97 @@ describe("comparison page", () => {
     expect(appStore.downloadError).toBeUndefined();
     expect(appStore.currentScenario.parameters).toBeUndefined();
     await waitFor(() => expect(appStore.currentComparison.axis).not.toBeUndefined());
+  });
+
+  it("shows alert when any run is taking a long time", async () => {
+    const longRunningRunId = scenarioRunIds.sars_cov_2_pre_alpha;
+    registerEndpoint(`/api/scenarios/${longRunningRunId}/status`, () => {
+      return {
+        runStatus: "running",
+        runSuccess: null,
+        done: false,
+        runErrors: null,
+        runId: longRunningRunId,
+      };
+    });
+
+    const component = await mountSuspended(Comparison, { global: { plugins: [pinia], stubs } });
+
+    vi.advanceTimersByTime(200);
+    await flushPromises();
+    const spinner = component.findComponent({ name: "CSpinner" });
+    expect(spinner.isVisible()).toBe(true);
+    expect(component.text()).not.toContain("Thank you for waiting.");
+
+    vi.advanceTimersByTime(6000);
+    await flushPromises();
+    expect(component.text()).toContain("Thank you for waiting.");
+    expect(spinner.isVisible()).toBe(true);
+  });
+
+  it("shows alerts when any run fails (i.e. the API reports errors in the model run)", async () => {
+    const failedRunId = scenarioRunIds.sars_cov_2_pre_alpha;
+    registerEndpoint(`/api/scenarios/${failedRunId}/status`, () => {
+      return {
+        runStatus: "failed",
+        runSuccess: false,
+        done: true,
+        runErrors: ["No oatcakes available. Scenario lost willpower."],
+        runId: failedRunId,
+      };
+    });
+
+    const component = await mountSuspended(Comparison, { global: { plugins: [pinia], stubs } });
+
+    vi.advanceTimersByTime(200);
+    await flushPromises();
+    vi.advanceTimersByTime(200);
+    await flushPromises();
+
+    expect(component.text()).toContain("There was an unexpected error");
+    expect(component.text()).toContain("No oatcakes available.");
+    expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
+  });
+
+  it("shows alert when any status request throws an error", async () => {
+    registerEndpoint(`/api/scenarios/${scenarioRunIds.sars_cov_1}/status`, () => {
+      throw createError({
+        statusCode: 418,
+        statusMessage: "I'm a teapot",
+      });
+    });
+
+    const component = await mountSuspended(Comparison, { global: { plugins: [pinia], stubs } });
+
+    expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(true);
+
+    vi.advanceTimersByTime(200);
+    await flushPromises();
+
+    expect(component.text()).toContain("There was an unexpected error");
+    expect(component.text()).toContain("418");
+    expect(component.text()).toContain("I'm a teapot");
+    expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
+  });
+
+  it("shows alert when any result request throws an error", async () => {
+    registerEndpoint(`/api/scenarios/${scenarioRunIds.sars_cov_2_omicron}/result`, () => {
+      throw createError({
+        statusCode: 418,
+        statusMessage: "I'm a teapot",
+      });
+    });
+
+    const component = await mountSuspended(Comparison, { global: { plugins: [pinia], stubs } });
+
+    expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(true);
+
+    vi.advanceTimersByTime(200);
+    await flushPromises();
+
+    expect(component.text()).toContain("There was an unexpected error");
+    expect(component.text()).toContain("418");
+    expect(component.text()).toContain("I'm a teapot");
+    expect(component.findComponent({ name: "CSpinner" }).exists()).toBe(false);
   });
 });

@@ -15,6 +15,9 @@ import { ExcelComparisonDownload } from "~/download/excelComparisonDownload";
 const emptyScenario = {
   runId: undefined,
   parameters: undefined,
+  run: {
+    fetchError: undefined,
+  },
   result: {
     data: undefined,
     fetchError: undefined,
@@ -51,7 +54,7 @@ export const useAppStore = defineStore("app", {
     currentScenario: emptyScenario,
     currentComparison: emptyComparison,
     preferences: {
-      costBasis: CostBasis.USD, // Default cost basis for first-time visitors
+      costBasis: CostBasis.PercentGDP, // Default cost basis for first-time visitors
     },
   }),
   persist: {
@@ -80,9 +83,19 @@ export const useAppStore = defineStore("app", {
       }
     },
     timeSeriesGroups: (state): Array<TimeSeriesGroup> | undefined => state.metadata?.results.time_series_groups as TimeSeriesGroup[] | undefined,
+    everyScenarioIsDone: (state): boolean => {
+      return state.currentComparison.scenarios?.length > 0
+        && state.currentComparison.scenarios?.every(s => s.status.data?.done);
+    },
     everyScenarioHasRunSuccessfully: (state): boolean => {
       return state.currentComparison.scenarios?.length > 0
         && state.currentComparison.scenarios?.every(s => s.status.data?.runSuccess);
+    },
+    unsuccessfulScenarios: (state): Scenario[] => {
+      return state.currentComparison.scenarios?.filter(s => s.status.data?.runSuccess === false);
+    },
+    scenariosWithFetchErrors: (state): Scenario[] => {
+      return state.currentComparison.scenarios?.filter(s => s.status.fetchError || s.result.fetchError);
     },
     everyScenarioHasARunId: (state): boolean => {
       return state.currentComparison.scenarios?.length > 0
@@ -166,7 +179,7 @@ export const useAppStore = defineStore("app", {
         method: "POST",
         body: { parameters },
       }).catch((error: FetchError) => {
-        console.error(error);
+        scenario.run.fetchError = error;
       });
 
       if (response) {
@@ -235,6 +248,13 @@ export const useAppStore = defineStore("app", {
       }
 
       const newComparison = structuredClone(emptyComparison);
+
+      if (axis === "country") {
+        // When comparing different countries, having ‘GDP%’ as the main unit would be confusing, since it’s
+        // incommensurable between countries, and you might wonder if it refers to the baseline country’s GDP.
+        // So here in the case of comparing by country we should default to USD instead.
+        this.preferences.costBasis = CostBasis.USD;
+      }
 
       newComparison.axis = axis;
       newComparison.baseline = baselineParameters[axis];

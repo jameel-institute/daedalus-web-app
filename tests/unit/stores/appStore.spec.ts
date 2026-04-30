@@ -14,6 +14,7 @@ import { CostBasis } from "~/types/unitTypes";
 import { flushPromises } from "@vue/test-utils";
 import { mockMetadataResponseData } from "../mocks/mockResponseData";
 import type { Scenario } from "~/types/storeTypes";
+import type { AsyncDataRequestStatus } from "#app";
 
 const unloadedScenario = {
   ...emptyScenario,
@@ -92,7 +93,7 @@ describe("app store", () => {
     expect(store.versions).toBeUndefined();
     expect(store.metadata).toBeUndefined();
     expect(store.largeScreen).toBe(true);
-    expect(store.preferences.costBasis).toBe(CostBasis.USD);
+    expect(store.preferences.costBasis).toBe(CostBasis.PercentGDP);
   });
 
   describe("actions", () => {
@@ -104,6 +105,7 @@ describe("app store", () => {
       await waitFor(() => {
         expect(store.currentScenario.runId).toBe("123");
         expect(store.currentScenario.parameters).toEqual({
+          behaviour: "none",
           country: "GBR",
           pathogen: "sars_cov_1",
           response: "none",
@@ -428,6 +430,9 @@ describe("app store", () => {
       expect(store.currentScenario).toEqual({
         runId: undefined,
         parameters: undefined,
+        run: {
+          fetchError: undefined,
+        },
         result: {
           data: undefined,
           fetchError: undefined,
@@ -513,6 +518,7 @@ describe("app store", () => {
       });
 
       const store = useAppStore();
+      store.preferences.costBasis = CostBasis.PercentGDP;
 
       await expect(async () => {
         await store.runComparison("vaccine", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["none", "low"]);
@@ -521,6 +527,8 @@ describe("app store", () => {
       await store.loadMetadata();
 
       await store.runComparison("vaccine", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["none", "low"]);
+
+      expect(store.preferences.costBasis).toBe(CostBasis.PercentGDP); // unaffected
 
       // It should not reset the 'hospital_capacity' parameter to default values unless necessitated by a change of country.
       expect(store.currentComparison).toEqual({
@@ -544,6 +552,10 @@ describe("app store", () => {
           },
         ],
       });
+
+      await store.runComparison("country", { country: "USA", hospital_capacity: "54321", vaccine: "high", response: "elimination" }, ["USA", "GBR"]);
+
+      expect(store.preferences.costBasis).toBe(CostBasis.USD);
     });
 
     it("can run a comparison, taking dependent parameters into account", async () => {
@@ -797,6 +809,35 @@ describe("app store", () => {
 
         store.currentComparison.scenarios[1].status.data!.runSuccess = true;
         expect(store.everyScenarioHasRunSuccessfully).toBe(true);
+      });
+
+      it("can retrieve any scenarios in a comparison which report a failed run", async () => {
+        const store = useAppStore();
+        const unsuccessfulScenario = {
+          ...emptyScenario,
+          status: {
+            data: { done: true, runId: null, runStatus: runStatus.Failed, runErrors: null, runSuccess: false },
+            fetchError: undefined,
+            fetchStatus: "success" as AsyncDataRequestStatus,
+          },
+        };
+        const successfulScenario = {
+          ...emptyScenario,
+          status: {
+            data: { done: true, runId: null, runStatus: runStatus.Complete, runErrors: null, runSuccess: true },
+            fetchError: undefined,
+            fetchStatus: "success" as AsyncDataRequestStatus,
+          },
+        };
+        store.currentComparison = {
+          axis: "vaccine",
+          baseline: "high",
+          scenarios: [successfulScenario, unsuccessfulScenario],
+        };
+        expect(store.unsuccessfulScenarios).toEqual([unsuccessfulScenario]);
+
+        store.currentComparison.scenarios[1].status.data!.runSuccess = true;
+        expect(store.unsuccessfulScenarios).toHaveLength(0);
       });
 
       it("can report whether every scenario in a comparison has a run id", async () => {

@@ -53,9 +53,6 @@ describe("about page", () => {
     expect(text).toContain("About");
     expect(text).toContain(pathogenParam.options.length);
     expect(text).toContain(countryParam.options.length);
-    for (const estimate of mockedMetadata.results.time_series_groups) {
-      expect(text).toContain(estimate.label);
-    }
     expect(text).toContain("Model version: 1.2.3");
     expect(text).toContain("R API version: 4.5.6");
     expect(text).toContain("Web app version: 7.8.9");

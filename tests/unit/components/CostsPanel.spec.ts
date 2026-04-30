@@ -5,6 +5,7 @@ import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { mockResultResponseData } from "../mocks/mockResponseData";
 import { setActivePinia } from "pinia";
 import { CModal } from "#components";
+import { CostBasis } from "~/types/unitTypes";
 
 const stubs = {
   CIcon: true,
@@ -55,6 +56,7 @@ describe("costs card", () => {
 
   it("should render the costs chart container, the total cost, costs table, vsl and total cost in terms of % of GDP", async () => {
     const component = await mountSuspended(CostsPanel, { global: { stubs, plugins: [pinia] } });
+    const appStore = useAppStore();
     expect(component.text()).toContain("Losses after 599 days");
     expect(component.find(`#gdpContainer`).text()).toContain("44.9%");
 
@@ -67,6 +69,24 @@ describe("costs card", () => {
     const vslModalComponent = component.findComponent(CModal);
     expect(vslModalComponent.props("visible")).toBe(false);
 
+    expect(appStore.preferences.costBasis).toBe(CostBasis.PercentGDP);
+
+    const gdpRadioButton = component.find(`input[type="radio"][value="${CostBasis.PercentGDP}"]`);
+    const usdRadioButton = component.find(`input[type="radio"][value="${CostBasis.USD}"]`);
+    expect(gdpRadioButton.element.checked).toBe(true);
+    expect(usdRadioButton.element.checked).toBe(false);
+
+    await usdRadioButton.setChecked();
+
+    expect(gdpRadioButton.element.checked).toBe(false);
+    expect(usdRadioButton.element.checked).toBe(true);
+    expect(appStore.preferences.costBasis).toBe(CostBasis.USD);
+
+    await gdpRadioButton.setChecked();
+
+    expect(gdpRadioButton.element.checked).toBe(true);
+    expect(usdRadioButton.element.checked).toBe(false);
+    expect(appStore.preferences.costBasis).toBe(CostBasis.PercentGDP);
     await component.find("#vslInfo").trigger("click");
 
     expect(vslModalComponent.props("visible")).toBe(true);
