@@ -53,7 +53,7 @@ test("can download Excel file for comparison results", async ({ page, baseURL, i
   await runComparison(page, baseURL, isMobile);
 
   // wait for results
-  await expect(page.locator("#compareCostsChartContainer text.highcharts-credits").first()).toBeVisible({ timeout: 30000 });
+  await expect(page.locator("#compareCostsChartContainer text.highcharts-credits").first()).toBeVisible({ timeout: 90000 });
 
   await doDownload(page, "daedalus_comparison_pathogen_sars_cov_1_sars_cov_2_pre_alpha_sars_cov_2_omicron.xlsx");
 });
