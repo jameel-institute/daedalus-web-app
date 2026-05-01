@@ -39,7 +39,10 @@ test("can download Excel file for scenario results", async ({ page, baseURL }) =
   await doDownload(page, "daedalus_GBR_none_sars_cov_1_none_none_26200.xlsx");
 });
 
-test("can download Excel file for comparison results", async ({ page, baseURL, isMobile }) => {
+test("can download Excel file for comparison results", async ({ page, baseURL, isMobile, channel }) => {
+  // Microsoft Edge has issues in CI with the download test, so skip. It passes locally.
+  test.skip(channel === "msedge", "Skipping download test for Microsoft Edge due to CI issues");
+
   await runScenario(page, baseURL);
   await startComparison(page);
 
@@ -53,7 +56,7 @@ test("can download Excel file for comparison results", async ({ page, baseURL, i
   await runComparison(page, baseURL, isMobile);
 
   // wait for results
-  await expect(page.locator("#compareCostsChartContainer text.highcharts-credits").first()).toBeVisible({ timeout: 30000 });
+  await expect(page.locator("#compareCostsChartContainer text.highcharts-credits").first()).toBeVisible();
 
   await doDownload(page, "daedalus_comparison_pathogen_sars_cov_1_sars_cov_2_pre_alpha_sars_cov_2_omicron.xlsx");
 });

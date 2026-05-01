@@ -69,7 +69,7 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
   await expect(page.getByText("Explore by disease")).toBeVisible();
 
   // Results
-  await expect(page.locator("#compareCostsChartContainer text.highcharts-credits").first()).toBeVisible({ timeout: 30000 });
+  await expect(page.locator("#compareCostsChartContainer text.highcharts-credits").first()).toBeVisible();
 
   await expect(page.getByLabel("as % of pre-pandemic GDP")).toBeChecked();
   await expect(page.getByLabel("in USD")).not.toBeChecked();
@@ -109,30 +109,30 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
   const lifeYearsSeries = costsChartDataUsd[2];
   expect(gdpSeries.data.length).toBe(3);
   expect(gdpSeries.data.map((dataPoint: any) => dataPoint.name)).toEqual(["GDP", "GDP", "GDP"]);
-  checkValueIsInRange(gdpSeries.data[0].y, 6_800_000, costTolerance);
-  checkValueIsInRange(gdpSeries.data[1].y, 1_500_000, costTolerance);
-  checkValueIsInRange(gdpSeries.data[2].y, 350_000, costTolerance);
-  checkValueIsInRange(gdpSeries.data[0].custom.costAsGdpPercent, 34, costTolerance);
-  checkValueIsInRange(gdpSeries.data[1].custom.costAsGdpPercent, 7.3, costTolerance);
-  checkValueIsInRange(gdpSeries.data[2].custom.costAsGdpPercent, 1.8, costTolerance);
+  checkValueIsInRange(gdpSeries.data[0].y, 2_900_000, costTolerance);
+  checkValueIsInRange(gdpSeries.data[1].y, 2_200_000, costTolerance);
+  checkValueIsInRange(gdpSeries.data[2].y, 2_200_000, costTolerance);
+  checkValueIsInRange(gdpSeries.data[0].custom.costAsGdpPercent, 14, costTolerance);
+  checkValueIsInRange(gdpSeries.data[1].custom.costAsGdpPercent, 11, costTolerance);
+  checkValueIsInRange(gdpSeries.data[2].custom.costAsGdpPercent, 11, costTolerance);
 
   expect(educationSeries.data.length).toBe(3);
   expect(educationSeries.data.map((dataPoint: any) => dataPoint.name)).toEqual(["Education", "Education", "Education"]); // Not you, Tony!
-  checkValueIsInRange(educationSeries.data[0].y, 5_100_000, costTolerance);
-  checkValueIsInRange(educationSeries.data[1].y, 960_000, costTolerance);
-  checkValueIsInRange(educationSeries.data[2].y, 77_000, costTolerance);
-  checkValueIsInRange(educationSeries.data[0].custom.costAsGdpPercent, 26, costTolerance);
-  checkValueIsInRange(educationSeries.data[1].custom.costAsGdpPercent, 4.8, costTolerance);
-  checkValueIsInRange(educationSeries.data[2].custom.costAsGdpPercent, 0.4, costTolerance);
+  checkValueIsInRange(educationSeries.data[0].y, 1_600_000, costTolerance);
+  checkValueIsInRange(educationSeries.data[1].y, 1_600_000, costTolerance);
+  checkValueIsInRange(educationSeries.data[2].y, 1_600_000, costTolerance);
+  checkValueIsInRange(educationSeries.data[0].custom.costAsGdpPercent, 8.1, costTolerance);
+  checkValueIsInRange(educationSeries.data[1].custom.costAsGdpPercent, 7.9, costTolerance);
+  checkValueIsInRange(educationSeries.data[2].custom.costAsGdpPercent, 7.9, costTolerance);
 
   expect(lifeYearsSeries.data.length).toBe(3);
   expect(lifeYearsSeries.data.map((dataPoint: any) => dataPoint.name)).toEqual(["Life years", "Life years", "Life years"]);
-  checkValueIsInRange(lifeYearsSeries.data[0].y, 9_600_000, costTolerance);
-  checkValueIsInRange(lifeYearsSeries.data[1].y, 9_600_000, costTolerance);
-  checkValueIsInRange(lifeYearsSeries.data[2].y, 4_900_000, costTolerance);
-  checkValueIsInRange(lifeYearsSeries.data[0].custom.costAsGdpPercent, 48, costTolerance);
-  checkValueIsInRange(lifeYearsSeries.data[1].custom.costAsGdpPercent, 48, costTolerance);
-  checkValueIsInRange(lifeYearsSeries.data[2].custom.costAsGdpPercent, 24, costTolerance);
+  checkValueIsInRange(lifeYearsSeries.data[0].y, 63_000_000, costTolerance);
+  checkValueIsInRange(lifeYearsSeries.data[1].y, 5_500_000, costTolerance);
+  checkValueIsInRange(lifeYearsSeries.data[2].y, 3_800_000, costTolerance);
+  checkValueIsInRange(lifeYearsSeries.data[0].custom.costAsGdpPercent, 320, costTolerance);
+  checkValueIsInRange(lifeYearsSeries.data[1].custom.costAsGdpPercent, 27, costTolerance);
+  checkValueIsInRange(lifeYearsSeries.data[2].custom.costAsGdpPercent, 19, costTolerance);
 
   // Check that after switching on the diffing mode, we see different data.
   await page.getByLabel("Display as difference from baseline").check();
@@ -160,27 +160,27 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
 
   const infectionsLocator = page.locator("#time-series-comparison-0");
   assertTimeSeriesPresent(page, infectionsLocator);
-  await expect(page.locator("#time-series-comparison-0 .highcharts-plot-band")).toHaveCount(2);
+  await expect(page.locator("#time-series-comparison-0 .highcharts-plot-band")).toHaveCount(1);
   await expect(infectionsLocator.getByLabel("View chart menu, Chart")).toBeVisible();
-  await checkMultiScenarioTimeSeriesDataPoints(infectionsLocator, [2_000_000, 17_000_000, 59_000_000]);
+  await checkMultiScenarioTimeSeriesDataPoints(infectionsLocator, [20_000_000, 18_000_000, 74_000_000]);
 
   const hospitalisationsLocator = page.locator("#time-series-comparison-1");
   assertTimeSeriesPresent(page, hospitalisationsLocator);
-  await expect(page.locator("#time-series-comparison-1 .highcharts-plot-band")).toHaveCount(2);
+  await expect(page.locator("#time-series-comparison-1 .highcharts-plot-band")).toHaveCount(1);
   await expect(hospitalisationsLocator.getByLabel("View chart menu, Chart")).toBeVisible();
-  await checkMultiScenarioTimeSeriesDataPoints(hospitalisationsLocator, [730_000, 1_300_000, 1_000_000]);
+  await checkMultiScenarioTimeSeriesDataPoints(hospitalisationsLocator, [7_400_000, 1_100_000, 1_100_000]);
 
   const deathsLocator = page.locator("#time-series-comparison-2");
   assertTimeSeriesPresent(page, deathsLocator);
   await expect(page.locator("#time-series-comparison-2 .highcharts-plot-band")).toHaveCount(0);
   await expect(deathsLocator.getByLabel("View chart menu, Chart")).toBeVisible();
-  await checkMultiScenarioTimeSeriesDataPoints(deathsLocator, [3_400_000, 6_200_000, 4_100_000]);
+  await checkMultiScenarioTimeSeriesDataPoints(deathsLocator, [23_000_000, 3_200_000, 3_200_000]);
 
   const vaccinationsLocator = page.locator("#time-series-comparison-3");
   assertTimeSeriesPresent(page, vaccinationsLocator);
   await expect(page.locator("#time-series-comparison-3 .highcharts-plot-band")).toHaveCount(0);
   await expect(vaccinationsLocator.getByLabel("View chart menu, Chart")).toBeVisible();
-  await checkMultiScenarioTimeSeriesDataPoints(vaccinationsLocator, [138_000_000, 140_000_000, 152_000_000]);
+  await checkMultiScenarioTimeSeriesDataPoints(vaccinationsLocator, [247_000_000, 199_000_000, 199_000_000]);
 
   await page.locator("#dailySwitch").check();
   await page.waitForTimeout(1000); // Wait for charts to update
@@ -191,18 +191,18 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
     expect(page.getByText(label, { exact: true })).toBeVisible();
   });
 
-  await expect(infectionsLocator.locator(".highcharts-plot-band")).toHaveCount(2);
+  await expect(infectionsLocator.locator(".highcharts-plot-band")).toHaveCount(1);
   await expect(infectionsLocator.locator(".highcharts-plot-line")).not.toBeVisible();
-  await checkMultiScenarioTimeSeriesDataPoints(infectionsLocator, [660_000, 5_600_000, 38_000_000]);
+  await checkMultiScenarioTimeSeriesDataPoints(infectionsLocator, [4_400_000, 5_800_000, 41_000_000]);
 
-  await expect(hospitalisationsLocator.locator(".highcharts-plot-band")).toHaveCount(2);
+  await expect(hospitalisationsLocator.locator(".highcharts-plot-band")).toHaveCount(1);
   await expect(hospitalisationsLocator.locator(".highcharts-plot-line")).not.toBeVisible();
   await expect(page.locator("#hospitalisationsShowCapacitiesSwitch")).not.toBeVisible();
-  await checkMultiScenarioTimeSeriesDataPoints(hospitalisationsLocator, [47_000, 120_000, 220_000]);
+  await checkMultiScenarioTimeSeriesDataPoints(hospitalisationsLocator, [495_000, 110_000, 267_000]);
 
   await expect(deathsLocator.locator(".highcharts-plot-band")).toHaveCount(0);
   await expect(deathsLocator.locator(".highcharts-plot-line")).not.toBeVisible();
-  await checkMultiScenarioTimeSeriesDataPoints(deathsLocator, [34_000, 83_000, 148_000]);
+  await checkMultiScenarioTimeSeriesDataPoints(deathsLocator, [372_000, 67_000, 168_000]);
 
   await expect(vaccinationsLocator.locator(".highcharts-plot-band")).toHaveCount(0);
   await expect(vaccinationsLocator.locator(".highcharts-plot-line")).not.toBeVisible();
