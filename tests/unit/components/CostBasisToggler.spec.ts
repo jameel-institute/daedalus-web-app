@@ -90,8 +90,8 @@ describe("cost basis toggler", () => {
       props: { scenarios: [store.currentScenario] },
     });
 
-    const tooltipTrigger = component.find("img");
-    expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
+    expect(component.find("img").attributes("src")).toBe("/icons/info.png");
+    const tooltipTrigger = component.find("button");
     await expectTooltipContents(tooltipTrigger, ["pre-pandemic GDP of $19,863.0 billion"]);
   });
 
@@ -103,8 +103,8 @@ describe("cost basis toggler", () => {
       props: { scenarios: store.currentComparison.scenarios },
     });
 
-    const tooltipTrigger = component.find("img");
-    expect(tooltipTrigger.attributes("src")).toBe("/icons/info.png");
+    expect(component.find("img").attributes("src")).toBe("/icons/info.png");
+    const tooltipTrigger = component.find("button");
     await expectTooltipContents(tooltipTrigger, [
       "the following pre-pandemic GDPs",
       "United Kingdom (baseline): $19,863.0 billion",
