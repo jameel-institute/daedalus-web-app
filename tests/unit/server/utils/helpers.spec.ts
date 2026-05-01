@@ -65,6 +65,10 @@ describe("hashParameters", () => {
     // Verify the expected case still matches
     expect(hashParameters(parameters, modelVersion, rApiVersion)).toEqual(expectedHash);
 
+    // Swapping daedalusModel (modelVersion) and daedalusApi (rApiVersion) must produce a different hash,
+    // confirming the two slots are treated distinctly even when neither triggers a boundary collision.
+    expect(hashParameters(parameters, rApiVersion, modelVersion)).not.toEqual(expectedHash);
+
     // Test ambiguous boundary pairs
     const hash1_23 = hashParameters(parameters, "1", "23");
     const hash12_3 = hashParameters(parameters, "12", "3");
