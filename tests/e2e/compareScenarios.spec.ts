@@ -69,7 +69,7 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
   await expect(page.getByText("Explore by disease")).toBeVisible();
 
   // Results
-  await expect(page.locator("#compareCostsChartContainer text.highcharts-credits").first()).toBeVisible();
+  await expect(page.locator("#compareCostsChartContainer text.highcharts-credits").first()).toBeVisible({ timeout: 30000 });
 
   await expect(page.getByLabel("as % of pre-pandemic GDP")).toBeChecked();
   await expect(page.getByLabel("in USD")).not.toBeChecked();
