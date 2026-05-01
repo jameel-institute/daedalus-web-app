@@ -63,14 +63,14 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await page.locator(infectionsTimeSeriesContainerId).scrollIntoViewIfNeeded();
   await expect(page.locator(`${infectionsTimeSeriesContainerId} .highcharts-xaxis-labels`)).toBeVisible();
   await expect(page.locator(`${infectionsTimeSeriesContainerId} .highcharts-yaxis-labels`)).toBeVisible();
-  await expect(page.locator(`${infectionsTimeSeriesContainerId} .highcharts-plot-band`)).toHaveCount(2);
+  await expect(page.locator(`${infectionsTimeSeriesContainerId} .highcharts-plot-band`)).toHaveCount(1);
   await expect(page.locator(infectionsTimeSeriesContainerId).getByLabel("View chart menu, Chart")).toBeVisible();
-  await checkTimeSeriesDataPoints(page.locator(infectionsTimeSeriesContainerId), 47_000_000);
+  await checkTimeSeriesDataPoints(page.locator(infectionsTimeSeriesContainerId), 62_000_000);
 
   // Check can toggle time series to "New per day" and back
   await expect(page.getByText("New per day").first()).toBeVisible();
   await page.locator("#infectionsDailySwitch").check();
-  await checkTimeSeriesDataPoints(page.locator(infectionsTimeSeriesContainerId), 18_000_000);
+  await checkTimeSeriesDataPoints(page.locator(infectionsTimeSeriesContainerId), 28_000_000);
   await expect(page.getByRole("button", { name: "New infections" })).toBeVisible();
   await page.locator("#infectionsDailySwitch").setChecked(false);
   await expect(page.getByRole("button", { name: "Prevalence" })).toBeVisible();
@@ -79,13 +79,13 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await page.locator(hospitalisationsTimeSeriesContainerId).scrollIntoViewIfNeeded();
   await expect(page.locator(`${hospitalisationsTimeSeriesContainerId} .highcharts-xaxis-labels`)).toBeVisible();
   await expect(page.locator(`${hospitalisationsTimeSeriesContainerId} .highcharts-yaxis-labels`)).toBeVisible();
-  await expect(page.locator(`${hospitalisationsTimeSeriesContainerId} .highcharts-plot-band`)).toHaveCount(2);
+  await expect(page.locator(`${hospitalisationsTimeSeriesContainerId} .highcharts-plot-band`)).toHaveCount(1);
   await expect(page.locator(`${hospitalisationsTimeSeriesContainerId} .highcharts-plot-line`)).toBeInViewport();
   await expect(page.locator(hospitalisationsTimeSeriesContainerId).getByLabel("View chart menu, Chart")).toBeVisible();
-  await checkTimeSeriesDataPoints(page.locator(hospitalisationsTimeSeriesContainerId), 4_500_000);
+  await checkTimeSeriesDataPoints(page.locator(hospitalisationsTimeSeriesContainerId), 4_400_000);
 
   await page.locator("#hospitalisationsDailySwitch").check();
-  await checkTimeSeriesDataPoints(page.locator(hospitalisationsTimeSeriesContainerId), 750_000);
+  await checkTimeSeriesDataPoints(page.locator(hospitalisationsTimeSeriesContainerId), 800_000);
   await expect(page.getByRole("button", { name: "New hospitalisations" })).toBeVisible();
   await page.locator("#hospitalisationsDailySwitch").setChecked(false);
   await expect(page.getByRole("button", { name: "Hospital demand" })).toBeVisible();
@@ -94,9 +94,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.locator(`${deathsTimeSeriesContainerId} .highcharts-xaxis-labels`)).toBeVisible();
   await expect(page.locator(`${deathsTimeSeriesContainerId} .highcharts-yaxis-labels`)).toBeVisible();
   await expect(page.locator(deathsTimeSeriesContainerId).getByLabel("View chart menu, Chart")).toBeVisible();
-  await checkTimeSeriesDataPoints(page.locator(deathsTimeSeriesContainerId), 8_200_000);
+  await checkTimeSeriesDataPoints(page.locator(deathsTimeSeriesContainerId), 10_000_000);
   await page.locator("#deathsDailySwitch").check();
-  await checkTimeSeriesDataPoints(page.locator(deathsTimeSeriesContainerId), 200_000);
+  await checkTimeSeriesDataPoints(page.locator(deathsTimeSeriesContainerId), 440_000);
   await expect(page.getByRole("button", { name: "New deaths" })).toBeVisible();
   await page.locator("#deathsDailySwitch").setChecked(false);
   await expect(page.getByRole("button", { name: "Dead" })).toBeVisible();
@@ -105,9 +105,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.locator(`${vaccinationsTimeSeriesContainerId} .highcharts-xaxis-labels`)).toBeVisible();
   await expect(page.locator(`${vaccinationsTimeSeriesContainerId} .highcharts-yaxis-labels`)).toBeVisible();
   await expect(page.locator(vaccinationsTimeSeriesContainerId).getByLabel("View chart menu, Chart")).toBeVisible();
-  await checkTimeSeriesDataPoints(page.locator(vaccinationsTimeSeriesContainerId), 110_000_000);
+  await checkTimeSeriesDataPoints(page.locator(vaccinationsTimeSeriesContainerId), 166_000_000);
   await page.locator("#vaccinationsDailySwitch").check();
-  await checkTimeSeriesDataPoints(page.locator(vaccinationsTimeSeriesContainerId), 900_000);
+  await checkTimeSeriesDataPoints(page.locator(vaccinationsTimeSeriesContainerId), 920_000);
   await expect(page.getByRole("button", { name: "New vaccinations" })).toBeVisible();
   await page.locator("#vaccinationsDailySwitch").setChecked(false);
   await expect(page.getByRole("button", { name: "Vaccinated" })).toBeVisible();
@@ -132,30 +132,30 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   expect(costsChartDataUsd[0].data.length).toBe(3);
   expect(costsChartDataUsd[0].data.map((dataPoint: any) => dataPoint.name)).toEqual(["Closures", "Closures", "Preschool-age children"]);
   expect(costsChartDataUsd[0].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([true, true, true]);
-  checkValueIsInRange(costsChartDataUsd[0].data[0].y, 5_100_000, costTolerance);
-  checkValueIsInRange(costsChartDataUsd[0].data[1].y, 3_900_000, costTolerance);
-  checkValueIsInRange(costsChartDataUsd[0].data[2].y, 9_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[0].data[0].y, 2_100_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[0].data[1].y, 1_600_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[0].data[2].y, 3_000, costTolerance);
 
   expect(costsChartDataUsd[1].data.length).toBe(3);
   expect(costsChartDataUsd[1].data.map((dataPoint: any) => dataPoint.name)).toEqual(["Absences", "Absences", "School-age children"]);
   expect(costsChartDataUsd[1].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([true, true, true]);
-  checkValueIsInRange(costsChartDataUsd[1].data[0].y, 240_000, costTolerance);
-  checkValueIsInRange(costsChartDataUsd[1].data[1].y, 8_000, costTolerance);
-  checkValueIsInRange(costsChartDataUsd[1].data[2].y, 4_800_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[1].data[0].y, 120_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[1].data[1].y, 5_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[1].data[2].y, 8_500_000, costTolerance);
 
   expect(costsChartDataUsd[2].data.length).toBe(3);
   expect(costsChartDataUsd[2].data.map((dataPoint: any) => dataPoint.name)).toEqual(["", "", "Working-age adults"]);
   expect(costsChartDataUsd[2].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([false, false, true]);
   expect(costsChartDataUsd[2].data[0].y).toEqual(0);
   expect(costsChartDataUsd[2].data[1].y).toEqual(0);
-  checkValueIsInRange(costsChartDataUsd[2].data[2].y, 110_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[2].data[2].y, 230_000, costTolerance);
 
   expect(costsChartDataUsd[3].data.length).toBe(3);
   expect(costsChartDataUsd[3].data.map((dataPoint: any) => dataPoint.name)).toEqual(["", "", "Retirement-age adults"]);
   expect(costsChartDataUsd[3].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([false, false, true]);
   expect(costsChartDataUsd[3].data[0].y).toEqual(0);
   expect(costsChartDataUsd[3].data[1].y).toEqual(0);
-  checkValueIsInRange(costsChartDataUsd[3].data[2].y, 5_700_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[3].data[2].y, 6_400_000, costTolerance);
 
   const expandCostsTableButton = page.getByTestId("toggle-costs-table");
   await expandCostsTableButton.click();
@@ -165,8 +165,8 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
     await expect(tableRows.nth(i)).toHaveText(new RegExp(`${label}\\s*${decimalUSDMatcher}`));
   });
 
-  await expect(tableRows.nth(tableRowLabels.length + 1)).toHaveText(/Life years lost\s*\d{1,4}\.\d(TBMK)?/);
-  await expect(tableRows.nth(tableRowLabels.length + 7)).toHaveText(/Deaths\s*\d{1,4}\.\d(TBMK)?/);
+  await expect(tableRows.nth(tableRowLabels.length + 1)).toHaveText(/Life years lost\s*\d{1,4}(\.)?\d(TBMK)?/);
+  await expect(tableRows.nth(tableRowLabels.length + 7)).toHaveText(/Deaths\s*\d{1,4}(\.)?\d(TBMK)?/);
 
   // Check that after toggling the cost basis we see different data.
   await page.getByLabel("as % of pre-pandemic GDP").check();
