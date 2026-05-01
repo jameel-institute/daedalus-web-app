@@ -11,7 +11,7 @@ export const parameterLabels = {
 };
 Object.freeze(parameterLabels);
 
-export const costTolerance = 0.3;
+export const costTolerance = 0.5;
 
 export const decimalPercentMatcher = "(\\d{1,4}(\\.(\\d*))?%|<0\\.005%)";
 export const decimalUSDMatcher = "(\\$\\d{1,3}(,\\d{3})*(\\.\\d{1,4})?[TBMK]|<\\$1 M)";
