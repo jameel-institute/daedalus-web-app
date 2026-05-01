@@ -23,7 +23,7 @@
           </CButton>
         </th>
         <th
-          v-for="scenario in scenariosToDisplay"
+          v-for="scenario in sortedScenarios"
           :key="scenario.runId"
           class="pt-0"
         >
@@ -46,7 +46,7 @@
           {{ appStore.preferences.costBasis === CostBasis.PercentGDP ? "as % of GDP" : "(USD)" }}
         </td>
         <td
-          v-for="(scenario) in scenariosToDisplay"
+          v-for="(scenario) in sortedScenarios"
           :key="scenario.runId"
           :class="scenarioClass(scenario)"
         >
@@ -62,7 +62,7 @@
             {{ appStore.getCostLabel(childCost.id) }}{{ childCost.id === 'life_years' ? '*' : '' }}
           </td>
           <td
-            v-for="(scenario) in scenariosToDisplay"
+            v-for="(scenario) in sortedScenarios"
             :key="scenario.runId"
             :class="scenarioClass(scenario)"
           >
@@ -77,7 +77,7 @@
         >
           <td>{{ appStore.getCostLabel(grandChildCost.id) }}</td>
           <td
-            v-for="(scenario) in scenariosToDisplay"
+            v-for="(scenario) in sortedScenarios"
             :key="scenario.runId"
             :class="scenarioClass(scenario)"
           >
@@ -93,7 +93,7 @@
           Life years lost {{ props.diffing ? "relative to baseline" : "" }}
         </td>
         <td
-          v-for="(scenario) in scenariosToDisplay"
+          v-for="(scenario) in sortedScenarios"
           :key="scenario.runId"
           :class="scenarioClass(scenario)"
         >
@@ -108,7 +108,7 @@
       >
         <td>{{ appStore.getCostLabel(ageSectorCost.id) }}</td>
         <td
-          v-for="(scenario) in scenariosToDisplay"
+          v-for="(scenario) in sortedScenarios"
           :key="scenario.runId"
           :class="scenarioClass(scenario)"
         >
@@ -123,7 +123,7 @@
           Deaths {{ props.diffing ? "relative to baseline" : "" }}
         </td>
         <td
-          v-for="(scenario) in scenariosToDisplay"
+          v-for="(scenario) in sortedScenarios"
           :key="scenario.runId"
           :class="scenarioClass(scenario)"
         >
@@ -142,6 +142,7 @@ import { CostBasis } from "~/types/unitTypes";
 import type { Scenario } from "~/types/storeTypes";
 import { diffAgainstBaseline } from "./utils/comparisons";
 import { CUMULATIVE_DEATHS_SERIES_ID } from "./Charts/utils/timeSeriesData";
+import useSortedScenarios from "~/composables/useSortedScenarios";
 
 const props = defineProps<{
   scenarios: Scenario[]
@@ -152,11 +153,10 @@ const accordioned = ref(true);
 const appStore = useAppStore();
 
 const multiScenario = computed(() => props.scenarios.length > 1);
-const scenariosToDisplay = computed(() => {
-  return props.diffing
-    ? props.scenarios.filter(s => s.runId !== appStore.baselineScenario?.runId)
-    : props.scenarios;
-});
+const scenarios = computed(() => props.diffing
+  ? props.scenarios.filter(s => s.runId !== appStore.baselineScenario?.runId)
+  : props.scenarios);
+const { sortedScenarios } = useSortedScenarios(scenarios);
 
 const scenarioLabel = (scenario: Scenario) => appStore.getScenarioAxisLabel(scenario);
 

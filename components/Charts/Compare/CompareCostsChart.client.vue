@@ -22,6 +22,7 @@ import { costAsPercentOfGdp } from "@/components/utils/formatters";
 import { CostBasis } from "@/types/unitTypes";
 import { debounce } from "perfect-debounce";
 import { diffAgainstBaseline } from "~/components/utils/comparisons";
+import useSortedScenarios from "~/composables/useSortedScenarios";
 
 const props = defineProps<{
   diffing: boolean
@@ -32,11 +33,12 @@ let chart: Highcharts.Chart;
 const seriesSummary = ref<Highcharts.SeriesColumnOptions[]>([]); // This only exists for testing purposes
 const chartContainer = ref<HTMLElement | null>(null);
 const chartParentEl = computed(() => chartContainer.value?.parentElement);
-const scenarios = computed(() => {
-  return props.diffing
-    ? appStore.currentComparison.scenarios.filter(s => s.runId !== appStore.baselineScenario?.runId)
-    : appStore.currentComparison.scenarios;
-});
+
+const scenarios = computed(() => props.diffing
+  ? appStore.currentComparison.scenarios.filter(s => s.runId !== appStore.baselineScenario?.runId)
+  : appStore.currentComparison.scenarios);
+const { sortedScenarios } = useSortedScenarios(scenarios);
+
 const costBasis = computed(() => appStore.preferences.costBasis);
 const chartTitle = computed(() => {
   const firstScenarioTimeSeries = appStore.currentComparison.scenarios[0].result?.data?.time_series;
@@ -54,7 +56,7 @@ const chartTitle = computed(() => {
 // For example, one series should comprise each scenario's GDP.
 const getSeries = (): Highcharts.SeriesColumnOptions[] => {
   // Take the first scenario's costs as an example to find out what the second-level breakdowns are.
-  const secondLevelCostIds = scenarios.value[0].result.data?.costs[0].children?.map(c => c.id) || [];
+  const secondLevelCostIds = sortedScenarios.value[0].result.data?.costs[0].children?.map(c => c.id) || [];
   const allSeries = secondLevelCostIds?.map((costId, index) => {
     return {
       type: "column" as Highcharts.SeriesColumnOptions["type"],
@@ -62,7 +64,7 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
       borderWidth: 1,
       borderColor: costsChartPalette[index].rgb,
       zIndex: secondLevelCostIds.length - index, // Ensure that stack segments are in front of each other from top to bottom.
-      data: scenarios.value.map((scenario) => {
+      data: sortedScenarios.value.map((scenario) => {
         const subCost = appStore.getScenarioCostById(scenario, costId)!;
         const yUSD = props.diffing ? diffAgainstBaseline(subCost, USD_METRIC) : getValueFromCost(subCost, USD_METRIC);
         // yGdpPercent is calculated here since the national GDP may vary by scenario if the axis is 'country'.
@@ -136,7 +138,7 @@ const chartInitialOptions = () => {
       },
     },
     xAxis: {
-      categories: scenarios.value.map(s => appStore.getScenarioAxisValue(s)),
+      categories: sortedScenarios.value.map(s => appStore.getScenarioAxisValue(s)),
       title: { text: appStore.axisMetadata?.label },
       labels: {
         style: {
@@ -211,7 +213,7 @@ watch(() => props.diffing, () => {
     },
     title: { text: chartTitle.value },
     xAxis: {
-      categories: scenarios.value.map(s => appStore.getScenarioAxisValue(s) || ""),
+      categories: sortedScenarios.value.map(s => appStore.getScenarioAxisValue(s) || ""),
     },
     yAxis: {
       min: props.diffing ? undefined : 0,
