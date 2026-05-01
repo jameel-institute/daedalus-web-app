@@ -144,7 +144,7 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
   // to the R API. This check is called a 'rule' in Mockoon, and rules can't be used simultaneously with the 'sequential' setting,
   // so we instead use the mockoonResponse parameter to tell Mockoon which type of response to send.
   describe("post api/scenarios", async () => {
-    const parametersHashForSuccessfulResponse = "28131f494aa5768f93bc8a52c554620bbdae9fedf934b9d221abda0e9d8fe5c1";
+    const parametersHashForSuccessfulResponse = "041e24b8b2f0f0c4bcb6715c1af5232d1c646c970663ccbb32cbc2d06e17c372";
 
     beforeEach(async () => {
       await purgeRApiMockServer(); // Reset the mock server so that the version request is always successful.
@@ -205,8 +205,8 @@ describe("endpoints which consume the R API", { sequential: true }, async () => 
         expect(response.statusText).toBe("Internal Server Error");
         const json = await response.json();
         expect(json.data[0].error).toBe("Internal server error");
-        expect(json.data[0].detail).toBe("Model version lookup failed.");
-        expect(json.message).toBe("Internal server error: Model version lookup failed."); // A concatenation of the error details from the R API.
+        expect(json.data[0].detail).toBe("Version lookup failed.");
+        expect(json.message).toBe("Internal server error: Version lookup failed."); // A concatenation of the error details from the R API.
         await expect(prisma.scenario.count()).resolves.toBe(0);
       });
     });

@@ -5,7 +5,7 @@ import { readBody } from "h3";
 import prisma from "~/server/db/prisma";
 
 const runId = "abcd1234";
-const expectedParametersHash = "238121603a2142de5957d81d3c836272915a5e9828fe5d3c0422d9653ae89472";
+const expectedParametersHash = "da2a09e178fef43d49b159141f5490f34213e8eb6658ec12efd259cdf01e71c1";
 
 const mockedRunScenarioResponse = vi.fn();
 const mockedScenarioStatusResponse = vi.fn();
@@ -43,7 +43,7 @@ vi.mock("@/server/handlers/versions", () => ({
 }));
 
 describe("requesting a scenario analysis to be run by the R API", () => {
-  describe("when there is no existing scenario in the database", () => {
+  describe("when there is no existing scenario in the database that matches the parameters provided", () => {
     describe("when the R API response to a run request is successful", () => {
       it("should forward the parameters to the R API to run the analysis, create a db record, and return the run id", async () => {
         mockedRunScenarioResponse.mockImplementation(async (event) => {

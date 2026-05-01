@@ -2,7 +2,6 @@ import JSSHA from "jssha";
 
 import type { ApiError } from "~/types/apiResponseTypes";
 import type { ParameterSet } from "~/types/parameterTypes";
-import { getVersionData } from "../handlers/versions";
 
 // Convert list of error objects to string
 export const errorMessage = (errors: Array<ApiError> | null) => {
@@ -27,18 +26,14 @@ export const formDataToObject = (formData: FormData) => {
   return object;
 };
 
-export const hashParameters = (parameters: ParameterSet, modelVersion: string) => {
+export const hashParameters = (parameters: ParameterSet, modelVersion: string, rApiVersion: string) => {
   const sha256 = new JSSHA("SHA-256", "TEXT");
   const sortedKeys = Object.keys(parameters).sort();
   sha256.update(
-    sortedKeys.join()
+    `${sortedKeys.join()
     + sortedKeys.map(k => parameters[k]).join()
-    + modelVersion,
+    }:${modelVersion
+    }:${rApiVersion}`,
   );
   return sha256.getHash("HEX");
-};
-
-export const getModelVersion = async () => {
-  const versionResponse = await getVersionData();
-  return versionResponse.data?.daedalusModel;
 };
