@@ -65,12 +65,12 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.locator(`${infectionsTimeSeriesContainerId} .highcharts-yaxis-labels`)).toBeVisible();
   await expect(page.locator(`${infectionsTimeSeriesContainerId} .highcharts-plot-band`)).toHaveCount(2);
   await expect(page.locator(infectionsTimeSeriesContainerId).getByLabel("View chart menu, Chart")).toBeVisible();
-  await checkTimeSeriesDataPoints(page.locator(infectionsTimeSeriesContainerId), 47_000_000);
+  await checkTimeSeriesDataPoints(page.locator(infectionsTimeSeriesContainerId), 41_000_000);
 
   // Check can toggle time series to "New per day" and back
   await expect(page.getByText("New per day").first()).toBeVisible();
   await page.locator("#infectionsDailySwitch").check();
-  await checkTimeSeriesDataPoints(page.locator(infectionsTimeSeriesContainerId), 18_000_000);
+  await checkTimeSeriesDataPoints(page.locator(infectionsTimeSeriesContainerId), 15_000_000);
   await expect(page.getByRole("button", { name: "New infections" })).toBeVisible();
   await page.locator("#infectionsDailySwitch").setChecked(false);
   await expect(page.getByRole("button", { name: "Prevalence" })).toBeVisible();
@@ -82,10 +82,10 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.locator(`${hospitalisationsTimeSeriesContainerId} .highcharts-plot-band`)).toHaveCount(2);
   await expect(page.locator(`${hospitalisationsTimeSeriesContainerId} .highcharts-plot-line`)).toBeInViewport();
   await expect(page.locator(hospitalisationsTimeSeriesContainerId).getByLabel("View chart menu, Chart")).toBeVisible();
-  await checkTimeSeriesDataPoints(page.locator(hospitalisationsTimeSeriesContainerId), 4_500_000);
+  await checkTimeSeriesDataPoints(page.locator(hospitalisationsTimeSeriesContainerId), 3_100_000);
 
   await page.locator("#hospitalisationsDailySwitch").check();
-  await checkTimeSeriesDataPoints(page.locator(hospitalisationsTimeSeriesContainerId), 750_000);
+  await checkTimeSeriesDataPoints(page.locator(hospitalisationsTimeSeriesContainerId), 490_000);
   await expect(page.getByRole("button", { name: "New hospitalisations" })).toBeVisible();
   await page.locator("#hospitalisationsDailySwitch").setChecked(false);
   await expect(page.getByRole("button", { name: "Hospital demand" })).toBeVisible();
@@ -94,9 +94,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.locator(`${deathsTimeSeriesContainerId} .highcharts-xaxis-labels`)).toBeVisible();
   await expect(page.locator(`${deathsTimeSeriesContainerId} .highcharts-yaxis-labels`)).toBeVisible();
   await expect(page.locator(deathsTimeSeriesContainerId).getByLabel("View chart menu, Chart")).toBeVisible();
-  await checkTimeSeriesDataPoints(page.locator(deathsTimeSeriesContainerId), 8_200_000);
+  await checkTimeSeriesDataPoints(page.locator(deathsTimeSeriesContainerId), 5_500_000);
   await page.locator("#deathsDailySwitch").check();
-  await checkTimeSeriesDataPoints(page.locator(deathsTimeSeriesContainerId), 200_000);
+  await checkTimeSeriesDataPoints(page.locator(deathsTimeSeriesContainerId), 130_000);
   await expect(page.getByRole("button", { name: "New deaths" })).toBeVisible();
   await page.locator("#deathsDailySwitch").setChecked(false);
   await expect(page.getByRole("button", { name: "Dead" })).toBeVisible();
@@ -132,15 +132,15 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   expect(costsChartDataUsd[0].data.length).toBe(3);
   expect(costsChartDataUsd[0].data.map((dataPoint: any) => dataPoint.name)).toEqual(["Closures", "Closures", "Preschool-age children"]);
   expect(costsChartDataUsd[0].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([true, true, true]);
-  checkValueIsInRange(costsChartDataUsd[0].data[0].y, 5_500_000, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[0].data[0].y, 4_500_000, costTolerance);
   checkValueIsInRange(costsChartDataUsd[0].data[1].y, 3_400_000, costTolerance);
-  checkValueIsInRange(costsChartDataUsd[0].data[2].y, 5_200, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[0].data[2].y, 5_000, costTolerance);
 
   expect(costsChartDataUsd[1].data.length).toBe(3);
   expect(costsChartDataUsd[1].data.map((dataPoint: any) => dataPoint.name)).toEqual(["Absences", "Absences", "School-age children"]);
   expect(costsChartDataUsd[1].data.map((dataPoint: any) => dataPoint.custom.includeInTooltips)).toEqual([true, true, true]);
   checkValueIsInRange(costsChartDataUsd[1].data[0].y, 180_000, costTolerance);
-  checkValueIsInRange(costsChartDataUsd[1].data[1].y, 5_600, costTolerance);
+  checkValueIsInRange(costsChartDataUsd[1].data[1].y, 6_000, costTolerance);
   checkValueIsInRange(costsChartDataUsd[1].data[2].y, 3_900_000, costTolerance);
 
   expect(costsChartDataUsd[2].data.length).toBe(3);
