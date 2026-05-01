@@ -45,7 +45,7 @@ docker network connect daedalus daedalus-web-app-db
 docker volume create $VOLUME
 
 # Pull and run the R API image
-R_API_IMAGE="ghcr.io/jameel-institute/daedalus.api:main"
+R_API_IMAGE="ghcr.io/jameel-institute/daedalus.api:e698ced"
 docker pull $R_API_IMAGE
 
 QUEUE_ID=daedalus-api-queue-$(uuidgen)
