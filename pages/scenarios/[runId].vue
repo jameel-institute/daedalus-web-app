@@ -7,14 +7,7 @@
       <CreateComparison @show-r-code="handleShowRCode" />
       <DownloadExcel :comparison="false" />
       <CodeSnippet ref="codeSnippet" :scenarios="[appStore.currentScenario]" />
-      <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
-        <CIconSvg size="xxl">
-          <img src="/icons/rotate-device.svg">
-        </CIconSvg>
-        <p class="mb-0">
-          Rotate your mobile device to landscape for the best experience.
-        </p>
-      </CAlert>
+      <RotateAlert />
       <ParameterInfoCard :scenario="appStore.currentScenario">
         <template #header>
           <CCol class="col-auto">
@@ -76,7 +69,7 @@
 </template>
 
 <script lang="ts" setup>
-import { CIcon, CIconSvg } from "@coreui/icons-vue";
+import { CIcon } from "@coreui/icons-vue";
 import type { runStatus } from "~/types/apiResponseTypes";
 
 const appStore = useAppStore();
