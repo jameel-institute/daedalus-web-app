@@ -132,7 +132,7 @@ const stopWatchingComparison = watch(everyScenarioIsDone, () => {
     statusInterval = setInterval(() => {
       if (timeOfFirstStatusPoll.value) {
         secondsSinceFirstStatusPoll.value = ((new Date().getTime() - timeOfFirstStatusPoll.value) / 1000).toFixed(0);
-      };
+      }
       appStore.refreshComparisonStatuses(nuxtApp);
     }, 200);
     setTimeout(() => {

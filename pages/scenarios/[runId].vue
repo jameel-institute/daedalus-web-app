@@ -142,7 +142,7 @@ const pollForStatusEveryNSeconds = (seconds: number) => {
   statusInterval = setInterval(() => {
     if (timeOfFirstStatusPoll.value) {
       secondsSinceFirstStatusPoll.value = ((new Date().getTime() - timeOfFirstStatusPoll.value) / 1000).toFixed(0);
-    };
+    }
     appStore.refreshScenarioStatus(appStore.currentScenario);
   }, seconds * 1000);
 };

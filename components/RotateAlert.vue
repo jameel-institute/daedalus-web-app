@@ -19,7 +19,7 @@ import throttle from "lodash.throttle";
 const isPortrait = ref(false);
 
 const updateOrientation = throttle(() => {
-  isPortrait.value = window.matchMedia("(orientation: portrait)").matches;
+  isPortrait.value = window.matchMedia?.("(orientation: portrait)")?.matches ?? false;
 }, 200);
 
 onMounted(() => {

@@ -72,11 +72,11 @@ afterAll(() => {
 });
 
 describe("scenario result page", () => {
-
+  it("renders as expected if scenario status is already complete at pageload time", async () => {
     const completeRunId = "135";
     registerEndpoint(`/api/scenarios/${completeRunId}/status`, () => {
       return {
-        runStatus: "complete",
+
         runSuccess: true,
         done: true,
         runErrors: null,
