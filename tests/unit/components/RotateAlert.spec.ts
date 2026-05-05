@@ -19,13 +19,6 @@ describe("rotate alert", () => {
     vi.stubGlobal("matchMedia", vi.fn().mockImplementation((query: string) => {
       return {
         matches: query === "(orientation: portrait)" ? isPortrait : false,
-        media: query,
-        onchange: null,
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        dispatchEvent: vi.fn(),
       };
     }));
   });
