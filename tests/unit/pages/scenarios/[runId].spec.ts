@@ -54,14 +54,25 @@ registerEndpoint(`/api/scenarios/${successfulRunId}/result`, () => {
 
 beforeAll(async () => {
   vi.useFakeTimers();
+  vi.stubGlobal("matchMedia", vi.fn().mockImplementation((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })));
 });
 
 afterAll(() => {
   vi.useRealTimers();
+  vi.unstubAllGlobals();
 });
 
 describe("scenario result page", () => {
-  it("renders as expected if scenario status is already complete at pageload time", async () => {
+
     const completeRunId = "135";
     registerEndpoint(`/api/scenarios/${completeRunId}/status`, () => {
       return {
