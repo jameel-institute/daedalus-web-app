@@ -77,7 +77,7 @@ mockNuxtImport("useRoute", () => mockRoute);
 
 beforeAll(async () => {
   vi.useFakeTimers();
-  vi.stubGlobal("matchMedia", vi.fn().mockImplementation((query: string) => ({
+  vi.stubGlobal("matchMedia", vi.fn().mockImplementation(() => ({
     matches: false,
   })));
 });
