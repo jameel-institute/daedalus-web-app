@@ -104,6 +104,7 @@ const query = useRoute().query;
 
 const jobSlow = ref(false);
 const secondsSinceFirstStatusPoll = ref("0");
+const timeOfFirstStatusPoll = ref(new Date().getTime());
 
 const showSpinner = computed(() => {
   return !everyScenarioIsDone.value
@@ -127,19 +128,10 @@ watch(() => appStore.metadata, async (newMetadata) => {
   }
 }, { immediate: true });
 
-// Use useAsyncData to store the time once, during server-side rendering: avoids client render re-writing value.
-const { data: timeOfFirstStatusPoll } = await useAsyncData<number>("timeOfFirstStatusPoll", async () => {
-  return new Promise<number>((resolve) => {
-    resolve(new Date().getTime());
-  });
-});
-
 const stopWatchingComparison = watch(everyScenarioIsDone, () => {
   if (!statusInterval && appStore.everyScenarioHasARunId) {
     statusInterval = setInterval(() => {
-      if (timeOfFirstStatusPoll.value) {
-        secondsSinceFirstStatusPoll.value = ((new Date().getTime() - timeOfFirstStatusPoll.value) / 1000).toFixed(0);
-      };
+      secondsSinceFirstStatusPoll.value = ((new Date().getTime() - timeOfFirstStatusPoll.value) / 1000).toFixed(0);
       appStore.refreshComparisonStatuses(nuxtApp);
     }, 200);
     setTimeout(() => {

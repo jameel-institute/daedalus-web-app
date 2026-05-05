@@ -83,6 +83,7 @@ const appStore = useAppStore();
 
 let statusInterval: NodeJS.Timeout;
 const jobSlow = ref(false);
+const timeOfFirstStatusPoll = ref(new Date().getTime());
 const secondsSinceFirstStatusPoll = ref("0");
 const scenarioStatusResponseError = computed(() => appStore.currentScenario.status.fetchError);
 const scenarioResultResponseError = computed(() => appStore.currentScenario.result.fetchError);
@@ -110,13 +111,6 @@ appStore.downloadError = undefined;
 // Fetch scenario from db so we can know its parameters now rather than wait for them in the result data
 appStore.currentScenario.runId = runId;
 await appStore.loadScenarioDetails(appStore.currentScenario);
-
-// Use useAsyncData to store the time once, during server-side rendering: avoids client render re-writing value.
-const { data: timeOfFirstStatusPoll } = await useAsyncData<number>("timeOfFirstStatusPoll", async () => {
-  return new Promise<number>((resolve) => {
-    resolve(new Date().getTime());
-  });
-});
 
 const codeSnippet = ref<{ modalVisible: boolean } | null>(null);
 
@@ -147,9 +141,7 @@ watch(() => appStore.currentScenario.status.data?.done, (done) => {
 
 const pollForStatusEveryNSeconds = (seconds: number) => {
   statusInterval = setInterval(() => {
-    if (timeOfFirstStatusPoll.value) {
-      secondsSinceFirstStatusPoll.value = ((new Date().getTime() - timeOfFirstStatusPoll.value) / 1000).toFixed(0);
-    };
+    secondsSinceFirstStatusPoll.value = ((new Date().getTime() - timeOfFirstStatusPoll.value) / 1000).toFixed(0);
     appStore.refreshScenarioStatus(appStore.currentScenario);
   }, seconds * 1000);
 };
