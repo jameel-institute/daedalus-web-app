@@ -1,13 +1,6 @@
 <template>
   <div>
-    <CAlert class="d-sm-none d-flex gap-4 align-items-center" color="info" dismissible>
-      <CIconSvg size="xxl">
-        <img src="/icons/rotate-device.svg">
-      </CIconSvg>
-      <p class="mb-0">
-        Rotate your mobile device to landscape for the best experience.
-      </p>
-    </CAlert>
+    <RotateAlert />
     <div class="d-flex mb-3 flex-wrap gap-2">
       <h1 class="fs-3 mb-0 pt-1 pe-5 me-auto text-nowrap flex-fill">
         Explore by {{ appStore.axisMetadata?.label.toLocaleLowerCase() }}
@@ -94,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { CIcon, CIconSvg } from "@coreui/icons-vue";
+import { CIcon } from "@coreui/icons-vue";
 import type { runStatus } from "~/types/apiResponseTypes";
 
 const nuxtApp = useNuxtApp();

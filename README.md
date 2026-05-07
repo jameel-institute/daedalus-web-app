@@ -81,7 +81,7 @@ You can also expose the app to your local network, so that you can try it out on
 npm run dev -- --host
 ```
 
-The QR code shown will allow you to quickly access the app.
+The QR code shown will allow you to quickly access the app. Alternatively, use a service like [ngrok](https://ngrok.com/).
 
 See the 'production' section of this README for how to run the app in production mode.
 

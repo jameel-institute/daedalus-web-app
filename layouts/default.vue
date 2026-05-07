@@ -74,12 +74,6 @@ onBeforeUnmount(() => {
 
 <style lang="scss">
 @use "sass:map";
-.body {
-  @media (min-width: map.get($grid-breakpoints, 'lg')) {
-    padding-left: $sidebar-narrow-width;
-  }
-}
-
 .wrapper {
   min-height: $min-wrapper-height;
 

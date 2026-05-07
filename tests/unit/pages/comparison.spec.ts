@@ -77,6 +77,9 @@ mockNuxtImport("useRoute", () => mockRoute);
 
 beforeAll(async () => {
   vi.useFakeTimers();
+  vi.stubGlobal("matchMedia", vi.fn().mockImplementation(() => ({
+    matches: false,
+  })));
 });
 
 afterEach(() => {
@@ -85,6 +88,7 @@ afterEach(() => {
 
 afterAll(() => {
   vi.useRealTimers();
+  vi.unstubAllGlobals();
 });
 
 describe("comparison page", () => {

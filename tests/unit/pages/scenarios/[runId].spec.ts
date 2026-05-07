@@ -54,10 +54,14 @@ registerEndpoint(`/api/scenarios/${successfulRunId}/result`, () => {
 
 beforeAll(async () => {
   vi.useFakeTimers();
+  vi.stubGlobal("matchMedia", vi.fn().mockImplementation(() => ({
+    matches: false,
+  })));
 });
 
 afterAll(() => {
   vi.useRealTimers();
+  vi.unstubAllGlobals();
 });
 
 describe("scenario result page", () => {
@@ -65,7 +69,7 @@ describe("scenario result page", () => {
     const completeRunId = "135";
     registerEndpoint(`/api/scenarios/${completeRunId}/status`, () => {
       return {
-        runStatus: "complete",
+
         runSuccess: true,
         done: true,
         runErrors: null,
