@@ -8,8 +8,8 @@ import { costTolerance, decimalPercentMatcher, decimalUSDMatcher, parameterLabel
 import checkBarChartDataIsDifferent from "./helpers/checkBarChartDataIsDifferent";
 import checkValueIsInRange from "./helpers/checkValueIsInRange";
 
-const philippinesMinimumHospitalCapacity = "16300";
-const philippinesMinimumHospitalCapacityFormatted = "16,300";
+const philippinesMinimumHospitalCapacity = "16600"; // Temporary value while numeric step is 1000 instead of 100;
+const philippinesMinimumHospitalCapacityFormatted = "16,600";
 const infectionsTimeSeriesContainerId = "#time-series-0";
 const hospitalisationsTimeSeriesContainerId = "#time-series-1";
 const deathsTimeSeriesContainerId = "#time-series-2";
