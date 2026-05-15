@@ -9,7 +9,6 @@ import checkBarChartDataIsDifferent from "./helpers/checkBarChartDataIsDifferent
 import checkValueIsInRange from "./helpers/checkValueIsInRange";
 
 const philippinesMinimumHospitalCapacity = "16600"; // Temporary value while numeric step is 1000 instead of 100;
-const philippinesMinimumHospitalCapacityFormatted = "16,600";
 const infectionsTimeSeriesContainerId = "#time-series-0";
 const hospitalisationsTimeSeriesContainerId = "#time-series-1";
 const deathsTimeSeriesContainerId = "#time-series-2";
@@ -195,7 +194,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue("305000");
 
   await selectParameterOption(page, "country", "Philippines");
-  await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
+  await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue("16300");
   await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
 
   await page.waitForSelector('button:has-text("Run"):not([disabled])');
@@ -212,7 +211,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.getByText("Philippines").first()).toBeVisible();
   await expect(page.getByText("Medium").first()).toBeVisible();
   await expect(page.getByText("Low").first()).toBeVisible();
-  await expect(page.getByText(philippinesMinimumHospitalCapacityFormatted).first()).toBeVisible();
+  await expect(page.getByText("16,300").first()).toBeVisible();
 
   // Test that the second analysis results page has the correct parameters within the parameters form modal.
   await page.getByRole("button", { name: "Parameters" }).first().click();
@@ -222,7 +221,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expectSelectParameterToHaveValueLabel(page, parameterLabels.response, "Elimination");
   await expect(page.getByTestId("select-group-vaccine").getByLabel("Low").first()).toBeChecked();
   await expect(page.getByTestId("select-group-behaviour").getByLabel("Medium")).toBeChecked();
-  await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
+  await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue("16300");
   await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue(philippinesMinimumHospitalCapacity);
   const closeButton = page.getByLabel("Change parameters").getByLabel("Close");
   await closeButton.click();
