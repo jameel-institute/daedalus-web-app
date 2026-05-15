@@ -7,8 +7,8 @@ export default defineRApiEventHandler(
     const metadataResponse = await getMetadata(event);
 
     return { ...metadataResponse, data: {
-      ...metadataResponse.data!,
-      parameters: metadataResponse.data!.parameters.map((param) => {
+      ...metadataResponse.data,
+      parameters: metadataResponse.data?.parameters.map((param) => {
         if (param.id === "hospital_capacity") {
           return {
             ...param,
@@ -35,7 +35,7 @@ export default defineRApiEventHandler(
         }
 
         return param;
-      }),
+      }) ?? [],
     } };
   },
 );
