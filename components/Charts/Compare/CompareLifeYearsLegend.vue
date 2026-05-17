@@ -12,11 +12,11 @@
 
 <script setup lang="ts">
 import type { ScenarioCost } from "~/types/resultTypes";
-import { colorBlindSafeLargePalette, type LegendItem, LegendShape } from "../../utils/charts";
+import { brightColors, type LegendItem, LegendShape } from "../../utils/charts";
 
 const appStore = useAppStore();
 
-const palette = colorBlindSafeLargePalette;
+const palette = brightColors;
 
 const items = computed((): LegendItem[] =>
   appStore.currentComparison.scenarios[0].result.data?.costs[0].children

@@ -18,7 +18,7 @@ export const colorBlindSafeSmallPalette: colorRgbHsl[] = [
 // Two possible larger colour palettes, intended for charts that need more colours.
 // Palettes from Paul Tol, see https://davidmathlogic.com/colorblind
 // Archived Paul Tol site: https://web.archive.org/web/20250109045745/https://personal.sron.nl/~pault/#sec:qualitative
-const brightColors: colorRgbHsl[] = [
+export const brightColors: colorRgbHsl[] = [
   { name: "Purple", rgb: "rgb(170,51,119)", hsl: convert.rgb.hsl(170, 51, 119) },
   { name: "Yellow", rgb: "rgb(204,187,68)", hsl: convert.rgb.hsl(204, 187, 68) },
   { name: "Blue", rgb: "rgb(68,119,170)", hsl: convert.rgb.hsl(68, 119, 170) },

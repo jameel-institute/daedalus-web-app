@@ -15,7 +15,7 @@ import "highcharts/esm/modules/exporting";
 import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
-import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeLargePalette, contextButtonOptions, type CustomPointOptionsObject, menuItemDefinitionOptions } from "@/components/utils/charts";
+import { brightColors, chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, type CustomPointOptionsObject, menuItemDefinitionOptions } from "@/components/utils/charts";
 import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioStackLabelFormatter, costsChartMultiScenarioXAxisLabelFormatter } from "~/components/Charts/Compare/utils/multiScenarioCostCharts";
 import { costsChartYAxisTickFormatter, costsChartYAxisTitle, thickPlotLineForDiffedChart } from "~/components/Charts/utils/costCharts";
 import { debounce } from "perfect-debounce";
@@ -45,7 +45,7 @@ const chartTitle = computed(() => {
   return `Life years losses ${props.diffing ? "relative to comparison baseline " : ""}after ${scenarioDuration} days`;
 });
 
-const palette = colorBlindSafeLargePalette;
+const palette = brightColors;
 
 const getSeries = (): Highcharts.SeriesColumnOptions[] => {
   // Take the first scenario's costs as an example to find out what the second-level breakdowns are.
