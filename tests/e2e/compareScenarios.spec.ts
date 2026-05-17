@@ -68,6 +68,10 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
   expect(comparisonUrl).toMatch(new RegExp(`runIds=${runIdMatcher};${runIdMatcher};${runIdMatcher}`));
   await expect(page.getByText("Explore by disease")).toBeVisible();
 
+  await expect(page.getByLabel("Display as difference from the comparison baseline")).toBeChecked();
+
+  await page.getByLabel("Display as difference from the comparison baseline").uncheck();
+
   // Results
   await expect(page.locator("#compareCostsChartContainer text.highcharts-credits").first()).toBeVisible();
 

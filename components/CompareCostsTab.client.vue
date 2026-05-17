@@ -32,7 +32,7 @@
 <script setup lang="ts">
 const appStore = useAppStore();
 
-const diffCosts = ref(false);
+const diffCosts = ref(true);
 
 const allowVerticalSplit = computed(() => appStore.currentComparison.scenarios.length < 5);
 </script>
