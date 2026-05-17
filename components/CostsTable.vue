@@ -161,7 +161,10 @@ const { sortedScenarios } = useSortedScenarios(scenarios);
 const scenarioLabel = (scenario: Scenario) => appStore.getScenarioAxisLabel(scenario);
 
 const displayValue = (scenario: Scenario, costId: string, metricId: string): string | undefined => {
-  const cost = appStore.getScenarioCostById(scenario, costId)!;
+  const cost = appStore.getScenarioCostById(scenario, costId);
+  if (!cost) {
+    return;
+  }
   const val = props.diffing ? diffAgainstBaseline(cost, metricId) : getValueFromCost(cost, metricId);
   if (val === undefined) {
     return;

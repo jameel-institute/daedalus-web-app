@@ -125,11 +125,11 @@ describe("parameter form", () => {
     await vueSelects[0].find(".dropdown-icon").trigger("click");
     const renderedOptions = vueSelects[0].findAll(".menu .parameter-option");
     expect(renderedOptions.length).toBe(6);
-    expect(renderedOptions[0].find("span").text()).toBe("Option 1");
+    expect(renderedOptions[0].find("div.d-flex").text()).toBe("Option 1");
     expect(renderedOptions[0].find("div.text-dark").text()).toBe("Option 1 description");
-    expect(renderedOptions[1].find("span").text()).toBe("Option 2");
+    expect(renderedOptions[1].find("div.d-flex").text()).toBe("Option 2");
     expect(renderedOptions[1].find("div.text-muted").text()).toBe("Option 2 description");
-    expect(renderedOptions[5].find("span").text()).toBe("Option 6");
+    expect(renderedOptions[5].find("div.d-flex").text()).toBe("Option 6");
     expect(renderedOptions[5].find("div.text-muted").exists()).toBe(false);
 
     expect(vueSelects[1].props("options")).toEqual([
