@@ -8,7 +8,7 @@
     >
       <CModalHeader>
         <CModalTitle id="blockedOptionModalTitle">
-          This parameter temporarily disabled
+          This parameter is temporarily disabled
         </CModalTitle>
       </CModalHeader>
       <CModalBody v-if="blockedOptionModal">

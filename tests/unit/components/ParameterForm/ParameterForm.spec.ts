@@ -72,7 +72,7 @@ const restrictedOptionsMetadata = {
   ],
 };
 
-const blockedOptionModalTitle = "This parameter temporarily disabled";
+const blockedOptionModalTitle = "This parameter is temporarily disabled";
 const blockedOptionGuidance = "For the purposes of the launch event on 19 May 2026, the";
 const blockedOptionEncouragement = "You are encouraged to try changing";
 
