@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      id="compareCostsChartContainer"
+      id="compareLifeYearsCostsChartContainer"
       ref="chartContainer"
       :data-summary="JSON.stringify(seriesSummary)"
     />
@@ -184,7 +184,7 @@ const chartInitialOptions = () => {
 
 watch(() => [chartContainer.value, appStore.everyScenarioHasCosts], () => {
   if (!chart && chartContainer.value && appStore.everyScenarioHasCosts) {
-    chart = Highcharts.chart("compareCostsChartContainer", chartInitialOptions());
+    chart = Highcharts.chart("compareLifeYearsCostsChartContainer", chartInitialOptions());
   }
 });
 
@@ -233,7 +233,7 @@ onUnmounted(() => chart?.destroy());
 </script>
 
 <style lang="scss">
-#compareCostsChartContainer {
+#compareLifeYearsCostsChartContainer {
   font-weight: normal !important;
   z-index: 10; // Above timeseries
 }
