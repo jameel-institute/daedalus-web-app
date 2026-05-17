@@ -9,9 +9,6 @@ describe("time series comparison pane", () => {
         stubs: ["CapacitiesAndInterventionsLegend", "CompareTimeSeriesLegend", "CompareTimeSeries.client"],
         plugins: [mockPinia()],
       },
-      props: {
-        isDaily: false,
-      },
     });
 
     expect(component.findComponent(CapacitiesAndInterventionsLegend).props("showPlotLines")).toBe(true);
