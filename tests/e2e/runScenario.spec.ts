@@ -185,8 +185,9 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   // The following line has been known to fail locally on webkit, but pass on CI.
   await expect(page.getByRole("heading", { name: "Change parameters" })).toBeVisible();
 
+  const sarsCovTag = "SARS-CoV";
   await expectSelectParameterToHaveValueLabel(page, parameterLabels.country, "United States");
-  await expectSelectParameterToHaveValueLabel(page, parameterLabels.pathogen, "Covid-19 Delta");
+  await expectSelectParameterToHaveValueLabel(page, parameterLabels.pathogen, `Covid-19 Delta ${sarsCovTag}`);
   await expectSelectParameterToHaveValueLabel(page, parameterLabels.response, "Elimination");
   await expect(page.getByTestId("select-group-vaccine").getByLabel("Low")).toBeChecked();
   await expect(page.getByTestId("select-group-behaviour").getByLabel("Medium")).toBeChecked();
@@ -217,7 +218,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await page.getByRole("button", { name: "Parameters" }).first().click();
   await expect(page.getByRole("heading", { name: "Change parameters" })).toBeVisible();
   await expectSelectParameterToHaveValueLabel(page, parameterLabels.country, "Philippines");
-  await expectSelectParameterToHaveValueLabel(page, parameterLabels.pathogen, "Covid-19 Delta");
+  await expectSelectParameterToHaveValueLabel(page, parameterLabels.pathogen, `Covid-19 Delta ${sarsCovTag}`);
   await expectSelectParameterToHaveValueLabel(page, parameterLabels.response, "Elimination");
   await expect(page.getByTestId("select-group-vaccine").getByLabel("Low").first()).toBeChecked();
   await expect(page.getByTestId("select-group-behaviour").getByLabel("Medium")).toBeChecked();
