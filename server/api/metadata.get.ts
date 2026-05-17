@@ -34,6 +34,17 @@ export default defineRApiEventHandler(
           };
         }
 
+        const order = ["influenza_1957", "influenza_2009", "influenza_1918", "sars_cov_1", "sars_cov_2_pre_alpha", "sars_cov_2_omicron", "sars_cov_2_delta"];
+        if (param.id === "pathogen") {
+          return {
+            ...param,
+            defaultOption: "influenza_1957",
+            options: param.options?.toSorted((a, b) => {
+              return order.indexOf(a.id) - order.indexOf(b.id);
+            }),
+          };
+        }
+
         return param;
       }) ?? [],
     } };
