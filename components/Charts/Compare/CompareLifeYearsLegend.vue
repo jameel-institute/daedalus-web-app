@@ -1,19 +1,22 @@
 <template>
-  <Legend
-    :items="items"
-    :row-height-rem="0.9"
-    class="bg-white mb-3 shadow-sm border rounded p-2 w-fit"
-  />
+  <div class="bg-white rounded border d-flex align-items-center gap-3 px-2 py-1 shadow-sm">
+    <Legend
+      v-for="itemColumn in itemsInColumns"
+      :key="itemColumn[0].label"
+      :items="itemColumn"
+      :row-height-rem="1"
+      class="p-0 flex-wrap column-gap-3 row-gap-1"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
 import type { ScenarioCost } from "~/types/resultTypes";
 import { colorBlindSafeLargePalette, type LegendItem, LegendShape } from "../../utils/charts";
-import { plotLinesColorName } from "../utils/timeSeriesCharts";
 
 const appStore = useAppStore();
 
-const palette = colorBlindSafeLargePalette.filter(c => c.name !== plotLinesColorName);
+const palette = colorBlindSafeLargePalette;
 
 const items = computed((): LegendItem[] =>
   appStore.currentComparison.scenarios[0].result.data?.costs[0].children
@@ -27,4 +30,22 @@ const items = computed((): LegendItem[] =>
       };
     }) || [],
 );
+
+// Lay out items in columns manually since the implementation of 'flex-direction: column'
+// while applying flex wrap differs between Safari/Firefox/Chrome.
+const itemsInColumns = computed(() => {
+  const columns = [];
+  const itemsPerColumn = 2;
+  for (let i = 0; i < items.value.length; i += itemsPerColumn) {
+    columns.push(items.value.slice(i, i + itemsPerColumn));
+  }
+  return columns;
+});
 </script>
+
+<style scoped lang="scss">
+:deep(.legend-container) {
+  max-height: 2.3rem;
+  margin: 0 !important;
+}
+</style>

@@ -13,10 +13,17 @@
       <div class="d-flex align-items-start justify-content-between">
         <CostBasisToggler :scenarios="appStore.currentComparison.scenarios" />
         <CompareCostsLegend />
-        <CompareLifeYearsLegend />
       </div>
-      <CompareCostsChart :diffing="diffCosts" />
-      <CompareLifeYearsCostsChart :diffing="diffCosts" />
+      <CompareCostsChart :diffing="diffCosts" :chart-height-px="showLifeYearsMetric ? 300 : 500" />
+      <div class="d-flex justify-between w-full">
+        <CFormSwitch
+          id="costMetricSwitch"
+          v-model="showLifeYearsMetric"
+          label="Show life years lost"
+        />
+        <CompareLifeYearsLegend v-if="showLifeYearsMetric" class="ms-auto" />
+      </div>
+      <CompareLifeYearsCostsChart v-if="showLifeYearsMetric" :diffing="diffCosts" :chart-height-px="300" />
     </div>
     <div
       class="col-12 d-flex flex-column"
@@ -35,6 +42,8 @@
 const appStore = useAppStore();
 
 const diffCosts = ref(true);
+
+const showLifeYearsMetric = ref(false);
 
 const allowVerticalSplit = computed(() => appStore.currentComparison.scenarios.length < 5);
 </script>

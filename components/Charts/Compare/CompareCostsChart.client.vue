@@ -26,6 +26,7 @@ import useSortedScenarios from "~/composables/useSortedScenarios";
 
 const props = defineProps<{
   diffing: boolean
+  chartHeightPx?: number
 }>();
 
 const appStore = useAppStore();
@@ -106,7 +107,7 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
   return seriesSummary.value;
 };
 
-const chartHeightPx = 500;
+const defaultChartHeightPx = 500;
 const rowPadding = 12;
 const targetWidth = () => {
   return chartParentEl.value ? chartParentEl.value.clientWidth - (2 * rowPadding) : 0;
@@ -116,7 +117,7 @@ const chartInitialOptions = () => {
   return {
     credits: { text: "Highcharts" },
     colors: costsChartPalette.map(color => color.rgb),
-    chart: { ...chartOptions, height: chartHeightPx, width: targetWidth() },
+    chart: { ...chartOptions, height: props.chartHeightPx ?? defaultChartHeightPx, width: targetWidth() },
     exporting: {
       filename: chartTitle.value,
       chartOptions: {
@@ -228,12 +229,16 @@ watch(() => props.diffing, () => {
 
 const setChartDimensions = debounce(() => {
   if (chartParentEl.value) {
-    chart?.setSize(targetWidth(), chartHeightPx, { duration: 250 });
+    chart?.setSize(targetWidth(), props.chartHeightPx ?? defaultChartHeightPx, { duration: 250 });
   }
 });
 
 onMounted(() => window.addEventListener("resize", setChartDimensions));
 onBeforeUnmount(() => window.removeEventListener("resize", setChartDimensions));
+
+watch(() => props.chartHeightPx, () => {
+  setChartDimensions();
+});
 // Destroy this chart on unmounted, otherwise every time we navigate away and back to this page, another
 // chart is created, burdening the browser.
 onUnmounted(() => chart?.destroy());

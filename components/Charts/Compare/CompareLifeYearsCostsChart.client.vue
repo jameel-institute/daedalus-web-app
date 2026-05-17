@@ -21,10 +21,10 @@ import { costsChartYAxisTickFormatter, costsChartYAxisTitle, thickPlotLineForDif
 import { debounce } from "perfect-debounce";
 import { diffAgainstBaseline } from "~/components/utils/comparisons";
 import useSortedScenarios from "~/composables/useSortedScenarios";
-import { plotLinesColorName } from "../utils/timeSeriesCharts";
 
 const props = defineProps<{
   diffing: boolean
+  chartHeightPx?: number
 }>();
 
 const appStore = useAppStore();
@@ -45,7 +45,7 @@ const chartTitle = computed(() => {
   return `Life years losses ${props.diffing ? "relative to comparison baseline " : ""}after ${scenarioDuration} days`;
 });
 
-const palette = colorBlindSafeLargePalette.filter(c => c.name !== plotLinesColorName);
+const palette = colorBlindSafeLargePalette;
 
 const getSeries = (): Highcharts.SeriesColumnOptions[] => {
   // Take the first scenario's costs as an example to find out what the second-level breakdowns are.
@@ -99,7 +99,7 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
   return seriesSummary.value;
 };
 
-const chartHeightPx = 500;
+const defaultChartHeightPx = 300;
 const rowPadding = 12;
 const targetWidth = () => {
   return chartParentEl.value ? chartParentEl.value.clientWidth - (2 * rowPadding) : 0;
@@ -109,7 +109,7 @@ const chartInitialOptions = () => {
   return {
     credits: { text: "Highcharts" },
     colors: palette.map(color => color.rgb),
-    chart: { ...chartOptions, height: chartHeightPx, width: targetWidth() },
+    chart: { ...chartOptions, height: props.chartHeightPx ?? defaultChartHeightPx, width: targetWidth() },
     exporting: {
       filename: chartTitle.value,
       chartOptions: {
@@ -221,12 +221,16 @@ watch(() => props.diffing, () => {
 
 const setChartDimensions = debounce(() => {
   if (chartParentEl.value) {
-    chart?.setSize(targetWidth(), chartHeightPx, { duration: 250 });
+    chart?.setSize(targetWidth(), props.chartHeightPx ?? defaultChartHeightPx, { duration: 250 });
   }
 });
 
 onMounted(() => window.addEventListener("resize", setChartDimensions));
 onBeforeUnmount(() => window.removeEventListener("resize", setChartDimensions));
+
+watch(() => props.chartHeightPx, () => {
+  setChartDimensions();
+});
 // Destroy this chart on unmounted, otherwise every time we navigate away and back to this page, another
 // chart is created, burdening the browser.
 onUnmounted(() => chart?.destroy());
