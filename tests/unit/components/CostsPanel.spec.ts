@@ -63,7 +63,7 @@ describe("costs card", () => {
     expect(component.find(`#gdpContainer`).text()).toContain("44.9%");
 
     const totalCostPara = component.find(`p#totalCostPara`);
-    const costsTable = component.find('[data-testid="costs-table"]');
+    const costsTable = component.find('table[aria-label="Costs table"]');
     expect(costsTable.exists()).toBe(true);
 
     expect(totalCostPara.text()).toBe("8.9T");

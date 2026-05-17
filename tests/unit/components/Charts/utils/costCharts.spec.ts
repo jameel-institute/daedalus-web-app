@@ -78,8 +78,8 @@ describe("single-scenario life years costs chart tooltip text", () => {
 
   it("should return the correct tooltip text with dollar conversion", () => {
     const tooltipText = costsChartSingleScenarioLifeYearsTooltip(tooltipContext);
-    expect(tooltipText).toMatch(/Preschool-age children.*9\.94M.*life years lost/);
-    expect(tooltipText).toMatch(/As losses in USD.*\$333\.8M/);
+    expect(tooltipText).toMatch(/Preschool-age children.*9\.945M.*life years lost/);
+    expect(tooltipText).toMatch(/As losses in USD.*\$333\.8 million/);
   });
 
   it("should return undefined when the y value is 0", () => {
