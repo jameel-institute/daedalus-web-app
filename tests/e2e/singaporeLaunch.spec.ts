@@ -2,6 +2,7 @@ import { expect, type Page, test } from "@playwright/test";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 import checkRApiServer from "./helpers/checkRApiServer";
 import { parameterLabels } from "./helpers/constants";
+import selectParameterOption from "./helpers/selectParameterOption";
 
 test.beforeAll(async () => {
   checkRApiServer();
@@ -24,9 +25,15 @@ test("Has custom default values", async ({ page, baseURL }) => {
 test("Blocks certain parameter combinations and shows a modal", async ({ page, baseURL }) => {
   await waitForNewScenarioPage(page, baseURL);
 
-  // Check that the blocked combination of response=School closures shows the modal and resets to allowed defaults
-  await page.click(`input[name="${parameterLabels.response}"]`);
-  await page.getByRole("option", { name: "School closures" }).click();
+  // Check that the blocked option of response=School closures shows the modal and resets to allowed defaults
+  await selectParameterOption(page, "response", "School closures");
   await expect(page.getByRole("heading", { name: "This parameter is temporarily disabled" })).toBeVisible();
   await expectSelectParameterToHaveValueLabel(page, parameterLabels.response, "Elimination");
+
+  await page.click(".btn-close");
+  await expect(page.getByRole("heading", { name: "This parameter is temporarily disabled" })).not.toBeVisible();
+
+  await page.click(`div[aria-label="${parameterLabels.behaviour}"] label[for="behaviour-medium"]`);
+  await expect(page.getByRole("heading", { name: "This parameter is temporarily disabled" })).toBeVisible();
+  await expect(page.getByTestId("select-group-behaviour").getByLabel("None")).toBeChecked();
 });
