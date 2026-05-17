@@ -358,9 +358,9 @@ describe("costs chart", () => {
           "compareCostsChartContainer",
           expect.objectContaining({
             chart: expect.objectContaining({ height: 500, style: { fontFamily: "ImperialSansText, sans-serif" } }),
-            title: expect.objectContaining({ text: "Losses relative to baseline after 599 days" }),
+            title: expect.objectContaining({ text: "Losses relative to comparison baseline after 599 days" }),
             exporting: expect.objectContaining({
-              filename: "Losses relative to baseline after 599 days",
+              filename: "Losses relative to comparison baseline after 599 days",
             }),
             xAxis: expect.objectContaining({
               categories: ["low"],
@@ -433,9 +433,9 @@ describe("costs chart", () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         expect.objectContaining({
           exporting: {
-            filename: "Losses relative to baseline after 599 days",
+            filename: "Losses relative to comparison baseline after 599 days",
           },
-          title: expect.objectContaining({ text: "Losses relative to baseline after 599 days" }),
+          title: expect.objectContaining({ text: "Losses relative to comparison baseline after 599 days" }),
           xAxis: expect.objectContaining({
             categories: ["low"],
           }),

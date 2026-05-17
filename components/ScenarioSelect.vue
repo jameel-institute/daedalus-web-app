@@ -17,7 +17,7 @@
       :is-taggable="parameterIsNumeric"
       :filter-by="filterBy"
       :close-on-select="false"
-      :placeholder="`Select up to ${MAX_SCENARIOS_COMPARED_TO_BASELINE} options to compare against baseline`"
+      :placeholder="`Select up to ${MAX_SCENARIOS_COMPARED_TO_BASELINE} options to compare against your baseline`"
       @option-created="(value) => handleCreateOption(value)"
       @option-deselected="(option) => option ? handleDeselectOption(option.value) : null"
       @menu-opened="menuOpen = true"
@@ -86,10 +86,10 @@
     </VueSelect>
     <div v-if="showValidationFeedback" class="invalid-tooltip">
       <span v-if="tooFewScenarios">
-        Please select at least {{ MIN_SCENARIOS_COMPARED_TO_BASELINE }} scenario to compare against the baseline.
+        Please select at least {{ MIN_SCENARIOS_COMPARED_TO_BASELINE }} scenario to compare against your baseline.
       </span>
       <span v-else-if="tooManyScenarios">
-        You can compare up to {{ MAX_SCENARIOS_COMPARED_TO_BASELINE }} scenarios against the baseline.
+        You can compare up to {{ MAX_SCENARIOS_COMPARED_TO_BASELINE }} scenarios against your baseline.
       </span>
       <span v-else-if="numericInvalid">
         Some of the selected scenarios are not valid numbers.

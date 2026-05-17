@@ -138,7 +138,7 @@ describe("comparison page", () => {
     await flushPromises();
 
     const text = infoCard.text();
-    expect(text).toContain("Baseline scenario");
+    expect(text).toContain("Baseline for this comparison");
     expect(text).toContain("United States");
     expect(text).toContain("SARS 2004");
     expect(text).toContain("Elimination");

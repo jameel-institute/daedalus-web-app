@@ -126,7 +126,6 @@ const invalidFields = ref<string[]>([]);
 const blockedOptionModalVisible = ref(false);
 const blockedOptionModal = ref<{
   parameterLabel: string
-  blockedOptionLabel: string
   fallbackOptionLabel: string
 } | null>(null);
 
@@ -250,7 +249,6 @@ const handleBlockedSelection = (param: Parameter, selectedValue: string) => {
 
   blockedOptionModal.value = {
     parameterLabel: param.label,
-    blockedOptionLabel: optionLabel(param, selectedValue),
     fallbackOptionLabel: fallbackValue ? optionLabel(param, fallbackValue) : "the allowed option",
   };
   blockedOptionModalVisible.value = true;

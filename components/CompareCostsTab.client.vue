@@ -7,7 +7,7 @@
       <CFormSwitch
         id="costsChartDiffSwitch"
         v-model="diffCosts"
-        label="Display as difference from baseline"
+        label="Display as difference from the comparison baseline"
         class="mb-3"
       />
       <div class="d-flex align-items-start justify-content-between">

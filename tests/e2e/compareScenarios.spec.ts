@@ -135,12 +135,12 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
   checkValueIsInRange(lifeYearsSeries.data[2].custom.costAsGdpPercent, 19, costTolerance);
 
   // Check that after switching on the diffing mode, we see different data.
-  await page.getByLabel("Display as difference from baseline").check();
+  await page.getByLabel("Display as difference from the comparison baseline").check();
   const costsChartDataDiffStr = await page.locator("#compareCostsChartContainer").getAttribute("data-summary");
   const costsChartDataDiff = JSON.parse(costsChartDataDiffStr!);
   checkBarChartDataIsDifferent(costsChartDataUsd, costsChartDataDiff);
   expect(await tableRows.nth(0).textContent()).toMatch(
-    new RegExp(`Net losses relative to baseline \\(USD\\).*${decimalUSDMatcherAllowNegatives}\\s*${decimalUSDMatcherAllowNegatives}`),
+    new RegExp(`Net losses relative to comparison baseline \\(USD\\).*${decimalUSDMatcherAllowNegatives}\\s*${decimalUSDMatcherAllowNegatives}`),
   );
 
   await page.getByRole("tab", { name: "Time series" }).click();
@@ -209,7 +209,7 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
   await checkMultiScenarioTimeSeriesDataPoints(vaccinationsLocator, [1_400_000, 1_400_000, 1_400_000]);
 
   // Test we can navigate back to baseline scenario
-  await page.getByRole("link", { name: "Baseline scenario" }).first().click();
+  await page.getByRole("link", { name: "Baseline for this comparison" }).first().click();
   await page.waitForURL(new RegExp(`${baseURL}/${scenarioPathMatcher}`));
   expect(page.url()).toEqual(urlOfBaselineScenario);
 

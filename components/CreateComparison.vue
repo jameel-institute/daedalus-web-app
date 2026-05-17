@@ -55,7 +55,7 @@
           <CFormLabel :id="FORM_LABEL_ID" :for="FORM_LABEL_ID" class="fs-5 form-label">
             Compare baseline scenario
             <CTooltip
-              content="To change the baseline, click the x button above and edit the current scenario's parameters."
+              content="To change the comparison baseline, click the x button above and edit the current scenario's parameters."
               placement="top"
             >
               <template #toggler="{ togglerId, on }">

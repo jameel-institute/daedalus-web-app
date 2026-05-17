@@ -92,7 +92,7 @@ describe("multi-scenario costs chart tooltip text for stacked column", () => {
     },
   };
   const notDiffingHeader = "Total losses";
-  const diffingHeader = "Net losses relative to baseline";
+  const diffingHeader = "Net losses relative to comparison baseline";
   const conversionToGdpPercent = "74\\.0% of pre-pandemic GDP"; // Calculated from sum of the three point custom.costAsGdpPercent values
   const multiScenarioStackedTooltipMatcher = (
     param: Parameter,
