@@ -572,11 +572,11 @@ describe("parameter form", () => {
       },
     });
 
-    await component.find("input[value='high']").setChecked();
+    await component.find("input[id='behaviour-high']").setChecked();
     await nextTick();
 
     const modalText = component.text();
-    expect(component.find("input[value='none']").element.checked).toBe(true);
+    expect(component.find("input[id='behaviour-none']").element.checked).toBe(true);
     expect(modalText).toContain(blockedOptionModalTitle);
     expect(modalText).toContain("Change in public behaviour");
     expect(modalText).toContain("parameter should be left unchanged, to match the baseline scenario for the interactive activity.");
