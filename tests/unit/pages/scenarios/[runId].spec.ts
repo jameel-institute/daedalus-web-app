@@ -86,7 +86,7 @@ describe("scenario result page", () => {
       };
     });
 
-    mockRoute.mockReturnValue({ params: { runId: completeRunId } });
+    mockRoute.mockReturnValue({ params: { runId: completeRunId }, query: {} });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
@@ -123,7 +123,7 @@ describe("scenario result page", () => {
       };
     });
 
-    mockRoute.mockReturnValue({ params: { runId: pendingRunId } });
+    mockRoute.mockReturnValue({ params: { runId: pendingRunId }, query: {} });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
@@ -158,6 +158,7 @@ describe("scenario result page", () => {
       params: {
         runId: longRunningRunId,
       },
+      query: {},
     });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
@@ -173,7 +174,7 @@ describe("scenario result page", () => {
   });
 
   it("resets appStore.downloadError and any previous scenario runs when the page is loaded", async () => {
-    mockRoute.mockReturnValue({ params: { runId: successfulRunId } });
+    mockRoute.mockReturnValue({ params: { runId: successfulRunId }, query: {} });
     const piniaMock = mockPinia({
       downloadError: "Some error",
       currentComparison: {
@@ -207,7 +208,7 @@ describe("scenario result page", () => {
         statusMessage: "I'm a teapot",
       });
     });
-    mockRoute.mockReturnValue({ params: { runId: idForErroringStatusRequests } });
+    mockRoute.mockReturnValue({ params: { runId: idForErroringStatusRequests }, query: {} });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
@@ -235,7 +236,7 @@ describe("scenario result page", () => {
         statusMessage: "I'm a teapot",
       });
     });
-    mockRoute.mockReturnValue({ params: { runId: idForErroringResultRequest } });
+    mockRoute.mockReturnValue({ params: { runId: idForErroringResultRequest }, query: {} });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
@@ -268,7 +269,7 @@ describe("scenario result page", () => {
     registerEndpoint(`/api/scenarios/${statusRequestFirstPendingThenError}/result`, () => {
       return mockResultData;
     });
-    mockRoute.mockReturnValue({ params: { runId: statusRequestFirstPendingThenError } });
+    mockRoute.mockReturnValue({ params: { runId: statusRequestFirstPendingThenError }, query: {} });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
@@ -305,7 +306,7 @@ describe("scenario result page", () => {
       });
     });
 
-    mockRoute.mockReturnValue({ params: { runId: idForResultRequestErroringAfterPageload } });
+    mockRoute.mockReturnValue({ params: { runId: idForResultRequestErroringAfterPageload }, query: {} });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
@@ -335,7 +336,7 @@ describe("scenario result page", () => {
       };
     });
 
-    mockRoute.mockReturnValue({ params: { runId: failedRunId } });
+    mockRoute.mockReturnValue({ params: { runId: failedRunId }, query: {} });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
@@ -346,7 +347,7 @@ describe("scenario result page", () => {
   });
 
   it("shows no spinner when run succeeds", async () => {
-    mockRoute.mockReturnValue({ params: { runId: successfulRunId } });
+    mockRoute.mockReturnValue({ params: { runId: successfulRunId }, query: {} });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
@@ -354,7 +355,7 @@ describe("scenario result page", () => {
   });
 
   it("opens the code snippet when the link from the advanced usage popover in the 'CreateComparison' modal is clicked", async () => {
-    mockRoute.mockReturnValue({ params: { runId: successfulRunId } });
+    mockRoute.mockReturnValue({ params: { runId: successfulRunId }, query: {} });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
@@ -382,7 +383,7 @@ describe("scenario result page", () => {
   });
 
   it("opens the code snippet when the link from the advanced usage popover in the 'EditParameters' modal is clicked", async () => {
-    mockRoute.mockReturnValue({ params: { runId: successfulRunId } });
+    mockRoute.mockReturnValue({ params: { runId: successfulRunId }, query: {} });
 
     const component = await mountSuspended(ScenariosIdPage, { global: { stubs, plugins } });
 
