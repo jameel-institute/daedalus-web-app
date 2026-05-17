@@ -35,11 +35,11 @@ export const costsChartSingleScenarioTotalTooltip = (context: unknown, costBasis
 export const costsChartSingleScenarioLifeYearsTooltip = (context: unknown) => {
   const tooltipPointInstance = context as TooltipPointInstance;
 
-  if (tooltipPointInstance.point?.y == null) {
+  if (!tooltipPointInstance.point?.y) {
     return;
   }
 
-  const dollarAmountInMillions = tooltipPointInstance.point?.custom?.dollarAmountInMillions;
+
   let dollarText = "";
   if (dollarAmountInMillions != null) {
     const { amount, unit } = abbreviateMillionsDollars(dollarAmountInMillions);
