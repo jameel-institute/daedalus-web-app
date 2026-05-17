@@ -147,6 +147,18 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
     new RegExp(`Net losses relative to comparison baseline \\(USD\\).*${decimalUSDMatcherAllowNegatives}\\s*${decimalUSDMatcherAllowNegatives}`),
   );
 
+  // Check the life years toggle in the comparison view
+  const compareLifeYearsSwitch = page.getByLabel("Show life years lost", { exact: true });
+  await expect(compareLifeYearsSwitch).not.toBeChecked();
+  await expect(page.locator("#compareLifeYearsCostsChartContainer")).not.toBeVisible();
+
+  await compareLifeYearsSwitch.check();
+  await expect(page.locator("#compareCostsChartContainer")).toBeVisible();
+  await expect(page.locator("#compareLifeYearsCostsChartContainer")).toBeVisible({ timeout: 10000 });
+
+  await compareLifeYearsSwitch.uncheck();
+  await expect(page.locator("#compareLifeYearsCostsChartContainer")).not.toBeVisible();
+
   await page.getByRole("tab", { name: "Time series" }).click();
 
   const totalTimeSeries = ["Prevalence", "Hospital demand", "Dead", "Vaccinated"];
@@ -158,8 +170,8 @@ test("Can compare multiple scenarios", async ({ baseURL, context, isMobile, page
     expect(page.getByText(label, { exact: true })).not.toBeVisible();
   });
   const hospitalCapacityPlotLineText = "Hospital surge capacity: 305,000";
-  expect(page.getByText(hospitalCapacityPlotLineText)).not.toBeVisible();
-  await page.locator("#hospitalisationsShowCapacitiesSwitch").check();
+  // The "Show hospital surge capacity" switch is checked by default, so the plot line is visible.
+  await expect(page.locator("#hospitalisationsShowCapacitiesSwitch")).toBeChecked();
   await expect(page.getByText(hospitalCapacityPlotLineText)).toBeVisible();
 
   const infectionsLocator = page.locator("#time-series-comparison-0");

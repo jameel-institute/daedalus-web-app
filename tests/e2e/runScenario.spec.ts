@@ -178,13 +178,16 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   });
 
   // Check the cost metric (life years) toggle
-  const lifeYearsSwitch = page.getByLabel("Show life years lost only");
+  const lifeYearsSwitch = page.getByLabel("Show life years lost", { exact: true });
   await expect(lifeYearsSwitch).not.toBeChecked();
+
+  // The life years chart is hidden by default
+  await expect(page.locator("#lifeYearsChartContainer")).not.toBeVisible();
 
   await lifeYearsSwitch.check();
 
-  // After toggling to life years mode, the USD costs chart should be hidden and the life years chart shown
-  await expect(page.locator("#costsChartContainer")).not.toBeVisible();
+  // After toggling, both the USD costs chart and the life years chart should be visible
+  await expect(page.locator("#costsChartContainer")).toBeVisible();
   await expect(page.locator("#lifeYearsChartContainer")).toBeVisible({ timeout: 10000 });
 
   // Life years chart should expose valid series data
@@ -202,12 +205,12 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
     expect(d.custom.dollarAmountInMillions).toBeGreaterThanOrEqual(0);
   });
 
-  // The header should now say "Life years lost"
-  await expect(page.locator("#totalHeading")).toHaveText("Life years lost");
+  // The header still says "Total" — life years is shown alongside USD, not instead of it
+  await expect(page.locator("#totalHeading")).toHaveText("Total");
 
-  // Toggle back to USD metric
+  // Toggle back: the life years chart is hidden again, the USD chart remains visible
   await lifeYearsSwitch.uncheck();
-  await expect(page.locator("#costsChartContainer")).toBeVisible({ timeout: 10000 });
+  await expect(page.locator("#costsChartContainer")).toBeVisible();
   await expect(page.locator("#lifeYearsChartContainer")).not.toBeVisible();
 
   // Set the cost basis preference to its non-default value so that we can verify the preference is persisted to the next page.
