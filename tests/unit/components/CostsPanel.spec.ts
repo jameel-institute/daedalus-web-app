@@ -4,7 +4,6 @@ import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { mockResultResponseData } from "../mocks/mockResponseData";
 import { setActivePinia } from "pinia";
-import { CModal } from "#components";
 import { CostBasis } from "~/types/unitTypes";
 
 const stubs = {
@@ -54,20 +53,20 @@ describe("costs card", () => {
     setActivePinia(pinia);
   });
 
-  it("should render the costs chart container, the total cost, costs table, vsl and total cost in terms of % of GDP", async () => {
+  it("should render the costs chart and costs table in USD metric mode", async () => {
+    const appStore = useAppStore(pinia);
+    appStore.preferences.costMetric = USD_METRIC;
+
     const component = await mountSuspended(CostsPanel, { global: { stubs, plugins: [pinia] } });
-    const appStore = useAppStore();
     expect(component.text()).toContain("Losses after 599 days");
+    expect(component.find(`#gdpContainer`).exists()).toBe(true);
     expect(component.find(`#gdpContainer`).text()).toContain("44.9%");
 
     const totalCostPara = component.find(`p#totalCostPara`);
-    const costsTable = component.find('[data-testid="costsTable"]');
-    expect(costsTable).toBeTruthy();
+    const costsTable = component.find('[data-testid="costs-table"]');
+    expect(costsTable.exists()).toBe(true);
 
     expect(totalCostPara.text()).toBe("8.9T");
-
-    const vslModalComponent = component.findComponent(CModal);
-    expect(vslModalComponent.props("visible")).toBe(false);
 
     expect(appStore.preferences.costBasis).toBe(CostBasis.PercentGDP);
 
@@ -87,11 +86,37 @@ describe("costs card", () => {
     expect(gdpRadioButton.element.checked).toBe(true);
     expect(usdRadioButton.element.checked).toBe(false);
     expect(appStore.preferences.costBasis).toBe(CostBasis.PercentGDP);
-    await component.find("#vslInfo").trigger("click");
+  });
 
-    expect(vslModalComponent.props("visible")).toBe(true);
-    expect(vslModalComponent.find("a").attributes("href")).toContain("https://jameel-institute.github.io/daedalus/");
-    expect(vslModalComponent.text()).toContain("value of statistical life");
-    expect(vslModalComponent.text()).toContain("2,032,236 Int'l$");
+  it("should show the life years total and hide the USD total when in life years metric mode", async () => {
+    const appStore = useAppStore(pinia);
+    appStore.preferences.costMetric = LIFE_YEARS_METRIC;
+
+    const component = await mountSuspended(CostsPanel, { global: { stubs, plugins: [pinia] } });
+
+    expect(component.find("#lifeYearsContainer").exists()).toBe(true);
+    expect(component.find("#gdpContainer").exists()).toBe(false);
+    expect(component.find("#usdContainer").exists()).toBe(false);
+
+    const totalHeading = component.find("#totalHeading");
+    expect(totalHeading.text()).toBe("Life years lost");
+
+    // Life years total should be formatted
+    const lifeYearsTotalCost = component.find("#lifeYearsTotalCost");
+    expect(lifeYearsTotalCost.exists()).toBe(true);
+    expect(lifeYearsTotalCost.text()).not.toBe("");
+  });
+
+  it("should show 'Total' heading and the metric toggler switch in USD mode", async () => {
+    const appStore = useAppStore(pinia);
+    appStore.preferences.costMetric = USD_METRIC;
+
+    const component = await mountSuspended(CostsPanel, { global: { stubs, plugins: [pinia] } });
+
+    const totalHeading = component.find("#totalHeading");
+    expect(totalHeading.text()).toBe("Total");
+
+    const metricSwitch = component.find("#costMetricSwitch");
+    expect(metricSwitch.exists()).toBe(true);
   });
 });

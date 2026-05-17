@@ -2,7 +2,7 @@ import { CostBasis } from "~/types/unitTypes";
 import { mockMetadataResponseData } from "../../../mocks/mockResponseData";
 import { type Parameter, type ParameterOption, TypeOfParameter } from "~/types/parameterTypes";
 import { costsChartPalette, costsChartYAxisTickFormatter } from "~/components/Charts/utils/costCharts";
-import { costsChartSingleScenarioStackLabelFormatter, costsChartSingleScenarioTotalTooltip } from "~/components/Charts/utils/singleScenarioCostCharts";
+import { costsChartSingleScenarioLifeYearsTooltip, costsChartSingleScenarioStackLabelFormatter, costsChartSingleScenarioTotalTooltip } from "~/components/Charts/utils/singleScenarioCostCharts";
 import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioStackLabelFormatter, costsChartMultiScenarioXAxisLabelFormatter } from "~/components/Charts/Compare/utils/multiScenarioCostCharts";
 import { USD_METRIC } from "~/utils/metrics";
 
@@ -60,6 +60,40 @@ describe("single-scenario costs chart tooltip text for stacked column", () => {
       /Life years losses.*2,000%.* of pre-pandemic GDP.*#FF0000.*Working-age adults.*999%.*#00FF00.*Children.*0%/,
     );
     expect(tooltipText).not.toMatch(/Do not include in tooltips/i);
+  });
+});
+
+describe("single-scenario life years costs chart tooltip text", () => {
+  const tooltipContext = {
+    y: 9_944_537.6006,
+    color: "#FF0000",
+    key: "Preschool-age children",
+    point: {
+      y: 9_944_537.6006,
+      custom: {
+        dollarAmountInMillions: 333.825,
+      },
+    },
+  };
+
+  it("should return the correct tooltip text with dollar conversion", () => {
+    const tooltipText = costsChartSingleScenarioLifeYearsTooltip(tooltipContext);
+    expect(tooltipText).toMatch(/Preschool-age children.*9\.94M.*life years lost/);
+    expect(tooltipText).toMatch(/As losses in USD.*\$333\.8M/);
+  });
+
+  it("should return undefined when the y value is 0", () => {
+    const zeroContext = { ...tooltipContext, y: 0, point: { ...tooltipContext.point, y: 0 } };
+    expect(costsChartSingleScenarioLifeYearsTooltip(zeroContext)).toBeUndefined();
+  });
+
+  it("should omit the dollar text when dollarAmountInMillions is 0", () => {
+    const noDollarContext = {
+      ...tooltipContext,
+      point: { ...tooltipContext.point, custom: { dollarAmountInMillions: 0 } },
+    };
+    const tooltipText = costsChartSingleScenarioLifeYearsTooltip(noDollarContext);
+    expect(tooltipText).not.toMatch(/As losses in USD/);
   });
 });
 
