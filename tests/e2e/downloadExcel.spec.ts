@@ -36,7 +36,7 @@ const doDownload = async (page: Page, expectedFileName: string) => {
 
 test("can download Excel file for scenario results", async ({ page, baseURL }) => {
   await runScenario(page, baseURL);
-  await doDownload(page, "daedalus_VNM_none_sars_cov_1_elimination_none_38000.xlsx");
+  await doDownload(page, "daedalus_VNM_none_influenza_1957_elimination_none_38000.xlsx");
 });
 
 test("can download Excel file for comparison results", async ({ page, baseURL, isMobile, channel }) => {
@@ -47,7 +47,7 @@ test("can download Excel file for comparison results", async ({ page, baseURL, i
   await startComparison(page);
 
   await page.getByRole("button", { name: "Disease" }).first().click();
-  const scenarioSelect = page.getByLabel(`Compare baseline scenario SARS 2004 against`);
+  const scenarioSelect = page.getByLabel(`Compare baseline scenario Influenza 1957 against`);
   await expect(scenarioSelect).toBeVisible();
   await scenarioSelect.click();
 
@@ -58,5 +58,5 @@ test("can download Excel file for comparison results", async ({ page, baseURL, i
   // wait for results
   await expect(page.locator("#compareCostsChartContainer text.highcharts-credits").first()).toBeVisible();
 
-  await doDownload(page, "daedalus_comparison_pathogen_sars_cov_1_sars_cov_2_pre_alpha_sars_cov_2_omicron.xlsx");
+  await doDownload(page, "daedalus_comparison_pathogen_influenza_1957_sars_cov_2_pre_alpha_sars_cov_2_omicron.xlsx");
 });
