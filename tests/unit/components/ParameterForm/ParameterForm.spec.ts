@@ -14,10 +14,12 @@ const stubs = {
 const plugins = [mockPinia({}, true, { stubActions: false })];
 
 // Need to do this in hoisted - see https://developer.mamezou-tech.com/en/blogs/2024/02/12/nuxt3-unit-testing-mock/
-const { mockNavigateTo } = vi.hoisted(() => ({
+const { mockNavigateTo, mockRoute } = vi.hoisted(() => ({
   mockNavigateTo: vi.fn(),
+  mockRoute: vi.fn(),
 }));
 mockNuxtImport("navigateTo", () => mockNavigateTo);
+mockNuxtImport("useRoute", () => mockRoute);
 
 vi.mock("country-iso-3-to-2", () => ({
   default: vi.fn((countryId: string) => {
@@ -79,6 +81,9 @@ const blockedOptionEncouragement = "You are encouraged to try changing";
 describe("parameter form", () => {
   beforeEach(() => {
     mockNavigateTo.mockReset();
+    mockRoute.mockReturnValue({
+      query: {},
+    });
   });
 
   it("renders the correct parameter labels, inputs, options, and default values", async () => {
@@ -585,6 +590,53 @@ describe("parameter form", () => {
     expect(modalText).toContain("None");
   });
 
+  it("allows a blocked select option when the unblock query is present", async () => {
+    mockRoute.mockReturnValue({
+      query: {
+        unblock: "true",
+      },
+    });
+
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
+      global: {
+        stubs,
+        plugins: [mockPinia({ metadata: restrictedOptionsMetadata }, false, { stubActions: false })],
+      },
+    });
+
+    const responseSelect = component.findComponent(VueSelect);
+
+    await responseSelect.vm.$emit("update:modelValue", "economic_closures");
+    await responseSelect.vm.$emit("option-selected");
+    await nextTick();
+
+    expect(responseSelect.props("modelValue")).toBe("economic_closures");
+    expect(component.text()).not.toContain(blockedOptionModalTitle);
+  });
+
+  it("allows a blocked radio option when the unblock query is present", async () => {
+    mockRoute.mockReturnValue({
+      query: {
+        unblock: "true",
+      },
+    });
+
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
+      global: {
+        stubs,
+        plugins: [mockPinia({ metadata: restrictedOptionsMetadata }, false, { stubActions: false })],
+      },
+    });
+
+    await component.find("input[id='behaviour-high']").setChecked();
+    await nextTick();
+
+    expect(component.find("input[id='behaviour-high']").element.checked).toBe(true);
+    expect(component.text()).not.toContain(blockedOptionModalTitle);
+  });
+
   it("prevents submitting a form that already contains a blocked option", async () => {
     const component = await mountSuspended(ParameterForm, {
       props: { inModal: false },
@@ -612,5 +664,37 @@ describe("parameter form", () => {
     expect(modalText).toContain("Response");
     expect(modalText).toContain("parameter should be left unchanged, to match the baseline scenario for the interactive activity.");
     expect(mockNavigateTo).not.toBeCalled();
+  });
+
+  it("preserves the unblock query when navigating after a successful submission", async () => {
+    mockRoute.mockReturnValue({
+      query: {
+        unblock: "true",
+      },
+    });
+
+    registerEndpoint("/api/scenarios", {
+      method: "POST",
+      async handler(event) {
+        const body = JSON.parse(event.node.req.body);
+        const parameters = body.parameters;
+
+        if (parameters.long_list === "1" && parameters.region === "HVN" && parameters.short_list === "no") {
+          return { runId: "randomId" };
+        }
+
+        return { error: "Test failed due to wrong parameters" };
+      },
+    });
+
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
+      global: { stubs, plugins },
+    });
+
+    await component.find("button[type='submit']").trigger("click");
+    await flushPromises();
+
+    expect(mockNavigateTo).toBeCalledWith("/scenarios/randomId?unblock=true");
   });
 });

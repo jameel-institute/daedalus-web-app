@@ -20,3 +20,13 @@ test("Has custom default values", async ({ page, baseURL }) => {
   await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue("32000");
   await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue("32000");
 });
+
+test("Blocks certain parameter combinations and shows a modal", async ({ page, baseURL }) => {
+  await waitForNewScenarioPage(page, baseURL);
+
+  // Check that the blocked combination of response=School closures shows the modal and resets to allowed defaults
+  await page.click(`input[name="${parameterLabels.response}"]`);
+  await page.getByRole("option", { name: "School closures" }).click();
+  await expect(page.getByRole("heading", { name: "This parameter is temporarily disabled" })).toBeVisible();
+  await expectSelectParameterToHaveValueLabel(page, parameterLabels.response, "Elimination");
+});

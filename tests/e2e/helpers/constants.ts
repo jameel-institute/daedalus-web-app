@@ -1,5 +1,6 @@
 export const runIdMatcher = "[a-f0-9]{32}";
-export const scenarioPathMatcher = `scenarios/${runIdMatcher}`;
+const optionalQueryParameters = "(\\?.+)?";
+export const scenarioPathMatcher = `scenarios/${runIdMatcher}${optionalQueryParameters}`;
 
 export const parameterLabels = {
   country: "Country",

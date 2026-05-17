@@ -24,7 +24,7 @@ const expectSelectParameterToHaveValueLabel = async (page: Page, parameterLabel:
 };
 
 test("Can request a scenario analysis run", async ({ page, baseURL }) => {
-  await waitForNewScenarioPage(page, baseURL);
+  await waitForNewScenarioPage(page, baseURL, true);
 
   await selectParameterOption(page, "pathogen", "Covid-19 Delta");
   await selectParameterOption(page, "response", "Elimination");

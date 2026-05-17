@@ -1,28 +1,11 @@
 <template>
   <div>
-    <CModal
+    <BlockedParameterModal
       :visible="blockedOptionModalVisible"
-      aria-labelledby="blockedOptionModalTitle"
-      style="margin-top: 6rem;"
+      :parameter-label="blockedOptionModal?.parameterLabel ?? ''"
+      :fallback-option-label="blockedOptionModal?.fallbackOptionLabel ?? ''"
       @close="closeBlockedOptionModal"
-    >
-      <CModalHeader>
-        <CModalTitle id="blockedOptionModalTitle">
-          This parameter is temporarily disabled
-        </CModalTitle>
-      </CModalHeader>
-      <CModalBody v-if="blockedOptionModal">
-        <p>
-          For the purposes of the launch event on 19 May 2026, the &lsquo;{{ blockedOptionModal.parameterLabel }}&rsquo; parameter should be left unchanged, to match the baseline scenario for the interactive activity.
-        </p>
-        <p>
-          You are encouraged to try changing the disease, response, global vaccine investment, and hospital capacity parameters to explore how investments may affect the results under a variety of possible pandemics.
-        </p>
-        <p class="mb-0">
-          &lsquo;{{ blockedOptionModal.parameterLabel }}&rsquo; has been reset to &lsquo;{{ blockedOptionModal.fallbackOptionLabel }}&rsquo;.
-        </p>
-      </CModalBody>
-    </CModal>
+    />
     <CForm
       v-if="paramMetadata && formData && appStore.metadataFetchStatus !== 'error'"
       v-show="mounted"
@@ -133,9 +116,11 @@ const blockedOptionResetCounts = ref<Record<string, number>>({});
 
 const errorOnRunRequest = computed(() => appStore.currentScenario.run.fetchError);
 const paramMetadata = computed(() => appStore.metadata?.parameters);
+
+const query = useRoute().query;
 const blockedOptionsByParameter: Record<string, readonly string[]> = {
-  response: ["none", "school_closures", "economic_closures"],
-  behaviour: ["low", "medium", "high"],
+  response: query.unblock === "true" ? [] : ["none", "school_closures", "economic_closures"],
+  behaviour: query.unblock === "true" ? [] : ["low", "medium", "high"],
 };
 
 const initialiseFormDataFromDefaults = () => {
@@ -337,7 +322,11 @@ const submitForm = async () => {
   await appStore.runScenario(appStore.currentScenario);
 
   if (appStore.currentScenario.runId && !appStore.currentScenario.run.fetchError) {
-    await navigateTo(`/scenarios/${appStore.currentScenario.runId}`);
+    if (query.unblock === "true") {
+      await navigateTo(`/scenarios/${appStore.currentScenario.runId}?unblock=true`);
+    } else {
+      await navigateTo(`/scenarios/${appStore.currentScenario.runId}`);
+    }
   }
 };
 
