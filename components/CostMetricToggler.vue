@@ -5,7 +5,6 @@
         id="costMetricSwitch"
         v-model="showLifeYearsMetric"
         label="Show loss of life in life years"
-        @update:model-value="handleUpdate"
       />
     </div>
   </div>

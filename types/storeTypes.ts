@@ -44,6 +44,5 @@ export interface AppState {
   currentComparison: Comparison // Represents the multi-scenario comparison currently being viewed
   preferences: {
     costBasis: CostBasis
-    costMetric: Metric
   }
 };
