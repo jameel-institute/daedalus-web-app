@@ -46,7 +46,7 @@ defineEmits<{
   updateHoverPoint: [hoverPoint: Highcharts.Point]
 }>();
 
-const toggledShowCapacities = ref(false);
+const toggledShowCapacities = ref(true);
 const appStore = useAppStore();
 const { activeSeriesMetadata } = useTimeSeriesGroup(() => props.seriesGroup, () => props.isDaily);
 const capacityLabel = computed(() => appStore.metadata?.results.capacities?.map(c => c.label.toLocaleLowerCase()).join(", "));

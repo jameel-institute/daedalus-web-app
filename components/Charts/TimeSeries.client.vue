@@ -23,7 +23,7 @@ import "highcharts/esm/modules/offline-exporting";
 import { debounce } from "perfect-debounce";
 import type { DisplayInfo } from "~/types/apiResponseTypes";
 import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, menuItemDefinitionOptions } from "../utils/charts";
-import { timeSeriesChartOptions, timeSeriesColors, timeSeriesXAxisOptions, timeSeriesYAxisOptions } from "./utils/timeSeriesCharts";
+import { plotLinesColor, timeSeriesChartOptions, timeSeriesColors, timeSeriesXAxisOptions, timeSeriesYAxisOptions } from "./utils/timeSeriesCharts";
 import { getTimeSeriesDataPoints, showInterventions, timeSeriesYUnits } from "./utils/timeSeriesData";
 import useCapacitiesPlotLines from "~/composables/useCapacitiesPlotLines";
 
@@ -61,7 +61,8 @@ const data = computed(() => getTimeSeriesDataPoints(appStore.currentScenario, pr
 const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(
   () => props.timeSeriesMetadata.id === "hospitalised", // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
   () => chart.value?.yAxis[0],
-  appStore.currentScenario,
+  () => [appStore.currentScenario],
+  () => ({ [appStore.currentScenario.runId]: plotLinesColor }),
 );
 
 const { initialInterventionsPlotBands } = useInterventionPlotBands(

@@ -62,7 +62,7 @@ describe("parameter select component", () => {
         global: { stubs, plugins },
       });
 
-      expect(component.find(".single-value .pathogenTag")).toBeUndefined();
+      expect(component.find(".single-value .pathogenTag").exists()).toBe(false);
     });
   });
 
@@ -101,7 +101,7 @@ describe("parameter select component", () => {
       await component.find(".dropdown-icon").trigger("click");
       const options = component.findAll(".menu .parameter-option");
       options.forEach((option) => {
-        expect(option.find(".single-value .pathogenTag")).toBeUndefined();
+        expect(option.find(".pathogenTag").exists()).toBe(false);
       });
     });
   });
