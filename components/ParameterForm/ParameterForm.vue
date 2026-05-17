@@ -51,6 +51,7 @@
       >
         <div v-if="renderAsRadios(parameter)" class="button-group-container">
           <ParameterRadio
+            :key="`${parameter.id}-${blockedOptionResetCounts[parameter.id] ?? 0}`"
             v-model:parameter-value="formData[parameter.id]"
             :parameter="parameter"
             :pulsing="pulsingParameters.includes(parameter.id)"
@@ -128,6 +129,7 @@ const blockedOptionModal = ref<{
   parameterLabel: string
   fallbackOptionLabel: string
 } | null>(null);
+const blockedOptionResetCounts = ref<Record<string, number>>({});
 
 const errorOnRunRequest = computed(() => appStore.currentScenario.run.fetchError);
 const paramMetadata = computed(() => appStore.metadata?.parameters);
@@ -242,6 +244,7 @@ const handleBlockedSelection = (param: Parameter, selectedValue: string) => {
   const fallbackValue = fallbackValueForParam(param);
   if (fallbackValue) {
     formData.value[param.id] = fallbackValue;
+    blockedOptionResetCounts.value[param.id] = (blockedOptionResetCounts.value[param.id] ?? 0) + 1;
     if (param.parameterType === TypeOfParameter.GlobeSelect) {
       appStore.globe.highlightedCountry = fallbackValue;
     }
