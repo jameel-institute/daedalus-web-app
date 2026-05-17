@@ -2,7 +2,7 @@ import { CostBasis } from "~/types/unitTypes";
 import { mockMetadataResponseData } from "../../../mocks/mockResponseData";
 import { type Parameter, type ParameterOption, TypeOfParameter } from "~/types/parameterTypes";
 import { costsChartPalette, costsChartYAxisTickFormatter } from "~/components/Charts/utils/costCharts";
-import { costsChartSingleScenarioStackLabelFormatter, costsChartSingleScenarioTooltip } from "~/components/Charts/utils/singleScenarioCostCharts";
+import { costsChartSingleScenarioStackLabelFormatter, costsChartSingleScenarioTotalTooltip } from "~/components/Charts/utils/singleScenarioCostCharts";
 import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioStackLabelFormatter, costsChartMultiScenarioXAxisLabelFormatter } from "~/components/Charts/Compare/utils/multiScenarioCostCharts";
 
 describe("costsChartPalette", () => {
@@ -46,7 +46,7 @@ describe("single-scenario costs chart tooltip text for stacked column", () => {
   };
 
   it("should return the correct text for the stack's tooltip, when cost basis is USD", () => {
-    const tooltipText = costsChartSingleScenarioTooltip(tooltipPointInstance, CostBasis.USD, 4000);
+    const tooltipText = costsChartSingleScenarioTotalTooltip(tooltipPointInstance, CostBasis.USD, 4000);
     expect(tooltipText).toMatch(
       /Life years losses.*\$2\.0 billion.*USD.*50\.0% of pre-pandemic GDP.*#FF0000.*Working-age adults.*\$999\.0M.*#00FF00.*Children.*<\$1M/,
     );
@@ -54,7 +54,7 @@ describe("single-scenario costs chart tooltip text for stacked column", () => {
   });
 
   it("should return the correct text for the stack's tooltip, when cost basis is percent of GDP", () => {
-    const tooltipText = costsChartSingleScenarioTooltip(tooltipPointInstance, CostBasis.PercentGDP, 2_222_222);
+    const tooltipText = costsChartSingleScenarioTotalTooltip(tooltipPointInstance, CostBasis.PercentGDP, 2_222_222);
     expect(tooltipText).toMatch(
       /Life years losses.*2,000%.* of pre-pandemic GDP.*#FF0000.*Working-age adults.*999%.*#00FF00.*Children.*0%/,
     );

@@ -13,6 +13,7 @@ export const costsChartMultiScenarioStackedTooltip = (
   costBasis: CostBasis,
   axisParam: Parameter | undefined,
   diffing: boolean,
+  metric: Metric,
 ) => {
   const contextInstance = context as TooltipPointInstance;
   const point = contextInstance.point;
@@ -46,7 +47,7 @@ export const costsChartMultiScenarioStackedTooltip = (
     }
   }
 
-  const pointsText = point.points?.map(p => costsChartTooltipPointFormatter(p, costBasis, diffing))?.join("");
+  const pointsText = point.points?.map(p => costsChartTooltipPointFormatter(p, diffing, metric, costBasis))?.join("");
 
   return `<span style="font-size: 0.8rem;">${headerText}<br/><br/>${pointsText}</span>`;
 };
@@ -62,7 +63,7 @@ interface StackLabelItem extends Highcharts.StackItemObject {
 }
 
 // Labels for (stacked) columns for multi-scenario cost charts
-export const costsChartMultiScenarioStackLabelFormatter = (stackLabelItem: unknown, costBasis: CostBasis, diffing: boolean) => {
+export const costsChartMultiScenarioStackLabelFormatter = (stackLabelItem: unknown, costBasis: CostBasis, diffing: boolean, metric: Metric) => {
   const stackLabel = stackLabelItem as StackLabelItem;
   // If the stack extends both positively and negatively, Highcharts will create two labels for each stack:
   // (A) the total of the positive values, at the top, and (B) the total of the negative values, at the bottom.
@@ -99,7 +100,7 @@ export const costsChartMultiScenarioStackLabelFormatter = (stackLabelItem: unkno
   const netTotal = positiveTotal + negativeTotal;
 
   return `<span style="color: ${valueColor(netTotal, diffing)}">`
-    + `${displayValue(netTotal, costBasis)}`
+    + `${displayValue(netTotal, metric, costBasis)}`
     + `${hasBothStackLabels ? " (net)" : ""}</span>`;
 };
 

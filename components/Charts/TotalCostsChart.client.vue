@@ -15,7 +15,7 @@ import "highcharts/esm/modules/offline-exporting";
 
 import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, getColorVariants, menuItemDefinitionOptions } from "~/components/utils/charts";
 import { costsChartPalette, costsChartYAxisTickFormatter, costsChartYAxisTitle } from "./utils/costCharts";
-import { costsChartSingleScenarioStackLabelFormatter, costsChartSingleScenarioTooltip } from "./utils/singleScenarioCostCharts";
+import { costsChartSingleScenarioStackLabelFormatter, costsChartSingleScenarioTotalTooltip } from "./utils/singleScenarioCostCharts";
 import { costAsPercentOfGdp } from "../utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import { debounce } from "perfect-debounce";
@@ -133,18 +133,18 @@ const chartInitialOptions = () => {
       gridLineColor: "lightgrey",
       min: 0,
       title: {
-        text: costsChartYAxisTitle(appStore.preferences.costBasis),
+        text: costsChartYAxisTitle(USD_METRIC, appStore.preferences.costBasis),
       },
       stackLabels: {
         enabled: true,
         formatter() {
-          return costsChartSingleScenarioStackLabelFormatter(this.total, appStore.preferences.costBasis);
+          return costsChartSingleScenarioStackLabelFormatter(this.total, USD_METRIC, appStore.preferences.costBasis);
         },
       },
       labels: {
         enabled: true,
         formatter() {
-          return costsChartYAxisTickFormatter(this.value, appStore.preferences.costBasis);
+          return costsChartYAxisTickFormatter(this.value, USD_METRIC, appStore.preferences.costBasis);
         },
       },
     },
@@ -155,7 +155,7 @@ const chartInitialOptions = () => {
     tooltip: {
       shared: true,
       formatter() {
-        return this.total ? costsChartSingleScenarioTooltip(this, appStore.preferences.costBasis, appStore.currentScenario.result.data!.gdp) : "";
+        return this.total ? costsChartSingleScenarioTotalTooltip(this, appStore.preferences.costBasis, appStore.currentScenario.result.data!.gdp) : "";
       },
     },
     plotOptions: {
@@ -178,7 +178,7 @@ watch(() => appStore.preferences.costBasis, () => {
     chart.update({
       yAxis: {
         title: {
-          text: costsChartYAxisTitle(appStore.preferences.costBasis),
+          text: costsChartYAxisTitle(USD_METRIC, appStore.preferences.costBasis),
         },
       },
       series: getSeries(),

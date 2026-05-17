@@ -55,6 +55,7 @@ export const useAppStore = defineStore("app", {
     currentComparison: emptyComparison,
     preferences: {
       costBasis: CostBasis.PercentGDP, // Default cost basis for first-time visitors
+      costMetric: USD_METRIC, // Default cost metric for first-time visitors
     },
   }),
   persist: {

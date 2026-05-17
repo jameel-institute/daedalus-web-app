@@ -154,20 +154,20 @@ const chartInitialOptions = () => {
       gridLineColor: "lightgrey",
       min: props.diffing ? undefined : 0,
       plotLines: props.diffing ? [thickPlotLineForDiffedChart] : [],
-      title: { text: costsChartYAxisTitle(costBasis.value, props.diffing) },
+      title: { text: costsChartYAxisTitle(USD_METRIC, costBasis.value, props.diffing) },
       stackLabels: {
         enabled: true,
         style: {
           fontWeight: 500,
         },
         formatter() {
-          return costsChartMultiScenarioStackLabelFormatter(this, costBasis.value, props.diffing);
+          return costsChartMultiScenarioStackLabelFormatter(this, costBasis.value, props.diffing, USD_METRIC);
         },
       },
       labels: {
         enabled: true,
         formatter() {
-          return costsChartYAxisTickFormatter(this.value, costBasis.value);
+          return costsChartYAxisTickFormatter(this.value, USD_METRIC, costBasis.value);
         },
       },
     },
@@ -176,7 +176,7 @@ const chartInitialOptions = () => {
     tooltip: {
       shared: true,
       formatter() {
-        return costsChartMultiScenarioStackedTooltip(this, costBasis.value, appStore.axisMetadata, props.diffing);
+        return costsChartMultiScenarioStackedTooltip(this, costBasis.value, appStore.axisMetadata, props.diffing, USD_METRIC);
       },
     },
     plotOptions: {
@@ -199,7 +199,7 @@ watch(() => costBasis.value, () => {
   chart?.update({
     yAxis: {
       title: {
-        text: costsChartYAxisTitle(costBasis.value, props.diffing),
+        text: costsChartYAxisTitle(USD_METRIC, costBasis.value, props.diffing),
       },
     },
     series: getSeries(),
@@ -218,7 +218,7 @@ watch(() => props.diffing, () => {
     yAxis: {
       min: props.diffing ? undefined : 0,
       title: {
-        text: costsChartYAxisTitle(costBasis.value, props.diffing),
+        text: costsChartYAxisTitle(USD_METRIC, costBasis.value, props.diffing),
       },
       plotLines: props.diffing ? [thickPlotLineForDiffedChart] : [],
     },

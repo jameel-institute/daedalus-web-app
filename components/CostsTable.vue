@@ -160,18 +160,18 @@ const { sortedScenarios } = useSortedScenarios(scenarios);
 
 const scenarioLabel = (scenario: Scenario) => appStore.getScenarioAxisLabel(scenario);
 
-const displayValue = (scenario: Scenario, costId: string, metricId: string): string | undefined => {
+const displayValue = (scenario: Scenario, costId: string, metric: Metric): string | undefined => {
   const cost = appStore.getScenarioCostById(scenario, costId);
   if (!cost) {
     return;
   }
-  const val = props.diffing ? diffAgainstBaseline(cost, metricId) : getValueFromCost(cost, metricId);
+  const val = props.diffing ? diffAgainstBaseline(cost, metric) : getValueFromCost(cost, metric);
   if (val === undefined) {
     return;
   }
   const absVal = Math.abs(val);
   const signDisplay = props.diffing ? "exceptZero" : "auto";
-  if (metricId !== USD_METRIC) {
+  if (metric !== USD_METRIC) {
     return compactValueWithSign(val, absVal > 10_000 ? 4 : 1, signDisplay);
   }
   switch (appStore.preferences.costBasis) {

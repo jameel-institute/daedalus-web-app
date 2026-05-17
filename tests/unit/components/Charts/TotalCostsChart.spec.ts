@@ -1,6 +1,6 @@
 import type { AsyncDataRequestStatus } from "#app";
 import type { ScenarioResultData } from "~/types/apiResponseTypes";
-import CostsChart from "~/components/Charts/CostsChart.client.vue";
+import TotalCostsChart from "~/components/Charts/TotalCostsChart.client.vue";
 import { emptyScenario, mockPinia } from "@/tests/unit/mocks/mockPinia";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { waitFor } from "@testing-library/vue";
@@ -160,7 +160,7 @@ const expectedUSDSeries = [
 
 describe("costs chart", () => {
   it("should render the costs chart container", async () => {
-    const component = await mountSuspended(CostsChart, {
+    const component = await mountSuspended(TotalCostsChart, {
       global: { stubs, plugins: [mockPinia()] },
     });
 
@@ -171,7 +171,7 @@ describe("costs chart", () => {
   it("should initialise the chart with the correct options and data for cost basis of GDP percent", async () => {
     const chartSpy = vi.spyOn(Highcharts, "chart");
 
-    await mountSuspended(CostsChart, {
+    await mountSuspended(TotalCostsChart, {
       global: {
         stubs,
         plugins: [mockPinia({
@@ -216,7 +216,7 @@ describe("costs chart", () => {
   it("should initialise the chart with the correct options and data for cost basis of USD", async () => {
     const chartSpy = vi.spyOn(Highcharts, "chart");
 
-    await mountSuspended(CostsChart, {
+    await mountSuspended(TotalCostsChart, {
       global: {
         stubs,
         plugins: [mockPinia({
@@ -269,7 +269,7 @@ describe("costs chart", () => {
 
     const appStore = useAppStore(pinia);
 
-    await mountSuspended(CostsChart, { global: { stubs, plugins: [pinia] } });
+    await mountSuspended(TotalCostsChart, { global: { stubs, plugins: [pinia] } });
 
     appStore.preferences.costBasis = CostBasis.PercentGDP;
 
@@ -298,7 +298,7 @@ describe("costs chart", () => {
 
     const appStore = useAppStore(pinia);
 
-    await mountSuspended(CostsChart, { global: { stubs, plugins: [pinia] } });
+    await mountSuspended(TotalCostsChart, { global: { stubs, plugins: [pinia] } });
 
     appStore.preferences.costBasis = CostBasis.USD;
 
@@ -317,7 +317,7 @@ describe("costs chart", () => {
   });
 
   it("should destroy the chart when the component is unmounted", async () => {
-    const component = await mountSuspended(CostsChart, {
+    const component = await mountSuspended(TotalCostsChart, {
       global: { stubs, plugins: [mockPinia({ currentScenario: scenarioWithCostData }, true, { stubActions: false })] },
     });
 
@@ -332,7 +332,7 @@ describe("costs chart", () => {
     const addEventListenerSpy = vi.spyOn(window, "addEventListener");
     const removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
 
-    const component = await mountSuspended(CostsChart, {
+    const component = await mountSuspended(TotalCostsChart, {
       global: { stubs, plugins: [mockPinia()] },
     });
 

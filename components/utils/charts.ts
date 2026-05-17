@@ -125,6 +125,7 @@ export interface CustomPointOptions {
   costAsGdpPercent?: number
   scenarioId?: string
   stackNetTotal?: number
+  dollarAmountInMillions?: number
 }
 
 export interface CustomPointOptionsObject extends PointOptionsObject {
