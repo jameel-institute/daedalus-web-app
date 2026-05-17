@@ -28,23 +28,29 @@ export const costsChartMultiScenarioStackedTooltip = (
   const totalLossesText = diffing ? "Net losses relative to baseline:</br>" : "Total losses: ";
   const totalColor = valueColor(totalStackValue, diffing);
 
-  if (costBasis === CostBasis.PercentGDP) {
-    const percentOfGdp = humanReadablePercentOfGdp(totalStackValue);
-    headerText = `${headerText}</br></br>${totalLossesText}<b>`
-      + `<span style="color: ${totalColor}">${percentOfGdp.percent}</span>`
-      + `</b> ${percentOfGdp.reference}`;
-  } else {
-    const abbr = abbreviateMillionsDollars(totalStackValue);
-    headerText = `${headerText}<br/></br>${totalLossesText}<b>`
-      + `<span style="color: ${totalColor}">${abbr.amount} ${abbr.unit}</span>`
-      + `</b> USD`;
-    if (totalStackValue !== 0) {
-      const totalCostAsGdpPercent = point.points?.map(p => p.custom.costAsGdpPercent!).reduce((sum, a) => sum + a, 0);
-      if (totalCostAsGdpPercent) {
-        const percentOfGdp = humanReadablePercentOfGdp(totalCostAsGdpPercent);
-        headerText = `${headerText}</br>(${percentOfGdp.percent} ${percentOfGdp.reference})`;
+  if (metric === USD_METRIC) {
+    if (costBasis === CostBasis.PercentGDP) {
+      const percentOfGdp = humanReadablePercentOfGdp(totalStackValue);
+      headerText = `${headerText}</br></br>${totalLossesText}<b>`
+        + `<span style="color: ${totalColor}">${percentOfGdp.percent}</span>`
+        + `</b> ${percentOfGdp.reference}`;
+    } else {
+      const abbr = abbreviateMillionsDollars(totalStackValue);
+      headerText = `${headerText}<br/></br>${totalLossesText}<b>`
+        + `<span style="color: ${totalColor}">${abbr.amount} ${abbr.unit}</span>`
+        + `</b> USD`;
+      if (totalStackValue !== 0) {
+        const totalCostAsGdpPercent = point.points?.map(p => p.custom.costAsGdpPercent!).reduce((sum, a) => sum + a, 0);
+        if (totalCostAsGdpPercent) {
+          const percentOfGdp = humanReadablePercentOfGdp(totalCostAsGdpPercent);
+          headerText = `${headerText}</br>(${percentOfGdp.percent} ${percentOfGdp.reference})`;
+        }
       }
     }
+  } else {
+    headerText = `${headerText}</br></br>${totalLossesText}<b>`
+      + `<span style="color: ${totalColor}">${displayValue(totalStackValue, metric, costBasis)}</span>`
+      + `</b> ${metric === LIFE_YEARS_METRIC ? "life years" : ""}`;
   }
 
   const pointsText = point.points?.map(p => costsChartTooltipPointFormatter(p, diffing, metric, costBasis))?.join("");

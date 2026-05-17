@@ -17,15 +17,23 @@ export const getScenarioLabel = (category: string | undefined, axisParam: Parame
 };
 
 // Get the difference in USD for a given cost (on some scenario) vs the matching cost on the baseline scenario.
-export const diffAgainstBaseline = (cost: ScenarioCost, metricId: string) => {
+export const diffAgainstBaseline = (cost: ScenarioCost, metric: Metric) => {
   const appStore = useAppStore();
   if (!appStore.baselineScenario) {
     return;
   }
   const matchingCostFromBaseline = appStore.getScenarioCostById(appStore.baselineScenario, cost.id);
-  const baselineCostDollarAmount = getValueFromCost(matchingCostFromBaseline, metricId);
-  const subCostDollarAmount = getValueFromCost(cost, metricId);
-  if (subCostDollarAmount !== undefined && baselineCostDollarAmount !== undefined) {
-    return subCostDollarAmount - baselineCostDollarAmount;
+  if (metric === LIFE_YEARS_METRIC) {
+    const baselineLifeYears = getValueFromCost(matchingCostFromBaseline, metric);
+    const subCostLifeYears = getValueFromCost(cost, metric);
+    if (baselineLifeYears !== undefined && subCostLifeYears !== undefined) {
+      return subCostLifeYears - baselineLifeYears;
+    }
+  } else {
+    const baselineCostDollarAmount = getValueFromCost(matchingCostFromBaseline, metric);
+    const subCostDollarAmount = getValueFromCost(cost, metric);
+    if (subCostDollarAmount !== undefined && baselineCostDollarAmount !== undefined) {
+      return subCostDollarAmount - baselineCostDollarAmount;
+    };
   };
 };

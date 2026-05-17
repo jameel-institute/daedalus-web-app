@@ -13,8 +13,8 @@ import "highcharts/esm/modules/exporting";
 import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
-import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeLargePalette, contextButtonOptions, menuItemDefinitionOptions } from "~/components/utils/charts";
-import { costsChartYAxisTickFormatter, costsChartYAxisTitle } from "./utils/costCharts";
+import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, getColorVariants, menuItemDefinitionOptions } from "~/components/utils/charts";
+import { costsChartPalette, costsChartYAxisTickFormatter, costsChartYAxisTitle } from "./utils/costCharts";
 import { costsChartSingleScenarioLifeYearsTooltip, costsChartSingleScenarioStackLabelFormatter } from "./utils/singleScenarioCostCharts";
 import { debounce } from "perfect-debounce";
 
@@ -28,9 +28,8 @@ const totalLifeYearsCost = computed(() => appStore.getScenarioTotalCost(appStore
 
 // A range of colors per column, to be used for the breakdowns within each column.
 const columnColors = computed((): string[] => {
-  return totalLifeYearsCost.value?.children?.map((_cost, i) => {
-    return colorBlindSafeLargePalette[i].rgb;
-  }) ?? [];
+  const numberOfColorVariants = Math.max(totalLifeYearsCost.value?.children?.length || 1);
+  return getColorVariants(costsChartPalette.find(({ name }) => name === "Sky blue")!, numberOfColorVariants);
 });
 
 // There are 2 levels of data breakdown for life years costs:
@@ -58,7 +57,7 @@ const getSeries = (): Highcharts.SeriesColumnOptions => {
 
 const costLabels = computed(() => totalLifeYearsCost.value?.children?.map(cost => appStore.getCostLabel(cost.id)) || []);
 
-const chartHeightPx = 400;
+const chartHeightPx = 300;
 
 const chartInitialOptions = () => {
   return {

@@ -1,5 +1,5 @@
 <template>
-  <div :class="appStore.preferences.costMetric === USD_METRIC ? '' : 'invisible'">
+  <div>
     <CFormLabel>Show losses:</CFormLabel>
     <div v-if="appStore.preferences">
       <CFormCheck

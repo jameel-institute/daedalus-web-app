@@ -13,8 +13,10 @@
       <div class="d-flex align-items-start justify-content-between">
         <CostBasisToggler :scenarios="appStore.currentComparison.scenarios" />
         <CompareCostsLegend />
+        <CompareLifeYearsLegend />
       </div>
       <CompareCostsChart :diffing="diffCosts" />
+      <CompareLifeYearsCostsChart :diffing="diffCosts" />
     </div>
     <div
       class="col-12 d-flex flex-column"

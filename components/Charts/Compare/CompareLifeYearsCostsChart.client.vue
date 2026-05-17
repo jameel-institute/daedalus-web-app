@@ -15,14 +15,13 @@ import "highcharts/esm/modules/exporting";
 import "highcharts/esm/modules/export-data";
 import "highcharts/esm/modules/offline-exporting";
 
-import { chartBackgroundColorOnExporting, chartOptions, contextButtonOptions, type CustomPointOptionsObject, menuItemDefinitionOptions } from "@/components/utils/charts";
+import { chartBackgroundColorOnExporting, chartOptions, colorBlindSafeLargePalette, contextButtonOptions, type CustomPointOptionsObject, menuItemDefinitionOptions } from "@/components/utils/charts";
 import { costsChartMultiScenarioStackedTooltip, costsChartMultiScenarioStackLabelFormatter, costsChartMultiScenarioXAxisLabelFormatter } from "~/components/Charts/Compare/utils/multiScenarioCostCharts";
-import { costsChartPalette, costsChartYAxisTickFormatter, costsChartYAxisTitle, thickPlotLineForDiffedChart } from "~/components/Charts/utils/costCharts";
-import { costAsPercentOfGdp } from "@/components/utils/formatters";
-import { CostBasis } from "@/types/unitTypes";
+import { costsChartYAxisTickFormatter, costsChartYAxisTitle, thickPlotLineForDiffedChart } from "~/components/Charts/utils/costCharts";
 import { debounce } from "perfect-debounce";
 import { diffAgainstBaseline } from "~/components/utils/comparisons";
 import useSortedScenarios from "~/composables/useSortedScenarios";
+import { plotLinesColorName } from "../utils/timeSeriesCharts";
 
 const props = defineProps<{
   diffing: boolean
@@ -43,39 +42,33 @@ const costBasis = computed(() => appStore.preferences.costBasis);
 const chartTitle = computed(() => {
   const firstScenarioTimeSeries = appStore.currentComparison.scenarios[0].result?.data?.time_series;
   const scenarioDuration = Object.values(firstScenarioTimeSeries || {})[0].length - 1;
-  return `Losses ${props.diffing ? "relative to comparison baseline " : ""}after ${scenarioDuration} days`;
+  return `Life years losses ${props.diffing ? "relative to comparison baseline " : ""}after ${scenarioDuration} days`;
 });
 
-// There are 3 levels of data breakdown for costs:
-// 1) the top-level total for the scenario,
-// 2) the second level, GDP/life-years/education,
-// 3) and a further breakdown, e.g. absences/closures in the cases of GDP and education.
-// At the moment, only the second level is displayed in the chart.
-// Series are orthogonal to columns, and here correspond to the second-level breakdowns.
-// Each series' data is an array of each scenario's cost for that breakdown.
-// For example, one series should comprise each scenario's GDP.
+const palette = colorBlindSafeLargePalette.filter(c => c.name !== plotLinesColorName);
+
 const getSeries = (): Highcharts.SeriesColumnOptions[] => {
   // Take the first scenario's costs as an example to find out what the second-level breakdowns are.
-  const secondLevelCostIds = sortedScenarios.value[0].result.data?.costs[0].children?.map(c => c.id) || [];
-  const allSeries = secondLevelCostIds?.map((costId, index) => {
+  const lifeYearsCost = sortedScenarios.value[0].result.data?.costs[0].children
+    ?.find(({ id }) => id === "life_years");
+  const bottomLevelCostIds = lifeYearsCost?.children?.map(c => c.id) || [];
+
+  const allSeries = bottomLevelCostIds?.map((costId, rowIndex) => {
     return {
       type: "column" as Highcharts.SeriesColumnOptions["type"],
       name: appStore.getCostLabel(costId),
       borderWidth: 1,
-      borderColor: costsChartPalette[index].rgb,
-      zIndex: secondLevelCostIds.length - index, // Ensure that stack segments are in front of each other from top to bottom.
+      zIndex: bottomLevelCostIds.length - rowIndex, // Ensure that stack segments are in front of each other from top to bottom.
       data: sortedScenarios.value.map((scenario) => {
         const subCost = appStore.getScenarioCostById(scenario, costId)!;
-        const yUSD = props.diffing ? diffAgainstBaseline(subCost, USD_METRIC) : getValueFromCost(subCost, USD_METRIC);
-        // yGdpPercent is calculated here since the national GDP may vary by scenario if the axis is 'country'.
-        const yGdpPercent = costAsPercentOfGdp(yUSD, scenario.result.data?.gdp);
-        const y = costBasis.value === CostBasis.PercentGDP ? yGdpPercent : yUSD;
+        const y = props.diffing ? diffAgainstBaseline(subCost, LIFE_YEARS_METRIC) : getValueFromCost(subCost, LIFE_YEARS_METRIC);
         const name = appStore.getCostLabel(subCost.id);
         return {
           y,
           name,
+          color: palette[rowIndex].rgb,
           custom: {
-            costAsGdpPercent: yGdpPercent,
+            includeInTooltips: true,
             scenarioId: scenario.runId,
           },
         } as CustomPointOptionsObject;
@@ -115,7 +108,7 @@ const targetWidth = () => {
 const chartInitialOptions = () => {
   return {
     credits: { text: "Highcharts" },
-    colors: costsChartPalette.map(color => color.rgb),
+    colors: palette.map(color => color.rgb),
     chart: { ...chartOptions, height: chartHeightPx, width: targetWidth() },
     exporting: {
       filename: chartTitle.value,
@@ -154,20 +147,20 @@ const chartInitialOptions = () => {
       gridLineColor: "lightgrey",
       min: props.diffing ? undefined : 0,
       plotLines: props.diffing ? [thickPlotLineForDiffedChart] : [],
-      title: { text: costsChartYAxisTitle(USD_METRIC, costBasis.value, props.diffing) },
+      title: { text: costsChartYAxisTitle(LIFE_YEARS_METRIC, costBasis.value, props.diffing) },
       stackLabels: {
         enabled: true,
         style: {
           fontWeight: 500,
         },
         formatter() {
-          return costsChartMultiScenarioStackLabelFormatter(this, costBasis.value, props.diffing, USD_METRIC);
+          return costsChartMultiScenarioStackLabelFormatter(this, costBasis.value, props.diffing, LIFE_YEARS_METRIC);
         },
       },
       labels: {
         enabled: true,
         formatter() {
-          return costsChartYAxisTickFormatter(this.value, USD_METRIC, costBasis.value);
+          return costsChartYAxisTickFormatter(this.value, LIFE_YEARS_METRIC, costBasis.value);
         },
       },
     },
@@ -176,7 +169,7 @@ const chartInitialOptions = () => {
     tooltip: {
       shared: true,
       formatter() {
-        return costsChartMultiScenarioStackedTooltip(this, costBasis.value, appStore.axisMetadata, props.diffing, USD_METRIC);
+        return costsChartMultiScenarioStackedTooltip(this, costBasis.value, appStore.axisMetadata, props.diffing, LIFE_YEARS_METRIC);
       },
     },
     plotOptions: {

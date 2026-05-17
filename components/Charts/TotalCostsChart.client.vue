@@ -20,6 +20,10 @@ import { costAsPercentOfGdp } from "../utils/formatters";
 import { CostBasis } from "~/types/unitTypes";
 import { debounce } from "perfect-debounce";
 
+const props = defineProps<{
+  chartHeightPx?: number
+}>();
+
 const appStore = useAppStore();
 let chart: Highcharts.Chart;
 const seriesData = ref<Highcharts.SeriesColumnOptions[]>([]); // This only exists for testing purposes
@@ -84,8 +88,6 @@ const getSeries = (): Highcharts.SeriesColumnOptions[] => {
 
 const costLabels = computed(() => totalCost.value?.children?.map(cost => appStore.getCostLabel(cost.id)) || []);
 
-const chartHeightPx = 400;
-
 const chartInitialOptions = () => {
   return {
     credits: {
@@ -93,7 +95,7 @@ const chartInitialOptions = () => {
     },
     chart: {
       ...chartOptions,
-      height: chartHeightPx,
+      height: props.chartHeightPx,
       width: chartParentEl.value?.clientWidth,
     },
     exporting: {
@@ -188,7 +190,7 @@ watch(() => appStore.preferences.costBasis, () => {
 
 const setChartDimensions = debounce(() => {
   if (chart && chartParentEl.value) {
-    chart.setSize(chartParentEl.value.clientWidth, chartHeightPx, { duration: 250 });
+    chart.setSize(chartParentEl.value.clientWidth, props.chartHeightPx, { duration: 250 });
   }
 });
 
@@ -198,6 +200,10 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   window.removeEventListener("resize", setChartDimensions);
+});
+
+watch(() => props.chartHeightPx, () => {
+  setChartDimensions();
 });
 
 onUnmounted(() => {
