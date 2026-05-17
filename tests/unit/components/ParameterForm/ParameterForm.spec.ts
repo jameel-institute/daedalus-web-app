@@ -5,6 +5,7 @@ import { mockNuxtImport, mountSuspended, registerEndpoint } from "@nuxt/test-uti
 import { flushPromises } from "@vue/test-utils";
 import { FetchError } from "ofetch";
 import VueSelect from "vue3-select-component";
+import { TypeOfParameter } from "~/types/parameterTypes";
 import ParameterHeader from "~/components/ParameterForm/ParameterHeader.vue";
 
 const stubs = {
@@ -38,6 +39,42 @@ const scenarioWithParameters = {
     short_list: "yes",
   },
 };
+
+const restrictedOptionsMetadata = {
+  ...mockedMetadata,
+  parameters: [
+    {
+      id: "response",
+      label: "Response",
+      parameterType: TypeOfParameter.Select,
+      defaultOption: "elimination",
+      ordered: true,
+      options: [
+        { id: "none", label: "No closures" },
+        { id: "school_closures", label: "School closures" },
+        { id: "economic_closures", label: "Business closures" },
+        { id: "elimination", label: "Elimination" },
+      ],
+    },
+    {
+      id: "behaviour",
+      label: "Change in public behaviour",
+      parameterType: TypeOfParameter.Select,
+      defaultOption: "none",
+      ordered: true,
+      options: [
+        { id: "none", label: "None" },
+        { id: "low", label: "Low" },
+        { id: "medium", label: "Medium" },
+        { id: "high", label: "High" },
+      ],
+    },
+  ],
+};
+
+const blockedOptionModalTitle = "This parameter temporarily disabled";
+const blockedOptionGuidance = "For the purposes of the launch event on 19 May 2026, the";
+const blockedOptionEncouragement = "You are encouraged to try changing";
 
 describe("parameter form", () => {
   beforeEach(() => {
@@ -497,5 +534,83 @@ describe("parameter form", () => {
 
     await flushPromises();
     expect(mockNavigateTo).toBeCalledWith("/scenarios/randomId");
+  });
+
+  it("shows a modal and resets a blocked select option to the allowed default", async () => {
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
+      global: {
+        stubs,
+        plugins: [mockPinia({ metadata: restrictedOptionsMetadata }, false, { stubActions: false })],
+      },
+    });
+
+    const responseSelect = component.findComponent(VueSelect);
+    expect(responseSelect.props("modelValue")).toBe("elimination");
+
+    await responseSelect.vm.$emit("update:modelValue", "economic_closures");
+    await responseSelect.vm.$emit("option-selected");
+    await nextTick();
+
+    const modalText = component.text();
+    expect(responseSelect.props("modelValue")).toBe("elimination");
+    expect(modalText).toContain(blockedOptionModalTitle);
+    expect(modalText).toContain(blockedOptionGuidance);
+    expect(modalText).toContain("Response");
+    expect(modalText).toContain("parameter should be left unchanged, to match the baseline scenario for the interactive activity.");
+    expect(modalText).toContain(blockedOptionEncouragement);
+    expect(modalText).toContain("has been reset to");
+    expect(modalText).toContain("Elimination");
+  });
+
+  it("shows a modal and resets a blocked radio option to the allowed default", async () => {
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
+      global: {
+        stubs,
+        plugins: [mockPinia({ metadata: restrictedOptionsMetadata }, false, { stubActions: false })],
+      },
+    });
+
+    await component.find("input[value='high']").setChecked();
+    await nextTick();
+
+    const modalText = component.text();
+    expect(component.find("input[value='none']").element.checked).toBe(true);
+    expect(modalText).toContain(blockedOptionModalTitle);
+    expect(modalText).toContain("Change in public behaviour");
+    expect(modalText).toContain("parameter should be left unchanged, to match the baseline scenario for the interactive activity.");
+    expect(modalText).toContain(blockedOptionEncouragement);
+    expect(modalText).toContain("has been reset to");
+    expect(modalText).toContain("None");
+  });
+
+  it("prevents submitting a form that already contains a blocked option", async () => {
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
+      global: {
+        stubs,
+        plugins: [mockPinia({
+          metadata: restrictedOptionsMetadata,
+          currentScenario: {
+            ...emptyScenario,
+            parameters: {
+              response: "none",
+              behaviour: "none",
+            },
+          },
+        }, false, { stubActions: false })],
+      },
+    });
+
+    await component.find("button[type='submit']").trigger("click");
+    await nextTick();
+
+    const modalText = component.text();
+    expect(component.findComponent(VueSelect).props("modelValue")).toBe("elimination");
+    expect(modalText).toContain(blockedOptionModalTitle);
+    expect(modalText).toContain("Response");
+    expect(modalText).toContain("parameter should be left unchanged, to match the baseline scenario for the interactive activity.");
+    expect(mockNavigateTo).not.toBeCalled();
   });
 });
