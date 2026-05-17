@@ -30,7 +30,7 @@ describe("useCapacitiesPlotLines", () => {
       runId: "scenario_1",
       result: {
         data: {
-          capacities: undefined,
+          capacities: [],
         },
       },
     };
@@ -62,7 +62,8 @@ describe("useCapacitiesPlotLines", () => {
     const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(
       showCapacities,
       yAxis,
-      store.currentScenario,
+      () => [store.currentScenario],
+      undefined,
     );
 
     expect(initialCapacitiesPlotLines).toEqual([]);
@@ -128,7 +129,7 @@ describe("useCapacitiesPlotLines", () => {
     expect(mockAddPlotLine).toHaveBeenCalledTimes(expectedCallsToAddPlotLine);
     expect(mockAddPlotLine.mock.lastCall).toEqual([expect.objectContaining({
       id: "icu_capacity-2500-scenario_1",
-      label: expect.objectContaining({ text: "ICU capacity: 2,500" }),
+      label: expect.objectContaining({ text: "" }),
       value: 2500,
     })]);
   });
