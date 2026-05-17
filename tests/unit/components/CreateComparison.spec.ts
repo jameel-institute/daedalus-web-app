@@ -33,13 +33,23 @@ vi.mock("~/components/utils/comparisons", () => ({
 }));
 
 // Need to do this in hoisted - see https://developer.mamezou-tech.com/en/blogs/2024/02/12/nuxt3-unit-testing-mock/
-const { mockNavigateTo } = vi.hoisted(() => ({
+const { mockNavigateTo, mockRoute } = vi.hoisted(() => ({
   mockNavigateTo: vi.fn(),
+  mockRoute: vi.fn(),
 }));
 mockNuxtImport("navigateTo", () => mockNavigateTo);
+mockNuxtImport("useRoute", () => mockRoute);
+
+const blockedOptionModalTitle = "This parameter is temporarily disabled";
+const blockedOptionGuidance = "For the purposes of the launch event on 19 May 2026, the";
+const blockedOptionEncouragement = "You are encouraged to try changing";
 
 const getModalEl = (wrapper: VueWrapper) => {
   return wrapper.find("[aria-labelledby='chooseAxisModalTitle']");
+};
+
+const getBlockedOptionModalEl = (wrapper: VueWrapper) => {
+  return wrapper.find("[aria-labelledby='blockedOptionModalTitle']");
 };
 
 const getComboboxEl = (wrapper: VueWrapper) => {
@@ -66,6 +76,18 @@ const getVaccineButton = (axisOptionsEl: DOMWrapper<Element>) => {
   const vaccineButton = axisOptionsEl.findAll("button")[3];
   expect(vaccineButton.text()).toEqual("Global vaccine investment");
   return vaccineButton;
+};
+
+const getResponseButton = (axisOptionsEl: DOMWrapper<Element>) => {
+  const responseButton = axisOptionsEl.findAll("button")[2];
+  expect(responseButton.text()).toEqual("Response");
+  return responseButton;
+};
+
+const getBehaviourButton = (axisOptionsEl: DOMWrapper<Element>) => {
+  const behaviourButton = axisOptionsEl.findAll("button")[4];
+  expect(behaviourButton.text()).toEqual("Change in public behaviour");
+  return behaviourButton;
 };
 
 const getHospitalCapacityButton = (axisOptionsEl: DOMWrapper<Element>) => {
@@ -112,6 +134,9 @@ const errorResponseData = { error: "Test failed due to wrong parameters" };
 
 beforeEach(() => {
   vi.useFakeTimers();
+  mockRoute.mockReturnValue({
+    query: {},
+  });
 });
 
 afterEach(() => {
@@ -236,6 +261,45 @@ describe("create comparison button and modal", () => {
     expect(wrapper.find(".alert").text()).toContain("Thailand: 22,000");
   });
 
+  it("shows a modal and keeps the axis unselected when a blocked axis is chosen", async () => {
+    const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
+
+    await openModal(wrapper);
+    const responseButton = getResponseButton(getModalEl(wrapper).find("#axisOptions"));
+    await responseButton.trigger("click");
+
+    const modalText = getBlockedOptionModalEl(wrapper).text();
+    expect(modalText).toContain(blockedOptionModalTitle);
+    expect(modalText).toContain(blockedOptionGuidance);
+    expect(modalText).toContain("Response");
+    expect(modalText).toContain("parameter should be left unchanged, to match the baseline scenario for the interactive activity.");
+    expect(modalText).toContain(blockedOptionEncouragement);
+    expect(modalText).not.toContain("has been reset to");
+    expectModalHasNoAxisSelected(wrapper);
+  });
+
+  it("allows blocked axes to be selected when the unblock query is present", async () => {
+    mockRoute.mockReturnValue({
+      query: {
+        unblock: "true",
+      },
+    });
+
+    const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
+
+    await openModal(wrapper);
+
+    const axisOptionsEl = getModalEl(wrapper).find("#axisOptions");
+    const behaviourButton = getBehaviourButton(axisOptionsEl);
+    await behaviourButton.trigger("click");
+
+    expect(getBlockedOptionModalEl(wrapper).exists()).toBe(false);
+    expect(axisOptionsEl.findAll("button")).toHaveLength(1);
+    expect(behaviourButton.classes()).toContain("bg-primary");
+    expect(getModalEl(wrapper).text()).toContain("Compare baseline scenario None against:");
+    expect(getComboboxEl(wrapper).exists()).toBe(true);
+  });
+
   it("renders the correct options for the select", async () => {
     const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
     await openModal(wrapper);
@@ -333,6 +397,7 @@ describe("create comparison button and modal", () => {
         axis: "country",
         baseline: "GBR",
         runIds: "ukRunId;grRunId",
+        unblock: undefined,
       },
     });
   });
@@ -410,6 +475,7 @@ describe("create comparison button and modal", () => {
         axis: "hospital_capacity",
         baseline: "30500",
         runIds: "baselineValueRunId;customValueRunId;minValueRunId;defaultValueRunId;maxValueRunId",
+        unblock: undefined,
       },
     });
   });
@@ -490,6 +556,60 @@ describe("create comparison button and modal", () => {
         axis: "country",
         baseline: "GBR",
         runIds: "ukRunId;usRunId;thRunId",
+        unblock: undefined,
+      },
+    });
+  });
+
+  it("preserves the unblock query when navigating to the comparison", async () => {
+    mockRoute.mockReturnValue({
+      query: {
+        unblock: "true",
+      },
+    });
+
+    registerEndpoint("/api/scenarios", {
+      method: "POST",
+      async handler(event) {
+        const body = JSON.parse(event.node.req.body);
+        const params = body.parameters;
+
+        if (params.pathogen === "sars_cov_1" && params.response === "none" && params.vaccine === "none") {
+          switch (params.behaviour) {
+            case "none":
+              return { runId: "baselineRunId" };
+            case "low":
+              return { runId: "lowRunId" };
+            case "medium":
+              return { runId: "mediumRunId" };
+            case "high":
+              return { runId: "highRunId" };
+            default:
+              return errorResponseData;
+          }
+        }
+
+        return errorResponseData;
+      },
+    });
+
+    const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
+
+    await openModal(wrapper);
+    const axisOptionsEl = getModalEl(wrapper).find("#axisOptions");
+    const behaviourButton = getBehaviourButton(axisOptionsEl);
+    await behaviourButton.trigger("click");
+
+    await wrapper.find("button[type='submit']").trigger("click");
+    await flushPromises();
+
+    expect(mockNavigateTo).toHaveBeenCalledWith({
+      path: "/comparison",
+      query: {
+        axis: "behaviour",
+        baseline: "none",
+        runIds: "baselineRunId;lowRunId;mediumRunId;highRunId",
+        unblock: "true",
       },
     });
   });

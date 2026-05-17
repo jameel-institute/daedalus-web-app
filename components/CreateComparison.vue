@@ -18,6 +18,12 @@
       aria-labelledby="chooseAxisModalTitle"
       @close="handleCloseModal"
     >
+      <BlockedParameterModal
+        :visible="blockedOptionModalVisible"
+        :parameter-label="blockedOptionModalParameterLabel ?? ''"
+        style="margin-top: 15rem;"
+        @close="closeBlockedOptionModal"
+      />
       <CModalHeader>
         <CModalTitle id="chooseAxisModalTitle">
           <CIconSvg class="icon me-2" style="height: 1.3rem; width: 1.3rem;">
@@ -144,6 +150,8 @@ import { commaSeparatedNumber } from "~/components/utils/formatters";
 
 const emit = defineEmits(["showRCode"]);
 
+const query = useRoute().query;
+const blockedParams = query.unblock === "true" ? [] : ["response", "behaviour"];
 const appStore = useAppStore();
 const FORM_LABEL_ID = "scenarioOptions";
 const selectedScenarioOptions = ref<string[]>([]);
@@ -183,7 +191,18 @@ const handleShowRCode = () => {
   emit("showRCode");
 };
 
+const blockedOptionModalVisible = ref(false);
+const closeBlockedOptionModal = () => {
+  blockedOptionModalVisible.value = false;
+};
+const blockedOptionModalParameterLabel = ref<string | null>(null);
 const handleClickAxis = (axis: Parameter) => {
+  if (blockedParams.includes(axis.id)) {
+    blockedOptionModalParameterLabel.value = axis.label;
+    blockedOptionModalVisible.value = true;
+    return;
+  }
+
   // If there is no chosen axis already, set the chosen axis to the one clicked.
   // Otherwise, clicking the same axis again will clear it.
   if (chosenAxisId.value === "") {
@@ -223,6 +242,7 @@ const submitForm = async () => {
         axis: appStore.currentComparison.axis,
         baseline: appStore.currentComparison.baseline,
         runIds: appStore.currentComparison.scenarios?.map(s => s.runId).join(";"),
+        unblock: query.unblock,
       } });
     }
   }
