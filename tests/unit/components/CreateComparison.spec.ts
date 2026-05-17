@@ -320,7 +320,7 @@ describe("create comparison button and modal", () => {
     const diseaseSelectedOptionsTags = wrapper.findAll("button.multi-value");
     expect(diseaseSelectedOptionsTags).toHaveLength(6);
     expect(diseaseSelectedOptionsTags.map(el => el.text())).toEqual(expect.arrayContaining(
-      ["Covid-19 wild-type SARS-Cov", "Covid-19 Omicron SARS-Cov", "Covid-19 Delta SARS-Cov", "Influenza 2009 (Swine flu) influenza", "Influenza 1957 influenza", "Influenza 1918 (Spanish flu) influenza"],
+      ["Covid-19 wild-type SARS-CoV", "Covid-19 Omicron SARS-CoV", "Covid-19 Delta SARS-CoV", "Influenza 2009 (Swine flu) influenza", "Influenza 1957 influenza", "Influenza 1918 (Spanish flu) influenza"],
     ));
 
     // Click the already-selected disease axis button to deselect it

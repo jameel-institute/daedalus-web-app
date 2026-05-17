@@ -591,8 +591,8 @@ describe("scenario select", () => {
 
       await openMenu(wrapper);
 
-      const option = getOptionFromMenu(wrapper, "No closures");
-      expect(option!.find("p.text-xs").text()).toBe("No pandemic mitigation: all sectors are fully open");
+      const option = getOptionFromMenu(wrapper, "School closures");
+      expect(option!.find("p.text-xs").text()).toBe("A response strategy of mostly school closures");
     });
 
     it("does not render a description element when description is absent", async () => {

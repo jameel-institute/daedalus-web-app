@@ -62,10 +62,7 @@ describe("parameter select component", () => {
         global: { stubs, plugins },
       });
 
-      const tag = component.find(".single-value .pathogenTag");
-      expect(tag.text()).toBe("");
-      expect(tag.classes()).not.toContain("influenza");
-      expect(tag.classes()).not.toContain("SARS-CoV");
+      expect(component.find(".single-value .pathogenTag")).toBeUndefined();
     });
   });
 
@@ -104,9 +101,7 @@ describe("parameter select component", () => {
       await component.find(".dropdown-icon").trigger("click");
       const options = component.findAll(".menu .parameter-option");
       options.forEach((option) => {
-        expect(option.find(".pathogenTag").text()).toBe("");
-        expect(option.find(".pathogenTag").classes()).not.toContain("influenza");
-        expect(option.find(".pathogenTag").classes()).not.toContain("SARS-CoV");
+        expect(option.find(".single-value .pathogenTag")).toBeUndefined();
       });
     });
   });
