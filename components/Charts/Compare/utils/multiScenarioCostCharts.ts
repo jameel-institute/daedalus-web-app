@@ -40,8 +40,8 @@ export const costsChartMultiScenarioStackedTooltip = (
         + `<span style="color: ${totalColor}">${abbr.amount} ${abbr.unit}</span>`
         + `</b> USD`;
       if (totalStackValue !== 0) {
-        const totalCostAsGdpPercent = point.points?.map(p => p.custom.costAsGdpPercent!).reduce((sum, a) => sum + a, 0);
-        if (totalCostAsGdpPercent) {
+        const totalCostAsGdpPercent = point.points?.map(p => p.custom.costAsGdpPercent!).reduce((sum, a) => sum + a, 0) || 0;
+        if (totalCostAsGdpPercent !== 0) {
           const percentOfGdp = humanReadablePercentOfGdp(totalCostAsGdpPercent);
           headerText = `${headerText}</br>(${percentOfGdp.percent} ${percentOfGdp.reference})`;
         }

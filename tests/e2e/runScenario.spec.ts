@@ -191,6 +191,7 @@ test("Can request a scenario analysis run", async ({ page, baseURL }) => {
   await expect(page.locator("#lifeYearsChartContainer")).toBeVisible({ timeout: 10000 });
 
   // Life years chart should expose valid series data
+  await expect(page.locator("#lifeYearsChartContainer")).toHaveAttribute("data-summary", /.+/);
   const lifeYearsChartDataStr = await page.locator("#lifeYearsChartContainer").getAttribute("data-summary");
   const lifeYearsChartData = JSON.parse(lifeYearsChartDataStr!);
   expect(lifeYearsChartData.data).toHaveLength(4);

@@ -192,7 +192,7 @@ watch(() => costBasis.value, () => {
   chart?.update({
     yAxis: {
       title: {
-        text: costsChartYAxisTitle(USD_METRIC, costBasis.value, props.diffing),
+        text: costsChartYAxisTitle(LIFE_YEARS_METRIC, costBasis.value, props.diffing),
       },
     },
     series: getSeries(),
@@ -211,7 +211,7 @@ watch(() => props.diffing, () => {
     yAxis: {
       min: props.diffing ? undefined : 0,
       title: {
-        text: costsChartYAxisTitle(USD_METRIC, costBasis.value, props.diffing),
+        text: costsChartYAxisTitle(LIFE_YEARS_METRIC, costBasis.value, props.diffing),
       },
       plotLines: props.diffing ? [thickPlotLineForDiffedChart] : [],
     },

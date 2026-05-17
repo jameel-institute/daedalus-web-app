@@ -51,7 +51,7 @@ export const costsChartTooltipPointFormatter = (point: TooltipPointInstance, dif
   return `<span style="font-size: 0.8rem;">`
     + `<span style="color:${point.color}; font-size: 1.3rem;">●</span> `
     + `<span style="font-size: 0.8rem;">${point.key}: `
-    + `<span style="font-weight: bold; color: ${valueColor(point.y, diffing)}">${displayValue(val, metric, costBasis)}</span>`
+    + `<span style="font-weight: bold; color: ${valueColor(val, diffing)}">${displayValue(val, metric, costBasis)}</span>`
     + `</span><br/>`;
 };
 

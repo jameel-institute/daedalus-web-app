@@ -97,7 +97,7 @@
           :key="scenario.runId"
           :class="scenarioClass(scenario)"
         >
-          {{ `${displayValue(scenario, 'life_years', LIFE_YEARS_METRIC)} years` }}
+          {{ displayValue(scenario, 'life_years', LIFE_YEARS_METRIC) != null ? `${displayValue(scenario, 'life_years', LIFE_YEARS_METRIC)} years` : '' }}
         </td>
       </tr>
       <tr
@@ -112,7 +112,7 @@
           :key="scenario.runId"
           :class="scenarioClass(scenario)"
         >
-          {{ `${displayValue(scenario, ageSectorCost.id, LIFE_YEARS_METRIC)} years` }}
+          {{ displayValue(scenario, ageSectorCost.id, LIFE_YEARS_METRIC) != null ? `${displayValue(scenario, ageSectorCost.id, LIFE_YEARS_METRIC)} years` : '' }}
         </td>
       </tr>
       <tr class="boldish no-hover border-bottom-2 border-black">
