@@ -8,7 +8,7 @@ export default defineRApiEventHandler(
 
     return { ...metadataResponse, data: {
       ...metadataResponse.data,
-      parameters: metadataResponse.data?.parameters.map((param) => {
+      parameters: (metadataResponse.data?.parameters ?? []).map((param) => {
         if (param.id === "hospital_capacity") {
           return {
             ...param,

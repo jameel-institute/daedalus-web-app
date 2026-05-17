@@ -555,10 +555,14 @@ describe("parameter form", () => {
 
     await responseSelect.vm.$emit("update:modelValue", "economic_closures");
     await responseSelect.vm.$emit("option-selected");
+    await flushPromises();
     await nextTick();
 
-    const modalText = component.text();
+    const modal = component.find('[role="dialog"]');
     expect(responseSelect.props("modelValue")).toBe("elimination");
+    expect(modal.exists()).toBe(true);
+    expect(modal.isVisible()).toBe(true);
+    const modalText = modal.text();
     expect(modalText).toContain(blockedOptionModalTitle);
     expect(modalText).toContain(blockedOptionGuidance);
     expect(modalText).toContain("Response");
@@ -578,10 +582,14 @@ describe("parameter form", () => {
     });
 
     await component.find("input[id='behaviour-high']").setChecked();
+    await flushPromises();
     await nextTick();
 
-    const modalText = component.text();
+    const modal = component.find('[role="dialog"]');
     expect(component.find("input[id='behaviour-none']").element.checked).toBe(true);
+    expect(modal.exists()).toBe(true);
+    expect(modal.isVisible()).toBe(true);
+    const modalText = modal.text();
     expect(modalText).toContain(blockedOptionModalTitle);
     expect(modalText).toContain("Change in public behaviour");
     expect(modalText).toContain("parameter should be left unchanged, to match the baseline scenario for the interactive activity.");
