@@ -5,28 +5,39 @@ import type { Scenario } from "~/types/storeTypes";
 export default (
   showCapacities: MaybeRefOrGetter<boolean>,
   yAxis: MaybeRefOrGetter<Highcharts.Axis | undefined>,
-  scenario: MaybeRefOrGetter<Scenario | undefined>,
+  scenarios: MaybeRefOrGetter<Scenario[] | undefined>,
+  mapFromScenarioIdToColor: MaybeRefOrGetter<Record<string, string> | undefined>,
 ) => {
   const appStore = useAppStore();
 
-  const capacities = computed(() => toValue(scenario)?.result.data?.capacities);
+  const capacities = computed(() => {
+    const scens = toValue(scenarios);
+    return scens?.flatMap(({ result, runId }) => {
+      return result.data?.capacities.map(c => ({ ...c, runId }));
+    }).filter(c => !!c);
+  });
 
   const capacitiesPlotLines = computed(() => {
     if (!toValue(showCapacities) || !capacities.value?.length) {
       return [];
     }
 
-    return capacities.value?.map(({ id, value }) => {
+    return capacities.value?.map(({ id, value, runId }) => {
       const label = appStore.metadata?.results.capacities
         .find(({ id: capacityId }) => id === capacityId)
         ?.label || "";
 
+      const includePlotLineLabel = capacities.value?.length === 1;
+      const color = (capacities.value?.length === 1 || !runId)
+        ? plotLinesColor
+        : (toValue(mapFromScenarioIdToColor)?.[runId] || plotLinesColor);
+
       return {
-        color: plotLinesColor,
+        color,
         label: {
-          text: `${label}: ${commaSeparatedNumber(value.toString())}`,
+          text: includePlotLineLabel ? `${label}: ${commaSeparatedNumber(value.toString())}` : "",
           style: {
-            color: plotLinesColor,
+            color,
           },
           align: "middle",
         },
@@ -34,7 +45,7 @@ export default (
         width: plotLinesWidthPx,
         value,
         zIndex: 4, // Render label in front of the series line
-        id: `${id}-${value}-${toValue(scenario)?.runId}`, // Ensure unique id for plot line
+        id: `${id}-${value}-${runId}`, // Ensure unique id for plot line
       };
     }) as Array<Highcharts.AxisPlotLinesOptions>;
   });
