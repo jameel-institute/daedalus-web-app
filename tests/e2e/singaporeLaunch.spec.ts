@@ -17,8 +17,8 @@ test("Has custom default values", async ({ page, baseURL }) => {
 
   await expectSelectParameterToHaveValueLabel(page, parameterLabels.country, "Vietnam");
   await expectSelectParameterToHaveValueLabel(page, parameterLabels.response, "Elimination");
-  await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue("32000");
-  await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue("32000");
+  await expect(page.getByRole("spinbutton", { name: parameterLabels.hospital_capacity })).toHaveValue("38000");
+  await expect(page.getByRole("slider", { name: parameterLabels.hospital_capacity })).toHaveValue("38000");
 });
 
 test("Blocks certain parameter combinations and shows a modal", async ({ page, baseURL }) => {

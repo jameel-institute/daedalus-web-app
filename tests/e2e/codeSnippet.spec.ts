@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import waitForNewScenarioPage from "~/tests/e2e/helpers/waitForNewScenarioPage";
 
 const expectedCodeSnippet = `country_obj <- daedalus::daedalus_country("VNM")
-country_obj$hospital_capacity <- 32000
+country_obj$hospital_capacity <- 38000
 
 model_result <- daedalus::daedalus(
   country_obj,

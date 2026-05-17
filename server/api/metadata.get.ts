@@ -18,8 +18,8 @@ export default defineRApiEventHandler(
               values: {
                 ...param.updateNumericFrom!.values,
                 VNM: {
-                  min: 32000,
-                  default: 32000,
+                  min: 38000,
+                  default: 38000,
                   max: 50000,
                 },
               },
