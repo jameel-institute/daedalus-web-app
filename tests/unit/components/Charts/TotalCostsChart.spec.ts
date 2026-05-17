@@ -172,6 +172,7 @@ describe("costs chart", () => {
     const chartSpy = vi.spyOn(Highcharts, "chart");
 
     await mountSuspended(TotalCostsChart, {
+      props: { chartHeightPx: 400 },
       global: {
         stubs,
         plugins: [mockPinia({
@@ -217,6 +218,7 @@ describe("costs chart", () => {
     const chartSpy = vi.spyOn(Highcharts, "chart");
 
     await mountSuspended(TotalCostsChart, {
+      props: { chartHeightPx: 400 },
       global: {
         stubs,
         plugins: [mockPinia({
@@ -333,6 +335,7 @@ describe("costs chart", () => {
     const removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
 
     const component = await mountSuspended(TotalCostsChart, {
+      props: { chartHeightPx: 400 },
       global: { stubs, plugins: [mockPinia()] },
     });
 

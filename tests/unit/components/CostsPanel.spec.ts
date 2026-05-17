@@ -88,29 +88,31 @@ describe("costs card", () => {
     expect(appStore.preferences.costBasis).toBe(CostBasis.PercentGDP);
   });
 
-  it("should show the life years total and hide the USD total when in life years metric mode", async () => {
-    const appStore = useAppStore(pinia);
-    appStore.preferences.costMetric = LIFE_YEARS_METRIC;
-
+  it("should show the life years chart when the show-life-years switch is toggled on, alongside USD content", async () => {
     const component = await mountSuspended(CostsPanel, { global: { stubs, plugins: [pinia] } });
 
-    expect(component.find("#lifeYearsContainer").exists()).toBe(true);
-    expect(component.find("#gdpContainer").exists()).toBe(false);
-    expect(component.find("#usdContainer").exists()).toBe(false);
+    // USD content is always present
+    expect(component.find("#gdpContainer").exists()).toBe(true);
+    expect(component.find("#usdContainer").exists()).toBe(true);
 
-    const totalHeading = component.find("#totalHeading");
-    expect(totalHeading.text()).toBe("Life years lost");
+    // Heading is always "Total"
+    expect(component.find("#totalHeading").text()).toBe("Total");
 
-    // Life years total should be formatted
-    const lifeYearsTotalCost = component.find("#lifeYearsTotalCost");
-    expect(lifeYearsTotalCost.exists()).toBe(true);
-    expect(lifeYearsTotalCost.text()).not.toBe("");
+    // Life years chart is hidden by default
+    expect(component.find("#lifeYearsChartContainer").exists()).toBe(false);
+
+    // Toggle on
+    const metricSwitch = component.find<HTMLInputElement>("#costMetricSwitch");
+    expect(metricSwitch.exists()).toBe(true);
+    await metricSwitch.setValue(true);
+
+    // USD content remains; life years chart now also shown
+    expect(component.find("#gdpContainer").exists()).toBe(true);
+    expect(component.find("#usdContainer").exists()).toBe(true);
+    expect(component.find("#lifeYearsChartContainer").exists()).toBe(true);
   });
 
-  it("should show 'Total' heading and the metric toggler switch in USD mode", async () => {
-    const appStore = useAppStore(pinia);
-    appStore.preferences.costMetric = USD_METRIC;
-
+  it("should show 'Total' heading and the metric toggler switch", async () => {
     const component = await mountSuspended(CostsPanel, { global: { stubs, plugins: [pinia] } });
 
     const totalHeading = component.find("#totalHeading");

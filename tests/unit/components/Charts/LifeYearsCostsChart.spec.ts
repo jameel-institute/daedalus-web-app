@@ -102,7 +102,7 @@ describe("life years costs chart", () => {
         "lifeYearsChartContainer",
         expect.objectContaining({
           chart: expect.objectContaining({
-            height: 400,
+            height: 300,
             style: { fontFamily: "ImperialSansText, sans-serif" },
           }),
           exporting: expect.objectContaining({
@@ -153,7 +153,7 @@ describe("life years costs chart", () => {
 
     vi.advanceTimersByTime(25);
 
-    expect(mockSetSize).toHaveBeenCalledWith(0, 400, expect.objectContaining({ duration: 250 }));
+    expect(mockSetSize).toHaveBeenCalledWith(0, 300, expect.objectContaining({ duration: 250 }));
 
     component.unmount();
     expect(removeEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));

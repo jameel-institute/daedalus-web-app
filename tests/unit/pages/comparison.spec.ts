@@ -11,6 +11,7 @@ import { flushPromises } from "@vue/test-utils";
 const stubs = {
   "CIcon": true,
   "CompareCostsChart.client": true,
+  "CompareLifeYearsCostsChart.client": true,
   "CompareTimeSeries.client": true,
 };
 const pinia = mockPinia({
