@@ -87,7 +87,6 @@ describe("fetchRApi", () => {
       await Promise.all([firstRequest, secondRequest, thirdRequest]);
     } finally {
       vi.useRealTimers();
-      resetRApiRequestStagger();
     }
   });
 });

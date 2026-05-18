@@ -18,6 +18,7 @@ export const R_API_REQUEST_STAGGER_MS = 100;
 // In-memory scheduling staggers requests within one Nitro worker; separate
 // worker processes maintain independent schedules.
 let nextRApiRequestStart = 0;
+let rApiRequestSlotQueue = Promise.resolve();
 
 const wait = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
 
@@ -27,19 +28,22 @@ export const resetRApiRequestStagger = () => {
     throw new Error("resetRApiRequestStagger must only be used in tests.");
   }
   nextRApiRequestStart = 0;
+  rApiRequestSlotQueue = Promise.resolve();
 };
 
 export const waitForRApiRequestSlot = async () => {
-  const now = Date.now();
-  const requestStart = Math.max(now, nextRApiRequestStart);
-  // Reserve the slot synchronously before awaiting so concurrent handlers in
-  // this Nitro worker cannot choose the same start time.
-  nextRApiRequestStart = requestStart + R_API_REQUEST_STAGGER_MS;
+  rApiRequestSlotQueue = rApiRequestSlotQueue.then(async () => {
+    const now = Date.now();
+    const requestStart = Math.max(now, nextRApiRequestStart);
+    nextRApiRequestStart = requestStart + R_API_REQUEST_STAGGER_MS;
 
-  const delay = requestStart - now;
-  if (delay > 0) {
-    await wait(delay);
-  }
+    const delay = requestStart - now;
+    if (delay > 0) {
+      await wait(delay);
+    }
+  });
+
+  await rApiRequestSlotQueue;
 };
 
 // Wraps Nuxt's $fetch utility, configuring it for the R API.
