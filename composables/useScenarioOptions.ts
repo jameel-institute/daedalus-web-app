@@ -50,7 +50,8 @@ export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
       return [];
     }
     if (axis.value?.parameterType === TypeOfParameter.Numeric) {
-      return predefinedNumericOptions.value?.filter(o => o.id !== baselineOption.value?.id) || [];
+      const opts = predefinedNumericOptions.value?.filter(o => o.id !== baselineOption.value?.id) || [];
+      return opts.filter((opt, index, self) => index === self.findIndex(o => o.id === opt.id)); // dedupe by id
     }
     return axis.value?.options?.filter(({ id }) => {
       return baselineOption.value && id !== baselineOption.value?.id;

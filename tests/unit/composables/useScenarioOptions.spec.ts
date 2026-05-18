@@ -1,10 +1,12 @@
 import type { Parameter } from "~/types/parameterTypes";
+import { setActivePinia } from "pinia";
 import { mockMetadataResponseData } from "../mocks/mockResponseData";
-import { emptyScenario } from "../mocks/mockPinia";
+import { emptyScenario, mockPinia, updatableNumericParameter } from "../mocks/mockPinia";
 
-beforeAll(() => {
-  const store = useAppStore();
-  store.currentScenario = { ...structuredClone(emptyScenario), parameters: { vaccine: "none", hospital_capacity: "12345" } };
+beforeEach(() => {
+  setActivePinia(mockPinia({
+    currentScenario: { ...structuredClone(emptyScenario), parameters: { vaccine: "none", hospital_capacity: "12345" } },
+  }));
 });
 
 describe("useScenarioOptions composable", () => {
@@ -45,5 +47,36 @@ describe("useScenarioOptions composable", () => {
     expect(baselineOption.value).toEqual({ id: "12345", label: "12,345", description: "" });
     expect(predefinedOptions.value).toHaveLength(0);
     expect(predefinedSelectOptions.value).toHaveLength(0);
+  });
+
+  it("deduplicates predefined numeric options with repeated ids", () => {
+    const store = useAppStore();
+    store.currentScenario = {
+      ...structuredClone(emptyScenario),
+      parameters: {
+        short_list: "no",
+        population: "9999",
+      },
+    };
+
+    const parameterAxis = ref<Parameter>();
+    const { predefinedOptions, predefinedSelectOptions } = useScenarioOptions(parameterAxis);
+
+    parameterAxis.value = {
+      ...structuredClone(updatableNumericParameter),
+      updateNumericFrom: {
+        parameterId: "short_list",
+        values: {
+          no: {
+            min: 1000,
+            default: 1000,
+            max: 4000,
+          },
+        },
+      },
+    };
+
+    expect(predefinedOptions.value.map(option => option.id)).toEqual(["1000", "4000"]);
+    expect(predefinedSelectOptions.value.map(option => option.value)).toEqual(["1000", "4000"]);
   });
 });
