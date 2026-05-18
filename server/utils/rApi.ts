@@ -1,5 +1,6 @@
 import type { H3Event } from "h3";
 import type { NitroFetchOptions, NitroFetchRequest } from "nitropack";
+import process from "node:process";
 
 export interface RApiError {
   error: string
@@ -14,12 +15,17 @@ export interface RApiResponse<T extends object> {
 
 export const R_API_REQUEST_STAGGER_MS = 100;
 
+// In-memory scheduling staggers requests within one Nitro worker; separate
+// worker processes maintain independent schedules.
 let nextRApiRequestStart = 0;
 
 const wait = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
 
 // Test-only helper; do not call during request handling.
 export const resetRApiRequestStagger = () => {
+  if (process.env.NODE_ENV !== "test") {
+    throw new Error("resetRApiRequestStagger must only be used in tests.");
+  }
   nextRApiRequestStart = 0;
 };
 
