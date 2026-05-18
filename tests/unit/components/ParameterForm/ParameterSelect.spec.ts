@@ -36,7 +36,7 @@ describe("parameter select component", () => {
   describe("pathogen tag in selected value display", () => {
     it("shows the influenza tag when the selected pathogen option contains 'influenza'", async () => {
       const component = await mountSuspended(ParameterSelect, {
-        props: { parameter: pathogenParameter, pulsing: false, parameterValue: "influenza_wild" },
+        props: { parameter: pathogenParameter, pulsing: false, parameterValue: "influenza_wild", inModal: true },
         global: { stubs, plugins },
       });
 
@@ -47,7 +47,7 @@ describe("parameter select component", () => {
 
     it("shows the SARS-CoV tag when the selected pathogen option does not contain 'influenza'", async () => {
       const component = await mountSuspended(ParameterSelect, {
-        props: { parameter: pathogenParameter, pulsing: false, parameterValue: "sars_cov_2" },
+        props: { parameter: pathogenParameter, pulsing: false, parameterValue: "sars_cov_2", inModal: true },
         global: { stubs, plugins },
       });
 
@@ -58,7 +58,16 @@ describe("parameter select component", () => {
 
     it("shows no tag text for non-pathogen parameters", async () => {
       const component = await mountSuspended(ParameterSelect, {
-        props: { parameter: responseParameter, pulsing: false, parameterValue: "none" },
+        props: { parameter: responseParameter, pulsing: false, parameterValue: "none", inModal: true },
+        global: { stubs, plugins },
+      });
+
+      expect(component.find(".single-value .pathogenTag").exists()).toBe(false);
+    });
+
+    it("shows no tag text for non-modal parameter select", async () => {
+      const component = await mountSuspended(ParameterSelect, {
+        props: { parameter: pathogenParameter, pulsing: false, parameterValue: "none", inModal: false },
         global: { stubs, plugins },
       });
 
@@ -69,7 +78,7 @@ describe("parameter select component", () => {
   describe("pathogen tags in dropdown options", () => {
     it("tags each option with influenza or SARS-CoV based on the option value", async () => {
       const component = await mountSuspended(ParameterSelect, {
-        props: { parameter: pathogenParameter, pulsing: false, parameterValue: "influenza_wild" },
+        props: { parameter: pathogenParameter, pulsing: false, parameterValue: "influenza_wild", inModal: false },
         global: { stubs, plugins },
       });
 
@@ -94,7 +103,7 @@ describe("parameter select component", () => {
 
     it("shows no tag text on dropdown options for non-pathogen parameters", async () => {
       const component = await mountSuspended(ParameterSelect, {
-        props: { parameter: responseParameter, pulsing: false, parameterValue: "none" },
+        props: { parameter: responseParameter, pulsing: false, parameterValue: "none", inModal: false },
         global: { stubs, plugins },
       });
 
@@ -109,7 +118,7 @@ describe("parameter select component", () => {
   describe("option description", () => {
     it("renders the description in a p element", async () => {
       const component = await mountSuspended(ParameterSelect, {
-        props: { parameter: responseParameter, pulsing: false, parameterValue: "none" },
+        props: { parameter: responseParameter, pulsing: false, parameterValue: "none", inModal: false },
         global: { stubs, plugins },
       });
 
@@ -120,7 +129,7 @@ describe("parameter select component", () => {
 
     it("does not render a description element when description is absent", async () => {
       const component = await mountSuspended(ParameterSelect, {
-        props: { parameter: responseParameter, pulsing: false, parameterValue: "none" },
+        props: { parameter: responseParameter, pulsing: false, parameterValue: "none", inModal: false },
         global: { stubs, plugins },
       });
 
