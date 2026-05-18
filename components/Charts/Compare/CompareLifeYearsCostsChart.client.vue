@@ -188,17 +188,6 @@ watch(() => [chartContainer.value, appStore.everyScenarioHasCosts], () => {
   }
 });
 
-watch(() => costBasis.value, () => {
-  chart?.update({
-    yAxis: {
-      title: {
-        text: costsChartYAxisTitle(LIFE_YEARS_METRIC, costBasis.value, props.diffing),
-      },
-    },
-    series: getSeries(),
-  });
-});
-
 watch(() => props.diffing, () => {
   chart?.update({
     exporting: {
