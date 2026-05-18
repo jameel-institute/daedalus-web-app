@@ -6,7 +6,7 @@ country_obj$hospital_capacity <- 38000
 
 model_result <- daedalus::daedalus(
   country_obj,
-  "sars_cov_1",
+  "influenza_1957",
   response_strategy = "elimination",
   vaccine_investment = "none",
   behaviour = NULL
