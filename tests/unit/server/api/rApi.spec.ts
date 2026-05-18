@@ -65,7 +65,6 @@ describe("fetchRApi", () => {
   it("staggers queued R API request start times", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(0);
-    resetRApiRequestStagger();
 
     try {
       const started: string[] = [];

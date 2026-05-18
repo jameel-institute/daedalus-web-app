@@ -18,6 +18,7 @@ let nextRApiRequestStart = 0;
 
 const wait = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
 
+// Test-only helper; do not call during request handling.
 export const resetRApiRequestStagger = () => {
   nextRApiRequestStart = 0;
 };
@@ -25,6 +26,8 @@ export const resetRApiRequestStagger = () => {
 export const waitForRApiRequestSlot = async () => {
   const now = Date.now();
   const requestStart = Math.max(now, nextRApiRequestStart);
+  // Reserve the slot synchronously before awaiting so concurrent handlers in
+  // this Nitro worker cannot choose the same start time.
   nextRApiRequestStart = requestStart + R_API_REQUEST_STAGGER_MS;
 
   const delay = requestStart - now;
