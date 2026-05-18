@@ -1,7 +1,11 @@
-import { fetchRApi } from "@/server/utils/rApi";
+import { fetchRApi, R_API_REQUEST_STAGGER_MS, resetRApiRequestStagger, waitForRApiRequestSlot } from "@/server/utils/rApi";
 import { registerEndpoint } from "@nuxt/test-utils/runtime";
 
 describe("fetchRApi", () => {
+  beforeEach(() => {
+    resetRApiRequestStagger();
+  });
+
   it("should make a request to the correct URL when given an endpoint", async () => {
     registerEndpoint("/my-endpoint", () => {
       return {
@@ -56,5 +60,35 @@ describe("fetchRApi", () => {
       expect(response.statusCode).toBe(418);
       expect(response.statusText).toBe("I'm a teapot");
     });
+  });
+
+  it("staggers queued R API request start times", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(0);
+    resetRApiRequestStagger();
+
+    try {
+      const started: string[] = [];
+      const firstRequest = waitForRApiRequestSlot().then(() => started.push("first"));
+      const secondRequest = waitForRApiRequestSlot().then(() => started.push("second"));
+      const thirdRequest = waitForRApiRequestSlot().then(() => started.push("third"));
+
+      await vi.advanceTimersByTimeAsync(0);
+      expect(started).toEqual(["first"]);
+
+      await vi.advanceTimersByTimeAsync(R_API_REQUEST_STAGGER_MS - 1);
+      expect(started).toEqual(["first"]);
+
+      await vi.advanceTimersByTimeAsync(1);
+      expect(started).toEqual(["first", "second"]);
+
+      await vi.advanceTimersByTimeAsync(R_API_REQUEST_STAGGER_MS);
+      expect(started).toEqual(["first", "second", "third"]);
+
+      await Promise.all([firstRequest, secondRequest, thirdRequest]);
+    } finally {
+      vi.useRealTimers();
+      resetRApiRequestStagger();
+    }
   });
 });

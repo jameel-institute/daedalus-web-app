@@ -12,6 +12,27 @@ export interface RApiResponse<T extends object> {
   data: T | null
 }
 
+export const R_API_REQUEST_STAGGER_MS = 100;
+
+let nextRApiRequestStart = 0;
+
+const wait = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
+
+export const resetRApiRequestStagger = () => {
+  nextRApiRequestStart = 0;
+};
+
+export const waitForRApiRequestSlot = async () => {
+  const now = Date.now();
+  const requestStart = Math.max(now, nextRApiRequestStart);
+  nextRApiRequestStart = requestStart + R_API_REQUEST_STAGGER_MS;
+
+  const delay = requestStart - now;
+  if (delay > 0) {
+    await wait(delay);
+  }
+};
+
 // Wraps Nuxt's $fetch utility, configuring it for the R API.
 export const fetchRApi = async <T extends object>(
   endpoint: string,
@@ -19,6 +40,7 @@ export const fetchRApi = async <T extends object>(
   event?: H3Event,
 ): Promise<RApiResponse<T>> => {
   const config = useRuntimeConfig(event); // Must be called from inside the composable function. https://nuxt.com/docs/guide/concepts/auto-imports#vue-and-nuxt-composables
+  await waitForRApiRequestSlot();
 
   let errors: Array<RApiError> | null = null;
   let statusCode: number | null = null;
