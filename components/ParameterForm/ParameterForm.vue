@@ -46,6 +46,7 @@
             v-model:parameter-value="formData[parameter.id]"
             :parameter="parameter"
             :pulsing="pulsingParameters.includes(parameter.id)"
+            :in-modal="props.inModal"
             @change="handleChange(parameter)"
           />
         </div>
