@@ -17,7 +17,7 @@
             :class="countryFlagClass(option.value)"
           />
           {{ option.label }}
-          <span v-if="optionTag(option)" :class="`pathogenTag ${optionTag(option)}`" style="padding-top: 0.3rem;">{{ optionTag(option) }}</span>
+          <span v-if="optionTag(option) && props.inModal" :class="`pathogenTag ${optionTag(option)}`" style="padding-top: 0.3rem;">{{ optionTag(option) }}</span>
         </div>
       </template>
       <template #option="{ option }">
@@ -54,6 +54,7 @@ import type { Parameter } from "@/types/parameterTypes";
 const props = defineProps<{
   parameter: Parameter
   pulsing: boolean
+  inModal: boolean
 }>();
 
 defineEmits(["change"]);
