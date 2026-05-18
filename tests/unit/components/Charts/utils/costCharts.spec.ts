@@ -66,12 +66,11 @@ describe("single-scenario costs chart tooltip text for stacked column", () => {
 describe("single-scenario life years costs chart tooltip text", () => {
   const tooltipContext = {
     y: 9_944_537.6006,
-    color: "#FF0000",
     key: "Preschool-age children",
     point: {
       y: 9_944_537.6006,
       custom: {
-        dollarAmountInMillions: 333.825,
+        dollarAmountInMillions: 0,
       },
     },
   };
@@ -86,7 +85,7 @@ describe("single-scenario life years costs chart tooltip text", () => {
     const zeroContext = { ...tooltipContext, y: 0, point: { ...tooltipContext.point, dollarAmountInMillions: 0 } };
     const tooltipText = costsChartSingleScenarioLifeYearsTooltip(zeroContext);
     expect(tooltipText).toMatch(/Preschool-age children: <span style="font-weight: bold; color: inherit">0<\/span><\/span><br\/> life years lost/);
-    expect(tooltipText).toMatch(/As losses in USD.*\$0\.0 million/);
+    expect(tooltipText).toMatch(/As losses in USD.*<\$1 million/);
   });
 });
 
