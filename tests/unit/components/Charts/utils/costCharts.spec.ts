@@ -82,18 +82,11 @@ describe("single-scenario life years costs chart tooltip text", () => {
     expect(tooltipText).toMatch(/As losses in USD.*\$333\.8 million/);
   });
 
-  it("should return undefined when the y value is 0", () => {
-    const zeroContext = { ...tooltipContext, y: 0, point: { ...tooltipContext.point, y: 0 } };
-    expect(costsChartSingleScenarioLifeYearsTooltip(zeroContext)).toBeUndefined();
-  });
-
-  it("should omit the dollar text when dollarAmountInMillions is 0", () => {
-    const noDollarContext = {
-      ...tooltipContext,
-      point: { ...tooltipContext.point, custom: { dollarAmountInMillions: 0 } },
-    };
-    const tooltipText = costsChartSingleScenarioLifeYearsTooltip(noDollarContext);
-    expect(tooltipText).not.toMatch(/As losses in USD/);
+  it("should return the correct tooltip text when the y value is 0", () => {
+    const zeroContext = { ...tooltipContext, y: 0, point: { ...tooltipContext.point, dollarAmountInMillions: 0 } };
+    const tooltipText = costsChartSingleScenarioLifeYearsTooltip(zeroContext);
+    expect(tooltipText).toMatch(/Preschool-age children: <span style="font-weight: bold; color: inherit">0<\/span><\/span><br\/> life years lost/);
+    expect(tooltipText).toMatch(/As losses in USD.*\$0\.0 million/);
   });
 });
 
