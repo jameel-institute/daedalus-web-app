@@ -70,7 +70,7 @@ describe("single-scenario life years costs chart tooltip text", () => {
     point: {
       y: 9_944_537.6006,
       custom: {
-        dollarAmountInMillions: 0,
+        dollarAmountInMillions: 333.825,
       },
     },
   };
