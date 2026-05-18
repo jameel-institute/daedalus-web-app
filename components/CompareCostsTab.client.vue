@@ -23,7 +23,7 @@
       </div>
       <CompareCostsChart :diffing="diffCosts" :chart-height-px="showLifeYearsMetric ? 300 : 500" />
       <div class="d-flex">
-        <CompareLifeYearsLegend v-if="showLifeYearsMetric" class="m-3 ms-auto" />
+        <CompareLifeYearsLegend v-if="showLifeYearsMetric" class="m-2 ms-auto" />
       </div>
       <CompareLifeYearsCostsChart v-if="showLifeYearsMetric" :diffing="diffCosts" :chart-height-px="300" />
     </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white rounded border d-flex align-items-center gap-3 px-2 py-1 shadow-sm">
+  <div class="bg-white rounded border d-flex align-items-center gap-3 p-2 shadow-sm">
     <Legend
       v-for="itemColumn in itemsInColumns"
       :key="itemColumn[0].label"
