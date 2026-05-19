@@ -1,5 +1,11 @@
 <template>
   <div>
+    <BlockedParameterModal
+      :visible="blockedOptionModalVisible"
+      :parameter-label="blockedOptionModal?.parameterLabel ?? ''"
+      :fallback-option-label="blockedOptionModal?.fallbackOptionLabel ?? ''"
+      @close="closeBlockedOptionModal"
+    />
     <CForm
       v-if="paramMetadata && formData && appStore.metadataFetchStatus !== 'error'"
       v-show="mounted"
@@ -28,6 +34,7 @@
       >
         <div v-if="renderAsRadios(parameter)" class="button-group-container">
           <ParameterRadio
+            :key="`${parameter.id}-${blockedOptionResetCounts[parameter.id] ?? 0}`"
             v-model:parameter-value="formData[parameter.id]"
             :parameter="parameter"
             :pulsing="pulsingParameters.includes(parameter.id)"
@@ -39,6 +46,7 @@
             v-model:parameter-value="formData[parameter.id]"
             :parameter="parameter"
             :pulsing="pulsingParameters.includes(parameter.id)"
+            :in-modal="props.inModal"
             @change="handleChange(parameter)"
           />
         </div>
@@ -100,9 +108,21 @@ const formSubmitting = ref(false);
 const showValidations = ref(false);
 const mounted = ref(false);
 const invalidFields = ref<string[]>([]);
+const blockedOptionModalVisible = ref(false);
+const blockedOptionModal = ref<{
+  parameterLabel: string
+  fallbackOptionLabel: string
+} | null>(null);
+const blockedOptionResetCounts = ref<Record<string, number>>({});
 
 const errorOnRunRequest = computed(() => appStore.currentScenario.run.fetchError);
 const paramMetadata = computed(() => appStore.metadata?.parameters);
+
+const query = useRoute().query;
+const blockedOptionsByParameter: Record<string, readonly string[]> = {
+  response: query.unblock === "true" ? [] : ["none", "school_closures", "economic_closures"],
+  behaviour: query.unblock === "true" ? [] : ["low", "medium", "high"],
+};
 
 const initialiseFormDataFromDefaults = () => {
   return paramMetadata.value?.reduce((acc, { id, defaultOption, options, updateNumericFrom }) => {
@@ -167,6 +187,10 @@ const renderAsSelect = (param: Parameter) => {
   return !renderAsRadios(param) && [TypeOfParameter.Select, TypeOfParameter.GlobeSelect].includes(param.parameterType);
 };
 
+const closeBlockedOptionModal = () => {
+  blockedOptionModalVisible.value = false;
+};
+
 // Since some defaults depend on the values of other fields, this function should not be used to initialize form values.
 const defaultValue = (param: Parameter) => {
   if (!formData.value) {
@@ -181,6 +205,45 @@ const defaultValue = (param: Parameter) => {
   // Currently, due to the metadata schema, non-updatable numerics don't have default values available.
 };
 
+const optionIsBlocked = (param: Parameter, optionId: string) => {
+  return blockedOptionsByParameter[param.id]?.includes(optionId) ?? false;
+};
+
+const fallbackValueForParam = (param: Parameter) => {
+  const configuredDefault = defaultValue(param);
+  if (configuredDefault && !optionIsBlocked(param, configuredDefault)) {
+    return configuredDefault;
+  }
+
+  return param.options?.find(option => !optionIsBlocked(param, option.id))?.id;
+};
+
+const optionLabel = (param: Parameter, optionId: string) => {
+  return param.options?.find(option => option.id === optionId)?.label ?? optionId;
+};
+
+const handleBlockedSelection = (param: Parameter, selectedValue: string) => {
+  if (!formData.value || !optionIsBlocked(param, selectedValue)) {
+    return false;
+  }
+
+  const fallbackValue = fallbackValueForParam(param);
+  if (fallbackValue) {
+    formData.value[param.id] = fallbackValue;
+    blockedOptionResetCounts.value[param.id] = (blockedOptionResetCounts.value[param.id] ?? 0) + 1;
+    if (param.parameterType === TypeOfParameter.GlobeSelect) {
+      appStore.globe.highlightedCountry = fallbackValue;
+    }
+  }
+
+  blockedOptionModal.value = {
+    parameterLabel: param.label,
+    fallbackOptionLabel: fallbackValue ? optionLabel(param, fallbackValue) : "the allowed option",
+  };
+  blockedOptionModalVisible.value = true;
+  return true;
+};
+
 const resetParam = (param: Parameter) => {
   formData.value![param.id] = defaultValue(param) as string;
 };
@@ -192,8 +255,11 @@ const pulse = (parameterId: string) => {
   }, 500);
 };
 
-const handleChange = (param: Parameter) => {
+const handleAllowedChange = (param: Parameter) => {
   if (parameterDependencies.value[param.id] === undefined || parameterDependencies.value[param.id]?.length === 0) {
+    if (param.parameterType === TypeOfParameter.GlobeSelect) {
+      appStore.globe.highlightedCountry = formData.value![param.id];
+    };
     return;
   }
 
@@ -212,7 +278,33 @@ const handleChange = (param: Parameter) => {
   };
 };
 
+const handleChange = (param: Parameter) => {
+  const selectedValue = formData.value?.[param.id];
+  if (selectedValue && handleBlockedSelection(param, selectedValue)) {
+    return;
+  }
+
+  handleAllowedChange(param);
+};
+
+const firstBlockedSelection = () => {
+  if (!formData.value || !paramMetadata.value) {
+    return;
+  }
+
+  return paramMetadata.value.find((param) => {
+    const selectedValue = formData.value?.[param.id];
+    return !!selectedValue && optionIsBlocked(param, selectedValue);
+  });
+};
+
 const submitForm = async () => {
+  const blockedParameter = firstBlockedSelection();
+  if (blockedParameter && formData.value?.[blockedParameter.id]) {
+    handleBlockedSelection(blockedParameter, formData.value[blockedParameter.id]);
+    return;
+  }
+
   if (invalidFields.value?.length || !formData.value) {
     showValidations.value = true;
     return;
@@ -231,7 +323,11 @@ const submitForm = async () => {
   await appStore.runScenario(appStore.currentScenario);
 
   if (appStore.currentScenario.runId && !appStore.currentScenario.run.fetchError) {
-    await navigateTo(`/scenarios/${appStore.currentScenario.runId}`);
+    if (query.unblock === "true") {
+      await navigateTo(`/scenarios/${appStore.currentScenario.runId}?unblock=true`);
+    } else {
+      await navigateTo(`/scenarios/${appStore.currentScenario.runId}`);
+    }
   }
 };
 

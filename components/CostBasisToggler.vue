@@ -67,5 +67,5 @@ const scenarioGdpLabel = (scenario: Scenario) => {
 };
 
 const scenarioLabel = (scenario: Scenario) => `${appStore.getScenarioAxisLabel(scenario)}`
-  + `${scenario === appStore.baselineScenario ? " (baseline)" : ""}`;
+  + `${scenario === appStore.baselineScenario ? " (comparison baseline)" : ""}`;
 </script>

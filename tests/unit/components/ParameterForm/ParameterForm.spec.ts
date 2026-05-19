@@ -5,6 +5,7 @@ import { mockNuxtImport, mountSuspended, registerEndpoint } from "@nuxt/test-uti
 import { flushPromises } from "@vue/test-utils";
 import { FetchError } from "ofetch";
 import VueSelect from "vue3-select-component";
+import { TypeOfParameter } from "~/types/parameterTypes";
 import ParameterHeader from "~/components/ParameterForm/ParameterHeader.vue";
 
 const stubs = {
@@ -13,10 +14,12 @@ const stubs = {
 const plugins = [mockPinia({}, true, { stubActions: false })];
 
 // Need to do this in hoisted - see https://developer.mamezou-tech.com/en/blogs/2024/02/12/nuxt3-unit-testing-mock/
-const { mockNavigateTo } = vi.hoisted(() => ({
+const { mockNavigateTo, mockRoute } = vi.hoisted(() => ({
   mockNavigateTo: vi.fn(),
+  mockRoute: vi.fn(),
 }));
 mockNuxtImport("navigateTo", () => mockNavigateTo);
+mockNuxtImport("useRoute", () => mockRoute);
 
 vi.mock("country-iso-3-to-2", () => ({
   default: vi.fn((countryId: string) => {
@@ -39,9 +42,47 @@ const scenarioWithParameters = {
   },
 };
 
+const restrictedOptionsMetadata = {
+  ...mockedMetadata,
+  parameters: [
+    {
+      id: "response",
+      label: "Response",
+      parameterType: TypeOfParameter.Select,
+      defaultOption: "elimination",
+      ordered: true,
+      options: [
+        { id: "none", label: "No closures" },
+        { id: "school_closures", label: "School closures" },
+        { id: "economic_closures", label: "Business closures" },
+        { id: "elimination", label: "Elimination" },
+      ],
+    },
+    {
+      id: "behaviour",
+      label: "Change in public behaviour",
+      parameterType: TypeOfParameter.Select,
+      defaultOption: "none",
+      ordered: true,
+      options: [
+        { id: "none", label: "None" },
+        { id: "low", label: "Low" },
+        { id: "medium", label: "Medium" },
+        { id: "high", label: "High" },
+      ],
+    },
+  ],
+};
+
+const blockedOptionModalTitle = "This parameter is temporarily disabled";
+const blockedOptionGuidance = "For this showcase event";
+
 describe("parameter form", () => {
   beforeEach(() => {
     mockNavigateTo.mockReset();
+    mockRoute.mockReturnValue({
+      query: {},
+    });
   });
 
   it("renders the correct parameter labels, inputs, options, and default values", async () => {
@@ -83,11 +124,11 @@ describe("parameter form", () => {
     await vueSelects[0].find(".dropdown-icon").trigger("click");
     const renderedOptions = vueSelects[0].findAll(".menu .parameter-option");
     expect(renderedOptions.length).toBe(6);
-    expect(renderedOptions[0].find("span").text()).toBe("Option 1");
+    expect(renderedOptions[0].find("div.d-flex").text()).toBe("Option 1");
     expect(renderedOptions[0].find("div.text-dark").text()).toBe("Option 1 description");
-    expect(renderedOptions[1].find("span").text()).toBe("Option 2");
+    expect(renderedOptions[1].find("div.d-flex").text()).toBe("Option 2");
     expect(renderedOptions[1].find("div.text-muted").text()).toBe("Option 2 description");
-    expect(renderedOptions[5].find("span").text()).toBe("Option 6");
+    expect(renderedOptions[5].find("div.d-flex").text()).toBe("Option 6");
     expect(renderedOptions[5].find("div.text-muted").exists()).toBe(false);
 
     expect(vueSelects[1].props("options")).toEqual([
@@ -497,5 +538,167 @@ describe("parameter form", () => {
 
     await flushPromises();
     expect(mockNavigateTo).toBeCalledWith("/scenarios/randomId");
+  });
+
+  it("shows a modal and resets a blocked select option to the allowed default", async () => {
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
+      global: {
+        stubs,
+        plugins: [mockPinia({ metadata: restrictedOptionsMetadata }, false, { stubActions: false })],
+      },
+    });
+
+    const responseSelect = component.findComponent(VueSelect);
+    expect(responseSelect.props("modelValue")).toBe("elimination");
+
+    await responseSelect.vm.$emit("update:modelValue", "economic_closures");
+    await responseSelect.vm.$emit("option-selected");
+    await flushPromises();
+    await nextTick();
+
+    const modal = component.find('[role="dialog"]');
+    expect(responseSelect.props("modelValue")).toBe("elimination");
+    expect(modal.exists()).toBe(true);
+    expect(modal.isVisible()).toBe(true);
+    const modalText = modal.text();
+    expect(modalText).toContain(blockedOptionModalTitle);
+    expect(modalText).toContain(blockedOptionGuidance);
+    expect(modalText).toContain("we have limited the response strategy");
+    expect(modalText).toContain("Response");
+    expect(modalText).toContain("has been reset to");
+    expect(modalText).toContain("Elimination");
+  });
+
+  it("shows a modal and resets a blocked radio option to the allowed default", async () => {
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
+      global: {
+        stubs,
+        plugins: [mockPinia({ metadata: restrictedOptionsMetadata }, false, { stubActions: false })],
+      },
+    });
+
+    await component.find("input[id='behaviour-high']").setChecked();
+    await flushPromises();
+    await nextTick();
+
+    const modal = component.find('[role="dialog"]');
+    expect(component.find("input[id='behaviour-none']").element.checked).toBe(true);
+    expect(modal.exists()).toBe(true);
+    expect(modal.isVisible()).toBe(true);
+    const modalText = modal.text();
+    expect(modalText).toContain(blockedOptionModalTitle);
+    expect(modalText).toContain("we have limited the options for the change in public behaviour");
+    expect(modalText).toContain("has been reset to");
+    expect(modalText).toContain("Change in public behaviour");
+    expect(modalText).toContain("None");
+  });
+
+  it("allows a blocked select option when the unblock query is present", async () => {
+    mockRoute.mockReturnValue({
+      query: {
+        unblock: "true",
+      },
+    });
+
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
+      global: {
+        stubs,
+        plugins: [mockPinia({ metadata: restrictedOptionsMetadata }, false, { stubActions: false })],
+      },
+    });
+
+    const responseSelect = component.findComponent(VueSelect);
+
+    await responseSelect.vm.$emit("update:modelValue", "economic_closures");
+    await responseSelect.vm.$emit("option-selected");
+    await nextTick();
+
+    expect(responseSelect.props("modelValue")).toBe("economic_closures");
+    expect(component.text()).not.toContain(blockedOptionModalTitle);
+  });
+
+  it("allows a blocked radio option when the unblock query is present", async () => {
+    mockRoute.mockReturnValue({
+      query: {
+        unblock: "true",
+      },
+    });
+
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
+      global: {
+        stubs,
+        plugins: [mockPinia({ metadata: restrictedOptionsMetadata }, false, { stubActions: false })],
+      },
+    });
+
+    await component.find("input[id='behaviour-high']").setChecked();
+    await nextTick();
+
+    expect(component.find("input[id='behaviour-high']").element.checked).toBe(true);
+    expect(component.text()).not.toContain(blockedOptionModalTitle);
+  });
+
+  it("prevents submitting a form that already contains a blocked option", async () => {
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
+      global: {
+        stubs,
+        plugins: [mockPinia({
+          metadata: restrictedOptionsMetadata,
+          currentScenario: {
+            ...emptyScenario,
+            parameters: {
+              response: "none",
+              behaviour: "none",
+            },
+          },
+        }, false, { stubActions: false })],
+      },
+    });
+
+    await component.find("button[type='submit']").trigger("click");
+    await nextTick();
+
+    const modalText = component.text();
+    expect(component.findComponent(VueSelect).props("modelValue")).toBe("elimination");
+    expect(modalText).toContain(blockedOptionModalTitle);
+    expect(modalText).toContain("Response");
+    expect(mockNavigateTo).not.toBeCalled();
+  });
+
+  it("preserves the unblock query when navigating after a successful submission", async () => {
+    mockRoute.mockReturnValue({
+      query: {
+        unblock: "true",
+      },
+    });
+
+    registerEndpoint("/api/scenarios", {
+      method: "POST",
+      async handler(event) {
+        const body = JSON.parse(event.node.req.body);
+        const parameters = body.parameters;
+
+        if (parameters.long_list === "1" && parameters.region === "HVN" && parameters.short_list === "no") {
+          return { runId: "randomId" };
+        }
+
+        return { error: "Test failed due to wrong parameters" };
+      },
+    });
+
+    const component = await mountSuspended(ParameterForm, {
+      props: { inModal: false },
+      global: { stubs, plugins },
+    });
+
+    await component.find("button[type='submit']").trigger("click");
+    await flushPromises();
+
+    expect(mockNavigateTo).toBeCalledWith("/scenarios/randomId?unblock=true");
   });
 });

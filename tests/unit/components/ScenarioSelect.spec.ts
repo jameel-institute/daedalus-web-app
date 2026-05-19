@@ -70,7 +70,7 @@ describe("scenario select", () => {
     expect(comboBox.attributes("role")).toBe("combobox");
     expect(comboBox.attributes("aria-labelledby")).toBe("formLabelId");
     expect(comboBox.attributes("aria-required")).toBe("true");
-    expect(comboBox.attributes("aria-description")).toBe("Select up to 5 options to compare against baseline");
+    expect(comboBox.attributes("aria-description")).toBe("Select up to 5 options to compare against your baseline");
 
     await openMenu(wrapper);
 
@@ -446,7 +446,7 @@ describe("scenario select", () => {
 
     const feedback = wrapper.find(".invalid-tooltip");
     expect(feedback.isVisible()).toBe(true);
-    expect(feedback.text()).toContain("Please select at least 1 scenario to compare against the baseline");
+    expect(feedback.text()).toContain("Please select at least 1 scenario to compare against your baseline");
 
     await openMenu(wrapper);
     // Select all options
@@ -454,7 +454,7 @@ describe("scenario select", () => {
     options.forEach(option => option.trigger("click"));
     await wrapper.vm.$nextTick();
 
-    expect(feedback.text()).toContain("You can compare up to 5 scenarios against the baseline");
+    expect(feedback.text()).toContain("You can compare up to 5 scenarios against your baseline");
     expect(feedback.isVisible()).toBe(true);
   });
 
@@ -485,5 +485,131 @@ describe("scenario select", () => {
     await wrapper.vm.$nextTick();
 
     expect(wrapper.text()).toContain("No options found");
+  });
+
+  describe("pathogen tags in selected value chips", () => {
+    it("shows the influenza tag in a chip when an influenza option is selected", async () => {
+      const wrapper = mount(ScenarioSelect, {
+        props: {
+          showValidationFeedback: false,
+          parameterAxis: pathogenParameter,
+          labelId: "formLabelId",
+          selected: ["influenza_2009"],
+        },
+        global: { stubs, plugins },
+      });
+
+      const chip = wrapper.find("button.multi-value");
+      expect(chip.find(".pathogenTag").classes()).toContain("influenza");
+      expect(chip.find(".pathogenTag").text()).toBe("influenza");
+    });
+
+    it("shows the SARS-CoV tag in a chip when a SARS-CoV option is selected", async () => {
+      const wrapper = mount(ScenarioSelect, {
+        props: {
+          showValidationFeedback: false,
+          parameterAxis: pathogenParameter,
+          labelId: "formLabelId",
+          selected: ["sars_cov_2_pre_alpha"],
+        },
+        global: { stubs, plugins },
+      });
+
+      const chip = wrapper.find("button.multi-value");
+      expect(chip.find(".pathogenTag").classes()).toContain("SARS-CoV");
+      expect(chip.find(".pathogenTag").text()).toBe("SARS-CoV");
+    });
+
+    it("shows no tag in chips for non-pathogen parameters", async () => {
+      const wrapper = mount(ScenarioSelect, {
+        props: {
+          showValidationFeedback: false,
+          parameterAxis: responseParameter,
+          labelId: "formLabelId",
+          selected: ["school_closures"],
+        },
+        global: { stubs, plugins },
+      });
+
+      const chip = wrapper.find("button.multi-value");
+      expect(chip.find(".pathogenTag").exists()).toBe(false);
+    });
+  });
+
+  describe("pathogen tags in dropdown options", () => {
+    it("tags each option with influenza or SARS-CoV based on the option value", async () => {
+      const wrapper = mount(ScenarioSelect, {
+        props: {
+          showValidationFeedback: false,
+          parameterAxis: pathogenParameter,
+          labelId: "formLabelId",
+          selected: [],
+        },
+        global: { stubs, plugins },
+      });
+
+      await openMenu(wrapper);
+
+      const influenzaOption = getOptionFromMenu(wrapper, "Influenza 2009");
+      expect(influenzaOption!.find(".pathogenTag").classes()).toContain("influenza");
+      expect(influenzaOption!.find(".pathogenTag").text()).toBe("influenza");
+
+      const sarsOption = getOptionFromMenu(wrapper, "Covid-19 wild-type");
+      expect(sarsOption!.find(".pathogenTag").classes()).toContain("SARS-CoV");
+      expect(sarsOption!.find(".pathogenTag").text()).toBe("SARS-CoV");
+    });
+
+    it("shows no tag on dropdown options for non-pathogen parameters", async () => {
+      const wrapper = mount(ScenarioSelect, {
+        props: {
+          showValidationFeedback: false,
+          parameterAxis: responseParameter,
+          labelId: "formLabelId",
+          selected: [],
+        },
+        global: { stubs, plugins },
+      });
+
+      await openMenu(wrapper);
+
+      const options = wrapper.findAll(".menu .parameter-option");
+      options.forEach(option => expect(option.find(".pathogenTag").exists()).toBe(false));
+    });
+  });
+
+  describe("option description", () => {
+    it("renders the description in a p element", async () => {
+      const wrapper = mount(ScenarioSelect, {
+        props: {
+          showValidationFeedback: false,
+          parameterAxis: responseParameter,
+          labelId: "formLabelId",
+          selected: [],
+        },
+        global: { stubs, plugins },
+      });
+
+      await openMenu(wrapper);
+
+      const option = getOptionFromMenu(wrapper, "School closures");
+      expect(option!.find("p.text-xs").text()).toBe("A response strategy of mostly school closures");
+    });
+
+    it("does not render a description element when description is absent", async () => {
+      const wrapper = mount(ScenarioSelect, {
+        props: {
+          showValidationFeedback: false,
+          parameterAxis: pathogenParameter,
+          labelId: "formLabelId",
+          selected: [],
+        },
+        global: { stubs, plugins },
+      });
+
+      await openMenu(wrapper);
+
+      const option = getOptionFromMenu(wrapper, "Influenza 2009");
+      expect(option!.find("p.text-xs").exists()).toBe(false);
+    });
   });
 });

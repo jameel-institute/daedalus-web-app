@@ -17,7 +17,7 @@
       :is-taggable="parameterIsNumeric"
       :filter-by="filterBy"
       :close-on-select="false"
-      :placeholder="`Select up to ${MAX_SCENARIOS_COMPARED_TO_BASELINE} options to compare against baseline`"
+      :placeholder="`Select up to ${MAX_SCENARIOS_COMPARED_TO_BASELINE} options to compare against your baseline`"
       @option-created="(value) => handleCreateOption(value)"
       @option-deselected="(option) => option ? handleDeselectOption(option.value) : null"
       @menu-opened="menuOpen = true"
@@ -26,16 +26,21 @@
     >
       <template #option="{ option }">
         <div class="parameter-option">
-          <span
-            v-if="parameterAxis.id === appStore.globeParameter?.id"
-            :class="countryFlagClass(option.value)"
-          />
-          <span>{{ option.label }}</span>
+          <div class="d-flex gap-2 align-items-center">
+            <span
+              v-if="parameterAxis.id === appStore.globeParameter?.id"
+              :class="countryFlagClass(option.value)"
+            />
+            {{ option.label }}
+            <span v-if="optionTag(option)" :class="`pathogenTag ${optionTag(option)}`" style="margin-left: auto;">{{ optionTag(option) }}</span>
+          </div>
           <div
             v-if="option.description"
             class="text-muted"
           >
-            <small>{{ option.description }}</small>
+            <p class="text-xs mb-0 ms-1">
+              {{ option.description }}
+            </p>
           </div>
         </div>
       </template>
@@ -52,6 +57,13 @@
           @click="removeOption"
         >
           {{ option.label }}
+          <span
+            v-if="optionTag(option)"
+            :class="`pathogenTag ${optionTag(option)}`"
+            style="padding-top: 0.3rem; margin-top: -0.2rem;"
+          >
+            {{ optionTag(option) }}
+          </span>
           <CIcon
             size="sm"
             class="text-secondary"
@@ -86,10 +98,10 @@
     </VueSelect>
     <div v-if="showValidationFeedback" class="invalid-tooltip">
       <span v-if="tooFewScenarios">
-        Please select at least {{ MIN_SCENARIOS_COMPARED_TO_BASELINE }} scenario to compare against the baseline.
+        Please select at least {{ MIN_SCENARIOS_COMPARED_TO_BASELINE }} scenario to compare against your baseline.
       </span>
       <span v-else-if="tooManyScenarios">
-        You can compare up to {{ MAX_SCENARIOS_COMPARED_TO_BASELINE }} scenarios against the baseline.
+        You can compare up to {{ MAX_SCENARIOS_COMPARED_TO_BASELINE }} scenarios against your baseline.
       </span>
       <span v-else-if="numericInvalid">
         Some of the selected scenarios are not valid numbers.
@@ -109,11 +121,10 @@ import { CIcon } from "@coreui/icons-vue";
 import VueSelect from "vue3-select-component";
 import { type Parameter, TypeOfParameter } from "~/types/parameterTypes";
 import { MAX_SCENARIOS_COMPARED_TO_BASELINE, MIN_SCENARIOS_COMPARED_TO_BASELINE } from "~/components/utils/comparisons";
-import type { ParameterSelectOption } from "./utils/parameters";
-import { commaSeparatedNumber, formatOptionLabel, stringIsInteger } from "./utils/formatters";
-import { getRangeForDependentParam, sortOptions } from "./utils/parameters";
+import { getRangeForDependentParam, type ParameterSelectOption, pathogenOptionTag, sortOptions } from "./utils/parameters";
 import { numericValueIsOutOfRange } from "~/components/utils/validations";
 import { countryFlagClass } from "~/components/utils/countryFlag";
+import { commaSeparatedNumber, formatOptionLabel, stringIsInteger } from "./utils/formatters";
 
 const { showValidationFeedback, parameterAxis, labelId } = defineProps<{
   showValidationFeedback: boolean
@@ -151,6 +162,8 @@ const rangeText = computed(() => `${dependedOnParamOptionLabel.value} (${depende
 const isOutOfRange = (value: string) => numericValueIsOutOfRange(value, parameterAxis, appStore.currentScenario.parameters);
 const valuesOutOfRange = computed(() => selected.value.concat(baselineOption.value?.id ?? []).filter(o => isOutOfRange(o)));
 const showWarning = computed(() => parameterIsNumeric.value && valuesOutOfRange.value.length > 0);
+
+const optionTag = (option: ParameterSelectOption) => pathogenOptionTag(parameterAxis.id, option.value);
 
 const optionAlreadySelected = (value: string) => selected.value.includes(value);
 
@@ -253,6 +266,29 @@ onMounted(() => {
 
   .search-input::placeholder {
     opacity: 0.5;
+  }
+}
+
+.parameter-option,
+.multi-value {
+  .pathogenTag {
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.25rem;
+    margin-left: 0.5rem;
+    height: 1.2rem;
+
+    &.influenza {
+      background-color: var(--cui-info-bg-subtle);
+      color: var(--cui-info-text-emphasis);
+    }
+
+    &.SARS-CoV {
+      background-color: var(--cui-warning-bg-subtle);
+      color: var(--cui-warning-text-emphasis);
+    }
   }
 }
 </style>

@@ -14,7 +14,7 @@
               prefetch-on="interaction"
               :to="`/scenarios/${appStore.baselineScenario?.runId}`"
             >
-              Baseline scenario
+              Baseline for this comparison
             </NuxtLink>
           </div>
         </template>

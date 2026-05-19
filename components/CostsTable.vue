@@ -42,7 +42,7 @@
     <tbody id="costs-table-body">
       <tr class="bg-white fw-medium">
         <td class="ps-2">
-          {{ props.diffing ? "Net losses relative to baseline" : "Total losses" }}
+          {{ props.diffing ? "Net losses relative to comparison baseline" : "Total losses" }}
           {{ appStore.preferences.costBasis === CostBasis.PercentGDP ? "as % of GDP" : "(USD)" }}
         </td>
         <td
@@ -90,7 +90,7 @@
       </tr>
       <tr class="bg-white">
         <td class="ps-2">
-          Life years lost {{ props.diffing ? "relative to baseline" : "" }}
+          Life years lost {{ props.diffing ? "relative to comparison baseline" : "" }}
         </td>
         <td
           v-for="(scenario) in sortedScenarios"
@@ -120,7 +120,7 @@
       </tr>
       <tr class="bg-white">
         <td class="ps-2">
-          Deaths {{ props.diffing ? "relative to baseline" : "" }}
+          Deaths {{ props.diffing ? "relative to comparison baseline" : "" }}
         </td>
         <td
           v-for="(scenario) in sortedScenarios"
@@ -161,7 +161,10 @@ const { sortedScenarios } = useSortedScenarios(scenarios);
 const scenarioLabel = (scenario: Scenario) => appStore.getScenarioAxisLabel(scenario);
 
 const displayValue = (scenario: Scenario, costId: string, metricId: string): string | undefined => {
-  const cost = appStore.getScenarioCostById(scenario, costId)!;
+  const cost = appStore.getScenarioCostById(scenario, costId);
+  if (!cost) {
+    return;
+  }
   const val = props.diffing ? diffAgainstBaseline(cost, metricId) : getValueFromCost(cost, metricId);
   if (val === undefined) {
     return;

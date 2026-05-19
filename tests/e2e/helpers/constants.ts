@@ -1,5 +1,6 @@
 export const runIdMatcher = "[a-f0-9]{32}";
-export const scenarioPathMatcher = `scenarios/${runIdMatcher}`;
+const optionalQueryParameters = "(\\?.+)?";
+export const scenarioPathMatcher = `scenarios/${runIdMatcher}${optionalQueryParameters}`;
 
 export const parameterLabels = {
   country: "Country",
@@ -18,7 +19,7 @@ export const decimalUSDMatcher = "(\\$\\d{1,3}(,\\d{3})*(\\.\\d{1,4})?[TBMK]|<\\
 export const decimalUSDMatcherAllowNegatives = "(-?\\$\\d{1,3}(,\\d{3})*(\\.\\d{1,4})?[TBMK]|<\\$1 M)";
 
 export const tableRowLabels = [
-  "(Net|Total) losses (relative to baseline )?(as % of GDP|\\(USD\\))",
+  "(Net|Total) losses (relative to comparison baseline )?(as % of GDP|\\(USD\\))",
   "GDP",
   "Closures",
   "Absences",

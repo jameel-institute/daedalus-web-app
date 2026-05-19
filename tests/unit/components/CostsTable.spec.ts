@@ -365,7 +365,7 @@ describe("costs table for all scenarios in a comparison", () => {
     expect(headerText).not.toContain("Medium");
 
     const componentText = component.text();
-    expect(component.find("tbody tr").text()).toContain("Net losses relative to baseline (USD)");
+    expect(component.find("tbody tr").text()).toContain("Net losses relative to comparison baseline (USD)");
     let numberOfNegativeDifferences = 0;
     Array.from(componentText.matchAll(/-\$?\d/g)).forEach(() => {
       numberOfNegativeDifferences++;
@@ -373,9 +373,9 @@ describe("costs table for all scenarios in a comparison", () => {
     expect(numberOfNegativeDifferences).toEqual(expectedCostsForNoneScenario.length + expectedLifeYearsNaturalUnitsCostsForNoneScenario.length);
 
     const rows = component.findAll("tbody tr");
-    expect(rows[expectedCostsForNoneScenario.length + 1].text()).toContain("Life years lost relative to baseline");
+    expect(rows[expectedCostsForNoneScenario.length + 1].text()).toContain("Life years lost relative to comparison baseline");
     const deathRow = rows[expectedCostsForNoneScenario.length + expectedLifeYearsNaturalUnitsCostsForNoneScenario.length + 2];
-    expect(deathRow.text()).toContain("Deaths relative to baseline");
+    expect(deathRow.text()).toContain("Deaths relative to comparison baseline");
     expect(deathRow.text()).toContain("+366K"); // A positive difference including '+' sign
 
     const vslModalComponentText = await openVslModal(component);

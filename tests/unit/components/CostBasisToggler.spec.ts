@@ -107,7 +107,7 @@ describe("cost basis toggler", () => {
     const tooltipTrigger = component.find("button");
     await expectTooltipContents(tooltipTrigger, [
       "the following pre-pandemic GDPs",
-      "United Kingdom (baseline): $19,863.0 billion",
+      "United Kingdom (comparison baseline): $19,863.0 billion",
       "United States: $123.5 billion",
     ]);
   });

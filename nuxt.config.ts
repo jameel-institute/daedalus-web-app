@@ -38,9 +38,9 @@ export default defineNuxtConfig({
     },
     routeRules: {
       "/": { redirect: "/scenarios/new" },
-      "/api/versions": cacheRoute(60),
-      "/api/metadata": cacheRoute(60),
-      "/api/scenarios/*/result": cacheRoute(60),
+      "/api/versions": cacheRoute(86400),
+      "/api/metadata": cacheRoute(86400),
+      "/api/scenarios/*/result": cacheRoute(86400),
     },
   },
 
