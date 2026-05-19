@@ -18,7 +18,7 @@ registerEndpoint(`/scenario/results/${runId}`, {
   handler: mockedScenarioResultResponse,
 });
 
-describe("requesting a scenario status", () => {
+describe("requesting a scenario result", () => {
   describe("when a run ID is not provided", () => {
     it("should return a 'Bad request' response", async () => {
       const response = await getScenarioResult(undefined);
