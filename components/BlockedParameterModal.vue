@@ -11,11 +11,11 @@
       </CModalTitle>
     </CModalHeader>
     <CModalBody v-if="parameterLabel">
-      <p>
-        For the purposes of the launch event on 19 May 2026, the &lsquo;{{ parameterLabel }}&rsquo; parameter should be left unchanged, to match the baseline scenario for the interactive activity.
+      <p v-if="parameterLabel === 'Response'">
+        For this showcase event, we have limited the response strategy that can be adopted to a severe one. The EPPI team can tell you more about the full range of strategies that are normally available via the Daedalus model.
       </p>
-      <p>
-        You are encouraged to try changing the disease, response, global vaccine investment, and hospital capacity parameters to explore how investments may affect the results under a variety of possible pandemics.
+      <p v-if="parameterLabel === 'Change in public behaviour'">
+        For this showcase event, we have limited the options for the change in public behaviour. The EPPI team can tell you more about the full range of strategies that are normally available via the Daedalus model.
       </p>
       <p v-if="fallbackOptionLabel" class="mb-0">
         &lsquo;{{ parameterLabel }}&rsquo; has been reset to &lsquo;{{ fallbackOptionLabel }}&rsquo;.

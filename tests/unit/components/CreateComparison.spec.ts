@@ -41,8 +41,7 @@ mockNuxtImport("navigateTo", () => mockNavigateTo);
 mockNuxtImport("useRoute", () => mockRoute);
 
 const blockedOptionModalTitle = "This parameter is temporarily disabled";
-const blockedOptionGuidance = "For the purposes of the launch event on 19 May 2026, the";
-const blockedOptionEncouragement = "You are encouraged to try changing";
+const blockedOptionGuidance = "For this showcase event";
 
 const getModalEl = (wrapper: VueWrapper) => {
   return wrapper.find("[aria-labelledby='chooseAxisModalTitle']");
@@ -261,7 +260,7 @@ describe("create comparison button and modal", () => {
     expect(wrapper.find(".alert").text()).toContain("Thailand: 22,000");
   });
 
-  it("shows a modal and keeps the axis unselected when a blocked axis is chosen", async () => {
+  it("shows a modal and keeps the axis unselected when response axis is chosen", async () => {
     const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
 
     await openModal(wrapper);
@@ -272,9 +271,22 @@ describe("create comparison button and modal", () => {
     expect(modalText).toContain(blockedOptionModalTitle);
     expect(modalText).toContain(blockedOptionGuidance);
     expect(modalText).toContain("Response");
-    expect(modalText).toContain("parameter should be left unchanged, to match the baseline scenario for the interactive activity.");
-    expect(modalText).toContain(blockedOptionEncouragement);
-    expect(modalText).not.toContain("has been reset to");
+    expect(modalText).toContain("has been reset to");
+    expectModalHasNoAxisSelected(wrapper);
+  });
+
+  it("shows a modal and keeps the axis unselected when behaviour axis is chosen", async () => {
+    const wrapper = await mountSuspended(CreateComparison, { global: { stubs, plugins } });
+
+    await openModal(wrapper);
+    const behaviourButton = getBehaviourButton(getModalEl(wrapper).find("#axisOptions"));
+    await behaviourButton.trigger("click");
+
+    const modalText = getBlockedOptionModalEl(wrapper).text();
+    expect(modalText).toContain(blockedOptionModalTitle);
+    expect(modalText).toContain(blockedOptionGuidance);
+    expect(modalText).toContain("Behaviour");
+    expect(modalText).toContain("has been reset to");
     expectModalHasNoAxisSelected(wrapper);
   });
 

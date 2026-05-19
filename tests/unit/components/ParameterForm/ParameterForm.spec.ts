@@ -75,8 +75,7 @@ const restrictedOptionsMetadata = {
 };
 
 const blockedOptionModalTitle = "This parameter is temporarily disabled";
-const blockedOptionGuidance = "For the purposes of the launch event on 19 May 2026, the";
-const blockedOptionEncouragement = "You are encouraged to try changing";
+const blockedOptionGuidance = "For this showcase event";
 
 describe("parameter form", () => {
   beforeEach(() => {
@@ -565,9 +564,8 @@ describe("parameter form", () => {
     const modalText = modal.text();
     expect(modalText).toContain(blockedOptionModalTitle);
     expect(modalText).toContain(blockedOptionGuidance);
+    expect(modalText).toContain("we have limited the response strategy");
     expect(modalText).toContain("Response");
-    expect(modalText).toContain("parameter should be left unchanged, to match the baseline scenario for the interactive activity.");
-    expect(modalText).toContain(blockedOptionEncouragement);
     expect(modalText).toContain("has been reset to");
     expect(modalText).toContain("Elimination");
   });
@@ -591,10 +589,9 @@ describe("parameter form", () => {
     expect(modal.isVisible()).toBe(true);
     const modalText = modal.text();
     expect(modalText).toContain(blockedOptionModalTitle);
-    expect(modalText).toContain("Change in public behaviour");
-    expect(modalText).toContain("parameter should be left unchanged, to match the baseline scenario for the interactive activity.");
-    expect(modalText).toContain(blockedOptionEncouragement);
+    expect(modalText).toContain("we have limited the options for the change in public behaviour");
     expect(modalText).toContain("has been reset to");
+    expect(modalText).toContain("Change in public behaviour");
     expect(modalText).toContain("None");
   });
 
@@ -670,7 +667,6 @@ describe("parameter form", () => {
     expect(component.findComponent(VueSelect).props("modelValue")).toBe("elimination");
     expect(modalText).toContain(blockedOptionModalTitle);
     expect(modalText).toContain("Response");
-    expect(modalText).toContain("parameter should be left unchanged, to match the baseline scenario for the interactive activity.");
     expect(mockNavigateTo).not.toBeCalled();
   });
 
