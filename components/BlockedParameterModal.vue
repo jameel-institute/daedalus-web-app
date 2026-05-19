@@ -11,10 +11,10 @@
       </CModalTitle>
     </CModalHeader>
     <CModalBody v-if="parameterLabel">
-      <p v-if="parameterLabel === 'Response'">
+      <p v-if="parameterLabel === 'Response'" :class="fallbackOptionLabel ? '' : 'mb-0'">
         For this showcase event, we have limited the response strategy that can be adopted to a severe one. The EPPI team can tell you more about the full range of strategies that are normally available via the Daedalus model.
       </p>
-      <p v-if="parameterLabel === 'Change in public behaviour'">
+      <p v-if="parameterLabel === 'Change in public behaviour'" :class="fallbackOptionLabel ? '' : 'mb-0'">
         For this showcase event, we have limited the options for the change in public behaviour. The EPPI team can tell you more about the full range of strategies that are normally available via the Daedalus model.
       </p>
       <p v-if="fallbackOptionLabel" class="mb-0">

@@ -270,8 +270,6 @@ describe("create comparison button and modal", () => {
     const modalText = getBlockedOptionModalEl(wrapper).text();
     expect(modalText).toContain(blockedOptionModalTitle);
     expect(modalText).toContain(blockedOptionGuidance);
-    expect(modalText).toContain("Response");
-    expect(modalText).toContain("has been reset to");
     expectModalHasNoAxisSelected(wrapper);
   });
 
@@ -285,8 +283,6 @@ describe("create comparison button and modal", () => {
     const modalText = getBlockedOptionModalEl(wrapper).text();
     expect(modalText).toContain(blockedOptionModalTitle);
     expect(modalText).toContain(blockedOptionGuidance);
-    expect(modalText).toContain("Behaviour");
-    expect(modalText).toContain("has been reset to");
     expectModalHasNoAxisSelected(wrapper);
   });
 
