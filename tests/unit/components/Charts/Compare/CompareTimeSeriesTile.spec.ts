@@ -32,12 +32,10 @@ describe("timeSeriesGroup component", () => {
     const expectedTimeSeries = mockedMetadata.results.time_series.find(t => t.id === "hospitalised") as DisplayInfo;
     expect(stubbedTimeSeriesComponent.props("timeSeriesMetadata")).toEqual(expectedTimeSeries);
 
-    component.setProps({ isDaily: true });
-    await nextTick();
+    await component.setProps({ isDaily: true });
     expect(stubbedTimeSeriesComponent.props("showCapacities")).toBe(false);
 
-    component.setProps({ isDaily: false });
-    await nextTick();
+    await component.setProps({ isDaily: false });
     expect(stubbedTimeSeriesComponent.props("showCapacities")).toBe(true);
 
     const showCapacitiesSwitch = component.getComponent({ name: "CFormSwitch" });
@@ -45,8 +43,7 @@ describe("timeSeriesGroup component", () => {
 
     expect(stubbedTimeSeriesComponent.props("showCapacities")).toBe(false);
 
-    component.setProps({ isDaily: true });
-    await nextTick();
+    await component.setProps({ isDaily: true });
     expect(stubbedTimeSeriesComponent.props("showCapacities")).toBe(false);
   });
 

@@ -23,14 +23,14 @@ const metadata = {
 } as Metadata;
 
 describe("useCapacitiesPlotLines", () => {
-  it("should compute capacities plot lines and update y axis correctly", async () => {
+  it("should compute capacities plot lines and update y axis correctly, for multiple capacities on a single scenario", async () => {
     setActivePinia(mockPinia({ metadata }, false, { stubActions: false }));
     const store = useAppStore();
     store.currentScenario = {
       runId: "scenario_1",
       result: {
         data: {
-          capacities: undefined,
+          capacities: [],
         },
       },
     };
@@ -62,18 +62,11 @@ describe("useCapacitiesPlotLines", () => {
     const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(
       showCapacities,
       yAxis,
-      store.currentScenario,
+      () => [store.currentScenario],
     );
 
     expect(initialCapacitiesPlotLines).toEqual([]);
     expect(initialMinRange).toBeUndefined();
-    expect(mockRemovePlotLine).not.toHaveBeenCalled();
-    expect(mockAddPlotLine).not.toHaveBeenCalled();
-
-    store.currentScenario.result.data.capacities = [];
-    await nextTick();
-
-    expect(mockUpdate).not.toHaveBeenCalled();
     expect(mockRemovePlotLine).not.toHaveBeenCalled();
     expect(mockAddPlotLine).not.toHaveBeenCalled();
 
@@ -128,8 +121,108 @@ describe("useCapacitiesPlotLines", () => {
     expect(mockAddPlotLine).toHaveBeenCalledTimes(expectedCallsToAddPlotLine);
     expect(mockAddPlotLine.mock.lastCall).toEqual([expect.objectContaining({
       id: "icu_capacity-2500-scenario_1",
-      label: expect.objectContaining({ text: "ICU capacity: 2,500" }),
+      label: expect.objectContaining({ text: "" }), // No label when multiple capacities
       value: 2500,
+    })]);
+  });
+
+  it("should compute capacities plot lines and update y axis correctly, for multiple capacities across multiple scenarios", async () => {
+    setActivePinia(mockPinia({ metadata }, false, { stubActions: false }));
+    const store = useAppStore();
+    store.currentComparison = {
+      axis: "hospital_capacity",
+      baseline: "1000",
+      scenarios: [{
+        runId: "scenario_1",
+        result: {
+          data: {
+            capacities: [],
+          },
+        },
+      }, {
+        runId: "scenario_2",
+        result: {
+          data: {
+            capacities: [],
+          },
+        },
+      }],
+    };
+    store.metadata = mockMetadataResponseData;
+
+    let expectedCallsToAddPlotLine = 0;
+    let expectedCallsToRemovePlotLine = 0;
+
+    const showCapacities = ref(true);
+    const yAxis = ref({
+      update: vi.fn(arg => mockUpdate(arg)),
+      removePlotLine: vi.fn(arg => mockRemovePlotLine(arg)),
+      addPlotLine: vi.fn(arg => mockAddPlotLine(arg)),
+    } as unknown as Highcharts.Axis);
+
+    const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(
+      showCapacities,
+      yAxis,
+      () => store.currentComparison.scenarios,
+    );
+
+    expect(initialCapacitiesPlotLines).toEqual([]);
+    expect(initialMinRange).toBeUndefined();
+    expect(mockRemovePlotLine).not.toHaveBeenCalled();
+    expect(mockAddPlotLine).not.toHaveBeenCalled();
+
+    store.currentComparison.scenarios = [{
+      runId: "scenario_1",
+      result: {
+        data: {
+          capacities: [{
+            id: "hospital_capacity",
+            value: 1000,
+          }],
+        },
+      },
+    }, {
+      runId: "scenario_2",
+      result: {
+        data: {
+          capacities: [{
+            id: "hospital_capacity",
+            value: 2000,
+          }],
+        },
+      },
+    }];
+
+    expectedCallsToAddPlotLine += 2;
+    await nextTick();
+
+    expect(mockUpdate).toHaveBeenCalledWith({ minRange: 2000 });
+    expect(mockRemovePlotLine).not.toHaveBeenCalled();
+    expect(mockAddPlotLine).toHaveBeenCalledTimes(expectedCallsToAddPlotLine);
+    expect(mockAddPlotLine.mock.lastCall).toEqual([expect.objectContaining({
+      id: "hospital_capacity-2000-scenario_2",
+      label: expect.objectContaining({ text: "" }), // No label when multiple capacities
+      value: 2000,
+    })]);
+
+    showCapacities.value = false;
+    expectedCallsToRemovePlotLine += 2;
+    await nextTick();
+
+    expect(mockRemovePlotLine).toHaveBeenCalledTimes(expectedCallsToRemovePlotLine);
+    expect(mockRemovePlotLine.mock.lastCall).toEqual(["hospital_capacity-2000-scenario_2"]);
+    expect(mockAddPlotLine).toHaveBeenCalledTimes(expectedCallsToAddPlotLine);
+
+    showCapacities.value = true;
+    expectedCallsToAddPlotLine += 2;
+    await nextTick();
+
+    expect(mockRemovePlotLine).toHaveBeenCalledTimes(expectedCallsToRemovePlotLine);
+    expect(mockAddPlotLine).toHaveBeenCalledTimes(expectedCallsToAddPlotLine);
+    expect(mockAddPlotLine.mock.lastCall).toEqual([expect.objectContaining({
+      id: "hospital_capacity-2000-scenario_2",
+      label: expect.objectContaining({ text: "" }), // No label when multiple capacities
+      value: 2000,
     })]);
   });
 });

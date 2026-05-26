@@ -61,7 +61,7 @@ const data = computed(() => getTimeSeriesDataPoints(appStore.currentScenario, pr
 const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(
   () => props.timeSeriesMetadata.id === "hospitalised", // https://mrc-ide.myjetbrains.com/youtrack/issue/JIDEA-118/
   () => chart.value?.yAxis[0],
-  appStore.currentScenario,
+  () => [appStore.currentScenario],
 );
 
 const { initialInterventionsPlotBands } = useInterventionPlotBands(
