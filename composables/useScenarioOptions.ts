@@ -1,6 +1,7 @@
 import { type Parameter, type ParameterOption, TypeOfParameter } from "~/types/parameterTypes";
 import { getRangeForDependentParam, paramOptsToSelectOpts } from "~/components/utils/parameters";
 import { commaSeparatedNumber } from "~/components/utils/formatters";
+import type { DisplayInfo } from "~/types/apiResponseTypes";
 
 export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
   const appStore = useAppStore();
@@ -50,8 +51,14 @@ export default (parameterAxis: MaybeRefOrGetter<Parameter | undefined>) => {
       return [];
     }
     if (axis.value?.parameterType === TypeOfParameter.Numeric) {
-      const opts = predefinedNumericOptions.value?.filter(o => o.id !== baselineOption.value?.id) || [];
-      return opts.filter((opt, index, self) => index === self.findIndex(o => o.id === opt.id)); // dedupe by id
+      const filteredOpts: DisplayInfo[] = [];
+      predefinedNumericOptions.value?.forEach((o) => {
+        // Exclude the baseline, and de-dupe by id.
+        if (o.id !== baselineOption.value?.id && !filteredOpts.find(x => x.id === o.id)) {
+          filteredOpts.push(o);
+        }
+      });
+      return filteredOpts;
     }
     return axis.value?.options?.filter(({ id }) => {
       return baselineOption.value && id !== baselineOption.value?.id;
