@@ -101,9 +101,15 @@ const hoveredScenario = computed(() => appStore.currentComparison.scenarios.find
   return runId === props.synchPoint?.series?.options?.custom?.scenarioId;
 }));
 
-const capacitiesForegroundedScenario = computed(() => {
-  const hoveredChartShowsCapacities = props.synchPoint?.series?.options?.custom?.showCapacities === true;
-  return hoveredChartShowsCapacities ? hoveredScenario.value : appStore.baselineScenario;
+// If the parameter by which we are comparing scenarios is a kind of capacity, then scenarios' capacities will vary, so
+// we should show capacities for each scenario. Otherwise, we only need to show capacities for the baseline scenario.
+const scenariosToShowCapacities = computed(() => {
+  const capacityIds = appStore.metadata?.results.capacities.map(c => c.id) ?? [];
+  const comparingByCapacity = !!appStore.currentComparison.axis && capacityIds.includes(appStore.currentComparison.axis);
+
+  return comparingByCapacity
+    ? appStore.currentComparison.scenarios
+    : [appStore.baselineScenario].filter(s => !!s);
 });
 
 // Plot the capacities as plot lines for whichever scenario's series is being hovered,
@@ -113,7 +119,7 @@ const capacitiesForegroundedScenario = computed(() => {
 const { initialCapacitiesPlotLines, initialMinRange } = useCapacitiesPlotLines(
   () => props.showCapacities,
   () => chart.value?.yAxis[0],
-  capacitiesForegroundedScenario,
+  scenariosToShowCapacities,
 );
 
 const interventionsForegroundedScenario = computed(() => {
